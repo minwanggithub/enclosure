@@ -849,6 +849,18 @@
                 .find('.k-edit-form-container')
                 .width(620)
                 .height(475);
+
+
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdDocumentNotes").data("kendoGrid");
+                var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
+                grid.dataSource.read();
+                if (selectedDataItem) {
+                    var uid = grid.dataSource.get(selectedDataItem.id).uid;
+                    grid.select('tr[data-uid="' + uid + '"]');
+                }
+            });
+   
         };
 
         var onGdDocumentNoteDataBound = function (e) {
@@ -859,7 +871,6 @@
                     $(this).addClass("k-state-selected");
                 }
             });
-
         };
 
         var onGridEditChangeTitle = function (e) {

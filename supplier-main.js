@@ -1,8 +1,8 @@
-﻿;(function($) {
+﻿; (function ($) {
     if ($.fn.complibSupplier == null) {
         $.fn.complibSupplier = {
-    
-    };
+
+        };
     }
 
     $.fn.complibSupplier = function () {
@@ -79,7 +79,7 @@
         }
 
         //----------------------start of normal public func---------------------------
-        var initializeSupplierLibrary = function(){
+        var initializeSupplierLibrary = function () {
             menuHelper.turnMenuActive($("#menuOperations"));
 
             $("#DetailSupplier").on("focusin", "#FormIdentification", function (e) {
@@ -202,7 +202,7 @@
             }, 500);
         };
 
-        var onGetObtainmentSettingId = function() {
+        var onGetObtainmentSettingId = function () {
             return {
                 ObtainmentSettingID: obtainmentSettingId
             };
@@ -307,12 +307,12 @@
         };
 
 
-        var gdSupplierContacts_Change = function(e) {
+        var gdSupplierContacts_Change = function (e) {
             e.preventDefault();
             var data = this.dataItem(this.select());
             //var url = '@Url.Action("GetSupplierContactDetail", "Company")';
             var url = "../Company/GetSupplierContactDetail";
-            $.post(url, { supplierId: data.SupplierId, supplierContactId: data.SupplierContactId }, function(result) {
+            $.post(url, { supplierId: data.SupplierId, supplierContactId: data.SupplierContactId }, function (result) {
                 $("#CompanyContactDetailResult").html($(result));
             });
         };
@@ -380,21 +380,21 @@
             //Handle the expand event
         };
 
-        var getSupplierId = function() {
+        var getSupplierId = function () {
             var supplierId = $("#SupplierId").val();
             return {
                 SupplierId: supplierId
             };
         };
 
-        var gdSupplierFacility_Remove = function(e) {
+        var gdSupplierFacility_Remove = function (e) {
             if (e.type == "destroy") {
                 $("#SupplierFacilitiesDetail").html("");
             }
         };
 
-        
-        var gdObtainmentSettings_Change =  function (e) {
+
+        var gdObtainmentSettings_Change = function (e) {
             e.preventDefault();
             var data = this.dataItem(this.select());
             obtainmentSettingId = data.ObtainmentSettingID;
@@ -416,17 +416,16 @@
             e.model.set("FacilityCountry", val);
         };
 
-
-    
-
-
         var docGridSave_ContactAddress = function (e) {
             var val = $("#CompanyContactCountry").data().kendoDropDownList.value();
             e.model.set("CompanyContactCountry", val);
         };
 
         var EditSupplierNotes = function (e) {
+            e.preventDefault();
+
             onGridEditChangeTitle(e);
+
             var datetext = $('#SupplierNoteUpdatedDate').val();
             if (datetext != '') {
                 var updatedate = new Date(datetext);
@@ -437,15 +436,29 @@
                 $(".k-edit-form-container").parent().width(645).height(550).data("kendoWindow").center();
                 $(".k-edit-form-container").width(620).height(500);
             }, 100);
+
+            $("[title='Cancel']", "div.k-widget.k-window").click(function () {
+                var grid = $("#gdSupplierNotes").data("kendoGrid");
+                var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
+                grid.dataSource.read();
+                if (selectedDataItem) {
+                    var uid = grid.dataSource.get(selectedDataItem.id).uid;
+                    grid.select('tr[data-uid="' + uid + '"]');
+                }
+            });
+
         };
 
-        var SelectSupplierNotes = function(e) {
+        var SelectSupplierNotes = function (e) {
             e.preventDefault();
-            var selectedData = this.dataItem(this.select());
+
+            var selectedObj = this.select();
+            var selectedData = this.dataItem(selectedObj);
+            this.element.attr("SelectedSupplierNotesId", selectedData.SupplierNotesId);
             //var url = '@Url.Action("GetSupplierNotesText", "Company")';
             var url = "../Company/GetSupplierNotesText";
             $.post(url, { supplierId: selectedData.SupplierId, supplierNotesId: selectedData.SupplierNotesId },
-                function(data) {
+                function (data) {
                     $('#SupplierNotesText').html(data);
                 });
         };
@@ -455,7 +468,7 @@
             $('#SupplierNotesText').html("");
         };
 
-        var additionalDataContact =  function () {
+        var additionalDataContact = function () {
             var supplierContactId = $("#SupplierContactId").val();
             return {
                 supplierContactId: supplierContactId
@@ -487,6 +500,12 @@
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
+
+            var selectedRow = $('tr.k-state-selected', e.sender.table);
+            $(cancel).on("click", function () {
+                selectedRow.attr('test');
+            });
+
         };
 
 
@@ -669,6 +688,7 @@
         };
 
         var onGdFacilityAddressDataBound = function (e) {
+            alert("hello1");
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     DisableGridInLineEditing("gdFacilityAddress");
@@ -708,11 +728,21 @@
 
 
         var onGdSupplierNotesDataBound = function (e) {
+
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     DisableGridInLineEditing("gdSupplierNotes");
                 }, 200);
             }
+
+            var selectedsuppliernotesid = $('#gdSupplierNotes').attr("selectedsuppliernotesid");
+            $('tr', '#gdSupplierNotes').each(function (e) {
+                var suppliernotesid = $("td[style='display:none']", $(this)).text();
+                if (suppliernotesid == selectedsuppliernotesid) {
+                    $(this).addClass("k-state-selected");
+                }
+            });
+
         };
 
         var onGdSupplierContactsDataBound = function (e) {
@@ -761,6 +791,8 @@
                 });
             }
         };
+
+
         //======Security group Read-Only Integration Section Ends
 
 
@@ -889,7 +921,7 @@
                 GetCompany();
             }
         };
-      
+
         var fnSaveObtainmentSettings = function () {
 
             var validator = $("#FormObtainmentSettingDetail").kendoValidator({
@@ -972,11 +1004,10 @@
         };
 
 
-       
         //----------------------end of callbacks-----------------------
 
 
-        var initObtainmentSettingWiring = function() {
+        var initObtainmentSettingWiring = function () {
             $("#DetailSupplier").on("click", "#btnAddContact", fnbtnAddContact);
             $("#DetailSupplier").on("click", "#btnAddWebSite", fnbtnAddWebSite);
             $("#DetailSupplier").on("click", "#ObtainmentSettingDoNotObtain", fnEnableDoNotObtain);
@@ -1000,6 +1031,7 @@
             grid.dataSource.read();
             grid.dataSource.page(1);
         };
+
 
         var QueueQuery = function (txtCntrlId, gridid) {
             txtCntrlId = "#" + txtCntrlId;
@@ -1069,7 +1101,7 @@
             docGridSave_ContactAddress: docGridSave_ContactAddress,
             EditSupplierNotes: EditSupplierNotes,
 
-            SelectSupplierNotes : SelectSupplierNotes,
+            SelectSupplierNotes: SelectSupplierNotes,
             ClearNoteText: ClearNoteText,
             additionalDataContact: additionalDataContact,
             additionalDataFacility: additionalDataFacility,
@@ -1110,10 +1142,10 @@
 
     ////Initialize
     $(function () {
-        
 
 
-        
+
+
 
         //--------------------start of _SearchSupplierNew.cshtml-----------------------
 
