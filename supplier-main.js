@@ -767,7 +767,7 @@
                             var note = $(this).html();
                             var ii = note.indexOf("SupplierNoteText");
                             if (ii >= 0) {
-                                var notesText = note.substr(17, txt.length);
+                                var notesText = note.substr(18, note.length);
                                 $('#SupplierNotesText').html(notesText);
                             }
                         }); //inner loop

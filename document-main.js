@@ -861,12 +861,28 @@
 
         var onGdDocumentNoteDataBound = function (e) {
             var selecteddocumentnotesid = $('#gdDocumentNotes').attr("selecteddocumentnotesid");
-            $('tr', '#gdDocumentNotes').each(function (e) {
-                var documentnotesid = $("td[style='display:none']", $(this)).text();
-                if (documentnotesid == selecteddocumentnotesid) {
-                    $(this).addClass("k-state-selected");
+            $('td', '#gdDocumentNotes').each(function (e) {
+                var txt = $(this).html();
+                var i = txt.indexOf("DocumentNoteId");
+                if (i >= 0) {
+                    var documentnotesid = txt.substr(16, txt.length);
+                    if (documentnotesid == selecteddocumentnotesid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+
+                        $('td', parent).each(function (e) {
+                            var note = $(this).html();
+                            var ii = note.indexOf("Notes");
+                            if (ii >= 0) {
+                                var notesText = note.substr(7, note.length);
+                                $('#DocumentNotesText').html(notesText);
+                            }
+                        }); //inner loop
+                    }
                 }
-            });
+
+            }); //outer loop
+
         };
 
         var onGridEditChangeTitle = function (e) {
