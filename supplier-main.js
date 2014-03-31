@@ -688,7 +688,7 @@
         };
 
         var onGdFacilityAddressDataBound = function (e) {
-            alert("hello1");
+            
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     DisableGridInLineEditing("gdFacilityAddress");
