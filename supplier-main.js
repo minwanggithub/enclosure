@@ -226,6 +226,9 @@
             var selectedRow = grid.select();
             var selectedIndex = selectedRow.index();
 
+            var data = this.dataItem(selectedRow);
+            this.element.attr("SelectedWebSiteId", data.CompanyWebsiteId);
+
             var inverted = $("#gdWebSite").find("tr td a.inverturl");
             if (inverted.length > 0) inverted.removeClass("inverturl");
 
@@ -421,7 +424,7 @@
             e.model.set("CompanyContactCountry", val);
         };
 
-        var EditSupplierNotes = function (e) {
+        var EditSupplierNotes = function(e) {
             e.preventDefault();
 
             onGridEditChangeTitle(e);
@@ -431,11 +434,6 @@
                 var updatedate = new Date(datetext);
                 $('#SupplierNoteUpdatedDate').val(getCustomDateFormat(updatedate));
             }
-            window.setTimeout(function () {
-                $("#SupplierNoteText").kendoEditor({ encoded: false });
-                $(".k-edit-form-container").parent().width(645).height(550).data("kendoWindow").center();
-                $(".k-edit-form-container").width(620).height(500);
-            }, 100);
 
             $("[title='Cancel']", "div.k-widget.k-window").click(function () {
                 var grid = $("#gdSupplierNotes").data("kendoGrid");
@@ -446,6 +444,12 @@
                     grid.select('tr[data-uid="' + uid + '"]');
                 }
             });
+
+            window.setTimeout(function () {
+                $("#SupplierNoteText").kendoEditor({ encoded: false });
+                $(".k-edit-form-container").parent().width(645).height(550).data("kendoWindow").center();
+                $(".k-edit-form-container").width(620).height(500);
+            }, 100);
 
         };
 
@@ -500,11 +504,16 @@
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
-
-            var selectedRow = $('tr.k-state-selected', e.sender.table);
-            $(cancel).on("click", function () {
-                selectedRow.attr('test');
-            });
+            
+            //$(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+            //    var grid = $("#gdWebSite").data("kendoGrid");
+            //    var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
+            //    grid.dataSource.read();
+            //    if (selectedDataItem) {
+            //        var uid = grid.dataSource.get(selectedDataItem.id).uid;
+            //        grid.select('tr[data-uid="' + uid + '"]');
+            //    }
+            //});
 
         };
 
@@ -655,6 +664,15 @@
                     DisableGridInLineEditing("gdWebSite");
                 }, 200);
             }
+
+            var selecteddocumentnotesid = $('#gdWebSite').attr("selectedwebsiteid");
+            $('tr', '#gdWebSite').each(function (e) {
+                var websiteid = $("td[style='display:none']", $(this)).text();
+                if (websiteid == selecteddocumentnotesid) {
+                    $(this).addClass("k-state-selected");
+                }
+            });
+
         };
 
         var onGdAliasDataBound = function (e) {
@@ -736,12 +754,27 @@
             }
 
             var selectedsuppliernotesid = $('#gdSupplierNotes').attr("selectedsuppliernotesid");
-            $('tr', '#gdSupplierNotes').each(function (e) {
-                var suppliernotesid = $("td[style='display:none']", $(this)).text();
-                if (suppliernotesid == selectedsuppliernotesid) {
-                    $(this).addClass("k-state-selected");
+            $('td', '#gdSupplierNotes').each(function (e) {
+                var txt = $(this).html();
+                var i = txt.indexOf("SupplierNotesId");
+                if (i >= 0) {
+                    var suppliernotesid = txt.substr(17, txt.length);
+                    if (suppliernotesid == selectedsuppliernotesid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+
+                        $('td', parent).each(function(e) {
+                            var note = $(this).html();
+                            var ii = note.indexOf("SupplierNoteText");
+                            if (ii >= 0) {
+                                var notesText = note.substr(17, txt.length);
+                                $('#SupplierNotesText').html(notesText);
+                            }
+                        }); //inner loop
+                    }
                 }
-            });
+                
+            }); //outer loop
 
         };
 
