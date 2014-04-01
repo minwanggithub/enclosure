@@ -219,11 +219,18 @@
                     alert("No row selected");
                     return;
                 }
+
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
                 supplierSearchDialog.data("kendoWindow").close();
 
                 BindingSaveCancel(activeSupplierIndex);
+
+                var currenturl = window.location.href;
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + data.id;
+                window.open(url, "_blank");
+
             });
 
             $("#gdSearchSupplier").dblclick(function(e) {
