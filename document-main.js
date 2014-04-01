@@ -559,18 +559,68 @@
             return true;
         };
 
+
+        function dispatch(id, containerTypeId, parentDocumentId) { //id is grid id
+            console.log("hitting dispatch: id: {0};  containerTypeId:{1}", id, containerTypeId);
+            var dataSource = $("#" + id).data("kendoGrid").dataSource;
+            var filters = dataSource.filter();
+            var allData = dataSource.data();
+            var query = new kendo.data.Query(allData);
+            var filteredData = query.filter(filters).data;
+
+            //var url = '@Url.Action("DocumentKitAndGroup_Update", "Document", new { Area = "Operations" })';
+            var currenturl = window.location.href;
+            var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
+            var url = indexArea + "Document/DocumentKitAndGroup_Update";
+
+            var childDocumentIdSet = [];
+            $.each(filteredData, function (index, item) {
+                childDocumentIdSet.push(item.ReferenceId);
+            });
+
+            console.log("childDocumentIdSet: ", childDocumentIdSet);
+            $.each(filteredData, function (index, item) {
+                $.post(url, {
+                    parentDocumentId: parentDocumentId,
+                    containerTypeId: containerTypeId,
+                    childDocumentId: item.ReferenceId,
+                    orderSequenceOffset: index,
+                    childDocumentIdSet: JSON.stringify(childDocumentIdSet)
+                }, function (data) {
+                    //var grid = $("#gdSupplierFacilities").data("kendoGrid");
+                    //grid.dataSource.read();
+                    //$('#SupplierFacilitiesDetail').html(data);
+                    console.log("after posted, data: ", data);
+                });
+            });
+        }
         var saveDocumentDetail = function () {
             var form = $("#documentRevisionTab").updateValidation();
             if (form.valid()) {
                 var url = form.attr("action");
                 var formData = form.serialize();
-                $.post(url, formData, function (data) {
+                $.post(url, formData, function(data) {
                     //                $('.form-reset').click();
                     //                $('#CreatedMessage').html(data);
                     //if (data.TitleChanged === true) {
                     //}
-
+                    console.log("within saveDocumentDetail, retrieved data: ", data);
                     if (data.NewDocument) {
+                        var containerTypeId = 0;
+                        var containerOption = $("#ContainerTypeId").val();
+                        if (containerOption == "2") //2 ---> kit
+                        {
+                            containerTypeId = 1; //Kit parent
+                        } else if (containerOption == "3") //3 --->group
+                        {
+                            containerTypeId = 4; //Group parent
+                        }
+                        
+                        if (containerTypeId == 1 || containerTypeId == 4) {
+                            console.log("within saveDocumentDetail, to save with  containerTypeId", containerTypeId);
+                            dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId);
+                        }
+
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
                         alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
@@ -588,13 +638,18 @@
                     if (data.NewRevision == true) {
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
                         docNode.hasChildren = true;
+                        console.log("within saveDocumentDetail, is a new document: ", data.NewRevision);
                     }
 
                     var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
                     var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
                     selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
+                    console.log("within saveDocumentDetail, selectedNode: ", selectedNode);
                     repopulateTreeBranch(form, docNode);
+                    console.log("within saveDocumentDetail, done tree update");
                 });
+            } else {
+                console.log("within saveDocumentDetail, form is not valid");
             }
         };
 
@@ -767,6 +822,10 @@
             });
 
             $("#gdSearchSupplier").dblclick(function (e) {
+                selectSupplier();
+            });
+
+            $('div.k-widget').dblclick(function (e) {
                 selectSupplier();
             });
 
@@ -957,6 +1016,8 @@
         $("#DocumentDetail").hide();
         $("#eeeSideBar").sidemenu();
         menuHelper.turnMenuActive($("#menuOperations"));
+
+      
     });
 
 })(jQuery);
