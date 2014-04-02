@@ -825,10 +825,6 @@
                 selectSupplier();
             });
 
-            $('div.k-widget').dblclick(function (e) {
-                selectSupplier();
-            });
-
             //End initializee supplier serach dialog		    
             //Add more action triggered by panel activation
 
