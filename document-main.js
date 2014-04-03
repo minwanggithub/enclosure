@@ -684,7 +684,11 @@
             });
 
             $("#addNewDocumentBtn").click(function (e) {
-                $("#tvProductSearchResult").data("kendoTreeView").dataSource.data([]);
+                //at certain time, tv has not been created so we need to guard this cond
+                var tv = $("#tvProductSearchResult").data("kendoTreeView");
+                if(tv != null)
+                    tv.dataSource.data([]);
+
                 loadDocumentDetail(0, 0);
                 $("#DocumentDetail").show();
 
