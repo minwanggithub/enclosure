@@ -443,8 +443,8 @@
         var EditSupplierNotes = function(e) {
             e.preventDefault();
 
-            onGridEditChangeTitle();
-            
+            onGridEditChangeTitle(e);
+          
             var datetext = $('#SupplierNoteUpdatedDate').val();
             if (datetext != '') {
                 var updatedate = new Date(datetext);
@@ -457,7 +457,7 @@
                 $(".k-edit-form-container").width(620).height(500);
             }, 100);
 
-            $("[title='Cancel']", "div.k-widget.k-window").click(function () {
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdSupplierNotes").data("kendoGrid");
                 var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
                 grid.dataSource.read();
