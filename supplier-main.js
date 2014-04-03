@@ -442,9 +442,9 @@
 
         var EditSupplierNotes = function(e) {
             e.preventDefault();
-          
-            onGridEditChangeTitle(e);
 
+            onGridEditChangeTitle();
+            
             var datetext = $('#SupplierNoteUpdatedDate').val();
             if (datetext != '') {
                 var updatedate = new Date(datetext);
@@ -458,7 +458,7 @@
             }, 100);
 
             $("[title='Cancel']", "div.k-widget.k-window").click(function () {
-                var grid = $("#gdWebSite").data("kendoGrid");
+                var grid = $("#gdSupplierNotes").data("kendoGrid");
                 var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
                 grid.dataSource.read();
                 if (selectedDataItem) {
@@ -520,6 +520,13 @@
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
+        };
+
+        var onGridEditChangeWebSite = function (e) {
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+            $(update).attr('title', 'Save');
+            $(cancel).attr('title', 'Cancel');
 
             //hide CompanyWebsiteId from the pop up edit form.
             $("label[for='CompanyWebsiteId']").parent().hide();
@@ -532,7 +539,6 @@
             });
 
         };
-
 
         //======Security group Read-Only Integration Section Starts
         var onSupplierIdentificationActivate = function (e) {
@@ -852,7 +858,7 @@
 
             // Get the selected item and attempt to get the information to be displayed to the document note text area
             var data = this.dataItem(this.select());
-            this.element.attr("selectedfacilityaddressid", data.SupplierFacilityAddressId);
+            this.element.attr("selectedcontactaddressid", data.CompanyContactAddressId);
         };
 
         
@@ -1213,7 +1219,7 @@
             additionalDataFacility: additionalDataFacility,
             serialize: serialize,
             onGridEditChangeTitle: onGridEditChangeTitle,
-
+            onGridEditChangeWebSite: onGridEditChangeWebSite,
 
             onSupplierIdentificationActivate: onSupplierIdentificationActivate,
             onFaciltyGeneralActivate: onFaciltyGeneralActivate,
