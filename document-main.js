@@ -975,6 +975,26 @@
                 }, 200);
             }
         };
+
+     
+        var OnddlContainerTypeSelect = function (e) {
+
+            $("#dvImageQuality").show();
+            $("#dvDocSource").show();
+            $("#dvVersionNUmber").show();
+
+            //hide image quality and version number if kit is selected
+            if (e.item.index() == "2") {
+                $("#dvImageQuality").hide();
+                $("#dvVersionNUmber").hide();
+            }
+            //hide image quality and document source if  group is selected
+            if (e.item.index() == "3") {
+                $("#dvImageQuality").hide();
+                $("#dvDocSource").hide();
+            }
+            
+        };
         //Expose to public
 
         return {
@@ -1004,6 +1024,7 @@
             onGridEditChangeTitle: onGridEditChangeTitle,
             onSaveNameNumber: onSaveNameNumber,
             onRequestEnd: onRequestEnd,
+            OnddlContainerTypeSelect : OnddlContainerTypeSelect
         };
     };
 
