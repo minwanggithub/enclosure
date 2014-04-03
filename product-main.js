@@ -207,7 +207,7 @@
             });
 
             $("#searchSupplierIdSelect").click(function (e) {
-                
+
                 var grid = $("#gdSearchSupplier").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
                     //$("#popupSupplierSearch").modal("hide");
@@ -219,18 +219,11 @@
                     alert("No row selected");
                     return;
                 }
-
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
                 supplierSearchDialog.data("kendoWindow").close();
 
                 BindingSaveCancel(activeSupplierIndex);
-
-                var currenturl = window.location.href;
-                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + data.id;
-                window.open(url, "_blank");
-
             });
 
             $("#gdSearchSupplier").dblclick(function(e) {
@@ -421,6 +414,16 @@
                     $('#txtSupplierSearch').val("");
                     return false;
                 });
+            });
+
+            //(SH) 4-2-2014
+            $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
+
+                var supplierID = GetSupplierId();
+                var currenturl = window.location.href;
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierID;
+                window.open(url, "_blank");
             });
 
             //Add doc parts
