@@ -419,14 +419,30 @@
             e.model.set("FacilityCountry", val);
         };
 
-        var docGridSave_ContactAddress = function (e) {
+        var onGdFacilityAddressChange = function (e) {
+            e.preventDefault();
+
+            // Get the selected item and attempt to get the information to be displayed to the document note text area
+            var data = this.dataItem(this.select());
+            this.element.attr("selectedfacilityaddressid", data.SupplierFacilityAddressId);
+        };
+
+        var onGdFacilityAddressEdit = function (e) {
+
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdFacilityAddress").data("kendoGrid");
+                grid.dataSource.read();
+            });
+        };
+
+        var onGdContactAddressSave = function (e) {
             var val = $("#CompanyContactCountry").data().kendoDropDownList.value();
             e.model.set("CompanyContactCountry", val);
         };
 
         var EditSupplierNotes = function(e) {
             e.preventDefault();
-
+          
             onGridEditChangeTitle(e);
 
             var datetext = $('#SupplierNoteUpdatedDate').val();
@@ -434,9 +450,15 @@
                 var updatedate = new Date(datetext);
                 $('#SupplierNoteUpdatedDate').val(getCustomDateFormat(updatedate));
             }
+    
+            window.setTimeout(function () {
+                $("#SupplierNoteText").kendoEditor({ encoded: false });
+                $(".k-edit-form-container").parent().width(645).height(550).data("kendoWindow").center();
+                $(".k-edit-form-container").width(620).height(500);
+            }, 100);
 
             $("[title='Cancel']", "div.k-widget.k-window").click(function () {
-                var grid = $("#gdSupplierNotes").data("kendoGrid");
+                var grid = $("#gdWebSite").data("kendoGrid");
                 var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
                 grid.dataSource.read();
                 if (selectedDataItem) {
@@ -444,12 +466,6 @@
                     grid.select('tr[data-uid="' + uid + '"]');
                 }
             });
-
-            window.setTimeout(function () {
-                $("#SupplierNoteText").kendoEditor({ encoded: false });
-                $(".k-edit-form-container").parent().width(645).height(550).data("kendoWindow").center();
-                $(".k-edit-form-container").width(620).height(500);
-            }, 100);
 
         };
 
@@ -504,19 +520,18 @@
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
-            
-            //$(".k-button.k-button-icontext.k-grid-cancel").click(function () {
-            //    var grid = $("#gdWebSite").data("kendoGrid");
-            //    var selectedDataItem = grid.dataSource.getByUid(grid.select().data("uid"));
-            //    grid.dataSource.read();
-            //    if (selectedDataItem) {
-            //        var uid = grid.dataSource.get(selectedDataItem.id).uid;
-            //        grid.select('tr[data-uid="' + uid + '"]');
-            //    }
-            //});
+
+            //hide CompanyWebsiteId from the pop up edit form.
+            $("label[for='CompanyWebsiteId']").parent().hide();
+            $('#CompanyWebsiteId').parent().hide();
+
+            //reload website Grid.
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdWebSite").data("kendoGrid");
+                grid.dataSource.read();
+            });
 
         };
-
 
 
         //======Security group Read-Only Integration Section Starts
@@ -666,12 +681,19 @@
             }
 
             var selecteddocumentnotesid = $('#gdWebSite').attr("selectedwebsiteid");
-            $('tr', '#gdWebSite').each(function (e) {
-                var websiteid = $("td[style='display:none']", $(this)).text();
-                if (websiteid == selecteddocumentnotesid) {
-                    $(this).addClass("k-state-selected");
+
+            $('td', '#gdWebSite').each(function (e) {
+                var txt = $(this).html();
+                var i = txt.indexOf("CompanyWebsiteId");
+                if (i >= 0) {
+                    var websiteid = txt.substr(18, txt.length);
+                    if (websiteid == selecteddocumentnotesid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+                    }
                 }
-            });
+
+            }); 
 
         };
 
@@ -712,6 +734,21 @@
                     DisableGridInLineEditing("gdFacilityAddress");
                 }, 200);
             }
+
+            var selectedfacilityaddressid = $('#gdFacilityAddress').attr("selectedfacilityaddressid");
+            $('td', '#gdFacilityAddress').each(function (e) {
+                var txt = $(this).html();
+                var i = txt.indexOf("SupplierFacilityAddressId");
+                if (i >= 0) {
+                    var addressid = txt.substr(27, txt.length);
+                    if (addressid == selectedfacilityaddressid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+                    }
+                }
+
+            });
+
         };
 
         var onGdFacilityPhoneDataBound = function (e) {
@@ -792,6 +829,42 @@
                     DisableGridInLineEditing("gdContactAddress");
                 }, 200);
             }
+        
+            var selectedcontactaddressid = $('#gdContactAddress').attr("selectedcontactaddressid");
+            $('td', '#gdContactAddress').each(function (e) {
+                var txt = $(this).html();
+                var i = txt.indexOf("CompanyContactAddressId");
+                if (i >= 0) {
+                    var addressid = txt.substr(25, txt.length);
+                    if (addressid == selectedcontactaddressid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+                    }
+                }
+
+            }); 
+
+        };
+
+        
+        var onGdContactAddressChange = function (e) {
+            e.preventDefault();
+
+            // Get the selected item and attempt to get the information to be displayed to the document note text area
+            var data = this.dataItem(this.select());
+            this.element.attr("selectedfacilityaddressid", data.SupplierFacilityAddressId);
+        };
+
+        
+        var onGdContactAddressEdit = function (e) {
+            //hide CompanyContactAddressId from the pop up edit form.
+            $("label[for='CompanyContactAddressId']").parent().hide();
+            $('#CompanyContactAddressId').parent().hide();
+
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdContactAddress").data("kendoGrid");
+                grid.dataSource.read();
+            });
         };
 
         var onGdContactPhoneDataBound = function (e) {
@@ -1131,7 +1204,7 @@
             gdObtainmentSettings_Change: gdObtainmentSettings_Change,
             gdObtainmentSettings_Remove: gdObtainmentSettings_Remove,
             docGridSave_FacilityAddress: docGridSave_FacilityAddress,
-            docGridSave_ContactAddress: docGridSave_ContactAddress,
+            onGdContactAddressSave: onGdContactAddressSave,
             EditSupplierNotes: EditSupplierNotes,
 
             SelectSupplierNotes: SelectSupplierNotes,
@@ -1156,6 +1229,8 @@
             onGdCompanyIdentifierEdit: onGdCompanyIdentifierEdit,
             onGdSupplierFacilitiesDataBound: onGdSupplierFacilitiesDataBound,
             onGdFacilityAddressDataBound: onGdFacilityAddressDataBound,
+            onGdFacilityAddressChange: onGdFacilityAddressChange,
+            onGdFacilityAddressEdit: onGdFacilityAddressEdit,
             onGdFacilityPhoneDataBound: onGdFacilityPhoneDataBound,
             onGdFacilityEmailDataBound: onGdFacilityEmailDataBound,
             onGdFacilityIdentifiersDataBound: onGdFacilityIdentifiersDataBound,
@@ -1163,6 +1238,8 @@
             onGdSupplierNotesDataBound: onGdSupplierNotesDataBound,
             onGdSupplierContactsDataBound: onGdSupplierContactsDataBound,
             onGdContactAddressDataBound: onGdContactAddressDataBound,
+            onGdContactAddressChange: onGdContactAddressChange,
+            onGdContactAddressEdit: onGdContactAddressEdit,
             onGdContactPhoneDataBound: onGdContactPhoneDataBound,
             onGdContactEmailDataBound: onGdContactEmailDataBound,
             ongdObtainmentSettingsDataBound: ongdObtainmentSettingsDataBound,
