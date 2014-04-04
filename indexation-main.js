@@ -215,8 +215,10 @@
         }
 
         var onAttachmentRequestEnd = function (e) {
-            $('#AvailableAttachments').prev('span').find('.k-input').text('No attachments are available to view.');
-            $('#AvailableAttachments').data('kendoDropDownList').enable(e.response && e.response.length > 0);
+            if (!e.response || e.response.length == 0) {
+                $('#AvailableAttachments').prev('span').find('.k-input').text('No attachments are available to view.');
+                $('#AvailableAttachments').data('kendoDropDownList').enable(false);
+            }
         };
 
         // Ingredient section methods
