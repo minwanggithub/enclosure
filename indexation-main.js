@@ -214,6 +214,11 @@
             });
         }
 
+        var onAttachmentRequestEnd = function (e) {
+            $('#AvailableAttachments').prev('span').find('.k-input').text('No attachments are available to view.');
+            $('#AvailableAttachments').data('kendoDropDownList').enable(e.response && e.response.length > 0);
+        };
+
         // Ingredient section methods
         var ingredientMissing = "Select a valid ingredient to continue.";
         var ingredientSearching = "Searching for ingredient...";
@@ -1881,6 +1886,7 @@
             getSelectedPpe: getSelectedPpe,
             loadIndexationPlugin: loadIndexationPlugin,
             loadWorkLoadPlugIn: loadWorkLoadPlugIn,
+            onAttachmentRequestEnd: onAttachmentRequestEnd,
             onBoilingPointOperatorChange: onBoilingPointOperatorChange,
             onFlashPointOperatorChange: onFlashPointOperatorChange,
             onGravityOperatorChange: onGravityOperatorChange,
