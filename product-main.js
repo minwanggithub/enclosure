@@ -219,6 +219,10 @@
                     alert("No row selected");
                     return;
                 }
+
+                //(SH) 4-3-2014
+                SetNewSupplierId(data.id);
+
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
                 supplierSearchDialog.data("kendoWindow").close();
@@ -416,10 +420,10 @@
                 });
             });
 
-            //(SH) 4-2-2014
+            //(SH) 4-3-2014
             $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
 
-                var supplierID = GetSupplierId();
+                var supplierID = GetNewSupplierId();
                 var currenturl = window.location.href;
                 var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
                 var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierID;
