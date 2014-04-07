@@ -560,8 +560,8 @@
         };
 
 
-        function dispatch(id, containerTypeId, parentDocumentId) { //id is grid id
-            console.log("hitting dispatch: id: {0};  containerTypeId:{1}", id, containerTypeId);
+        function dispatch(id, containerTypeId, parentDocumentId, vKitGroupContainerId) { //id is grid id
+            console.log("in lib, hitting dispatch: id: {0};  containerTypeId:{1}", id, containerTypeId);
             var dataSource = $("#" + id).data("kendoGrid").dataSource;
             var filters = dataSource.filter();
             var allData = dataSource.data();
@@ -575,25 +575,26 @@
 
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
-                childDocumentIdSet.push(item.ReferenceId);
+                if (!$.inArray(item.ReferenceId, filteredData))
+                    childDocumentIdSet.push(item.ReferenceId);
             });
 
             console.log("childDocumentIdSet: ", childDocumentIdSet);
+
             $.each(filteredData, function (index, item) {
                 $.post(url, {
                     parentDocumentId: parentDocumentId,
                     containerTypeId: containerTypeId,
                     childDocumentId: item.ReferenceId,
                     orderSequenceOffset: index,
-                    childDocumentIdSet: JSON.stringify(childDocumentIdSet)
+                    childDocumentIdSet: JSON.stringify(childDocumentIdSet),
+                    kitGroupContainerId: vKitGroupContainerId
                 }, function (data) {
-                    //var grid = $("#gdSupplierFacilities").data("kendoGrid");
-                    //grid.dataSource.read();
-                    //$('#SupplierFacilitiesDetail').html(data);
-                    console.log("after posted, data: ", data);
+                    console.log("after posted in lib, data: ", data);
                 });
             });
         }
+
         var saveDocumentDetail = function () {
             var form = $("#documentRevisionTab").updateValidation();
             if (form.valid()) {
@@ -617,8 +618,15 @@
                         }
                         
                         if (containerTypeId == 1 || containerTypeId == 4) {
-                            console.log("within saveDocumentDetail, to save with  containerTypeId", containerTypeId);
-                            dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId);
+                            console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
+
+                            var vKitGroupContainerId = $("#KitGroupContainerId").val();
+                            if (vKitGroupContainerId == undefined) {
+                                if ($("input#DocumentID.doc-ref-id").val() == "0")
+                                    vKitGroupContainerId = 0;
+                            }
+                            console.log("kitGroupContainerId: ", vKitGroupContainerId);
+                            dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
                         }
 
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
