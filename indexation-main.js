@@ -157,6 +157,13 @@
             return decimalVal == val;
         }
 
+        function searchGridDoubleClick(searchGrid, button) {
+            var grid = $(searchGrid).data("kendoGrid");
+            if (grid.dataSource.total() > 0) {
+                $(button).trigger('click');
+            }
+        }
+
         // Menu methods
         function initializeMenu() {
 
@@ -315,6 +322,10 @@
                         alert('Use a valid CasNumber to search.');
                     }
                 }
+            });
+
+            $(document).on("dblclick", "#gdIngredientsSearch table tr", function () {
+                searchGridDoubleClick("#gdIngredientsSearch", "#btnSelectIngredient");
             });
         }
 
@@ -750,6 +761,10 @@
                 }
                 addTransportClassification(selectedData.Reference);
             });
+
+            indexationDetailObj.on("dblclick", "#GridSearchTransClass table tr", function () {
+                searchGridDoubleClick("#GridSearchTransClass", "#btnSelectTransClass");
+            });
         }
 
         function addTransportClassification(reference) {
@@ -828,6 +843,10 @@
                     return;
                 }
                 addAmericaClassification(selectedData.Reference);
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchAmericanClass table tr", function () {
+                searchGridDoubleClick("#GridSearchAmericanClass", "#btnSelectAmericanClass");
             });
         }
 
@@ -908,6 +927,10 @@
                 }
                 addCanadaClassification(selectedData.Reference);
             });
+
+            indexationDetailObj.on("dblclick", "#GridSearchCanadaClass table tr", function (e) {
+                searchGridDoubleClick("#GridSearchCanadaClass", "#btnSelectCanadaClass");
+            });
         }
 
         function addCanadaClassification(reference) {
@@ -971,6 +994,10 @@
                     return;
                 }
                 addRsPhrase(selectedData.Reference);
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchRSPhrase table tr", function (e) {
+                searchGridDoubleClick("#GridSearchRSPhrase", "#btnSelectRSPhrase");
             });
         }
 
@@ -1095,6 +1122,10 @@
                 }
             });
 
+            indexationDetailObj.on("dblclick", "#GridSearchHazardClass table tr", function (e) {
+                searchGridDoubleClick("#GridSearchHazardClass", "#btnSelectHazardClass");
+            });
+
             indexationDetailObj.on("click", "#SearchByCategory", function (e) {
                 e.preventDefault();
                 $("#popupHazardCategory").modal("show");
@@ -1136,6 +1167,10 @@
                     ghsHazardClassValidator.validateInput($('#Category'));
                     ghsHazardClassValidator.validateInput($('#OtherCategory'));
                 }
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchHazardCategory table tr", function (e) {
+                searchGridDoubleClick("#GridSearchHazardCategory", "#btnSelectHazardCategory");
             });
 
             indexationDetailObj.on("click", "#btnSaveHazardClass", function (e) {
@@ -1217,6 +1252,10 @@
                 addGhsPictogram(selectedData.Reference);
             });
 
+            indexationDetailObj.on("dblclick", "#GridSearchGhsPictograms table tr", function (e) {
+                searchGridDoubleClick("#GridSearchGhsPictograms", "#btnSelectGhsPictograms");
+            });
+
             indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
 
             indexationDetailObj.on("change", "#SWordNotProvided", function () {
@@ -1247,6 +1286,10 @@
                 $("#popupGhsSignalWord").modal("hide");
                 $("#SignalWord").val(selectedData.SignalWord + ", " + selectedData.SignalWordCode);
                 $("#SignalWordId").val(selectedData.SignalWordId);
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchSignalWord table tr", function() {
+                searchGridDoubleClick("#GridSearchSignalWord", "#btnSelectGhsSignalWord");
             });
 
             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
@@ -1320,6 +1363,10 @@
                     ghsHazardStatementValidator.validateInput($('#OtherHCode'));
                     ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
                 }
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchHazardStatement table tr", function() {
+                searchGridDoubleClick("#GridSearchHazardStatement", "#btnSelectHazardStatement");
             });
 
             indexationDetailObj.on("click", "#btnSaveHazardStatement", function (e) {
@@ -1420,6 +1467,10 @@
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
                 }
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchPrecautionaryStatement table tr", function () {
+                searchGridDoubleClick("#GridSearchPrecautionaryStatement", "#btnSelectPStatement");
             });
 
             indexationDetailObj.on("click", "#btnSavePrecautionaryStatement", function (e) {
@@ -1753,6 +1804,10 @@
                 }
                 addOtherClassification(selectedData.Reference);
             });
+
+            indexationDetailObj.on("dblclick", "#GridSearchOtherClass table tr", function() {
+                searchGridDoubleClick("#GridSearchOtherClass", "#btnSelectOtherClass");
+            });
         }
 
         function addOtherClassification(reference) {
@@ -1854,6 +1909,10 @@
                 } else {
                     addPpePictogram(selectedData.Reference);
                 }
+            });
+
+            indexationDetailObj.on("dblclick", "#GridSearchPpePictograms table tr", function() {
+                searchGridDoubleClick("#GridSearchPpePictograms", "#btnSelectPpePictograms");
             });
         }
 
