@@ -671,7 +671,32 @@
             window.open(url, "_blank");
         };
 
+        var setUnknownManufacturer = function (sender) {
+            sender.click(function (e) {
+                $.ajax({
+                    url: "LoadUnknownManufacturer",
+                    type: 'POST',
+                    cache: false,
+                    //data: { id:80000 },
+                    success: function (data) {
+                        if (data != '') {
+                            alert('This function is under construction. It will set the current manufacturer to unknonw.');
+                        }
+                    },
+                    error: function (xhr, textStatus, error) {
+                        //alert(xhr.statusText);
+                        //alert(textStatus);
+                        alert(error);
+                    }
+                });
+                //Not working for on-demand fetch
+                //var docNode = selectedNode.parent();
+                //treeview.remove(selectedNode.parent());
+                return true;
+            });            
+        };
 
+        //Testing only
         var loadSingleDocument = function () {
             //Temp test id
             var documentId = 52;
@@ -1026,6 +1051,7 @@
             deleteDocument: deleteDocument,
             saveDocumentDetail: saveDocumentDetail,
             loadIndexation: loadIndexation,
+            setUnknownManufacturer: setUnknownManufacturer,
             panelbarActivated: panelbarActivated,
             readonlyPanelbarActivated: readonlyPanelbarActivated,
             gdSearchSupplierChange: gdSearchSupplierChange,
