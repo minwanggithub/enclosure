@@ -97,11 +97,8 @@
 
         function GridDocumentSearchResult() {
             var grid = $("#gdSearchDocument").data("kendoGrid");
-
             grid.dataSource.page(1);
             grid.dataSource.read();
-
-            KendoPopUpAjust(documentSearchDialog);
         };
 
         var documentQuery = function(e) {
@@ -263,7 +260,6 @@
                 CreateNewDocument();
             });
             
-
             function addDocToProduct() {
                 var grid = $("#gdSearchDocument").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
@@ -296,14 +292,6 @@
             $("#btnCancelDocumentSearch").click(function (e) {
                 documentSearchDialog.data("kendoWindow").close();
             });
-
-            if (windowInit == true) {
-                $("#searchSupplierBtn").bind('click', function () {
-                    KendoPopUpAjust(supplierSearchDialog);
-                });
-                windowInit = false;
-            }
-
         };
 
         var RemovedProductDocument = function (e) {

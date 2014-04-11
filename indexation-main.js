@@ -327,6 +327,12 @@
             $(document).on("dblclick", "#gdIngredientsSearch table tr", function () {
                 searchGridDoubleClick("#gdIngredientsSearch", "#btnSelectIngredient");
             });
+
+            $(document).on("keyup", "#SearchIngredientWindow input", function(e) {
+                if (e.keyCode == 13) {
+                    $('#btnSearchIngredient').click();
+                }
+            });
         }
 
         function retrieveIngredientValidator() {
