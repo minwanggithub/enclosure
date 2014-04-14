@@ -42,6 +42,7 @@
             }, 500);
         };
 
+    
         //======Security group Read-Only Integration Section Starts
         var onIngredientActivate = function (e) {
             //alert($(e.item).find("> .k-link").text());
