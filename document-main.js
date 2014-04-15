@@ -680,7 +680,8 @@
                     //data: { id:80000 },
                     success: function (data) {
                         if (data != '') {
-                            alert('This function is under construction. It will set the current manufacturer to unknonw.');
+                            //alert('This function is under construction. It will set the current manufacturer to unknonw.');
+                            $("#txtManufacturerId").val(data);
                         }
                     },
                     error: function (xhr, textStatus, error) {
