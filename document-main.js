@@ -850,6 +850,10 @@
                     alert("No row selected");
                     return;
                 }
+
+                //(SH) 4-16-2014
+                DocumentIdentificanTab_SetNewSupplierId(data.id);
+
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
                 hideSupplierPlugIn();
