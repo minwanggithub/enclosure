@@ -600,6 +600,7 @@
             if (form.valid()) {
                 var url = form.attr("action");
                 var formData = form.serialize();
+                console.log("within saveDocumentDetail, formData:", formData);
                 $.post(url, formData, function(data) {
                     //                $('.form-reset').click();
                     //                $('#CreatedMessage').html(data);
@@ -910,6 +911,16 @@
             };
         };
 
+        function setLblRevisionFileInfoDetaillib(text) {
+            text = (typeof text !== 'undefined') ? text : "Attachment";
+
+            console.log("to set lblRevisionFileInfoDetail with value: ", text);
+
+            $("#lblRevisionFileInfoDetail").html(text);
+            $("#addNewFilesBtn").html("Add " + text);
+
+        }
+
         // Method resize splitters when all content is loaded into the selected tab
         var onTabContentLoad = function (e) {
             setTimeout(function () {
@@ -917,6 +928,18 @@
                     $(this).data("kendoSplitter").trigger("resize");
                 });
             }, 200);
+
+            var containerTypeId = $("#ContainerTypeId").val();
+            if (containerTypeId == "2") {
+                console.log("on load, changed to cover sheet and show attachments");
+                setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
+
+                //setLblRevisionFileInfoDetaillib("Cover Sheet");
+                //$("#kgAttachment").show();
+            } else {
+                console.log("no op since it is not a kit");
+                //$("#kgAttachment").hide();
+            }
         };
 
 
