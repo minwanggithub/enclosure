@@ -632,7 +632,11 @@
 
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
-                        alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
+
+                        if (containerOption != 2) {
+                            alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
+                        }
+                        
                         return;
                     }
 
