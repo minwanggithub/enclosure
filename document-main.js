@@ -954,6 +954,13 @@
                 console.log("no op since it is not a kit");
                 //$("#kgAttachment").hide();
             }
+
+            //for existing doc/rev, show the attachment grid and label
+            if ($("input#DocumentID.doc-ref-id").val() != "0") {
+                $("#lblRevisionFileInfoDetail").show();
+                $("#tabRevisionFileInfo").show();
+            }
+
         };
 
 
@@ -1133,6 +1140,7 @@
                     if (confirm("Are you sure to switch the current document to a single? If you proceed, then the previously added documents will be discarded")) {
                         setLblRevisionFileInfoDetail();
                         clearOutContentAndHide();
+                        $("#lblRevisionFileInfoDetail").hide();
                     } else {
                         console.log("reset back to the previous selection since user cancelled it");
                         if ($(this).data("kendoDropDownList") != null) {
@@ -1149,12 +1157,19 @@
                 return;
             }
 
+
+            //as long as it is not a new single doc creation, we wil let the lblRevisionFileInfoDetail show
+            if ($("input#DocumentID.doc-ref-id").val() != "0" || ($("input#DocumentID.doc-ref-id").val() != "0" && (containerTypeId == "2" && containerTypeId == "3"))) {
+                $("#lblRevisionFileInfoDetail").show();
+                $("#tabRevisionFileInfo").show();
+            }
+
             //prompt user for the side effect of switching between kit and group
             if (previousContainerTypeId != undefined) {
                 if (containerTypeId == "2" && previousContainerTypeId == "3") {
                     if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
                         if (confirm("Are you sure to switch the current document from group to kit? If you proceed, then the previously added documents will be discarded")) {
-                            setLblRevisionFileInfoDetail("Cover Sheet");
+                            setLblRevisionFileInfoDetail();
                             //$("#tabRevisionFileInfo").show();
                             clearOutContentAndHide();
                             $("#whichGridToAdd").val("gdKitSibling");
@@ -1264,6 +1279,7 @@
             console.log("to set lblRevisionFileInfoDetail with value: ", text);
             
             $("#lblRevisionFileInfoDetail").html(text);
+            $("#lblRevisionFileInfoDetail").show();
             $("#addNewFilesBtn").html("Add " + text);
 
         }
