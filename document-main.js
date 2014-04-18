@@ -560,6 +560,15 @@
         };
 
 
+        function getUrl(area, controllerAndFunc){
+            var currenturl = window.location.href;
+            var indexArea = currenturl.substring(0, currenturl.indexOf(area));
+            var url = indexArea + controllerAndFunc;
+            console.log("resulting url: ", url);
+            return url;
+        }
+
+
         function dispatch(id, containerTypeId, parentDocumentId, vKitGroupContainerId) { //id is grid id
             console.log("in lib, hitting dispatch: id: {0};  containerTypeId:{1}", id, containerTypeId);
             var dataSource = $("#" + id).data("kendoGrid").dataSource;
@@ -569,9 +578,10 @@
             var filteredData = query.filter(filters).data;
 
             //var url = '@Url.Action("DocumentKitAndGroup_Update", "Document", new { Area = "Operations" })';
-            var currenturl = window.location.href;
-            var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
-            var url = indexArea + "Document/DocumentKitAndGroup_Update";
+            //var currenturl = window.location.href;
+            //var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
+            //var url = indexArea + "Document/DocumentKitAndGroup_Update";
+            var url = getUrl("Document", "Document/DocumentKitAndGroup_Update");
 
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
@@ -1064,6 +1074,221 @@
             }
             
         };
+
+
+
+        //--------------------------------start of kit and group implementation--------------------------------------
+        //------This implementation contains two tabs: doc id tab and kg tab-------
+        //------start of doc id tab---
+        var checkAttachmentsBeforeSave = function() {
+            console.log("checkAttachmentsBeforeSave hitting");
+            var message = " a kit needs at least two components attached, please resolve it and try again. Alternatively you may change the container type to single to avoid this complaint.";
+            var containerOption = $("#ContainerTypeId").val();
+            if (containerOption == "2") {
+                var componentsCount = $("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length;
+                if (componentsCount <= 0) {
+                    if (confirm("The kit has no components attached," + message)) {
+                        launchKGPopup(containerOption);
+                    }
+                    return false;
+                } else if (componentsCount == 1) {
+                    if (confirm("The kit has only one components attached," + message)) {
+                        launchKGPopup(containerOption);
+                    }
+                    return false;
+                };
+            } else if (containerOption == "3"){
+                if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length <= 0) {
+                    if (confirm("The group has not been elements attached, please resolve it and try to save again. Alternatively you may change the container type to single to avoid this complaint.")) {
+                        launchKGPopup(containerOption);
+                    }
+                    return false;
+                };
+            }
+            return true;
+        };
+
+        var viewAndUpdateAttachments = function() {
+            console.log("viewAndUpdateAttachments hitting");
+            var containerOption = $("#ContainerTypeId").val();
+            if (containerOption == "2") //k
+            {
+                launchKGPopup(containerOption);
+            } else if (containerOption == "3") //g
+            {
+                launchKGPopup(containerOption);
+            }
+        };
+
+        var onContainerTypeIdChange = function(e) {
+            var containerTypeId = $("#ContainerTypeId").val();
+            var previousContainerTypeId = $("#previousContainerTypeId").val();
+            console.log("Within ContainerTypeId's change, previousContainerTypeId: ", previousContainerTypeId);
+            console.log("Within ContainerTypeId's change, current containerTypeId: ", containerTypeId);
+            if (containerTypeId == "1") {
+                   
+
+                //also need check if it is in display mode
+                if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0 && (previousContainerTypeId == "2" || previousContainerTypeId == "3")) {
+                    if (confirm("Are you sure to switch the current document to a single? If you proceed, then the previously added documents will be discarded")) {
+                        setLblRevisionFileInfoDetail();
+                        clearOutContentAndHide();
+                    } else {
+                        console.log("reset back to the previous selection since user cancelled it");
+                        if ($(this).data("kendoDropDownList") != null) {
+                            $(this).data("kendoDropDownList").select(parseInt(previousContainerTypeId));
+                        } 
+                        return;
+                    }
+                }
+                $("#kgAttachment").hide();
+                $("#whichGridToAdd").val("");
+                $("#tabRevisionFileInfo").hide();
+                $("#gdAssocatedDocuments").hide();
+                $("#previousContainerTypeId").val(containerTypeId);
+                return;
+            }
+
+            //prompt user for the side effect of switching between kit and group
+            if (previousContainerTypeId != undefined) {
+                if (containerTypeId == "2" && previousContainerTypeId == "3") {
+                    if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
+                        if (confirm("Are you sure to switch the current document from group to kit? If you proceed, then the previously added documents will be discarded")) {
+                            setLblRevisionFileInfoDetail("Cover Sheet");
+                            //$("#tabRevisionFileInfo").show();
+                            clearOutContentAndHide();
+                            $("#whichGridToAdd").val("gdKitSibling");
+                            //launchKGPopup(containerTypeId);
+                            $("#kgAttachment").show();
+                            $("#previousContainerTypeId").val(containerTypeId);
+                            return;
+                        } else {
+                            $("#tabRevisionFileInfo").hide();
+                            $(this).val(previousContainerTypeId);
+                            return;
+                        }
+                    }
+                } else if (containerTypeId == "3" && previousContainerTypeId == "2") {
+                    if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
+                        if (confirm("Are you sure to switch the current document from kit to group? If you proceed, then the previously added documents will be discarded")) {
+                            clearOutContentAndHide();
+                            setLblRevisionFileInfoDetail();
+                            $("#tabRevisionFileInfo").hide();
+                            $("#whichGridToAdd").val("gdGroupSibling");
+                            $("#kgAttachment").hide();
+                            //launchKGPopup(containerTypeId);
+                            $("#previousContainerTypeId").val(containerTypeId);
+                            return;
+                        }else {
+                            //$("#tabRevisionFileInfo").show();
+                            $(this).val(previousContainerTypeId);
+                            return;
+                        }
+                    }
+                }
+            }
+            console.log("to launch kg popu with containerTypeId: ", containerTypeId);
+            if (containerTypeId == 2) {
+                setLblRevisionFileInfoDetail("Cover Sheet");
+                $("#whichGridToAdd").val("gdKitSibling");
+                $("#tabRevisionFileInfo").show();
+            } else {
+                $("#whichGridToAdd").val("gdGroupSibling");
+                $("#tabRevisionFileInfo").hide();
+            }
+
+            //launchKGPopup(containerTypeId);
+            $("#kgAttachment").show();
+            $("#previousContainerTypeId").val(containerTypeId);
+        };
+    
+
+        var onPopuClose = function(e) {
+            console.log("Within onPopuClose, e:", e);
+            $("#divDocumentIdentification").show();
+        };
+
+        //mode: 2 for kit; and 3 for group
+        var launchKGPopup = function(containerTypeId) {
+            var kitGroupClassificationSetBitValue = 0;
+            var title = "Configuration";
+            if (containerTypeId == "2") {
+                kitGroupClassificationSetBitValue = 1;
+                title = "Kit " + title;
+            } else if (containerTypeId == "3") {
+                kitGroupClassificationSetBitValue = 4;
+                title = "Group " + title;
+            }
+
+            var d = $("<div id='kg_popup'></div>")
+                .appendTo('body');
+            var win = d.kendoWindow({
+                modal: true,
+                animation: false,
+                visible: false,
+                width: "1200px",
+                title: title,
+                actions: [
+                    "Pin",
+                    "Minimize",
+                    "Maximize",
+                    "Close"
+                ],
+                deactivate: function(evnt) {
+                    console.log("Within deactivate, e:", evnt);
+                    this.destroy();
+                },
+                close: onPopuClose
+            }).data("kendoWindow");
+
+            //var url = '@Url.Action("LoadDocumentKitsGroups", "Document", new
+            //{
+            //    Area = "Operations"
+            //})';
+
+            var url = getUrl("Operations", "Operations/Document/LoadDocumentKitsGroups");
+            $.post(url, { documentId: 0, KitGroupClassificationSetBitValue: kitGroupClassificationSetBitValue }, function(content) {
+                //console.log("after posted, data: ", content);
+                d.html(content);
+                $("#DocumentKitsAndGroupsSplitter", "#kg_popup").removeClass().addClass("new-document-revision");
+                win.center();
+                win.open();
+            });
+        };
+
+    
+    
+        function setLblRevisionFileInfoDetail(text){
+            text = (typeof text !== 'undefined') ? text : "Attachment";
+            
+            console.log("to set lblRevisionFileInfoDetail with value: ", text);
+            
+            $("#lblRevisionFileInfoDetail").html(text);
+            $("#addNewFilesBtn").html("Add " + text);
+
+        }
+
+        function clearOutContentAndHide() {
+            $("#divAssocatedDocuments").hide();
+            var grid = $("#gdAssocatedDocuments").data("kendoGrid");
+            
+            grid.dataSource.filter({});
+            grid.dataSource.data([]);
+
+            grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+            if(grid &&  grid.dataSource)
+                grid.dataSource.data([]);
+
+            $("#btnViewAndUpdateAttachments").html("Attachments()");
+        }
+        //------end of doc kg tab---
+
+        //------start of doc kg tab---
+
+
+        //------end of doc kg tab---
+        //--------------------------end of kit and group implementation---------------------------------
+
         //Expose to public
 
         return {
@@ -1094,7 +1319,14 @@
             onGridEditChangeTitle: onGridEditChangeTitle,
             onSaveNameNumber: onSaveNameNumber,
             onRequestEnd: onRequestEnd,
-            OnddlContainerTypeSelect : OnddlContainerTypeSelect
+            OnddlContainerTypeSelect: OnddlContainerTypeSelect,
+
+
+            //------start of kit and group implementation------
+            checkAttachmentsBeforeSave: checkAttachmentsBeforeSave,
+            viewAndUpdateAttachments: viewAndUpdateAttachments,
+            onContainerTypeIdChange: onContainerTypeIdChange,
+            //------end of kit and group implementation------
         };
     };
 
@@ -1103,8 +1335,6 @@
         $("#DocumentDetail").hide();
         $("#eeeSideBar").sidemenu();
         menuHelper.turnMenuActive($("#menuOperations"));
-
-      
     });
 
 })(jQuery);
