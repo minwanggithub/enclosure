@@ -723,6 +723,14 @@
             window.open(url, "_blank");
         };
 
+        //(SH) 4-16-2014
+        var viewSingleSupplier = function (supplierId) {
+            if (supplierId > 0) {
+                var url = "/MsdsBoiler//Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                window.open(url, "_blank");
+            }
+        }
+
         var panelbarActivated = function () {
             $("#loadSingleDocBtn").click(function (e) {
                 loadSingleDocument();
@@ -865,9 +873,6 @@
                     alert("No row selected");
                     return;
                 }
-
-                //(SH) 4-16-2014
-                DocumentIdentificanTab_SetNewSupplierId(data.id);
 
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
@@ -1211,100 +1216,11 @@
                 $("#whichGridToAdd").val("gdGroupSibling");
                 $("#tabRevisionFileInfo").hide();
             }
-
+            
             //launchKGPopup(containerTypeId);
             $("#kgAttachment").show();
             $("#previousContainerTypeId").val(containerTypeId);
         };
-    
-
-        var onPopuClose = function(e) {
-            console.log("Within onPopuClose, e:", e);
-            $("#divDocumentIdentification").show();
-        };
-
-        //mode: 2 for kit; and 3 for group
-        var launchKGPopup = function(containerTypeId) {
-            var kitGroupClassificationSetBitValue = 0;
-            var title = "Configuration";
-            if (containerTypeId == "2") {
-                kitGroupClassificationSetBitValue = 1;
-                title = "Kit " + title;
-            } else if (containerTypeId == "3") {
-                kitGroupClassificationSetBitValue = 4;
-                title = "Group " + title;
-            }
-
-            var d = $("<div id='kg_popup'></div>")
-                .appendTo('body');
-            var win = d.kendoWindow({
-                modal: true,
-                animation: false,
-                visible: false,
-                width: "1200px",
-                title: title,
-                actions: [
-                    "Pin",
-                    "Minimize",
-                    "Maximize",
-                    "Close"
-                ],
-                deactivate: function(evnt) {
-                    console.log("Within deactivate, e:", evnt);
-                    this.destroy();
-                },
-                close: onPopuClose
-            }).data("kendoWindow");
-
-            //var url = '@Url.Action("LoadDocumentKitsGroups", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
-
-            var url = getUrl("Operations", "Operations/Document/LoadDocumentKitsGroups");
-            $.post(url, { documentId: 0, KitGroupClassificationSetBitValue: kitGroupClassificationSetBitValue }, function(content) {
-                //console.log("after posted, data: ", content);
-                d.html(content);
-                $("#DocumentKitsAndGroupsSplitter", "#kg_popup").removeClass().addClass("new-document-revision");
-                win.center();
-                win.open();
-            });
-        };
-
-    
-    
-        function setLblRevisionFileInfoDetail(text){
-            text = (typeof text !== 'undefined') ? text : "Attachment";
-            
-            console.log("to set lblRevisionFileInfoDetail with value: ", text);
-            
-            $("#lblRevisionFileInfoDetail").html(text);
-            $("#lblRevisionFileInfoDetail").show();
-            $("#addNewFilesBtn").html("Add " + text);
-
-        }
-
-        function clearOutContentAndHide() {
-            $("#divAssocatedDocuments").hide();
-            var grid = $("#gdAssocatedDocuments").data("kendoGrid");
-            
-            grid.dataSource.filter({});
-            grid.dataSource.data([]);
-
-            grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
-            if(grid &&  grid.dataSource)
-                grid.dataSource.data([]);
-
-            $("#btnViewAndUpdateAttachments").html("Attachments()");
-        }
-        //------end of doc kg tab---
-
-        //------start of doc kg tab---
-
-
-        //------end of doc kg tab---
-        //--------------------------end of kit and group implementation---------------------------------
-
         //Expose to public
 
         return {
@@ -1335,14 +1251,7 @@
             onGridEditChangeTitle: onGridEditChangeTitle,
             onSaveNameNumber: onSaveNameNumber,
             onRequestEnd: onRequestEnd,
-            OnddlContainerTypeSelect: OnddlContainerTypeSelect,
-
-
-            //------start of kit and group implementation------
-            checkAttachmentsBeforeSave: checkAttachmentsBeforeSave,
-            viewAndUpdateAttachments: viewAndUpdateAttachments,
-            onContainerTypeIdChange: onContainerTypeIdChange,
-            //------end of kit and group implementation------
+            OnddlContainerTypeSelect : OnddlContainerTypeSelect
         };
     };
 

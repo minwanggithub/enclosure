@@ -123,6 +123,14 @@
             };
         };
 
+        //(SH) 4-16-2014
+        var viewSingleSupplier = function (supplierId) {
+            if (supplierId > 0) {
+                var url = "/MsdsBoiler//Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                window.open(url, "_blank");
+            }
+        }
+
         function saveBtnEvent(activeSaveButton) {
 
             //e.preventDefault();
@@ -216,9 +224,6 @@
                     alert("No row selected");
                     return;
                 }
-
-                //(SH) 4-3-2014
-                SetNewSupplierId(data.id);
 
                 $("#" + activeSupplier).val(data.id + ", " + data.Name);
 
@@ -408,14 +413,16 @@
                 });
             });
 
-            //(SH) 4-3-2014
+            //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
 
-                var supplierID = GetNewSupplierId();
-                var currenturl = window.location.href;
-                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierID;
-                window.open(url, "_blank");
+                var supplierId = GetNewSupplierId(pKey);
+                if (supplierId > 0) {
+                    var currenturl = window.location.href;
+                    var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                    var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                    window.open(url, "_blank");
+                }
             });
 
             //Add doc parts
@@ -604,7 +611,8 @@
             OngdProductDocumentSelectChange: OngdProductDocumentSelectChange,
             OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
             getSelectDocID : getSelectDocID,
-            documentQuery : documentQuery,
+            documentQuery: documentQuery,
+            viewSingleSupplier: viewSingleSupplier,
             //--------------------end of ConfigProduct.cshtml-----------------------
 
             //--------------------start of _SearchProduct.cshtml-----------------------
