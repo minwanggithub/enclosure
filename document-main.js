@@ -1221,6 +1221,7 @@
             $("#kgAttachment").show();
             $("#previousContainerTypeId").val(containerTypeId);
         };
+
         //Expose to public
 
         return {
@@ -1251,7 +1252,8 @@
             onGridEditChangeTitle: onGridEditChangeTitle,
             onSaveNameNumber: onSaveNameNumber,
             onRequestEnd: onRequestEnd,
-            OnddlContainerTypeSelect : OnddlContainerTypeSelect
+            OnddlContainerTypeSelect: OnddlContainerTypeSelect,
+            viewSingleSupplier: viewSingleSupplier
         };
     };
 
