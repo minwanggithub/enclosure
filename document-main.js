@@ -622,13 +622,13 @@
                         var containerOption = $("#ContainerTypeId").val();
                         if (containerOption == "2") //2 ---> kit
                         {
-                            containerTypeId = 1; //Kit parent
+                            containerTypeId = 2; //Kit parent
                         } else if (containerOption == "3") //3 --->group
                         {
-                            containerTypeId = 4; //Group parent
+                            containerTypeId = 3; //Group parent
                         }
                         
-                        if (containerTypeId == 1 || containerTypeId == 4) {
+                        if (containerTypeId == 2 || containerTypeId == 3) {
                             console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
 
                             var vKitGroupContainerId = $("#KitGroupContainerId").val();
@@ -637,6 +637,7 @@
                                     vKitGroupContainerId = 0;
                             }
                             console.log("kitGroupContainerId: ", vKitGroupContainerId);
+                            $("#ParentDocumentId").val(data.DocumentId);
                             dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
                         }
 
@@ -1396,7 +1397,7 @@
 
                 if (shouldPostToServer()) {
                     console.log("to post to server after delete");
-                    dispatch(gridid, getContainerTypeId(gridid));
+                    dispatch2(gridid, getContainerTypeId(gridid));
                 }
             }
         };
@@ -1455,13 +1456,13 @@
 
             console.log("within addToChildGrid, after addition, there are " + child.dataSource.data().length + " records");
             if (shouldPostToServer()) {
-                dispatch(childGridId, getContainerTypeId(childGridId));
+                dispatch2(childGridId, getContainerTypeId(childGridId));
             }
         };
 
-        function dispatch(id, containerTypeId) { //id is grid id
-            console.log("in cshtml, hitting dispatch: grid id: ", id);
-            console.log("in cshtml, hitting dispatch: containerTypeId: ", containerTypeId);
+        function dispatch2(id, containerTypeId) { //id is grid id
+            console.log("in cshtml, hitting dispatch2: grid id: ", id);
+            console.log("in cshtml, hitting dispatch2: containerTypeId: ", containerTypeId);
 
             if (containerTypeId == 0) {
                 console.log("No op for Single");
@@ -1474,7 +1475,8 @@
             var query = new kendo.data.Query(allData);
             var filteredData = query.filter(filters).data;
 
-            var url = '@Url.Action("DocumentKitAndGroup_Update", "Document", new { Area = "Operations" })';
+            //var url = '@Url.Action("DocumentKitAndGroup_Update", "Document", new { Area = "Operations" })';
+            var url = getUrl("Operations", "Operations/Document/DocumentKitAndGroup_Update");
 
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
@@ -1490,23 +1492,32 @@
             }
 
             var vKitGroupContainerId = $("#KitGroupContainerId").val();
-            console.log("within dispatch, childDocumentIdSet: ", childDocumentIdSet);
-            console.log("within dispatch, kitGroupContainerId: ", vKitGroupContainerId);
-            console.log("within dispatch, url: ", url);
+            if (vKitGroupContainerId == undefined)
+                vKitGroupContainerId = 0;
+
+            var parentDocumentId = $("#ParentDocumentId").val();
+            if (parentDocumentId == undefined)
+                parentDocumentId = 0;
+
+
+            console.log("within dispatch2, parentDocumentId: ", parentDocumentId);
+            console.log("within dispatch2, childDocumentIdSet: ", childDocumentIdSet);
+            console.log("within dispatch2, kitGroupContainerId: ", vKitGroupContainerId);
+            console.log("within dispatch2, url: ", url);
 
             $.each(filteredData, function (index, item) {
                 $.post(url, {
-                    parentDocumentId: $("#ParentDocumentId").val(),
+                    parentDocumentId: parentDocumentId,
                     containerTypeId: containerTypeId,
                     childDocumentId: item.ReferenceId,
                     orderSequenceOffset: index,
                     childDocumentIdSet: JSON.stringify(childDocumentIdSet),
                     kitGroupContainerId: vKitGroupContainerId
                 }, function (data) {
-                    console.log("after posted in dispatch, data: ", data);
+                    //console.log("after posted in dispatch2, data: ", data);
                 });
             });
-            console.log("exiting dispatch");
+            console.log("exiting dispatch2");
         }
 
         var shouldPostToServer = function() {
@@ -2166,7 +2177,7 @@
                 console.log("within loadExistingChildren, done copying");
                 return;
             }
-
+            var listOfChildDocumentId = JSON.parse("[" + (($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val()) + "]");
             console.log("within loadExistingChildren listOfChildDocumentId: ", listOfChildDocumentId);
             if (listOfChildDocumentId.length < 0) {
                 return;
