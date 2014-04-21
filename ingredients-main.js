@@ -43,6 +43,20 @@
         };
 
     
+        var onDisplayError = function (errorMessage) {
+            var message = errorMessage;
+            $('#errorReport').find('.modal-body').html(message);
+            $("#errorReport").modal({
+                backdrop: true,
+                keyboard: true
+            }).css({
+                width: 'auto',
+                'margin-left': function () {
+                    return -($(this).width() / 2); //auto size depending on the message
+                }
+            });
+        }
+
         //======Security group Read-Only Integration Section Starts
         var onIngredientActivate = function (e) {
             //alert($(e.item).find("> .k-link").text());
@@ -67,7 +81,6 @@
             var form = $("#ingredientForm");
             var url = form.attr("action");
             var formData = form.serialize();
-            debugger;
             $.post(url, formData, function (data) {
                 if (data == "Ingredient Saved") {
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
@@ -85,7 +98,8 @@
             IsReadOnlyMode: IsReadOnlyMode,
             ongdDetailIngredientItemClick: gdSearchIngredient_Change,
             OnSelectIngredientTabstrip: OnSelectIngredientTabstrip,
-            onIngredientActivate: onIngredientActivate
+            onIngredientActivate: onIngredientActivate,
+            onDisplayError : onDisplayError
         };
     };
 })(jQuery);
