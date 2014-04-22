@@ -732,6 +732,25 @@
             }
         };
 
+        var selectSupplier = function () {
+            var grid = $("#gdSearchSupplier").data("kendoGrid");
+            if (grid.dataSource.total() == 0) {
+                //$("#popupSupplierSearch").modal("hide");
+                alert("No row selected");
+                return;
+            }
+            var data = grid.dataItem(grid.select());
+            if (data == null) {
+                alert("No row selected");
+                return;
+            }
+            console.log("within selectSupplier, data: ", data);
+            console.log("within selectSupplier, target text box: ", $("#" + activeSupplier));
+            $("#" + activeSupplier).val(data.id + ", " + data.Name);
+
+            hideSupplierPlugIn();
+        };
+
         var panelbarActivated = function () {
             $("#loadSingleDocBtn").click(function (e) {
                 loadSingleDocument();
@@ -862,31 +881,18 @@
                 hideSupplierPlugIn();
             });
 
-            function selectSupplier() {
-                var grid = $("#gdSearchSupplier").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    //$("#popupSupplierSearch").modal("hide");
-                    alert("No row selected");
-                    return;
-                }
-                var data = grid.dataItem(grid.select());
-                if (data == null) {
-                    alert("No row selected");
-                    return;
-                }
-
-                $("#" + activeSupplier).val(data.id + ", " + data.Name);
-
-                hideSupplierPlugIn();
-            }
+           
 
             $("#searchSupplierIdSelect").click(function (e) {
                 selectSupplier();
             });
 
             $("#gdSearchSupplier").dblclick(function (e) {
+                console.log("gdSearchSupplier double clicked");
                 selectSupplier();
             });
+
+          
 
             //End initializee supplier serach dialog		    
             //Add more action triggered by panel activation
@@ -1564,7 +1570,7 @@
         function hidePopups() {
             console.log("hitting hidePopups");
             getHandle("#documentModalPopup").hide();
-            getHandle("#supplierModalPopup").hide();
+            //getHandle("#supplierModalPopup").hide();
             console.log("exiting hidePopups");
         }
 
@@ -2267,6 +2273,7 @@
             onRequestEnd: onRequestEnd,
             OnddlContainerTypeSelect: OnddlContainerTypeSelect,
 
+            selectSupplier : selectSupplier,
 
             //------start of kit and group implementation------
             checkAttachmentsBeforeSave: checkAttachmentsBeforeSave,
