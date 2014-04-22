@@ -334,6 +334,23 @@
             });
         };
 
+        //(SH) 4-22-2014
+        var viewSingleSupplier = function (supplierId) {
+            if (supplierId > 0) {
+                var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
+                window.open(url, "_blank");
+            }
+        };
+
+        //(SH) 4-22-2014
+        function getUrl(area, controllerAndFunc) {
+            var currenturl = window.location.href;
+            var indexArea = currenturl.substring(0, currenturl.indexOf(area));
+            var url = indexArea + controllerAndFunc;
+            console.log("resulting url: ", url);
+            return url;
+        }
+
         //Expose to public
 
         return {
@@ -347,7 +364,10 @@
             getIndexationId: getIndexationId,
             onGridEditChangeTitle: onGridEditChangeTitle,
             onSaveNameNumber: onSaveNameNumber,
-            ongdWorkLoadItemChange: gdWorkLoadItem_Change
+            ongdWorkLoadItemChange: gdWorkLoadItem_Change,
+            getUrl: getUrl,
+            viewSingleSupplier: viewSingleSupplier
+
         };
 
     };

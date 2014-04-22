@@ -719,6 +719,7 @@
         //(SH) 4-16-2014
         var viewSingleSupplier = function(supplierId) {
             if (supplierId > 0) {
+                alert("workload-main: " + supplierId);
                 var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
                 window.open(url, "_blank");
             }
