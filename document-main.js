@@ -725,12 +725,12 @@
         };
 
         //(SH) 4-16-2014
-        var viewSingleSupplier = function (supplierId) {
+        var viewSingleSupplier = function(supplierId) {
             if (supplierId > 0) {
                 var url = "/MsdsBoiler//Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
                 window.open(url, "_blank");
             }
-        }
+        };
 
         var panelbarActivated = function () {
             $("#loadSingleDocBtn").click(function (e) {
@@ -1319,10 +1319,11 @@
         }
         //------end of doc id tab---
 
+
+        //------start of doc kg tab---
         var collectDataToDelete = function() {
             console.log("hitting collectDataToDelete");
         };
-
 
         var documentQuery_kg = function (e) {
             console.log("hitting documentQuery");
@@ -1986,7 +1987,6 @@
             }
         });
 
-        //------------------------------end of top layer event handlers-----------------------------------
 
         var extractValue = function(entry) {
             try {
@@ -2217,11 +2217,11 @@
                 });
             });
         };
-        //------start of doc kg tab---
-
-
         //------end of doc kg tab---
         //--------------------------end of kit and group implementation---------------------------------
+
+
+
 
         //Expose to public
 
@@ -2266,11 +2266,8 @@
             collectDataToDelete: collectDataToDelete,
             documentQuery_kg: documentQuery_kg,
             OngdSearchDocumentChange: OngdSearchDocumentChange,
-
-
             ongdWorkLoadItemChange: ongdWorkLoadItemChange,
             getHandle: getHandle,
-
             extractValue: extractValue,
             addToChildGrid: addToChildGrid,
             getAttachmentCounted: getAttachmentCounted,
