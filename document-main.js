@@ -1643,8 +1643,15 @@
 
         };
 
+
+        function setKGTopLabel(keyWord)
+        {
+            $("#pTopLabel").html("This is a <strong>" + keyWord + "</strong>.");
+        }
+
         function doKitParent() {
             console.log("hitting doKitParent");
+            setKGTopLabel("Kit");
             $("#divBody").show();
 
             $('input[name=kgClassifierKitChildren]').prop('checked', false);
@@ -1665,6 +1672,7 @@
 
         function doKitChildren() {
             console.log("hitting doKitChildren");
+            setKGTopLabel("Kit Component");
             $("#divBody").show();
 
             $('input[name=kgClassifierKitParent]').prop('checked', false);
@@ -1685,6 +1693,7 @@
 
         function doGroupParent() {
             console.log("hitting doGroupParent");
+            setKGTopLabel("Group");
             $("#divBody").show();
 
             $('input[name=kgClassifierKitParent]').prop('checked', false);
@@ -1706,6 +1715,7 @@
 
         function doBothChildren() {
             console.log("hitting doBothChildren");
+            setKGTopLabel("Kit Compoent and Group Element");
             $("#divBody").show();
 
             $('input[name=kgClassifierKitParent]').prop('checked', false);
@@ -1729,6 +1739,7 @@
 
         function uncheckAndHideAll() {
             console.log("hitting uncheckAndHideAll");
+            $("#pTopLabel").html("");
             $("#divBody").hide();
 
             $('input[name=kgClassifierKitParent]').prop('checked', false);
@@ -1739,6 +1750,7 @@
         }
 
         function doGroupChildren() {
+            setKGTopLabel("Group Element");
             $("#divBody").show();
 
             //console.log("hitting doGroupChildren");
