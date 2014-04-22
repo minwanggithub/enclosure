@@ -605,29 +605,27 @@
             });
         }
 
+
+        function getContainerTypeId()
+        {
+            var containerOption = $("#ContainerTypeId").val();
+            if (containerOption == "2") //2 ---> kit
+                return 2; //Kit parent
+             else if (containerOption == "3") //3 --->group
+               return 3; //Group parent
+            return containerOption;
+        }
+
         var saveDocumentDetail = function () {
             var form = $("#documentRevisionTab").updateValidation();
             if (form.valid()) {
                 var url = form.attr("action");
                 var formData = form.serialize();
                 console.log("within saveDocumentDetail, formData:", formData);
+                var containerTypeId = getContainerTypeId();
                 $.post(url, formData, function(data) {
-                    //                $('.form-reset').click();
-                    //                $('#CreatedMessage').html(data);
-                    //if (data.TitleChanged === true) {
-                    //}
                     console.log("within saveDocumentDetail, retrieved data: ", data);
                     if (data.NewDocument) {
-                        var containerTypeId = 0;
-                        var containerOption = $("#ContainerTypeId").val();
-                        if (containerOption == "2") //2 ---> kit
-                        {
-                            containerTypeId = 2; //Kit parent
-                        } else if (containerOption == "3") //3 --->group
-                        {
-                            containerTypeId = 3; //Group parent
-                        }
-                        
                         if (containerTypeId == 2 || containerTypeId == 3) {
                             console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
 
@@ -644,7 +642,7 @@
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
 
-                        if (containerOption != 2) {
+                        if (containerTypeId != 2) {
                             alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
                         }
                         
@@ -744,10 +742,7 @@
                 alert("No row selected");
                 return;
             }
-            console.log("within selectSupplier, data: ", data);
-            console.log("within selectSupplier, target text box: ", $("#" + activeSupplier));
             $("#" + activeSupplier).val(data.id + ", " + data.Name);
-
             hideSupplierPlugIn();
         };
 
@@ -788,11 +783,11 @@
                 //                ddlDocumentLanguage.select(0);
                 //                var ddlDocumentRegion = $("#ddlDocumentRegion").data("kendoDropDownList");
                 //                ddlDocumentRegion.select(0);
-
-
                 $("[name^='ddlDocument']").each(function (index) {
                     var ddl = $(this).data("kendoDropDownList");
-                    ddl.select(0);
+                    if (ddl != undefined) {
+                        ddl.select(0);
+                    }
                 });
 
                 $('#txtSearchDocumentId').val("");
@@ -1404,7 +1399,7 @@
 
                 if (shouldPostToServer()) {
                     console.log("to post to server after delete");
-                    dispatch2(gridid, getContainerTypeId(gridid));
+                    dispatch2(gridid, inferContainerTypeId(gridid));
                 }
             }
         };
@@ -1463,7 +1458,7 @@
 
             console.log("within addToChildGrid, after addition, there are " + child.dataSource.data().length + " records");
             if (shouldPostToServer()) {
-                dispatch2(childGridId, getContainerTypeId(childGridId));
+                dispatch2(childGridId, inferContainerTypeId(childGridId));
             }
         };
 
@@ -1531,7 +1526,7 @@
             return (($("#ParentDocumentId").val() != "0") ? true : false);
         };
 
-        function getContainerTypeId(gridid) {
+        function inferContainerTypeId(gridid) {
             if (gridid.indexOf("Kit") > 0)
                 return 2;
             else if (gridid.indexOf("Group") > 0)
