@@ -560,13 +560,7 @@
         };
 
 
-        //function getUrl(area, controllerAndFunc){
-        //    var currenturl = window.location.href;
-        //    var indexArea = currenturl.substring(0, currenturl.indexOf(area));
-        //    var url = indexArea + controllerAndFunc;
-        //    console.log("resulting url: ", url);
-        //    return url;
-        //}
+       
 
 
         function dispatch(id, containerTypeId, parentDocumentId, vKitGroupContainerId) { //id is grid id
@@ -725,7 +719,7 @@
         //(SH) 4-16-2014
         var viewSingleSupplier = function(supplierId) {
             if (supplierId > 0) {
-                var url = "/MsdsBoiler//Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
                 window.open(url, "_blank");
             }
         };
@@ -2268,7 +2262,8 @@
             onRequestEnd: onRequestEnd,
             OnddlContainerTypeSelect: OnddlContainerTypeSelect,
 
-            selectSupplier : selectSupplier,
+            selectSupplier: selectSupplier,
+            viewSingleSupplier: viewSingleSupplier,
 
             //------start of kit and group implementation------
             checkAttachmentsBeforeSave: checkAttachmentsBeforeSave,
