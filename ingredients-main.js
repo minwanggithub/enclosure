@@ -3,17 +3,15 @@
         $.fn.complibIngredients = {};
     }
     $.fn.complibIngredients = function () {
-
         var ingredientDetailObj = $("#DetailIngredient");
 
-        var StopPropagation = function (ctlName) {
-            $("#" + ctlName).click(function (e) {
+        var StopPropagation = function(ctlName) {
+            $("#" + ctlName).click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
             });
         };
-
         var IsReadOnlyMode = function () {
             //var spanobj = $("#SearchPanel").find("span.icon-lock.icon-white").length();
             return ($("#SearchPanel").find("span.icon-lock.icon-white").length == 1);
