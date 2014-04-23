@@ -950,10 +950,14 @@
                 console.log("on load, changed to cover sheet and show attachments");
                 setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
 
+                $("#btnDissembleKit").show();
+                
+
                 //setLblRevisionFileInfoDetaillib("Cover Sheet");
                 //$("#kgAttachment").show();
             } else {
-                console.log("no op since it is not a kit");
+                //console.log("no op since it is not a kit");
+                $("#btnDissembleKit").hide();
                 //$("#kgAttachment").hide();
             }
 
@@ -1377,8 +1381,9 @@
         }
 
         var onCustomCommand = function(e) {
-            e.preventDefault();
-            console.log("onCustomCommand e: ", e);
+            e.stopPropagation();
+            $("#canViewConstituentDocument").val("0");
+            console.log("onCustomCommand e.isPropagationStopped(): ", e.isPropagationStopped());
 
             if (!canDeelete(e)) {
                 confirm("You can't delete this record as it is one of the last two records in the kit");
@@ -1402,6 +1407,7 @@
                     dispatch2(gridid, inferContainerTypeId(gridid));
                 }
             }
+            console.log("exiting onCustomCommand");
         };
 
         function hasGridContain2(grid, refid) {
