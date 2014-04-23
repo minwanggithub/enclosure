@@ -2181,6 +2181,7 @@
                         gridDs.add({
                             ReferenceId: itm.ReferenceId,
                             DocumentId: itm.ReferenceId,
+                            RevisionId: itm.RevisionId,
                             RevisionTitle: itm.RevisionTitle,
                             SupplierName: itm.SupplierName,
                             ManufacturerName: itm.SupplierName,
@@ -2215,6 +2216,7 @@
                     gridDs.add({
                         ReferenceId: selectedDataItem.ReferenceId,
                         DocumentId: selectedDataItem.ReferenceId,
+                        RevisionId: selectedDataItem.RevisionId,
                         RevisionTitle: selectedDataItem.RevisionTitle,
                         SupplierName: selectedDataItem.SupplierName,
                         ManufacturerName: selectedDataItem.SupplierName,
