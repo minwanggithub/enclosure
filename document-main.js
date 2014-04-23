@@ -1218,12 +1218,17 @@
                     }
                 }
             }
-            console.log("to launch kg popu with containerTypeId: ", containerTypeId);
+            console.log("to launch kg popu with containerTypeId: [" +  containerTypeId + "]");
             if (containerTypeId == 2) {
-                setLblRevisionFileInfoDetail("Cover Sheet");
+                console.log("kit to launch kg popu with containerTypeId: ", containerTypeId);
+                if (shouldPostToServer()) {
+                    setLblRevisionFileInfoDetail("Cover Sheet");
+                    $("#tabRevisionFileInfo").show();
+                } else {
+                    $("#tabRevisionFileInfo").hide();
+                }
                 $("#whichGridToAdd").val("gdKitSibling");
-                $("#tabRevisionFileInfo").show();
-            } else {
+            } else if (containerTypeId == 3) {
                 $("#whichGridToAdd").val("gdGroupSibling");
                 $("#tabRevisionFileInfo").hide();
             }
@@ -1517,8 +1522,12 @@
             console.log("exiting dispatch2");
         }
 
-        var shouldPostToServer = function() {
-            return (($("#ParentDocumentId").val() != "0") ? true : false);
+        var shouldPostToServer = function () {
+            if ($("#ParentDocumentId").length == 0)
+                return false;
+            if ($("#ParentDocumentId").val() == 0)
+                return false;
+            return true;
         };
 
         function inferContainerTypeId(gridid) {
@@ -2136,7 +2145,7 @@
 
         //------------------------------end of secondary layer event handlers-----------------------------------
 
-        function getDocumentQueryParam(docId) {
+        function getDocumentQueryParam(docId, childDocumentIds) {
             var queryText = {
                 ReferenceId: docId,
                 DocumentTypeId: "",
@@ -2147,7 +2156,8 @@
                 SupplierId: null,
                 RevisionTitle: "",
                 SearchOption: "0",
-                LatestRevisionOnly: false
+                LatestRevisionOnly: false,
+                childDocumentIds: childDocumentIds
             };
             return JSON.stringify(queryText);
         }
@@ -2185,31 +2195,23 @@
                 console.log("within loadExistingChildren, done copying");
                 return;
             }
-            var listOfChildDocumentId = JSON.parse("[" + (($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val()) + "]");
+            var listOfChildDocumentId = ($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val();
             console.log("within loadExistingChildren listOfChildDocumentId: ", listOfChildDocumentId);
             if (listOfChildDocumentId.length < 0) {
                 return;
             }
             
-            //var url = '@Url.Action("GetDocumentResultForKitAndGroup", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
-            var url = getUrl("Operations", "Operations/Document/GetDocumentResultForKitAndGroup");
-
-            $.each(listOfChildDocumentId, function (index, item) {
-                console.log("within loadExistingChildren, item: ", item);
-                var vSearchText = getDocumentQueryParam(item);
-                console.log("vSearchText: ", vSearchText);
-                $.post(url, { searchText: vSearchText }, function (selectedDataList) {
-                    var selectedDataItem = selectedDataList[0];
+            var url = getUrl("Operations", "Operations/Document/GetDocumentResultForKitAndGroupEx");
+            var vSearchText = getDocumentQueryParam(1);
+            console.log("vSearchText: ", vSearchText);
+            $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(listOfChildDocumentId) }, function (selectedDataList) {
+                $.each(selectedDataList, function (idx, selectedDataItem){
                     var dt = "";
-                    if(kendo.parseDate(selectedDataItem.RevisionDate, "yyyy/MM/dd") != null) {
+                    if (kendo.parseDate(selectedDataItem.RevisionDate, "yyyy/MM/dd") != null) {
                         dt = kendo.parseDate(selectedDataItem.RevisionDate, "yyyy/MM/dd");
                     }
                     console.log("within loadExistingChildren after post, selectedDataItem: ", selectedDataItem);
                     console.log("within loadExistingChildren after post, dt: ", dt);
-
                     gridDs.add({
                         ReferenceId: selectedDataItem.ReferenceId,
                         DocumentId: selectedDataItem.ReferenceId,
