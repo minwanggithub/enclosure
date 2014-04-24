@@ -944,7 +944,6 @@
 
             var containerTypeId = $("#ContainerTypeId").val();
             if (containerTypeId == "2") {
-                //console.log("on load, changed to cover sheet and show attachments");
                 setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
 
                 $("#btnDissembleKit").show();
@@ -955,19 +954,27 @@
                     console.log("btnDissembleKit clicked via on ");
                     if (confirm("Are you sure to destroy or dissemble this kit?")) {
                         console.log("user chooses to delete the kit");
-                        destroyAKit();
-
-                    
+                        disembleKitOrGroup(2);
                     }
-
                 });
 
+            } else if (containerTypeId == "3") {
+                setTimeout(setLblRevisionFileInfoDetaillib("Attachments"), 100);
 
-                //});
+                $("#btnDissembleKit").show();
+
+                console.log("set the destroy link");
+                $(document).off('click', "#btnDissembleKit");
+                $(document).on('click', "#btnDissembleKit", function (e) {
+                    console.log("btnDissembleKit clicked via on ");
+                    if (confirm("Are you sure to destroy or dissemble this group?")) {
+                        console.log("user chooses to delete the kit");
+                        disembleKitOrGroup(3);
+                    }
+                });
+
             } else {
-                //console.log("no op since it is not a kit");
                 $("#btnDissembleKit").hide();
-                //$("#kgAttachment").hide();
             }
 
             //for existing doc/rev, show the attachment grid and label
@@ -1067,6 +1074,8 @@
         };
 
         var onRequestEnd = function (e) {
+            console.log("onRequestEnd, e: ", e);
+            console.log("onRequestEnd, e.type: ", e.type);
             if (e.type == undefined || e.type != "read") {
                 setTimeout(function () {
                     var ts = $("#tabRevisionNameNumber").data('kendoTabStrip');
@@ -1653,10 +1662,11 @@
             if (sbv == "2") {
                 console.log("it is a kit parent");
                 doKitParent();
-                loadExistingChildren();
+                loadExistingChildren("gdKitSibling");
             } else if (sbv == "3") {
                 console.log("it is a group parent");
                 doGroupParent();
+                loadExistingChildren("gdGroupSibling");
             } else {
                 console.log("unknown container type");
             }
@@ -2193,9 +2203,9 @@
         //typical search text
         //{"ReferenceId":"","DocumentTypeId":"","DocumentLanguageId":"2","DocumentRegionId":"","PartNumber":"","UPC":"","SupplierId":null,"RevisionTitle":"","SearchOption":"0","LatestRevisionOnly":false}
         //Response Headersview source
-        function loadExistingChildren() {
+        function loadExistingChildren(gridid) {
             console.log("hitting loadExistingChildren");
-            var grid = $("#gdKitSibling").data("kendoGrid");
+            var grid = $("#" + gridid).data("kendoGrid");
             var gridDs = grid.dataSource;
             console.log("gridDs: ", gridDs);
             if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
@@ -2222,15 +2232,17 @@
                 console.log("within loadExistingChildren, done copying");
                 return;
             }
-            
-            if ($("#ListOfChildDocumentId").val().length <= 0) {
+
+            var cids = ($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val();
+            if (cids.length < 0) {
+                console.log("exiting loadExistingChildren due to no children to load");
                 return;
             }
             
             var url = getUrl("Operations", "Operations/Document/GetDocumentResultForKitAndGroupEx");
             var vSearchText = getDocumentQueryParam(1);
             console.log("vSearchText: ", vSearchText);
-            $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(listOfChildDocumentId) }, function (selectedDataList) {
+            $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(cids) }, function (selectedDataList) {
                 $.each(selectedDataList, function (idx, selectedDataItem){
                     console.log("within loadExistingChildren after post, selectedDataItem: ", selectedDataItem);
                     gridDs.add({
@@ -2248,15 +2260,17 @@
                     });
                 });
             });
+
+            console.log("exiting loadExistingChildren done children load");
         };
 
-        var destroyAKit = function() {
+        var disembleKitOrGroup = function (vContainerTypeId) {
             //delete this kit's component and cover sheet
             console.log("delete this kit's component");
             var url = getUrl("Operations", "Operations/Document/DocumentKitAndGroup_Update");
             $.post(url, {
                 parentDocumentId: $("input#DocumentID.doc-ref-id").val(),
-                containerTypeId: 2,
+                containerTypeId: vContainerTypeId,
                 childDocumentId: -1,
                 orderSequenceOffset: -1,
                 childDocumentIdSet: JSON.stringify([]),
@@ -2268,6 +2282,7 @@
                 doDocumentSearch();
             });
         };
+
 
         //function deleteKitCoverSheet() {
         //    var data = $("#addNewFilesBtn").parent().parent().data("kendoGrid").dataSource.data()[0];
@@ -2292,8 +2307,356 @@
         //    }
         //}
         //------end of doc kg tab---
+
+
         //--------------------------end of kit and group implementation---------------------------------
 
+        var handleAddDocument = function () {
+            //add the select records to container grid
+            console.log("hitting handleAddDocument");
+            var parent = getHandle("#gdSearchDocument").data("kendoGrid");
+            if (parent == null) {
+                console.log("handleAddDocument parent is null");
+                return;
+            }
+
+            var selectedRows = parent.select();
+            console.log("handleAddDocument selected rows: ", selectedRows);
+            console.log("handleAddDocument # of selected rows: ", selectedRows.length);
+
+            selectedRows.each(function (index, row) {
+                var selectedDataItem;
+                try {
+                    selectedDataItem = parent.dataItem(row);
+                    console.log("try, selectedDataItem: ", selectedDataItem);
+                } catch (err) {
+                    selectedDataItem = {
+                        ReferenceId: "",
+                        DocumentId: "",
+                        RevisionTitle: "",
+                        SupplierName: "",
+                        ManufacturerName: "",
+                        LanguageDescription: "",
+                        DocumentTypeDescription: "",
+                        RegionDescription: "",
+                        RevisionDate: "",
+                        ConfirmationDate: "",
+                    };
+                    $.each(selectedRows[index].childNodes, function (idx, entry) {
+                        console.log("idx: ", idx);
+                        console.log("entry: ", entry);
+                        if (idx == 1) {
+                            selectedDataItem.ReferenceId = extractValue(entry);
+                        } else if (idx == 3) {
+                            selectedDataItem.RevisionTitle = extractValue(entry);
+                        } else if (idx == 4) {
+                            selectedDataItem.SupplierName = extractValue(entry);
+                        } else if (idx == 5) {
+                            selectedDataItem.LanguageDescription = extractValue(entry);
+                        } else if (idx == 6) { 
+                            selectedDataItem.DocumentTypeDescription = extractValue(entry);
+                        } else if (idx == 7) { 
+                            selectedDataItem.RegionDescription = extractValue(entry);
+                        } else if (idx == 20) {
+                            selectedDataItem.ConfirmationDate = extractValue(entry);
+                            selectedDataItem.RevisionDate = extractValue(entry);
+                        } else if (idx == 18) {
+                            selectedDataItem.ReferenceId = extractValue(entry);
+                        } else if (idx == 26) {
+                            selectedDataItem.SupplierName = extractValue(entry);
+                        }
+                    });
+                }
+                if (selectedDataItem == null) {
+                    alert("No row selected");
+                    return;
+                }
+                console.log("handleAddDocument adding to source grid with selectedDataItem: ", selectedDataItem);
+                console.log("handleAddDocument adding to source grid with gridid: ", $("#whichGridToAdd").val());
+                addToChildGrid($("#whichGridToAdd").val(), selectedDataItem);
+            });
+
+
+            //clearn up the doc search model pupup
+            var dlgDocumentSearch = $("#documentSearchWindow_kg");
+            if (dlgDocumentSearch.data("kendoWindow") && dlgDocumentSearch.data("kendoWindow").dataSource) {
+                dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
+                dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
+            }
+
+            dlgDocumentSearch.data("kendoWindow").close();
+
+            //update the kgAttachment
+            $("#btnViewAndUpdateAttachments").html("Attachments(" + getAttachmentCounted($("#whichGridToAdd").val()) + ")");
+            console.log("exiting handleAddDocument");
+        };
+
+        var initKitAndGroup = function () {
+            console.log("hitting initKitAndGroup, doclib: ", doclib);
+
+            var dlgDocumentSearch = $("#documentSearchWindow_kg");
+            //var supplierSearchDialog = $("#supplierSearchWindow");
+
+            var url = getUrl("Operations", "Operations/Document/PlugInSupplierSearch");
+            $.post(url, { supplierId: 0 }, function (data) {
+                //console.log("retrieved data for supplier plugin: ", data);
+                $("#supplierSearchWindow #dgSupplierPlugIn").html(data);
+            });
+
+            url = getUrl("Operations", "Operations/Document/SearchDocumentContent");
+            $.post(url, { supplierId: 0 }, function (data) {
+                //console.log("retrieved data for search doc content: ", data);
+                $("#dgDocumentPlugIn").html(data);
+            });
+
+
+            $("#divParent").hide();
+            $("#divKitSibling").hide();
+            $("#divGroupSibling").hide();
+
+            //clearData();
+            //uncheckAndHideAll();
+
+            //TODO: bring back group and childrens
+            //bring back the kit component
+            if ($("#ParentDocumentId").val().length <= 0 || $("#ParentDocumentId").val() == "0") {
+                var docId = $("input#DocumentID.doc-ref-id").val();
+                if (docId.length > 0) {
+                    $("#ParentDocumentId").val(docId);
+                    console.log("manually correct the parent document id to ", $("#ParentDocumentId").val());
+                }
+            }
+
+            console.log("initKitAndGroup, to fillup kg content");
+            fillUpKGContent();
+
+            if (!shouldPostToServer()) { //for a doc under creation
+                //show the save and cancel buttons
+                $("#divContainerControlPanel").show();
+                $("#btnContainerSave").html("Keep");
+                $("#btnContainerCancel").html("Discard");
+                $("#btnContainerSave").attr("title", "Keep");
+
+                $("#btnContainerSave").prepend($('<span></span>').addClass("k-icon k-i-pencil"));
+                $("#btnContainerCancel").prepend($('<span></span>').addClass("k-icon k-i-cancel"));
+            }
+
+            //------------------------------start of secondary layer event handlers-----------------------------------
+            $(document).on('click', "#documentSearchWindow_kg #clearDocumentBtn", function (e) {
+                e.preventDefault();
+                console.log("clearDocumentBtn clicked");
+                clearData();
+            });
+
+            $(document).on('click', "#documentSearchWindow_kg #searchDocumentBtn", function (e) {
+                e.preventDefault();
+                console.log("searchDocumentBtn clicked");
+                var grid = getHandle("#gdSearchDocument").data("kendoGrid");
+                if (grid != null) {
+                    grid.dataSource.page(1);
+                    grid.dataSource.read();
+                }
+            });
+
+            $(document).on('click', "#documentSearchWindow_kg #addNewDocumentBtn2", function (e) {
+                console.log("to add new doc clicked");
+                var currenturl = window.location.href;
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Document/DocumentMain'));
+                var url = indexArea + "/Document/LoadSingleDocument?documentId=0&revisionId=0";
+                window.open(url, "_blank");
+            });
+
+            $(document).on('click', "#documentSearchWindow_kg #titleDropDown", function (e) {
+                e.preventDefault();
+                console.log("drop down near txtRevisionTitle clicked");
+                if (dsSearchOption == undefined || dsSearchOption == null) {
+                    console.log("dsSearchOption is null or undefined.");
+                    return;
+                }
+
+                console.log("within initKitAndGroup, dsSearchOption: ", dsSearchOption);
+                kendo.bind(getHandle("#searchTtileOptionDiv"), dsSearchOption);
+                getHandle("#searchTtileOptionDiv").show();
+            });
+
+            $(document).on('click', "#documentSearchWindow_kg #searchSupplierIdBtn", function (e) {
+                e.preventDefault();
+                console.log("searchSupplierIdBtn clicked");
+
+                showSupplierPlugIn("documentSearchWindow_kg #txtSearchSupplierId");
+
+                //cope with the deficiency
+                $(document).on('dblclick', 'table tr', "#gdSearchSupplier", selectSupplier);
+            });
+
+
+            getHandle("#searchDocumentIdSelect").click(function (e) {
+                e.preventDefault();
+                console.log("searchDocumentIdSelect or attach clicked");
+                handleAddDocument();
+            });
+
+
+            getHandle("#btnCancelDocumentSearch").click(function (e) {
+                e.preventDefault();
+                console.log("btnCancelDocumentSearch clicked");
+                dlgDocumentSearch.data("kendoWindow").close();
+            });
+
+            //intercepting value from supplier popup
+            getHandle("#searchSupplierIdSelect").click(function (e) {
+                e.preventDefault();
+                //console.log("searchSupplierIdSelect clicked");
+
+                var grid = $("#gdSearchSupplier").data("kendoGrid");
+                if (grid.dataSource.total() == 0) {
+                    //$("#popupSupplierSearch").modal("hide");
+                    //alert("No row selected");
+                    return;
+                }
+                var data = grid.dataItem(grid.select());
+                if (data == null) {
+                    alert("No row selected");
+                    return;
+                }
+                //console.log("data.id + ", " + data.Name: " + data.id + ", " + data.Name);
+                getHandle("#txtSearchSupplierId").val(data.id + ", " + data.Name);
+
+            });
+
+
+            getHandle("#btnCancelSupplierSearch").click(function (e) {
+                e.preventDefault();
+                console.log("btnCancelSupplierSearch clicked");
+            });
+
+            getHandle("#SearchResultGridDiv").on("click", function (e) {
+                e.preventDefault();
+                console.log("SearchResultGridDiv singly clicked");
+            });
+
+            getHandle("#SearchResultGridDiv").on('dblclick', 'table tr', function (e) {
+                e.preventDefault();
+                console.log("SearchResultGridDiv doubly clicked");
+                handleAddDocument();
+            });
+
+
+            $('#addDocToKitBtn').click(function (e) {
+                e.preventDefault();
+                console.log("addDocToKitBtn clicked");
+                $("#whichGridToAdd").val("gdKitSibling");
+                getHandle("#documentModalPopup").show();
+                setupDropDowns();
+                //dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
+                //dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
+                dlgDocumentSearch.data("kendoWindow").center();
+                dlgDocumentSearch.data("kendoWindow").open();
+            });
+
+            $('#addDocToGroupBtn').click(function (e) {
+                e.preventDefault();
+                console.log("addDocToGroupBtn clicked");
+                $("#whichGridToAdd").val("gdGroupSibling");
+                getHandle("#documentModalPopup").show();
+                setupDropDowns();
+                //dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
+                //dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
+                dlgDocumentSearch.data("kendoWindow").center();
+                dlgDocumentSearch.data("kendoWindow").open();
+            });
+
+            $('#btnContainerSave').click(function (e) {
+                e.preventDefault();
+
+                console.log("btnContainerSave clicked");
+                var ad = $("#gdAssocatedDocuments");
+
+                //copy the cached document lists to divAssociatedDocuments
+                var parent = ad.data("kendoGrid");
+                if (parent == null) {
+                    console.log("error: parent is null!!");
+                    return;
+                }
+
+                var child = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+                console.log("btnContainerSave child: ", child);
+                if (child) {
+                    var dataSource = child.dataSource;
+                    var filters = dataSource.filter();
+                    var allData = dataSource.data();
+                    var query = new kendo.data.Query(allData);
+                    var filteredData = query.filter(filters).data;
+
+                    console.log("before parent.dataSource: ", parent.dataSource);
+                    $.each(filteredData, function (index, selectedDataItem) {
+                        console.log("selectedDataItem: ", selectedDataItem);
+                        parent.dataSource.add({
+                            ReferenceId: selectedDataItem.ReferenceId,
+                            DocumentId: selectedDataItem.ReferenceId,
+                            RevisionTitle: selectedDataItem.RevisionTitle,
+                            SupplierName: selectedDataItem.SupplierName,
+                            ManufacturerName: selectedDataItem.SupplierName,
+                            LanguageDescription: selectedDataItem.LanguageDescription,
+                            DocumentTypeDescription: selectedDataItem.DocumentTypeDescription,
+                            RegionDescription: selectedDataItem.RegionDescription,
+                            RevisionDate: selectedDataItem.RevisionDate,
+                            ConfirmationDate: selectedDataItem.RevisionDate,
+                        });
+                    });
+                    console.log("after addition parent.dataSource: ", parent.dataSource);
+
+                    dataSource.filter({});
+                    dataSource.data([]);
+                }
+
+                dlgDocumentSearch.data("kendoWindow").close();
+
+                $("#kg_popup").data("kendoWindow").close();
+                //$("#divAssocatedDocuments").show();
+            });
+
+            $('#btnContainerCancel').click(function (e) {
+                console.log("btnContainerCancel clicked");
+                //$("#divAssocatedDocuments").show();
+                if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+                    dlgDocumentSearch.data("kendoWindow").close();
+                    $("#kg_popup").data("kendoWindow").close();
+
+                    var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+                    if (grid && grid.dataSource)
+                        grid.dataSource.data([]);
+                    $("#btnViewAndUpdateAttachments").html("Attachments()");
+                } else {
+                    return;
+                }
+            });
+
+
+            console.log("set view doc in kit link");
+            $('#gdKitSibling').click(function (e) {
+                e.preventDefault();
+
+                if ($("#canViewConstituentDocument").val() != "0") {
+                    var grid = $("#gdKitSibling").data("kendoGrid");
+                    var url = getUrl("Operations", "Operations/Document/LoadSingleDocument");
+                    var data = grid.dataItem(grid.select());
+                    if (data != undefined) {
+                        console.log("gdKitSibling clicked, selected data: ", data);
+                        var did = data.ReferenceId;
+                        var rid = data.RevisionId;
+                        url += "?documentId=" + did + "&revisionId=" + rid;
+                        console.log("to view kit component with url: ", url);
+                        window.open(url, "_blank");
+                    }
+                }
+
+                $("#canViewConstituentDocument").val("1");
+            });
+
+
+            console.log("exing initKitAndGroup");
+        };
 
 
 
@@ -2352,7 +2715,10 @@
             shouldPostToServer: shouldPostToServer,
             clearData: clearData,
             setupDropDowns: setupDropDowns,
-            destroyAKit: destroyAKit,
+            disembleKitOrGroup: disembleKitOrGroup,
+
+            handleAddDocument: handleAddDocument,
+            initKitAndGroup: initKitAndGroup,
             //------end of kit and group implementation------
         };
     };
