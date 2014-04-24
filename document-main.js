@@ -719,7 +719,6 @@
         //(SH) 4-16-2014
         var viewSingleSupplier = function(supplierId) {
             if (supplierId > 0) {
-                alert("workload-main: " + supplierId);
                 var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
                 window.open(url, "_blank");
             }
@@ -2011,15 +2010,15 @@
             var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
             if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
                 console.log("to launch prompt");
-                if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
-                    dlgDocumentSearch.data("kendoWindow").close();
-                    $("#kg_popup").data("kendoWindow").close();
+            if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+                dlgDocumentSearch.data("kendoWindow").close();
+                $("#kg_popup").data("kendoWindow").close();
                     grid.dataSource.data([]);
-                    $("#btnViewAndUpdateAttachments").html("Attachments()");
-                } else {
+                $("#btnViewAndUpdateAttachments").html("Attachments()");
+            } else {
                     console.log("not to launch prompt as the source grid is empty");
-                    return;
-                }
+                return;
+            }
             }
         });
 
