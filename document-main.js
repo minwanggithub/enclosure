@@ -2261,8 +2261,7 @@
                 console.log("after posted after kit destroy, data: ", data);
 
                 //redirect to the doc main
-                url = getUrl("Operations", "Operations/Document/DocumentMain#");
-                window.open(url, "_blank");
+                doDocumentSearch();
             });
         };
 
