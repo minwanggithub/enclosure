@@ -929,9 +929,7 @@
 
         function setLblRevisionFileInfoDetaillib(text) {
             text = (typeof text !== 'undefined') ? text : "Attachment";
-
-            console.log("to set lblRevisionFileInfoDetail with value: ", text);
-
+            //console.log("to set lblRevisionFileInfoDetail with value: ", text);
             $("#lblRevisionFileInfoDetail").html(text);
             $("#addNewFilesBtn").html("Add " + text);
 
@@ -947,14 +945,26 @@
 
             var containerTypeId = $("#ContainerTypeId").val();
             if (containerTypeId == "2") {
-                console.log("on load, changed to cover sheet and show attachments");
+                //console.log("on load, changed to cover sheet and show attachments");
                 setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
 
                 $("#btnDissembleKit").show();
-                
 
-                //setLblRevisionFileInfoDetaillib("Cover Sheet");
-                //$("#kgAttachment").show();
+                console.log("set the destroy link");
+                $(document).off('click', "#btnDissembleKit");
+                $(document).on('click', "#btnDissembleKit", function (e) {
+                    console.log("btnDissembleKit clicked via on ");
+                    if (confirm("Are you sure to destroy or dissemble this kit?")) {
+                        console.log("user chooses to delete the kit");
+                        destroyAKit();
+
+                    
+                    }
+
+                });
+
+
+                //});
             } else {
                 //console.log("no op since it is not a kit");
                 $("#btnDissembleKit").hide();
@@ -2235,6 +2245,49 @@
                 });
             });
         };
+
+        var destroyAKit = function() {
+            //delete this kit's component and cover sheet
+            console.log("delete this kit's component");
+            var url = getUrl("Operations", "Operations/Document/DocumentKitAndGroup_Update");
+            $.post(url, {
+                parentDocumentId: $("input#DocumentID.doc-ref-id").val(),
+                containerTypeId: 2,
+                childDocumentId: -1,
+                orderSequenceOffset: -1,
+                childDocumentIdSet: JSON.stringify([]),
+                kitGroupContainerId: -1
+            }, function(data) {
+                console.log("after posted after kit destroy, data: ", data);
+
+                //redirect to the doc main
+                url = getUrl("Operations", "Operations/Document/DocumentMain#");
+                window.open(url, "_blank");
+            });
+        };
+
+        //function deleteKitCoverSheet() {
+        //    var data = $("#addNewFilesBtn").parent().parent().data("kendoGrid").dataSource.data()[0];
+        //    if (data != undefined) {
+        //        console.log("got a cover sheet to delete");
+
+        //        var docId = $("input#DocumentID.doc-ref-id").val();
+        //        var refId = $("input#RevisionID.doc-ref-id").val();
+        //        var url = doclib.getUrl("Operations", "Operations/Document/DeleteDocumentFile");
+        //        var dim = {
+        //            RevisionId: data.RevisionId,
+        //            DocumentInfoId: data.DocumentInfoId,
+        //            DirectoryPath: data.DirectoryPath,
+        //            PhysicalPath: data.PhysicalPath,
+        //        };
+        //        console.log("dim: ", dim);
+        //        var model = JSON.stringify(dim);
+        //        console.log("model: ", model);
+        //        $.post(url, { documentInfoModel: model }, function (retrievedData) {
+        //            console.log("retrieved data: ", retrievedData);
+        //        });
+        //    }
+        //}
         //------end of doc kg tab---
         //--------------------------end of kit and group implementation---------------------------------
 
@@ -2296,6 +2349,7 @@
             shouldPostToServer: shouldPostToServer,
             clearData: clearData,
             setupDropDowns: setupDropDowns,
+            destroyAKit: destroyAKit,
             //------end of kit and group implementation------
         };
     };
