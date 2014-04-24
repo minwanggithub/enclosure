@@ -960,7 +960,7 @@
 
             } else if (containerTypeId == "3") {
                 setTimeout(setLblRevisionFileInfoDetaillib("Attachments"), 100);
-
+                    
                 $("#btnDissembleKit").show();
 
                 console.log("set the destroy link");
@@ -1074,8 +1074,6 @@
         };
 
         var onRequestEnd = function (e) {
-            console.log("onRequestEnd, e: ", e);
-            console.log("onRequestEnd, e.type: ", e.type);
             if (e.type == undefined || e.type != "read") {
                 setTimeout(function () {
                     var ts = $("#tabRevisionNameNumber").data('kendoTabStrip');
@@ -2232,7 +2230,7 @@
                 console.log("within loadExistingChildren, done copying");
                 return;
             }
-
+            
             var cids = ($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val();
             if (cids.length < 0) {
                 console.log("exiting loadExistingChildren due to no children to load");
