@@ -2005,18 +2005,21 @@
         });
 
         $('#btnContainerCancel').click(function (e) {
+            e.preventDefault();
             console.log("btnContainerCancel clicked");
             //$("#divAssocatedDocuments").show();
-            if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
-                dlgDocumentSearch.data("kendoWindow").close();
-                $("#kg_popup").data("kendoWindow").close();
-
-                var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
-                if (grid && grid.dataSource)
+            var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+            if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
+                console.log("to launch prompt");
+                if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+                    dlgDocumentSearch.data("kendoWindow").close();
+                    $("#kg_popup").data("kendoWindow").close();
                     grid.dataSource.data([]);
-                $("#btnViewAndUpdateAttachments").html("Attachments()");
-            } else {
-                return;
+                    $("#btnViewAndUpdateAttachments").html("Attachments()");
+                } else {
+                    console.log("not to launch prompt as the source grid is empty");
+                    return;
+                }
             }
         });
 
@@ -2178,10 +2181,19 @@
             return JSON.stringify(queryText);
         }
 
+        function getParsedDate(d)
+        {
+            var dt = "";
+            if (kendo.parseDate(d, "yyyy/MM/dd") != null) {
+                dt = kendo.parseDate(d, "yyyy/MM/dd");
+            }
+            return dt;
+        }
+
+
         //typical search text
         //{"ReferenceId":"","DocumentTypeId":"","DocumentLanguageId":"2","DocumentRegionId":"","PartNumber":"","UPC":"","SupplierId":null,"RevisionTitle":"","SearchOption":"0","LatestRevisionOnly":false}
         //Response Headersview source
-
         function loadExistingChildren() {
             console.log("hitting loadExistingChildren");
             var grid = $("#gdKitSibling").data("kendoGrid");
@@ -2190,7 +2202,6 @@
             if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
                 //gridDs.filter([]);
                 gridDs.data([]);
-                console.log("will copy from parent's grid");
                 $.each($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data(), function (idx, itm) {
                     console.log("itm: ", itm);
                     if (!hasGridContain2(grid, itm.ReferenceId)) {
@@ -2212,9 +2223,8 @@
                 console.log("within loadExistingChildren, done copying");
                 return;
             }
-            var listOfChildDocumentId = ($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val();
-            console.log("within loadExistingChildren listOfChildDocumentId: ", listOfChildDocumentId);
-            if (listOfChildDocumentId.length < 0) {
+            
+            if ($("#ListOfChildDocumentId").val().length <= 0) {
                 return;
             }
             
@@ -2223,12 +2233,7 @@
             console.log("vSearchText: ", vSearchText);
             $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(listOfChildDocumentId) }, function (selectedDataList) {
                 $.each(selectedDataList, function (idx, selectedDataItem){
-                    var dt = "";
-                    if (kendo.parseDate(selectedDataItem.RevisionDate, "yyyy/MM/dd") != null) {
-                        dt = kendo.parseDate(selectedDataItem.RevisionDate, "yyyy/MM/dd");
-                    }
                     console.log("within loadExistingChildren after post, selectedDataItem: ", selectedDataItem);
-                    console.log("within loadExistingChildren after post, dt: ", dt);
                     gridDs.add({
                         ReferenceId: selectedDataItem.ReferenceId,
                         DocumentId: selectedDataItem.ReferenceId,
@@ -2239,8 +2244,8 @@
                         LanguageDescription: selectedDataItem.LanguageDescription,
                         DocumentTypeDescription: selectedDataItem.DocumentTypeDescription,
                         RegionDescription: selectedDataItem.RegionDescription,
-                        RevisionDate: dt,
-                        ConfirmationDate: dt,
+                        RevisionDate: getParsedDate(selectedDataItem.RevisionDate),
+                        ConfirmationDate: getParsedDate(selectedDataItem.RevisionDate),
                     });
                 });
             });
