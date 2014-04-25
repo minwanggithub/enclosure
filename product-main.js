@@ -194,7 +194,6 @@
             });
         }
 
-
         ////////////non publuc / public/////////////
         var panelbar_activated = function () {
             //Can not be moved to partial view, or it cause clear and search again
@@ -366,7 +365,14 @@
         //--------------------start of _SearchProduct.cshtml-----------------------
         function TabReload(tabName, tab) {
             var tsProdDetail = $(tabName).data("kendoTabStrip");
-            tsProdDetail.reload(tsProdDetail.items()[tab]);
+
+            // Is the tab marked as the active tab?
+            var currentTab = $(tsProdDetail.items()[tab]);
+            if (!currentTab.attr('id')) {
+                currentTab.attr('id', tsProdDetail._ariaId);
+            }
+
+            tsProdDetail.reload(currentTab.context);
         }
 
         ////////////non publuc / public/////////////
@@ -387,6 +393,22 @@
             });
 
             UnBindingSaveCancel(pKey);
+
+            $('#btnRefreshProduct_' + pKey).on('click', function () {
+                var tabId = "#" + pKey + "_tbProductDetail";
+
+                // Check if a change had occurred in any of the fields
+                if (!$('#btnSaveProduct_' + pKey).hasClass('k-state-disabled')) {
+
+                    // Set up information for the confirmation modal
+                    var args = { message: 'All product changes will be reverted. Are you sure you would like to reload the product?', header: 'Confirm Product Reload' };
+                    DisplayConfirmationModal(args, function () {
+                        TabReload(tabId, 0);
+                    });
+                } else {
+                    TabReload(tabId, 0);
+                }
+            });
 
             $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
