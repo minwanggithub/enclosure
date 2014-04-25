@@ -571,10 +571,6 @@
             var query = new kendo.data.Query(allData);
             var filteredData = query.filter(filters).data;
 
-            //var url = '@Url.Action("DocumentKitAndGroup_Update", "Document", new { Area = "Operations" })';
-            //var currenturl = window.location.href;
-            //var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
-            //var url = indexArea + "Document/DocumentKitAndGroup_Update";
             var url = getUrl("Document", "Document/DocumentKitAndGroup_Update");
 
             var childDocumentIdSet = [];
@@ -603,10 +599,10 @@
         function getContainerTypeId()
         {
             var containerOption = $("#ContainerTypeId").val();
-            if (containerOption == "2") //2 ---> kit
-                return 2; //Kit parent
-             else if (containerOption == "3") //3 --->group
-               return 3; //Group parent
+            if (containerOption == "2") 
+                return 2; 
+             else if (containerOption == "3") 
+               return 3; 
             return containerOption;
         }
 
@@ -636,7 +632,8 @@
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
 
-                        if (containerTypeId != 2) {
+                        //only do this for Single
+                        if (containerTypeId == 1) {
                             alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
                         }
                         
@@ -1169,8 +1166,6 @@
             console.log("Within ContainerTypeId's change, previousContainerTypeId: ", previousContainerTypeId);
             console.log("Within ContainerTypeId's change, current containerTypeId: ", containerTypeId);
             if (containerTypeId == "1") {
-                   
-
                 //also need check if it is in display mode
                 if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0 && (previousContainerTypeId == "2" || previousContainerTypeId == "3")) {
                     if (confirm("Are you sure to switch the current document to a single? If you proceed, then the previously added documents will be discarded")) {
@@ -1192,7 +1187,6 @@
                 $("#previousContainerTypeId").val(containerTypeId);
                 return;
             }
-
 
             //as long as it is not a new single doc creation, we wil let the lblRevisionFileInfoDetail show
             if ($("input#DocumentID.doc-ref-id").val() != "0" || ($("input#DocumentID.doc-ref-id").val() != "0" && (containerTypeId == "2" && containerTypeId == "3"))) {
@@ -1297,11 +1291,6 @@
                 close: onPopuClose
             }).data("kendoWindow");
 
-            //var url = '@Url.Action("LoadDocumentKitsGroups", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
-
             var url = getUrl("Operations", "Operations/Document/LoadDocumentKitsGroups");
             $.post(url, { documentId: 0, KitGroupClassificationSetBitValue: kitGroupClassificationSetBitValue }, function(content) {
                 //console.log("after posted, data: ", content);
@@ -1311,14 +1300,10 @@
                 win.open();
             });
         };
-
-    
     
         function setLblRevisionFileInfoDetail(text){
             text = (typeof text !== 'undefined') ? text : "Attachment";
-            
-            console.log("to set lblRevisionFileInfoDetail with value: ", text);
-            
+            //console.log("to set lblRevisionFileInfoDetail with value: ", text);
             $("#lblRevisionFileInfoDetail").html(text);
             $("#lblRevisionFileInfoDetail").show();
             $("#addNewFilesBtn").html("Add " + text);
@@ -1632,42 +1617,48 @@
         //};
 
         var fillUpKGContent = function () {
-            //var sbv = $("#KitGroupClassificationSetBitValue").val();
+            var sbv = $("#KitGroupClassificationSetBitValue").val();
+            console.log("KitGroupClassificationSetBitValue has value of " + sbv);
+            if (sbv == "1") {
+                console.log("it is a kit parent");
+                $("#divBody").show();
+                doKitParent();
+                loadExistingChildren("gdKitSibling");
+            } else if (sbv == "2") {
+                console.log("it is a kit children");
+                $("#divBody").show();
+                doKitChildren();
+            } else if (sbv == "4") {
+                console.log("it is a group parent");
+                $("#divBody").show();
+                doGroupParent();
+                loadExistingChildren("gdGroupSibling");
+            } else if (sbv == "8") {
+                console.log("it is a group children");
+                doGroupChildren();
+                $("#divBody").show();
+            } else if (sbv == "10") {
+                console.log("it is both a kit children and a group children");
+                $("#divBody").show();
+                doBothChildren();
+            } else {
+                console.log("single or unknown container type");
+                $("#divBody").hide();
+            }
+
+            //var sbv = $("#ContainerTypeId").val();
             //console.log("KitGroupClassificationSetBitValue has value of " + sbv);
-            //if (sbv == "1") {
+            //if (sbv == "2") {
             //    console.log("it is a kit parent");
             //    doKitParent();
-            //    loadExistingChildren();
-            //} else if (sbv == "2") {
-            //    console.log("it is a kit children");
-            //    doKitChildren();
-            //} else if (sbv == "4") {
+            //    loadExistingChildren("gdKitSibling");
+            //} else if (sbv == "3") {
             //    console.log("it is a group parent");
             //    doGroupParent();
-            //} else if (sbv == "8") {
-            //    console.log("it is a group children");
-            //    doGroupChildren();
-            //} else if (sbv == "10") {
-            //    console.log("it is both a kit children and a group children");
-            //    doBothChildren();
+            //    loadExistingChildren("gdGroupSibling");
             //} else {
             //    console.log("unknown container type");
             //}
-
-
-            var sbv = $("#ContainerTypeId").val();
-            console.log("KitGroupClassificationSetBitValue has value of " + sbv);
-            if (sbv == "2") {
-                console.log("it is a kit parent");
-                doKitParent();
-                loadExistingChildren("gdKitSibling");
-            } else if (sbv == "3") {
-                console.log("it is a group parent");
-                doGroupParent();
-                loadExistingChildren("gdGroupSibling");
-            } else {
-                console.log("unknown container type");
-            }
 
         };
 
@@ -2175,7 +2166,7 @@
             var queryText = {
                 ReferenceId: docId,
                 DocumentTypeId: "",
-                DocumentLanguageId: "2",
+                DocumentLanguageId: getHandle($("#ddlDocumentLanguage")).val(),
                 DocumentRegionId: "",
                 PartNumber: "",
                 UPC: "",
