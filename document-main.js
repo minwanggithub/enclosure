@@ -453,6 +453,7 @@
             });
         };
 
+        
         var loadNewRevision = function () {
             $("#IsNewRevision").val(true);
             $("#txtManufacturerId").val('');
@@ -467,9 +468,7 @@
             $("#tabRevisionNameNumber").hide();
             $("#tabRevisionFileInfo").hide();
             $("#divCancelRevision").show();
-
             $("#divExistRevision").addClass("new-document-revision");
-
             var ddlistLanguage = $("#DocumentLanguageId").data("kendoDropDownList");
             var ddlistDocumentType = $("#DocumentTypeId").data("kendoDropDownList");
             var ddlistContainer = $("#ContainerTypeId").data("kendoDropDownList");
@@ -477,7 +476,8 @@
             ddlistLanguage.enable(false);
             ddlistDocumentType.enable(false);
             ddlistContainer.enable(false);
-
+            $("#dvAddNewAttachment").show();
+            $("#lblRevisionFileInfoDetail").hide();
             $("#divCancelRevision").click(function (e) {
                 loadDocumentDetail($("#DocumentId").val(), $("#RevisionId").val());
             });
@@ -615,6 +615,7 @@
                 var containerTypeId = getContainerTypeId();
                 $.post(url, formData, function(data) {
                     console.log("within saveDocumentDetail, retrieved data: ", data);
+                    if (data.DisplayMessage !="Error") {
                     if (data.NewDocument) {
                         if (containerTypeId == 2 || containerTypeId == 3) {
                             console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
@@ -632,11 +633,14 @@
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
 
-                        //only do this for Single
-                        if (containerTypeId == 1) {
-                            alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
-                        }
+                            //if (containerTypeId != 2) {
+                            //    alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
+                            //}
                         
+                            return;
+                        }
+                    } else {
+                        onDisplayError("No attachment has been provided, unable to save.");
                         return;
                     }
 
@@ -666,6 +670,20 @@
             }
         };
 
+
+        var onDisplayError = function (errorMessage) {
+            var message = errorMessage;
+            $('#errorReport').find('.modal-body').html(message);
+            $("#errorReport").modal({
+                backdrop: true,
+                keyboard: true
+            }).css({
+                width: 'auto',
+                'margin-left': function () {
+                    return -($(this).width() / 2); //auto size depending on the message
+                }
+            });
+        }
 
         var loadIndexation = function () {
             var documentId = $("#DocumentId").val();
@@ -1236,9 +1254,9 @@
             if (containerTypeId == 2) {
                 console.log("kit to launch kg popu with containerTypeId: ", containerTypeId);
                 if (shouldPostToServer()) {
-                    setLblRevisionFileInfoDetail("Cover Sheet");
-                    $("#tabRevisionFileInfo").show();
-                } else {
+                setLblRevisionFileInfoDetail("Cover Sheet");
+                $("#tabRevisionFileInfo").show();
+            } else {
                     $("#tabRevisionFileInfo").hide();
                 }
                 $("#whichGridToAdd").val("gdKitSibling");
@@ -1300,7 +1318,7 @@
                 win.open();
             });
         };
-    
+
         function setLblRevisionFileInfoDetail(text){
             text = (typeof text !== 'undefined') ? text : "Attachment";
             //console.log("to set lblRevisionFileInfoDetail with value: ", text);
@@ -2230,7 +2248,7 @@
             
             var url = getUrl("Operations", "Operations/Document/GetDocumentResultForKitAndGroupEx");
             var vSearchText = getDocumentQueryParam(1);
-            console.log("vSearchText: ", vSearchText);
+                console.log("vSearchText: ", vSearchText);
             $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(cids) }, function (selectedDataList) {
                 $.each(selectedDataList, function (idx, selectedDataItem){
                     console.log("within loadExistingChildren after post, selectedDataItem: ", selectedDataItem);
@@ -2247,8 +2265,8 @@
                         RevisionDate: getParsedDate(selectedDataItem.RevisionDate),
                         ConfirmationDate: getParsedDate(selectedDataItem.RevisionDate),
                     });
+                    });
                 });
-            });
 
             console.log("exiting loadExistingChildren done children load");
         };
@@ -2657,6 +2675,7 @@
             hideSupplierPlugIn: hideSupplierPlugIn,
             onExpand: onExpand,
             onDataBound: onDataBound,
+            onDisplayError: onDisplayError,
             onSelect: onSelect,
             expandNodeData: expandNodeData,
             selectType: getSelectType,

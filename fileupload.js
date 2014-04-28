@@ -68,6 +68,10 @@
 
                 //Call server to create database entries for all files
                 var parameters = "filelist=" + uploadStake + "&documentId=" + $('input#DocumentId').val() + "&revisionId=" + $('input#RevisionId').val();
+                var fileName = uploadStake;
+
+                if (!$("#dvAddNewAttachment").is(":hidden"))
+                    $("#txtFileName").val(fileName);
 
                 $.ajax({
                     type: "POST",
@@ -86,17 +90,25 @@
                         if (response.success) {
                             uploadStake.splice(0, uploadStake.length);
                             $(".k-upload-files.k-reset").find("li").remove();
+                           
                             fileUploadDialog.data("kendoWindow").close();
 
                             //Refresh revision document ist
                             tabReload("#tabRevisionFileInfo", 0);
+
+                            if (!$("#dvAddNewAttachment").is(":hidden"))
+                                $("#addNewDocFilesBtn").attr("disabled", "disabled");
+
                         } else {
-                            alert('Error: ' + response.message);
+                            $("#txtFileName").val("");
+                            onDisplayError('Error: ' + response.message);
+                            e.preventDefault();
                         }
                     },
                     error: function (result) {
-                        console.log('Error: result is: ' + result);
-                        alert('Error: ' + JSON.stringify(result.statusText));
+                        $("#txtFileName").val("");
+                        onDisplayError('Error: ' + result);
+                        e.preventDefault();
                     }
                 });
             });
@@ -104,6 +116,12 @@
 
         //Public functions starts
         var openFileUploadDialog = function () {
+            //add multiple when it's not a new document or revision
+            $("#files").removeAttr("multiple");
+            if ($('#IsNewRevision').val()=="False" && $('input#DocumentId').val()!="0") {
+                $("#files").attr("multiple", "multiple");
+            }
+
             KendoPopUpAjustExecute(fileUploadDialog);
             fileUploadDialog.data("kendoWindow").open();
         };
@@ -124,12 +142,21 @@
         };
 
         var onFileSelect = function (e) {
+            if ($("#IsNewRevision").val()) {
+                if (e.files.length > 1) {
+                    fileUploadDialog.data("kendoWindow").close();
+                    onDisplayError("Only one file can be uploaded on new revision.");
+                   e.preventDefault();
+                } 
+            }
+           
+
             var copiedArray = uploadStake.slice(0);
 
             $.each(e.files, function (index, value) {
                 if (value.extension.toLowerCase() != ".pdf") {
                     e.preventDefault();
-                    alert("Please upload only pdf files");
+                    onDisplayError("Please upload only pdf files");
                     return false;
                 }
 
@@ -137,7 +164,7 @@
                 var lowerCaseName = value.name.toLowerCase();
                 if ($.inArray(lowerCaseName, copiedArray) >= 0) {
                     e.preventDefault();
-                    alert("You are attempting to uploading or have uploaded a file with the same file name. Please rename " + lowerCaseName + " to continue.");
+                    onDisplayError("You are attempting to uploading or have uploaded a file with the same file name. Please rename " + lowerCaseName + " to continue.");
                     return false;
                 }
 
@@ -150,7 +177,7 @@
         var onFileUploadError = function (e) {
             if (!errorDisplayed) {
                 errorDisplayed = true;
-                alert('An error occurred uploading the file(s) specified.');
+                onDisplayError('An error occurred uploading the file(s) specified.');
             }
         };
 
@@ -160,6 +187,20 @@
             hookEvents();
         };
 
+        var onDisplayError = function (errorMessage) {
+            var message = errorMessage;
+            $('#errorReport').find('.modal-body').html(message);
+            $("#errorReport").modal({
+                backdrop: true,
+                keyboard: true
+            }).css({
+                width: 'auto',
+                'margin-left': function () {
+                    return -($(this).width() / 2); //auto size depending on the message
+                }
+            });
+        }
+
         return {
             loadFileUploaPlugIn: loadFileUploaPlugIn,
             openFileUploadDialog: openFileUploadDialog,
@@ -168,6 +209,8 @@
             onFileSelect: onFileSelect
         };
     };
+
+
 
     //Initialize
     $(function () {
