@@ -621,28 +621,28 @@
                 var containerTypeId = getContainerTypeId();
                 $.post(url, formData, function(data) {
                     console.log("within saveDocumentDetail, retrieved data: ", data);
-                    if (data.DisplayMessage !="Error") {
-                    if (data.NewDocument) {
-                        if (containerTypeId == 2 || containerTypeId == 3) {
-                            console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
+                    if (data.DisplayMessage != "Error") {
+                        if (data.NewDocument) {
+                            if (containerTypeId == 2 || containerTypeId == 3) {
+                                console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
 
-                            var vKitGroupContainerId = $("#KitGroupContainerId").val();
-                            if (vKitGroupContainerId == undefined) {
-                                if ($("input#DocumentID.doc-ref-id").val() == "0")
-                                    vKitGroupContainerId = 0;
+                                var vKitGroupContainerId = $("#KitGroupContainerId").val();
+                                if (vKitGroupContainerId == undefined) {
+                                    if ($("input#DocumentID.doc-ref-id").val() == "0")
+                                        vKitGroupContainerId = 0;
+                                }
+                                console.log("kitGroupContainerId: ", vKitGroupContainerId);
+                                $("#ParentDocumentId").val(data.DocumentId);
+                                dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
                             }
-                            console.log("kitGroupContainerId: ", vKitGroupContainerId);
-                            $("#ParentDocumentId").val(data.DocumentId);
-                            dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
-                        }
 
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
-                        loadDocumentDetail(data.DocumentId, data.RevisionId);
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
+                            loadDocumentDetail(data.DocumentId, data.RevisionId);
 
                             //if (containerTypeId != 2) {
                             //    alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
                             //}
-                        
+
                             return;
                         }
                     } else {
@@ -666,9 +666,12 @@
 
                     var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
                     var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
-                    selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
-                    console.log("within saveDocumentDetail, selectedNode: ", selectedNode);
-                    repopulateTreeBranch(form, docNode);
+                    if (typeof(tvDataItem) != "undefined") {
+                        selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id; 
+                 
+                        console.log("within saveDocumentDetail, selectedNode: ", selectedNode);
+                        repopulateTreeBranch(form, docNode);
+                    }
                     console.log("within saveDocumentDetail, done tree update");
                 });
             } else {
