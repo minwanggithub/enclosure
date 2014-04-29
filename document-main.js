@@ -453,7 +453,6 @@
             });
         };
 
-        
         var loadNewRevision = function () {
             $("#IsNewRevision").val(true);
             $("#txtManufacturerId").val('');
@@ -468,7 +467,9 @@
             $("#tabRevisionNameNumber").hide();
             $("#tabRevisionFileInfo").hide();
             $("#divCancelRevision").show();
+
             $("#divExistRevision").addClass("new-document-revision");
+
             var ddlistLanguage = $("#DocumentLanguageId").data("kendoDropDownList");
             var ddlistDocumentType = $("#DocumentTypeId").data("kendoDropDownList");
             var ddlistContainer = $("#ContainerTypeId").data("kendoDropDownList");
@@ -570,29 +571,34 @@
             var allData = dataSource.data();
             var query = new kendo.data.Query(allData);
             var filteredData = query.filter(filters).data;
+            console.log("filteredData: ", filteredData);
 
             var url = getUrl("Document", "Document/DocumentKitAndGroup_Update");
 
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
-                if (!$.inArray(item.ReferenceId, filteredData))
+                console.log("item: ", item);
+                console.log("childDocumentIdSet: ", childDocumentIdSet);
+                if ($.inArray(item.ReferenceId, childDocumentIdSet) == -1) {
                     childDocumentIdSet.push(item.ReferenceId);
+                } else {
+                    console.log("already contained in cs, ", item);
+                }
+                    
             });
 
-            console.log("childDocumentIdSet: ", childDocumentIdSet);
+            console.log("finally childDocumentIdSet: ", childDocumentIdSet);
 
-            $.each(filteredData, function (index, item) {
+            //$.each(filteredData, function (index, item) {
                 $.post(url, {
                     parentDocumentId: parentDocumentId,
                     containerTypeId: containerTypeId,
-                    childDocumentId: item.ReferenceId,
-                    orderSequenceOffset: index,
                     childDocumentIdSet: JSON.stringify(childDocumentIdSet),
                     kitGroupContainerId: vKitGroupContainerId
                 }, function (data) {
                     console.log("after posted in lib, data: ", data);
                 });
-            });
+            //});
         }
 
 
@@ -669,7 +675,6 @@
                 console.log("within saveDocumentDetail, form is not valid");
             }
         };
-
 
         var onDisplayError = function (errorMessage) {
             var message = errorMessage;
@@ -1254,9 +1259,9 @@
             if (containerTypeId == 2) {
                 console.log("kit to launch kg popu with containerTypeId: ", containerTypeId);
                 if (shouldPostToServer()) {
-                setLblRevisionFileInfoDetail("Cover Sheet");
-                $("#tabRevisionFileInfo").show();
-            } else {
+                    setLblRevisionFileInfoDetail("Cover Sheet");
+                    $("#tabRevisionFileInfo").show();
+                } else {
                     $("#tabRevisionFileInfo").hide();
                 }
                 $("#whichGridToAdd").val("gdKitSibling");
@@ -1266,6 +1271,8 @@
             }
 
             //launchKGPopup(containerTypeId);
+
+
             $("#kgAttachment").show();
             $("#previousContainerTypeId").val(containerTypeId);
         };
@@ -1318,7 +1325,7 @@
                 win.open();
             });
         };
-
+    
         function setLblRevisionFileInfoDetail(text){
             text = (typeof text !== 'undefined') ? text : "Attachment";
             //console.log("to set lblRevisionFileInfoDetail with value: ", text);
@@ -1481,10 +1488,10 @@
                 ConfirmationDate: selectedDataItem.RevisionDate,
             });
 
-            console.log("within addToChildGrid, after addition, there are " + child.dataSource.data().length + " records");
-            if (shouldPostToServer()) {
-                dispatch2(childGridId, inferContainerTypeId(childGridId));
-            }
+            //console.log("within addToChildGrid, after addition, there are " + child.dataSource.data().length + " records");
+            //if (shouldPostToServer()) {
+            //    dispatch2(childGridId, inferContainerTypeId(childGridId));
+            //}
         };
 
         function dispatch2(id, containerTypeId) { //id is grid id
@@ -1532,18 +1539,16 @@
             console.log("within dispatch2, kitGroupContainerId: ", vKitGroupContainerId);
             console.log("within dispatch2, url: ", url);
 
-            $.each(filteredData, function (index, item) {
+            //$.each(filteredData, function (index, item) {
                 $.post(url, {
                     parentDocumentId: parentDocumentId,
                     containerTypeId: containerTypeId,
-                    childDocumentId: item.ReferenceId,
-                    orderSequenceOffset: index,
                     childDocumentIdSet: JSON.stringify(childDocumentIdSet),
                     kitGroupContainerId: vKitGroupContainerId
                 }, function (data) {
                     //console.log("after posted in dispatch2, data: ", data);
                 });
-            });
+            //});
             console.log("exiting dispatch2");
         }
 
@@ -2174,6 +2179,7 @@
 
         getHandle("#SearchResultGridDiv").on('dblclick', 'table tr', function (e) {
             e.preventDefault();
+            e.preventBubble();
             console.log("SearchResultGridDiv doubly clicked");
             handleAddDocument();
         });
@@ -2247,26 +2253,29 @@
             }
             
             var url = getUrl("Operations", "Operations/Document/GetDocumentResultForKitAndGroupEx");
-            var vSearchText = getDocumentQueryParam(1);
-                console.log("vSearchText: ", vSearchText);
+            var docId = $("input#DocumentID.doc-ref-id").val();
+            var vSearchText = getDocumentQueryParam(docId);
+            console.log("vSearchText2: ", vSearchText);
             $.post(url, { searchText: vSearchText, listOfChildDocumentId: JSON.stringify(cids) }, function (selectedDataList) {
                 $.each(selectedDataList, function (idx, selectedDataItem){
-                    console.log("within loadExistingChildren after post, selectedDataItem: ", selectedDataItem);
-                    gridDs.add({
-                        ReferenceId: selectedDataItem.ReferenceId,
-                        DocumentId: selectedDataItem.ReferenceId,
-                        RevisionId: selectedDataItem.RevisionId,
-                        RevisionTitle: selectedDataItem.RevisionTitle,
-                        SupplierName: selectedDataItem.SupplierName,
-                        ManufacturerName: selectedDataItem.SupplierName,
-                        LanguageDescription: selectedDataItem.LanguageDescription,
-                        DocumentTypeDescription: selectedDataItem.DocumentTypeDescription,
-                        RegionDescription: selectedDataItem.RegionDescription,
-                        RevisionDate: getParsedDate(selectedDataItem.RevisionDate),
-                        ConfirmationDate: getParsedDate(selectedDataItem.RevisionDate),
-                    });
-                    });
+                    console.log("within loadExistingChildren after post, selectedDataItem2: ", selectedDataItem);
+                    if (!hasGridContain2(grid, selectedDataItem.ChildDocumentId)) {
+                        gridDs.add({
+                            ReferenceId: selectedDataItem.ReferenceId,
+                            DocumentId: selectedDataItem.ReferenceId,
+                            RevisionId: selectedDataItem.RevisionId,
+                            RevisionTitle: selectedDataItem.RevisionTitle,
+                            SupplierName: selectedDataItem.SupplierName,
+                            ManufacturerName: selectedDataItem.SupplierName,
+                            LanguageDescription: selectedDataItem.LanguageDescription,
+                            DocumentTypeDescription: selectedDataItem.DocumentTypeDescription,
+                            RegionDescription: selectedDataItem.RegionDescription,
+                            RevisionDate: getParsedDate(selectedDataItem.RevisionDate),
+                            ConfirmationDate: getParsedDate(selectedDataItem.RevisionDate),
+                        });
+                    }
                 });
+            });
 
             console.log("exiting loadExistingChildren done children load");
         };
@@ -2278,8 +2287,6 @@
             $.post(url, {
                 parentDocumentId: $("input#DocumentID.doc-ref-id").val(),
                 containerTypeId: vContainerTypeId,
-                childDocumentId: -1,
-                orderSequenceOffset: -1,
                 childDocumentIdSet: JSON.stringify([]),
                 kitGroupContainerId: -1
             }, function(data) {
@@ -2383,6 +2390,9 @@
                 addToChildGrid($("#whichGridToAdd").val(), selectedDataItem);
             });
 
+            if (shouldPostToServer()) {
+                dispatch2($("#whichGridToAdd").val(), inferContainerTypeId($("#whichGridToAdd").val()));
+            }
 
             //clearn up the doc search model pupup
             var dlgDocumentSearch = $("#documentSearchWindow_kg");
