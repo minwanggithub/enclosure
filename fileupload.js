@@ -67,7 +67,7 @@
                     .find(".k-button").toggleClass("file-upload-disable").attr('disabled', 'disabled');
 
                 //Call server to create database entries for all files
-                var parameters = "filelist=" + uploadStake + "&documentId=" + $('input#DocumentId').val() + "&revisionId=" + $('input#RevisionId').val();
+                var parameters = "filelist=" + uploadStake + "&documentId=" + $('input#DocumentId').val() + "&revisionId=" + $('input#RevisionId').val() + "&isNewRevision=" +  $("#IsNewRevision").val();
                 var fileName = uploadStake;
 
                 if (!$("#dvAddNewAttachment").is(":hidden"))
@@ -86,7 +86,6 @@
                             .find(".k-button").toggleClass("file-upload-disable").removeAttr("disabled");
                     },
                     success: function (response) {
-
                         if (response.success) {
                             uploadStake.splice(0, uploadStake.length);
                             $(".k-upload-files.k-reset").find("li").remove();
