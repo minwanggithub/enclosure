@@ -454,7 +454,7 @@
         };
 
         var loadNewRevision = function () {
-            $("#IsNewRevision").val(true);
+            $("#IsNewRevision").val("True");
             $("#txtManufacturerId").val('');
             $("#txtSupplierId").val('');
             $("#RevisionDate").val('');

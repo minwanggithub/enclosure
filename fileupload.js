@@ -141,7 +141,8 @@
         };
 
         var onFileSelect = function (e) {
-            if ($("#IsNewRevision").val()) {
+
+            if ($("#IsNewRevision").val()=="True") {
                 if (e.files.length > 1) {
                     fileUploadDialog.data("kendoWindow").close();
                     onDisplayError("Only one file can be uploaded on new revision.");
