@@ -1649,6 +1649,7 @@
                 console.log("it is a kit parent");
                 $("#divBody").show();
                 doKitParent();
+                $("#whichGridToAdd").val("gdKitSibling");
                 loadExistingChildren("gdKitSibling");
             } else if (sbv == "2") {
                 console.log("it is a kit children");
@@ -1658,6 +1659,7 @@
                 console.log("it is a group parent");
                 $("#divBody").show();
                 doGroupParent();
+                $("#whichGridToAdd").val("gdGroupSibling");
                 loadExistingChildren("gdGroupSibling");
             } else if (sbv == "8") {
                 console.log("it is a group children");
@@ -2028,24 +2030,24 @@
             //$("#divAssocatedDocuments").show();
         });
 
-        $('#btnContainerCancel').click(function (e) {
-            e.preventDefault();
-            console.log("btnContainerCancel clicked");
-            //$("#divAssocatedDocuments").show();
-            var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
-            if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
-                console.log("to launch prompt");
-            if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
-                dlgDocumentSearch.data("kendoWindow").close();
-                $("#kg_popup").data("kendoWindow").close();
-                    grid.dataSource.data([]);
-                $("#btnViewAndUpdateAttachments").html("Attachments()");
-            } else {
-                    console.log("not to launch prompt as the source grid is empty");
-                return;
-            }
-            }
-        });
+        //$('#btnContainerCancel').click(function (e) {
+        //    e.preventDefault();
+        //    console.log("btnContainerCancel clicked");
+        //    //$("#divAssocatedDocuments").show();
+        //    var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+        //    if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
+        //        console.log("to launch prompt");
+        //    if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+        //        dlgDocumentSearch.data("kendoWindow").close();
+        //        $("#kg_popup").data("kendoWindow").close();
+        //            grid.dataSource.data([]);
+        //        $("#btnViewAndUpdateAttachments").html("Attachments()");
+        //    } else {
+        //            console.log("not to launch prompt as the source grid is empty");
+        //        return;
+        //    }
+        //    }
+        //});
 
 
         var extractValue = function(entry) {
@@ -2578,12 +2580,30 @@
                 e.preventDefault();
                 console.log("addDocToGroupBtn clicked");
                 $("#whichGridToAdd").val("gdGroupSibling");
-                getHandle("#documentModalPopup").show();
-                setupDropDowns();
-                //dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
-                //dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
-                dlgDocumentSearch.data("kendoWindow").center();
-                dlgDocumentSearch.data("kendoWindow").open();
+
+                ////go to the single new doc popup
+                var url = getUrl("Operations", "Operations/Document/LoadSingleDocument");
+                var did = 0;
+                var rid = 0;
+                url += "?documentId=" + did + "&revisionId=" + rid;// + "&documentCreationIntention=31";
+
+                //$.post(url, {
+                //        documentId: did,
+                //        revisionId: rid,
+                //        documentCreationIntention: 31
+                //    }, function (data) {
+                //    console.log("posted to server for new single doc");
+                //});
+
+                console.log("to create element with url: ", url);
+                //window.open(url, "_blank");
+
+                //getHandle("#documentModalPopup").show();
+                //setupDropDowns();
+                ////dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
+                ////dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
+                //dlgDocumentSearch.data("kendoWindow").center();
+                //dlgDocumentSearch.data("kendoWindow").open();
             });
 
             $('#btnContainerSave').click(function (e) {
@@ -2639,17 +2659,25 @@
             $('#btnContainerCancel').click(function (e) {
                 console.log("btnContainerCancel clicked");
                 //$("#divAssocatedDocuments").show();
-                if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
-                    dlgDocumentSearch.data("kendoWindow").close();
-                    $("#kg_popup").data("kendoWindow").close();
 
-                    var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
-                    if (grid && grid.dataSource)
+                var grid = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
+                var popup = $("#kg_popup").data("kendoWindow");
+                if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
+                    if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+                        dlgDocumentSearch.data("kendoWindow").close();
+                        if(popup)
+                            popup.close();
                         grid.dataSource.data([]);
-                    $("#btnViewAndUpdateAttachments").html("Attachments()");
-                } else {
-                    return;
+                        $("#btnViewAndUpdateAttachments").html("Attachments()");
+                    } else {
+                        return;
+                    }
                 }
+
+                dlgDocumentSearch.data("kendoWindow").close();
+                if (popup)
+                    popup.close();
+                grid.dataSource.data([]);
             });
 
 
