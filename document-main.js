@@ -2582,10 +2582,10 @@
                 $("#whichGridToAdd").val("gdGroupSibling");
 
                 ////go to the single new doc popup
-                var url = getUrl("Operations", "Operations/Document/LoadSingleDocument");
+                var url = getUrl("Operations", "Operations/Document/LoadSingleDocumentForAddingGroupElement");
                 var did = 0;
                 var rid = 0;
-                url += "?documentId=" + did + "&revisionId=" + rid;// + "&documentCreationIntention=31";
+                url += "?documentId=" + did + "&revisionId=" + rid + "&documentCreationIntention=31";
 
                 //$.post(url, {
                 //        documentId: did,
@@ -2596,7 +2596,7 @@
                 //});
 
                 console.log("to create element with url: ", url);
-                //window.open(url, "_blank");
+                window.open(url, "_blank");
 
                 //getHandle("#documentModalPopup").show();
                 //setupDropDowns();
