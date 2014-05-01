@@ -71,7 +71,7 @@
             var currentNameOrNumber = e.model.NameOrNumber;
             var data = this.dataSource.data();
             $.each(data, function(i, row) {
-                if (i != 0 && currentNameOrNumber == row.NameOrNumber) {
+                if (row.NameNumberId != e.model.NameNumberId && currentNameOrNumber == row.NameOrNumber) {
                     alert("Duplicates not allowed");
                     e.preventDefault();
                     return false;
@@ -84,7 +84,7 @@
             var currentNameOrNumber = e.model.ReachUse;
             var data = this.dataSource.data();
             $.each(data, function(i, row) {
-                if (i != 0 && currentNameOrNumber == row.ReachUse) {
+                if (row.ReachUseId != e.model.ReachUseId && currentNameOrNumber == row.ReachUse) {
                     alert("Duplicates not allowed");
                     e.preventDefault();
                     return false;

@@ -91,7 +91,7 @@
                             var treeView = $("#tvProductSearchResult").data("kendoTreeView");
                             var target = this.target;
                             var li = $(target).closest(".k-item")[0];
-                            var documentId = treeView.dataSource.getByUid(li.getAttribute('data-uid')).id;
+                            var documentId = treeView.dataSource.getByUid(li.getAttribute('data-uid')).DocumentId;
                             var revisionId = treeView.dataSource.getByUid(li.getAttribute('data-uid')).RevisionId;
 
                             var currenturl = window.location.href;
