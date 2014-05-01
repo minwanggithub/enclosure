@@ -812,7 +812,8 @@
                 $('#txtSearchSupplierId').val("");
                 $('#txtSearchUPC').val("");
                 $('#txtRevisionTitle').val("");
-
+                $('#chkLatestRevision').prop('checked', true);
+                $('#chkIncludeDeletedDocument').prop('checked', false);
                 $("#tvProductSearchResult").data("kendoTreeView").dataSource.data([]);
 
                 //JQuery 1.6 above
