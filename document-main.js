@@ -2300,7 +2300,7 @@
             dlgDocumentSearch.data("kendoWindow").close();
 
             //update the kgAttachment
-            $("#btnViewAndUpdateAttachments").html("Attachments(" + getAttachmentCounted($("#whichGridToAdd").val()) + ")");
+            $("#btnViewAndUpdateAttachments").html("Kit Components (" + getAttachmentCounted($("#whichGridToAdd").val()) + ")");
             console.log("exiting handleAddDocument");
         };
 
