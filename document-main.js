@@ -2583,10 +2583,6 @@
             console.log("exing initKitAndGroup");
         };
 
-
-        function 
-
-
         //Expose to public
 
         return {
