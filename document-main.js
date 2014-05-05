@@ -1179,21 +1179,17 @@
         }
 
 
-
         var isInEditingMode = function()
         {
             var docId = $("input#DocumentID.doc-ref-id").val();
             var pid = $("#ParentDocumentId").val();
             if (docId != undefined && docId && docId != "0"  && pid == undefined) {
-                console.log("doc is in editing mode");
                 return true;
             }
-            console.log("doc is not in editing mode");
             return false;
         };
         
         var checkAttachmentsBeforeSave = function() {
-            console.log("checkAttachmentsBeforeSave hitting");
             var message = " a kit needs at least two components attached, please resolve it and try again. Alternatively you may change the container type to single to avoid this complaint.";
             var containerOption = $("#ContainerTypeId").val();
             if (containerOption == "2") {
@@ -2305,8 +2301,6 @@
         };
 
         var initKitAndGroup = function () {
-            console.log("hitting initKitAndGroup, doclib: ", doclib);
-
             var dlgDocumentSearch = $("#documentSearchWindow_kg");
             //var supplierSearchDialog = $("#supplierSearchWindow");
 
@@ -2469,18 +2463,25 @@
 
             $('#addDocToGroupBtn').click(function (e) {
                 e.preventDefault();
-                console.log("addDocToGroupBtn clicked");
                 $("#whichGridToAdd").val("gdGroupSibling");
 
-                ////go to the single new doc popup
-                var url = getUrl("Operations", "Operations/Document/LoadSingleDocumentForAddingGroupElement");
-                var did = 0;
-                var rid = 0;
-                var pid = $("#ParentDocumentId").val();
-                var prid = $("#RevisionID").val();
-                url += "?documentId=" + did + "&revisionId=" + rid + "&documentCreationIntention=31&parentDocumentId=" + pid + "&parentRevisionId=" + prid;
-                console.log("to create element with url: ", url);
-                window.open(url, "_blank");
+                getHandle("#documentModalPopup").show();
+                setupDropDowns();
+                //dlgDocumentSearch.data("kendoWindow").dataSource.filter({});
+                //dlgDocumentSearch.data("kendoWindow").dataSource.data([]);
+                dlgDocumentSearch.data("kendoWindow").center();
+                dlgDocumentSearch.data("kendoWindow").open();
+
+                ////Create new element of group using single document popup + the rule without attachment.
+                //var url = getUrl("Operations", "Operations/Document/LoadSingleDocumentForAddingGroupElement");
+                //var did = 0;
+                //var rid = 0;
+                //var pid = $("#ParentDocumentId").val();
+                //var prid = $("#RevisionID").val();
+                //url += "?documentId=" + did + "&revisionId=" + rid + "&documentCreationIntention=31&parentDocumentId=" + pid + "&parentRevisionId=" + prid;
+                //console.log("to create element with url: ", url);
+                //window.open(url, "_blank");
+                //
             });
 
             $('#btnContainerSave').click(function (e) {
