@@ -124,11 +124,20 @@
         };
 
         //(SH) 4-16-2014
+        //(SH) 5-7-2014
         var viewSingleSupplier = function (supplierId) {
             if (supplierId > 0) {
-                var url = "/MsdsBoiler//Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
                 window.open(url, "_blank");
             }
+        }
+
+        function getUrl(area, controllerAndFunc) {
+            var currenturl = window.location.href;
+            var indexArea = currenturl.substring(0, currenturl.indexOf(area));
+            var url = indexArea + controllerAndFunc;
+            console.log("resulting url: ", url);
+            return url;
         }
 
         function saveBtnEvent(activeSaveButton) {
@@ -635,6 +644,7 @@
             getSelectDocID : getSelectDocID,
             documentQuery: documentQuery,
             viewSingleSupplier: viewSingleSupplier,
+            getUrl: getUrl,
             //--------------------end of ConfigProduct.cshtml-----------------------
 
             //--------------------start of _SearchProduct.cshtml-----------------------
