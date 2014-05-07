@@ -127,7 +127,9 @@
         //(SH) 5-7-2014
         var viewSingleSupplier = function (supplierId) {
             if (supplierId > 0) {
-                var url = getUrl("Operations", "Operations/Company/LoadSingleSupplier?supplierId=" + supplierId);
+                var currenturl = window.location.href;
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
                 window.open(url, "_blank");
             }
         }
