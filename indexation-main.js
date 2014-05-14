@@ -26,6 +26,7 @@
                 }
             });
 
+            initializeMultiSelectCheckboxes();
             initializeIdentificationControls();
             initializeIngredientControls();
             initializePhysicalChemicalControls();
@@ -164,6 +165,173 @@
             }
         }
 
+        function displayCreatedMessage(message) {
+            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(message);
+        }
+
+        function initializeMultiSelectCheckboxes() {
+            
+            indexationDetailObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    var selectedRow = kgrid.tbody.find(".k-state-selected");;
+                    var dataItem = kgrid.dataItem($(this).closest('tr'));
+                    if (dataItem) {
+                        dataItem.set('IsSelected', !checked);
+                        if (selectedRow.length > 0) {
+                            grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
+                        }
+                    }
+                }
+
+                // Keep grid from changing seleted information
+                e.stopImmediatePropagation();
+            });
+
+            indexationDetailObj.on("click", ".chkMasterMultiSelect", function(e) {
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    if (kgrid._data.length > 0) {
+                        $.each(kgrid._data, function() {
+                            this['IsSelected'] = checked;
+                        });
+
+                        kgrid.refresh();
+
+                        // No items were found in the datasource, return from the function and cancel the current event
+                    } else {
+                        return false;
+                    }
+                }
+            });
+        }
+
+        function batchDeleteObjects(targetGrid, objName, url, data, completeCallback) {
+
+            if (!targetGrid || !objName || !url) {
+                return false;
+            }
+
+            var targetGridSelector = '#' + targetGrid;
+            var grid = $(targetGridSelector).data("kendoGrid");
+            if (grid && grid.dataSource._total > 0) {
+
+                var selectedIds = new Array();
+                $.each(grid.dataSource.data(), function () {
+                    if (this.IsSelected == true) {
+                        selectedIds.push(this.id);
+                    }
+                });
+
+                if (selectedIds.length > 0) {
+                    if (!data) {
+                        data = {};
+                    }
+
+                    data['ids'] = selectedIds;
+
+                    var args = { message: 'Are you sure you would like to delete the selected ' + objName + '?', header: 'Confirm Delete Selected' };
+                    DisplayConfirmationModal(args, function () {
+
+                        $.ajax({
+                            url: url,
+                            data: JSON.stringify(data),
+                            type: "POST",
+                            contentType: 'application/json; charset=utf-8',
+                            beforeSend: function () {
+                                kendo.ui.progress($('#IndexationDetail'), true);
+                            }, error: function() {
+                                DisplayError('Deleting ' + objName + ' could not be completed');
+                            }, success: function (successData) {
+
+                                if (successData.success == true) {
+
+                                    // Uncheck the master select checkbox if checked
+                                    var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                                    if (checkbox && checkbox.is(':checked')) {
+                                        checkbox.attr('checked', false);
+                                    }
+
+                                    grid = $(targetGridSelector).data("kendoGrid");
+                                    grid.dataSource.read();
+
+                                    displayCreatedMessage('Delete Successful');
+                                    kendo.ui.progress($('#IndexationDetail'), false);
+
+                                } else {
+                                    onDisplayError(successData.message);
+                                }
+
+                            }, complete: function (compData) {
+                                
+                                if (completeCallback) {
+                                    completeCallback(compData);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        };
+
+        function batchDeleteIndexationObjects(targetGrid, objName, url, successCallback) {
+
+            var indId = getIndexationId();
+            var data = { indexationId: indId.IndexationId };
+
+            batchDeleteObjects(targetGrid, objName, url, data, successCallback);
+        };
+
+        var multiDeleteCache = {
+            cache: {},
+            getCache: function(tableName) {
+                var cacheObj = this.cache[tableName] = this.cache[tableName] || {};
+                return cacheObj;
+            },
+            clearCache: function(tableName) {
+                this.cache[tableName] = {};
+            },
+        };
+
+        var onMultiDeleteGridDataBinding = function (e) {
+            // Set the checkbox style only on rebind of the grid
+            if (e.action == "rebind") {
+                var grid = $(e.sender.table.context);
+                if (grid.length > 0) {
+                    var kgrid = grid.data("kendoGrid");
+                    if (kgrid) {
+                        var readonly = kgrid.dataSource.total() <= 0;
+                        grid.find('.chkMasterMultiSelect').attr("readonly", readonly);
+
+                        // Capture the most recent selected row of the table
+                        var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
+                        var selectedRow = kgrid.tbody.find(".k-state-selected:first");;
+                        if (selectedRow && selectedRow.length > 0) {
+                            cacheObj["selected"] = selectedRow.data('uid');
+                        }
+                    }
+                }
+            }
+        };
+
+        var onMultiDeleteGridDataBound = function (e) {
+            var grid = $(e.sender.table.context);
+            if (grid) {
+                var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
+                if (cacheObj.selected) {
+                    var row = grid.find('tr[data-uid="' + cacheObj.selected + '"]');
+                    if (row) {
+                        row.addClass('k-state-selected');
+                        multiDeleteCache.clearCache(grid.attr('id'));
+                    }
+                }
+            }
+        };
+
         // Menu methods
         function initializeMenu() {
 
@@ -219,7 +387,22 @@
                     return false;
                 }
             });
-        }
+
+            indexationDetailObj.on("click", "#ancSynBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteObjects('Gridsynonyms', 'synonyms', '../Indexation/BatchDeleteNameNumbers');
+            });
+
+            indexationDetailObj.on("click", "#ancProdNameBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects('GridClientProductName', 'product names', '../Indexation/BatchDeleteNameNumbers');
+            });
+
+            indexationDetailObj.on("click", "#ancOtherNumBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteObjects('GridOtherNumber', 'other numbers', '../Indexation/BatchDeleteNameNumbers');
+            });
+        };
 
         var onAttachmentRequestEnd = function (e) {
             if (!e.response || e.response.length == 0) {
@@ -248,6 +431,11 @@
                     function (data) {
                         $('#EditIngredient').html(data);
                     });
+            });
+
+            indexationDetailObj.on("click", "#ancIngredientBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridIngredients", "ingredients", "../Indexation/BatchDeleteIngredients");
             });
 
             indexationDetailObj.on("click", "#SearchByCAS, #SearchByIngredient", function (e) {
@@ -716,6 +904,21 @@
         // Transport section methods
         function initializeTransportControls()
         {
+            indexationDetailObj.on("click", "#ancNipBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteObjects('GridNIP', 'nips', "../Indexation/BatchDeleteNIPs");
+            });
+
+            indexationDetailObj.on("click", "#ancShippingNameBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteObjects("GridShippingName", "shipping names", "../Indexation/BatchDeleteShippingNames");
+            });
+
+            indexationDetailObj.on("click", "#ancTransClassBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridTransClass", "transport classification", "../Indexation/BatchDeleteTransportClassification"); 
+            });
+
             indexationDetailObj.on("click", "#btnAddTransClass", function (e) {
                 e.preventDefault();
                 if ($("#popupTransClassSearch").length > 0) {
@@ -752,7 +955,6 @@
                     alert("No rows selected");
                     return;
                 }
-
                 if (grid.select().length > 1) {
                     var rows = grid.select();
                     var transclasslists = [];
@@ -797,6 +999,19 @@
                 });
         }
 
+        var onTransportPartialReady = function() {
+            $('#popupTransClassSearch').modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+
+            var url = '../Indexation/GetSearchTransportClassification';
+            $.post(url, function (data) {
+                $("#dgTranClassPlugIn").html(data);
+            });
+        };
+
         // American regulatory section methods
         function initializeAmericanControls() {
 
@@ -822,6 +1037,11 @@
                     grid.dataSource.read();
                 }
                 $("#popupAmericanClassSearch").modal("show");
+            });
+
+            indexationDetailObj.on("click", "#ancOshaBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridRegAmerican", "OSHA classification", "../Indexation/BatchDeleteAmericanClassification");
             });
 
             indexationDetailObj.on("click", "#btnSelectAmericanClass", function (e) {
@@ -907,6 +1127,11 @@
                 $("#popupCanadaClassSearch").modal("show");
             });
 
+            indexationDetailObj.on("click", "#ancCanadaClassBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridRegCanadian", "Canadian classification", "../Indexation/BatchDeleteCanadianClassification");
+            });
+
             indexationDetailObj.on("click", "#btnSelectCanadaClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchCanadaClass").data("kendoGrid");
@@ -975,6 +1200,11 @@
                 $("#popupRSPhraseSearch").modal("show");
             });
 
+            indexationDetailObj.on("click", "#ancReachUsesBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridReachUse", "reach uses", "../Indexation/BatchDeleteReachUses");
+            });
+
             indexationDetailObj.on("click", "#btnSelectRSPhrase", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchRSPhrase").data("kendoGrid");
@@ -1000,6 +1230,11 @@
                     return;
                 }
                 addRsPhrase(selectedData.Reference);
+            });
+
+            indexationDetailObj.on("click", "#ancRSPhraseBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridRegEuropeRSPhrase", "risk and safety phrases", "../Indexation/BatchDeleteRsPhrases");
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchRSPhrase table tr", function (e) {
@@ -1062,6 +1297,11 @@
 
             indexationDetailObj.on("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
 
+            indexationDetailObj.on("click", "#ancHazardClassBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridHazardClass", "hazard classes", "../Indexation/BatchDeleteHazardClasses", onBatchDeleteHazardClassComplete);
+            });
+
             indexationDetailObj.on("change", "#HClassNotProvided", function () {
                 var url = '../Indexation/SaveHClassNotProvided';
                 var indexationId = $("#IndexationId").val();
@@ -1069,17 +1309,17 @@
                     $('#AddEditHazardClass').empty();
                     $.post(url, { hClassNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                            displayCreatedMessage(data);
                             var hClassGrid = $("#GridHazardClass").data("kendoGrid");
                             hClassGrid.dataSource.read();
-                            $("#btnAddHazardClass").addClass("k-state-disabled");
+                            $("#btnAddHazardClass, #ancHazardClassBatchDelete").addClass("k-state-disabled");
                             indexationDetailObj.off("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
                         });
                 } else {
                     $.post(url, { hClassNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                            $("#btnAddHazardClass").removeClass("k-state-disabled");
+                            displayCreatedMessage(data);
+                            $("#btnAddHazardClass, #ancHazardClassBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
                         });
                 }
@@ -1209,23 +1449,28 @@
 
             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
 
+            indexationDetailObj.on("click", "#ancGhsPictogramBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridRegGHSPic", "pictograms", "../Indexation/BatchDeleteGhsPictograms");
+            });
+
             indexationDetailObj.on("change", "#PictNotProvided", function () {
                 var url = '../Indexation/SavePictNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
                     $.post(url, { pictNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                            displayCreatedMessage(data);
                             var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
                             pictGrid.dataSource.read();
-                            $("#btnAddGhsPictograms").addClass("k-state-disabled");
+                            $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").addClass("k-state-disabled");
                             indexationDetailObj.off("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
                         });
                 } else {
                     $.post(url, { pictNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                            $("#btnAddGhsPictograms").removeClass("k-state-disabled");
+                            displayCreatedMessage(data);
+                            $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
                         });
                 }
@@ -1300,6 +1545,11 @@
 
             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
 
+            indexationDetailObj.on("click", "#ancHazardStatementBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridHazardStatement", "hazard statements", "../Indexation/BatchDeleteHazardStatements");
+            });
+
             indexationDetailObj.on("change", "#HStatementNotProvided", function () {
                 var url = '../Indexation/SaveHStatementNotProvided';
                 var indexationId = $("#IndexationId").val();
@@ -1307,17 +1557,17 @@
                     $('#AddEditHazardStatement').empty();
                     $.post(url, { hStatementNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                            displayCreatedMessage(data);
                             var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
                             hStatementGrid.dataSource.read();
-                            $("#btnAddHazardStatement").addClass("k-state-disabled");
+                            $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").addClass("k-state-disabled");
                             indexationDetailObj.off("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
                         });
                 } else {
                     $.post(url, { hStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                            $("#btnAddHazardStatement").removeClass("k-state-disabled");
+                            displayCreatedMessage(data);
+                            $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
                         });
                 }
@@ -1405,6 +1655,11 @@
 
             indexationDetailObj.on("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
 
+            indexationDetailObj.on("click", "#ancPrecautionaryStatementBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridPrecautionaryStatement", "precautionary statements", "../Indexation/BatchDeletePrecautionaryStatements");
+            });
+
             indexationDetailObj.on("change", "#PStatementNotProvided", function () {
                 var url = '../Indexation/SavePStatementNotProvided';
                 var indexationId = $("#IndexationId").val();
@@ -1412,17 +1667,17 @@
                     $('#AddEditPrecautionaryStatement').empty();
                     $.post(url, { pStatementNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                            displayCreatedMessage(data);
                             var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
                             hClassGrid.dataSource.read();
-                            $("#btnAddPrecautionaryStatement").addClass("k-state-disabled");
+                            $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
                             indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
                         });
                 } else {
                     $.post(url, { pStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                            $("#btnAddPrecautionaryStatement").removeClass("k-state-disabled");
+                            displayCreatedMessage(data);
+                            $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
                         });
                 }
@@ -1680,13 +1935,16 @@
                 });
         }
 
+        function onBatchDeleteHazardClassComplete(e) {
+            // TODO: Check if the class found in the editor is still found in the grid
+        }
+
         function onSignalWordSearchButtonClick(e) {
             e.preventDefault();
             $("#popupGhsSignalWord").modal("show");
         }
 
-        var onGridHazardClassChange = function(e) {
-            e.preventDefault();
+        var onGridHazardClassChange = function (e) {
             var selectedData = this.dataItem(this.select());
             var indexationId = $("#IndexationId").val();
 
@@ -1784,6 +2042,11 @@
                 $("#popupOtherClass").modal("show");
             });
 
+            indexationDetailObj.on("click", "#ancOtherClassificationBatchDelete", function (e) {
+                e.preventDefault();
+                batchDeleteIndexationObjects("GridRegOthers", "other classification", "../Indexation/BatchDeleteOtherClassification");
+            });
+
             indexationDetailObj.on("click", "#btnSelectOtherClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchOtherClass").data("kendoGrid");
@@ -1840,6 +2103,20 @@
                 });
         }
 
+        var onRegOthersPartialReady = function () {
+            
+            $('#popupOtherClass').modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+
+            var url = '../Indexation/GetSearchOtherClassification';
+            $.post(url, function (data) {
+                $("#dgOtherClassPlugIn").html(data);
+            });
+        };
+
         // Handling and storage section methodsbtnAddPpePictograms
         function initializeHandlingStorageControls() {
             indexationDetailObj.on("click", "#btnAddHandlingStorage", function (e) {
@@ -1851,6 +2128,11 @@
                         var pStatementGrid = $("#GridHandlingStorage").data("kendoGrid");
                         pStatementGrid.dataSource.read();
                     });
+            });
+
+            indexationDetailObj.on("click", "#ancHandlingStorageBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridHandlingStorage", "handling storage indexation", "../Indexation/BatchDeleteSafetyIndexation");
             });
         }
 
@@ -1865,6 +2147,11 @@
                         var pStatementGrid = $("#GridFirstAid").data("kendoGrid");
                         pStatementGrid.dataSource.read();
                     });
+            });
+
+            indexationDetailObj.on("click", "#ancFirstAidBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridFirstAid", "first aid indexation", "../Indexation/BatchDeleteSafetyIndexation");
             });
         }
 
@@ -1881,6 +2168,11 @@
                     });
             });
 
+            indexationDetailObj.on("click", "#ancPpeBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridPPE", "ppe indexation", "../Indexation/BatchDeleteSafetyIndexation");
+            });
+
             indexationDetailObj.on("click", "#btnAddPpePictograms", function (e) {
                 e.preventDefault();
                 if ($("#popupPpePictograms").length > 0) {
@@ -1888,6 +2180,11 @@
                     grid.dataSource.read();
                 }
                 $("#popupPpePictograms").modal("show");
+            });
+
+            indexationDetailObj.on("click", "#ancPpePictogramBatchDelete", function(e) {
+                e.preventDefault();
+                batchDeleteObjects("GridPPEPictogram", "ppe pictograms", "../Indexation/BatchDeletePpePictograms");
             });
 
             indexationDetailObj.on("click", "#btnSelectPpePictograms", function (e) {
@@ -1946,6 +2243,19 @@
                 });
         }
 
+        var onPpeReady = function() {
+            $('#popupPpePictograms').modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+
+            var url = '../Indexation/GetSearchPpePictograms';
+            $.post(url, function (data) {
+                $("#dgPpePictogramsPlugIn").html(data);
+            });
+        };
+
         // Exposed methods
         return {
             getDocRevisionId: getDocRevisionId,
@@ -1970,9 +2280,14 @@
             onIngredientConcentrationChange: onIngredientConcentrationChange,
             onIngredientOperatorChange: onIngredientOperatorChange,
             onIngredientSelection: onIngredientSelection,
+            onMultiDeleteGridDataBinding: onMultiDeleteGridDataBinding,
+            onMultiDeleteGridDataBound: onMultiDeleteGridDataBound,
+            onPpeReady: onPpeReady,
+            onRegOthersPartialReady: onRegOthersPartialReady,
             onSaveReachUse: onSaveReachUse,
             onRegulatoryGhsActivate: onRegulatoryGhsActivate,
             onSaveNameNumber: onSaveNameNumber,
+            onTransportPartialReady: onTransportPartialReady,
             onViscosity1Change: onViscosity1Change,
             onViscosity2Change: onViscosity2Change,
             onVocCodeChange: onVocCodeChange,
