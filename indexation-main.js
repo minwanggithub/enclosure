@@ -346,7 +346,7 @@
             // Are any menu items selected?
             if (menu.find('a.idx-selected-section').length == 0) {
                 menu.find('a:first').addClass('idx-selected-section');
-            }
+        }
 
             menu.on("click", "a", onMenuItemClick);
         }
@@ -1114,6 +1114,12 @@
         var onHmisPpeChange = function(e) {
             var hmisPictogramGrid = $("#GridHMISPictograms").data("kendoGrid");
             hmisPictogramGrid.dataSource.read();
+
+            var referenceDdl = $('#PpeHmisReference').data("kendoDropDownList");
+            if (referenceDdl) {
+                referenceDdl.select(e.sender.selectedIndex);
+                onPpeHmisChange();
+            }
         };
 
         // Canadian regulatory section methods
@@ -2244,6 +2250,21 @@
                 });
         }
 
+        function onPpeHmisChange(e) {
+            var ppeHmisPictogramGrid = $("#GridPPEHMISPictograms").data("kendoGrid");
+            ppeHmisPictogramGrid.dataSource.read();
+        }
+
+        function getSelectedPpeHmisReference() {
+            var selectedPpe = 0;
+            var dropdownlist = $('#PpeHmisReference').data("kendoDropDownList");
+            if (dropdownlist) {
+                selectedPpe = dropdownlist.select();
+            }
+
+            return { selectedPpe: selectedPpe };
+        }
+
         var onPpeReady = function() {
             $('#popupPpePictograms').modal({
                 keyboard: false,
@@ -2262,6 +2283,7 @@
             getDocRevisionId: getDocRevisionId,
             getIndexationId: getIndexationId,
             getSelectedPpe: getSelectedPpe,
+            getSelectedPpeHmisReference: getSelectedPpeHmisReference,
             loadIndexationPlugin: loadIndexationPlugin,
             loadWorkLoadPlugIn: loadWorkLoadPlugIn,
             onAttachmentRequestEnd: onAttachmentRequestEnd,
@@ -2285,6 +2307,7 @@
             onMultiDeleteGridDataBound: onMultiDeleteGridDataBound,
             onPpeReady: onPpeReady,
             onRegOthersPartialReady: onRegOthersPartialReady,
+            onPpeHmisChange: onPpeHmisChange,
             onSaveReachUse: onSaveReachUse,
             onRegulatoryGhsActivate: onRegulatoryGhsActivate,
             onSaveNameNumber: onSaveNameNumber,
