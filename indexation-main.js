@@ -343,30 +343,31 @@
                 menu.animate({ top: offset }, { duration: 500, queue: false });
             });
 
-            menu.on("click", "a", onMenuItemSelected);
+            // Are any menu items selected?
+            if (menu.find('a.idx-selected-section').length == 0) {
+                menu.find('a:first').addClass('idx-selected-section');
+            }
+
+            menu.on("click", "a", onMenuItemClick);
         }
 
-        function linkMouseEnter() {
-            $(this).css("color", "#8DC73F");
-        }
+        function onMenuItemClick(e) {
+            e.preventDefault();
 
-        function linkMouseLeave() {
-            $(this).css("color", "#fff");
-        }
-
-        function onMenuItemSelected() {
-
-            // Reset all elements associated with the current item
+            // Reset all CSS class references
             var self = $(this);
-            self.css('color', "#8DC73F").off('mouseenter mouseleave');
+            self.addClass("idx-selected-section");
             self.parents('tr')
                 .find('a')
                 .not(self)
-                .css("color", "#fff")
-                .on({
-                    mouseenter: linkMouseEnter,
-                    mouseleave: linkMouseLeave
-                });
+                .removeClass("idx-selected-section");
+
+            var menu = $(name);
+            var section = $('#IndexationDetailPanel').find('.k-header[name="' + self.data('section') + '"]');
+            if (section && menu) {
+                var yScrollTop = section[0].offsetTop - menu.height() - 15;
+                window.scrollTo(0, yScrollTop);
+            }
         }
 
         // Identification section methods
