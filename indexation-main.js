@@ -245,7 +245,7 @@
                             beforeSend: function () {
                                 kendo.ui.progress($('#IndexationDetail'), true);
                             }, error: function() {
-                                DisplayError('Deleting ' + objName + ' could not be completed');
+                                onDisplayError('Deleting ' + objName + ' could not be completed');
                             }, success: function (successData) {
 
                                 if (successData.success == true) {
@@ -260,7 +260,6 @@
                                     grid.dataSource.read();
 
                                     displayCreatedMessage('Delete Successful');
-                                    kendo.ui.progress($('#IndexationDetail'), false);
 
                                 } else {
                                     onDisplayError(successData.message);
@@ -268,6 +267,8 @@
 
                             }, complete: function (compData) {
                                 
+                                kendo.ui.progress($('#IndexationDetail'), false);
+
                                 if (completeCallback) {
                                     completeCallback(compData);
                                 }
@@ -278,12 +279,12 @@
             }
         };
 
-        function batchDeleteIndexationObjects(targetGrid, objName, url, successCallback) {
+        function batchDeleteIndexationObjects(targetGrid, objName, url, completeCallback) {
 
             var indId = getIndexationId();
             var data = { indexationId: indId.IndexationId };
 
-            batchDeleteObjects(targetGrid, objName, url, data, successCallback);
+            batchDeleteObjects(targetGrid, objName, url, data, completeCallback);
         };
 
         var multiDeleteCache = {
@@ -436,7 +437,11 @@
 
             indexationDetailObj.on("click", "#ancIngredientBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridIngredients", "ingredients", "../Indexation/BatchDeleteIngredients");
+                batchDeleteObjects("GridIngredients"
+                    , "ingredients"
+                    , "../Indexation/BatchDeleteIngredients"
+                    , null
+                    , function () { $('#EditIngredient').empty(); });
             });
 
             indexationDetailObj.on("click", "#SearchByCAS, #SearchByIngredient", function (e) {
@@ -671,7 +676,7 @@
                     $('#EditIngredient').html(data);
                 });
         };
-
+        
         var onGridIngredientRemove = function(e) {
             if (e.type == "destroy") {
                 $("#EditIngredient").html("");
@@ -1306,7 +1311,10 @@
 
             indexationDetailObj.on("click", "#ancHazardClassBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridHazardClass", "hazard classes", "../Indexation/BatchDeleteHazardClasses", onBatchDeleteHazardClassComplete);
+                batchDeleteIndexationObjects("GridHazardClass"
+                    , "hazard classes"
+                    , "../Indexation/BatchDeleteHazardClasses"
+                    , function () { hideEditorSection("AddEditHazardClass"); });
             });
 
             indexationDetailObj.on("change", "#HClassNotProvided", function () {
@@ -1554,7 +1562,10 @@
 
             indexationDetailObj.on("click", "#ancHazardStatementBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridHazardStatement", "hazard statements", "../Indexation/BatchDeleteHazardStatements");
+                batchDeleteIndexationObjects("GridHazardStatement"
+                    , "hazard statements"
+                    , "../Indexation/BatchDeleteHazardStatements"
+                    , function() { hideEditorSection("AddEditHazardStatement"); });
             });
 
             indexationDetailObj.on("change", "#HStatementNotProvided", function () {
@@ -1582,8 +1593,12 @@
 
             indexationDetailObj.on("click", "#SearchByHazardCode", function (e) {
                 e.preventDefault();
+
+                var referenceId = $('#AddEditHazardStatement').find('#Reference').val();
                 if ($("#popupHazardStatement").length > 0) {
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");
+                    var singleSelection = !(referenceId && referenceId != "0");
+                    grid.selectable.options.multiple = singleSelection;
                     grid.dataSource.read();
                 }
                 
@@ -1606,25 +1621,37 @@
                 e.preventDefault();
                 var grid = $("#GridSearchHazardStatement").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                    onDisplayError("No rows selected");
                     return;
                 }
-                var selectedData = grid.dataItem(grid.select());
-                if (selectedData == null) {
-                    alert("No rows selected");
+
+                var selectedItems = grid.tbody.find(".k-state-selected");
+                if (!selectedItems || selectedItems.length <= 0) {
+                    onDisplayError("No rows selected");
                     return;
                 }
-                $("#popupHazardStatement").modal("hide");
 
-                $("#StatementHCode").val(selectedData.Statement + ", " + selectedData.HCode);
-                $("#OtherHCode").val(selectedData.HCode).prop("disabled", true);
-                $("#OtherHStatement").val(selectedData.Statement).prop("disabled", true);
-                $("#HazardStatementId").val(selectedData.Reference);
+                // Continue to have older logic to handle single selected hazard statements or edits
+                var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
 
-                if (ghsHazardStatementValidator) {
-                    ghsHazardStatementValidator.validateInput($('#StatementHCode'));
-                    ghsHazardStatementValidator.validateInput($('#OtherHCode'));
-                    ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
+                if (selectedItems.length == 1 || referenceId != "0") {
+                    $("#popupHazardStatement").modal("hide");
+
+                    var selectedData = grid.dataItem(selectedItems[0]);
+                    $("#StatementHCode").val(selectedData.Statement + ", " + selectedData.HCode);
+                    $("#OtherHCode").val(selectedData.HCode).prop("disabled", true);
+                    $("#OtherHStatement").val(selectedData.Statement).prop("disabled", true);
+                    $("#HazardStatementId").val(selectedData.Reference);
+
+                    if (ghsHazardStatementValidator) {
+                        ghsHazardStatementValidator.validateInput($('#StatementHCode'));
+                        ghsHazardStatementValidator.validateInput($('#OtherHCode'));
+                        ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
+                    }
+
+                    // Multiple items have been selected save directly into the database
+                } else {
+                    batchSaveHazardStatements(getSelectedIds(grid, selectedItems));
                 }
             });
 
@@ -1664,7 +1691,10 @@
 
             indexationDetailObj.on("click", "#ancPrecautionaryStatementBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridPrecautionaryStatement", "precautionary statements", "../Indexation/BatchDeletePrecautionaryStatements");
+                batchDeleteIndexationObjects("GridPrecautionaryStatement"
+                    , "precautionary statements"
+                    , "../Indexation/BatchDeletePrecautionaryStatements",
+                    function () { hideEditorSection("AddEditPrecautionaryStatement"); });
             });
 
             indexationDetailObj.on("change", "#PStatementNotProvided", function () {
@@ -1692,8 +1722,12 @@
 
             indexationDetailObj.on("click", "#SearchByPrecautionaryCode", function (e) {
                 e.preventDefault();
+
+                var referenceId = $('#AddEditPrecautionaryStatement').find('#Reference').val();
                 if ($("#popupPStatement").length > 0) {
                     var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
+                    var singleSelection = !(referenceId && referenceId != "0");
+                    grid.selectable.options.multiple = singleSelection;
                     grid.dataSource.read();
                 }
                 
@@ -1716,24 +1750,37 @@
                 e.preventDefault();
                 var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                    onDisplayError("No rows selected");
                     return;
                 }
-                var selectedData = grid.dataItem(grid.select());
-                if (selectedData == null) {
-                    alert("No rows selected");
+                
+                var selectedItems = grid.tbody.find(".k-state-selected");
+                if (!selectedItems || selectedItems.length <= 0) {
+                    onDisplayError("No rows selected");
                     return;
                 }
-                $("#popupPStatement").modal("hide");
-                $("#StatementPCode").val(selectedData.Statement + ", " + selectedData.PCode);
-                $("#OtherPCode").val(selectedData.PCode).prop("disabled", true);
-                $("#OtherPStatement").val(selectedData.Statement).prop("disabled", true);
-                $("#PrecautionaryStatementId").val(selectedData.Reference);
 
-                if (ghsPrecautionaryStatementValidator) {
-                    ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
-                    ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
-                    ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
+                // Continue to have older logic to handle single selected hazard statements or edits
+                var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
+
+                if (selectedItems.length == 1 || referenceId != "0") {
+                    $("#popupPStatement").modal("hide");
+
+                    var selectedData = grid.dataItem(selectedItems[0]);
+                    $("#StatementPCode").val(selectedData.Statement + ", " + selectedData.PCode);
+                    $("#OtherPCode").val(selectedData.PCode).prop("disabled", true);
+                    $("#OtherPStatement").val(selectedData.Statement).prop("disabled", true);
+                    $("#PrecautionaryStatementId").val(selectedData.Reference);
+
+                    if (ghsPrecautionaryStatementValidator) {
+                        ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
+                        ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
+                        ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
+                    }
+
+                    // Multiple items have been selected save directly into the database
+                } else {
+                    batchSavePrecautionaryStatements(getSelectedIds(grid, selectedItems));
                 }
             });
 
@@ -1903,6 +1950,93 @@
                 });
         }
 
+        function batchSaveHazardStatements(ids) {
+
+            if (!ids || ids.length == 0) {
+                onDisplayError("No hazard statements were selected to be created.");
+                return false;
+            }
+
+            var url = "../Indexation/BatchCreateHazardStatements";
+            var indexationId = getIndexationId();
+
+            var data = { indexationId: indexationId.IndexationId, ids: ids };
+            $.ajax({
+                url: url,
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function() {
+                    onDisplayError("Batch hazard statement creation could not be completed");
+                },
+                success: function (response) {
+
+                    if (response.success) {
+                        var grid = $('#GridHazardStatement').data("kendoGrid");
+                        grid.dataSource.read();
+
+                        hideEditorSection("AddEditHazardStatement");
+                        $("#popupHazardStatement").modal("hide");
+
+                    } else {
+                        onDisplayError("Batch hazard statement creation could not be completed");
+                    }
+                }
+            });
+        }
+
+        function batchSavePrecautionaryStatements(ids) {
+            
+            if (!ids || ids.length == 0) {
+                onDisplayError("No precautionary statements were selected to be created.");
+                return false;
+            }
+
+            var url = "../Indexation/BatchCreatePrecautionaryStatements";
+            var indexationId = getIndexationId();
+
+            var data = { indexationId: indexationId.IndexationId, ids: ids };
+            $.ajax({
+                url: url,
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+                    onDisplayError("Batch precautionary statement creation could not be completed");
+                },
+                success: function (response) {
+
+                    if (response.success) {
+                        var grid = $('#GridPrecautionaryStatement').data("kendoGrid");
+                        grid.dataSource.read();
+
+                        hideEditorSection("AddEditPrecautionaryStatement");
+                        $("#popupPStatement").modal("hide");
+
+                    } else {
+                        onDisplayError("Batch precautionary statement creation could not be completed");
+                    }
+                }
+            });
+        }
+
+        function getSelectedIds(grid, selectedItems) {
+
+            var ids = [];
+            if (grid) {
+
+                for (var idx = 0; idx < selectedItems.length > 0; idx++) {
+                    var item = selectedItems[idx];
+                    var dataItem = grid.dataItem(item);
+                    if (dataItem) {
+                        ids.push(dataItem.id);
+                    }
+                }
+            }
+
+            return ids;
+        }
+
         function onAddHazardClassButtonClick(e) {
             e.preventDefault();
             var indexationId = $("#IndexationId").val();
@@ -1915,9 +2049,10 @@
 
         function onAddHazardStatementButtonClick(e) {
             e.preventDefault();
-            var indexationId = $("#IndexationId").val();
+
+            var indexation = getIndexationId();
             var url = '../Indexation/HazardStatement_Edit';
-            $.post(url, { indexationId: indexationId, iReference: 0 },
+            $.post(url, { indexationId: indexation.IndexationId, iReference: 0 },
                 function (data) {
                     $('#AddEditHazardStatement').html(data).show();
                 });
@@ -1942,14 +2077,25 @@
                 });
         }
 
-        function onBatchDeleteHazardClassComplete(e) {
-            // TODO: Check if the class found in the editor is still found in the grid
-        }
-
         function onSignalWordSearchButtonClick(e) {
             e.preventDefault();
             $("#popupGhsSignalWord").modal("show");
         }
+
+        var gridPrecautionaryStatementChange = function (e) {
+            var selectedData = this.dataItem(this.select());
+            var indexationId = $("#IndexationId").val();
+
+            if (selectedData) {
+                var url = '../Indexation/PrecautionaryStatement_Edit';
+                $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
+                    function (data) {
+                        $('#AddEditPrecautionaryStatement').html(data).show();
+                    });
+            } else {
+                hideEditorSection('AddEditPrecautionaryStatement');
+            }
+        };
 
         var onGridHazardClassChange = function (e) {
             var selectedData = this.dataItem(this.select());
@@ -1974,14 +2120,16 @@
 
         var onGridHazardStatementChange = function(e) {
             var selectedData = this.dataItem(this.select());
-            var indexationId = $("#IndexationId").val();
+            var indexation = getIndexationId();
 
             if (selectedData) {
+
                 var url = '../Indexation/HazardStatement_Edit';
-                $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
+                $.post(url, { indexationId: indexation.IndexationId, iReference: selectedData.Reference },
                     function (data) {
                         $('#AddEditHazardStatement').html(data).show();
                     });
+                
             } else {
                 hideEditorSection('AddEditHazardStatement');
             }
@@ -1993,19 +2141,27 @@
             }
         };
 
-        var gridPrecautionaryStatementChange = function(e) {
-            var selectedData = this.dataItem(this.select());
-            var indexationId = $("#IndexationId").val();
+        var onRegGhsPartialReady = function() {
 
-            if (selectedData) {
-                var url = '../Indexation/PrecautionaryStatement_Edit';
-                $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
-                    function(data) {
-                        $('#AddEditPrecautionaryStatement').html(data).show();
-                    });
-            } else {
-                hideEditorSection('AddEditPrecautionaryStatement');
-            }
+            $('#popupGhsPictograms').modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+            $('#popupGhsSignalWord').modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+
+            var url = '../Indexation/GetSearchGhsPictograms';
+            $.post(url, function (data) {
+                $("#dgGhsPictogramsPlugIn").html(data);
+            });
+            var urlSignalWord = '../Indexation/GetSearchSignalWord';
+            $.post(urlSignalWord, function (data) {
+                $("#dgGhsSignalWordPlugIn").html(data);
+            });
         };
 
         var onGridPrecautionaryStatementRequestComplete = function (e) {
@@ -2300,6 +2456,7 @@
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onHmisPpeChange: onHmisPpeChange,
+            onRegGhsPartialReady: onRegGhsPartialReady,
             onIngredientConcentrationChange: onIngredientConcentrationChange,
             onIngredientOperatorChange: onIngredientOperatorChange,
             onIngredientSelection: onIngredientSelection,
