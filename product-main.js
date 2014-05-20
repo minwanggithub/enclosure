@@ -89,7 +89,11 @@
                         $(currentProductAttributes).val(partNumber);
                     });
                     return true;
-                } else {
+                }
+                if (data == "3") {
+                    alert('A product has the same document set exists. Cannot attach this document.');
+                }
+                else {
                     alert('Document already exists in this product');
                 }
             });
@@ -142,6 +146,14 @@
             return url;
         }
 
+        function clearMessage(activeSaveButton) {
+            $('#productErrorMessage').removeAttr("color");
+            $('#productErrorMessage').html("");
+            if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
+                $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
+            }
+        }
+
         function saveBtnEvent(activeSaveButton) {
 
             //e.preventDefault();
@@ -163,24 +175,34 @@
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (activeSaveButton == 0) {
-                    $("#txtProductId_" + activeSaveButton).val(data);
-                    if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
-                        $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
 
-                        $("#btnAddDocToProduct_" + activeSaveButton).click(function (e) {
-                            activeProduct = data;
-                            newProductActive = true;
-                            //$("#popupDocumentSearch").modal("show");
-                            documentSearchDialog.data("kendoWindow").center();
-                            documentSearchDialog.data("kendoWindow").open();
-                            $("#addNewDocumentBtn").hide();
-                            $("#documentDisplayOptionDiv").hide();
-                        });
-
-                        $("#searchDocumentBtn").click(function (e) {
-                            GridDocumentSearchResult();
-                        });
+                    //display error, don't disable button
+                    if (data.indexOf("Error") >= 0) {
+                        $('#productErrorMessage').css("color", "red");
+                        $('#productErrorMessage').html(data);
+                        return;
                     }
+
+                    clearMessage(activeSaveButton);
+                    $("#txtProductId_" + activeSaveButton).val(data);
+
+                        if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
+                            $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
+
+                            $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
+                                activeProduct = data;
+                                newProductActive = true;
+                                //$("#popupDocumentSearch").modal("show");
+                                documentSearchDialog.data("kendoWindow").center();
+                                documentSearchDialog.data("kendoWindow").open();
+                                $("#addNewDocumentBtn").hide();
+                                $("#documentDisplayOptionDiv").hide();
+                            });
+
+                            $("#searchDocumentBtn").click(function(e) {
+                                GridDocumentSearchResult();
+                            });
+                        }
 
                     UnBindingSaveCancel(0);
                     return;
@@ -336,7 +358,34 @@
                 return { productInfo: $("#txtProductId_" + activeProduct).val() };
         };
 
-        var OnProductDocumentRequestEnd = function(e) {
+
+        var DeleteDoc = function(e) {
+            e.preventDefault();
+          
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var pid = $('[id*=txtProductId]').val();
+            var docid = dataItem.ReferenceId;
+
+            var url = "../ProductManager/DeleteProductDocument";
+            $.post(url, { productId: pid, docId: docid }, function (data) {
+
+                if (data != "Success") {
+                    $('#productErrorMessage').css("color", "red");
+                    $('#productErrorMessage').html(data);
+                    return;
+                } else {
+                    $('#productErrorMessage').removeAttr("color");
+                    $('#productErrorMessage').html("");
+
+                    var grid = $("#gdProductDocuments_" + pid).data("kendoGrid");
+                    grid.dataSource.page(1);
+                    grid.dataSource.read();
+                }
+
+            });
+        }
+
+        var OnProductDocumentRequestEnd = function (e) {
         };
 
 
@@ -635,6 +684,7 @@
             panelbar_activated: panelbar_activated,
             RemovedProductDocument: RemovedProductDocument,
             RefreshProductData: RefreshProductData,
+            DeleteDoc: DeleteDoc,
             OnProductDocumentRequestEnd: OnProductDocumentRequestEnd,
             AddDocumentProduct: AddDocumentProduct,
             displaySingleDocument: displaySingleDocument,
