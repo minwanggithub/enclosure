@@ -363,24 +363,33 @@
             e.preventDefault();
           
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-            var pid = $('[id*=txtProductId]').val();
+            var targetId = e.delegateTarget.id;
+            var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
             var docid = dataItem.ReferenceId;
 
             var url = "../ProductManager/DeleteProductDocument";
             $.post(url, { productId: pid, docId: docid }, function (data) {
 
-                if (data != "Success") {
-                    $('#productErrorMessage').css("color", "red");
-                    $('#productErrorMessage').html(data);
+                if (data.indexOf("Successfully") < 0 ) {
+                    alert(data);
                     return;
-                } else {
-                    $('#productErrorMessage').removeAttr("color");
-                    $('#productErrorMessage').html("");
-
-                    var grid = $("#gdProductDocuments_" + pid).data("kendoGrid");
-                    grid.dataSource.page(1);
-                    grid.dataSource.read();
                 }
+
+                //delete a row from the grid after successfully delete a document
+                var index1 = data.indexOf("document");
+                var index2 = data.indexOf("for product");
+                var docid = data.substring(index1+9, index2-1);
+                var prodid = data.substring(index2 + 12, data.length);
+                var prodObj = $('div#gdProductDocuments_' + prodid);
+                var tbody = $('tbody', prodObj);
+                $("td", tbody).each(function () {
+                    if ($(this).html() == docid) {
+                        $(this).parent().html("");
+                    }
+                });
+
+
+
 
             });
         }
