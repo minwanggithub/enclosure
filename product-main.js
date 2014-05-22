@@ -25,7 +25,8 @@
             var urlmultiple = "../ProductManager/AddDocumentListToProduct";
 
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
-                if (data == '1') {
+                
+                if (data == '0') {
                     documentSearchDialog.data("kendoWindow").close();
 
                     var curGdProductDoc = $("#gdProductDocuments_" + activeProduct).data("kendoGrid");
@@ -45,8 +46,11 @@
                     });
 
 
-                } else {
+                } else if(data == '2') {
                     alert('All documents already exist in this product');
+                }
+                else if (data == '3') {
+                    alert('A product has the same document set exists. Cannot attach documents.');
                 }
             });
         };
@@ -91,7 +95,7 @@
                     return true;
                 }
                 if (data == "3") {
-                    alert('A product has the same document set exists. Cannot attach this document.');
+                    alert('A product has the same document set exists. Cannot attach document.');
                 }
                 else {
                     alert('Document already exists in this product');
