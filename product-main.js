@@ -21,12 +21,18 @@
 
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
-            //var urlmultiple = '@Url.Action("AddDocumentListToProduct", "ProductManager")';
+            
             var urlmultiple = "../ProductManager/AddDocumentListToProduct";
 
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
-                
-                if (data == '0') {
+                var index1 = data.indexOf("flag");
+                var index2 = data.indexOf("productname");
+                var index3 = data.indexOf("productid");
+                var flag = data.substring(5, 6);
+                var productName = data.substring(index2 + 12, index3-1);
+                var productid = data.substring(index3 + 10, data.length);
+
+                if (flag == '0') {
                     documentSearchDialog.data("kendoWindow").close();
 
                     var curGdProductDoc = $("#gdProductDocuments_" + activeProduct).data("kendoGrid");
@@ -39,18 +45,17 @@
                     if (newProductActive)
                         currentProductAttributes = "#txtProductAttributes_0";
 
-                    //var url = '@Url.Action("GetProductPartNumberById", "ProductManager")';
                     var url = "../ProductManager/GetProductPartNumberById";
                     $.post(url, { productId: activeProduct }, function (partNumber) {
                         $(currentProductAttributes).val(partNumber);
                     });
 
-
-                } else if(data == '2') {
-                    alert('All documents already exist in this product');
+                } else if (flag == '2') {
+                    alert('Document(s) already exist in this product. Cannot attach document(s).');
                 }
-                else if (data == '3') {
-                    alert('A product has the same document set exists. Cannot attach documents.');
+                else if (flag == '3') {
+                    var msg = 'Product ' + productid + ' - ' + productName + ' has the same document set. Cannot attach document(s).';
+                    alert(msg);
                 }
             });
         };
@@ -315,7 +320,7 @@
                 }
 
 
-                if (grid.select().length > 1) {
+                if (grid.select().length >= 1) {
                     var rows = grid.select();
                     var doclists = [];
                     rows.each(
@@ -325,9 +330,7 @@
                         }
                     );
                     AddDocumentListToProduct(doclists);
-                    return;
                 }
-                AddDocumentProduct(data.ReferenceId);
             }
 
             $("#btnCancelDocumentSearch").click(function (e) {
