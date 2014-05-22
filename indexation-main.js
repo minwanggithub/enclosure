@@ -1205,9 +1205,9 @@
 
             indexationDetailObj.on("click", "#btnAddEuropeRSPhrase", function (e) {
                 e.preventDefault();
+
                 if ($("#popupRSPhraseSearch").length > 0) {
-                    var grid = $("#GridSearchRSPhrase").data("kendoGrid");
-                    grid.dataSource.read();
+                    clearRsPhraseSearchFields(false);
                 }
                 $("#popupRSPhraseSearch").modal("show");
             });
@@ -1246,7 +1246,11 @@
 
             indexationDetailObj.on("click", "#ancRSPhraseBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridRegEuropeRSPhrase", "risk and safety phrases", "../Indexation/BatchDeleteRsPhrases");
+                batchDeleteIndexationObjects("GridRegEuropeRSPhrase", "risk and safety phrases", "../Indexation/BatchDeleteRsPhrases"
+                    , function () {
+                        var europeClassGrid = $("#GridRegEuropeClassification").data("kendoGrid");
+                        europeClassGrid.dataSource.read();
+                    });
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchRSPhrase table tr", function (e) {
@@ -1280,6 +1284,78 @@
                     rsPhraseGrid.dataSource.read();
                     europeClassGrid.dataSource.read();
                 });
+        }
+
+        function clearRsPhraseSearchFields(clearGrid) {
+            var popup = $('#popupRSPhraseSearch');
+            popup.find('#rSCategoryType').data("kendoDropDownList").select(0);
+            popup.find('#rSPhraseType').data("kendoDropDownList").select(0);
+            popup.find('#txtRSPhraseSearch').val('');
+
+            var grid = popup.find('#GridSearchRSPhrase');
+            if (grid) {
+                var datasource = grid.data('kendoGrid').dataSource;
+                if (clearGrid == true) {
+                    datasource.data([]);
+                } else {
+                    datasource.data([]);
+                    datasource.read();
+                    datasource.page(1);
+                }
+            }
+        }
+
+        var onRegEuropePartialReady = function() {
+
+            var popup = $('#popupRSPhraseSearch');
+            popup.modal({
+                keyboard: false,
+                show: false,
+                backdrop: true
+            });
+
+            popup.on('click', '#searchRSPhrases', function(e) {
+                e.preventDefault();
+
+                var grid = popup.find('#GridSearchRSPhrase');
+                if (grid) {
+                    var datasource = grid.data('kendoGrid').dataSource;
+                    datasource.read();
+                    datasource.page(1);
+                }
+            });
+
+            popup.on('click', '#clearRSPhrases', function (e) {
+                e.preventDefault();
+                clearRsPhraseSearchFields(true);
+            });
+
+            popup.on('keyup', '#txtRSPhraseSearch', function (e) {
+                onKeyPressEnter(e, function() {
+                    popup.find("#searchRSPhrases").click();
+                });
+            });
+
+            var url = '../Indexation/GetSearchRsPhrase';
+            $.post(url, function (data) {
+                $("#dgRSPhrasePlugIn").html(data);
+            });
+        };
+
+        var getRsPhraseSearchCriteria = function () {
+            var criteria = {};
+            var indexationId = getIndexationId();
+            criteria["indexationId"] = indexationId.IndexationId;
+
+            var popup = $('#popupRSPhraseSearch');
+            var category = popup.find('#rSCategoryType').data("kendoDropDownList");
+            criteria["categoryType"] = (category) ? category.value() : "";
+
+            var phrase = popup.find('#rSPhraseType').data("kendoDropDownList");
+            criteria["phraseType"] = (phrase) ? phrase.value() : "";
+            criteria["searchText"] = popup.find('#txtRSPhraseSearch').val();
+
+            return criteria;
         }
 
         // GHS regulatory section methods
@@ -2438,6 +2514,7 @@
         return {
             getDocRevisionId: getDocRevisionId,
             getIndexationId: getIndexationId,
+            getRsPhraseSearchCriteria: getRsPhraseSearchCriteria,
             getSelectedPpe: getSelectedPpe,
             getSelectedPpeHmisReference: getSelectedPpeHmisReference,
             loadIndexationPlugin: loadIndexationPlugin,
@@ -2456,6 +2533,7 @@
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onHmisPpeChange: onHmisPpeChange,
+            onRegEuropePartialReady: onRegEuropePartialReady,
             onRegGhsPartialReady: onRegGhsPartialReady,
             onIngredientConcentrationChange: onIngredientConcentrationChange,
             onIngredientOperatorChange: onIngredientOperatorChange,
