@@ -1139,7 +1139,10 @@
             }
         };
 
-     
+        var onIUserInfo = function(e) {
+            $("a[id$='I-Info']").popover();
+        };
+
         var OnddlContainerTypeSelect = function (e) {
 
             $("#dvImageQuality").show();
@@ -2616,6 +2619,7 @@
             onSaveNameNumber: onSaveNameNumber,
             onRequestEnd: onRequestEnd,
             OnddlContainerTypeSelect: OnddlContainerTypeSelect,
+            onIUserInfo: onIUserInfo,
 
             selectSupplier: selectSupplier,
             viewSingleSupplier: viewSingleSupplier,
