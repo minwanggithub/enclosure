@@ -5,9 +5,10 @@
     $.fn.complibXReference = function () {
         var xreferenceDetailObj = $("#DetailXreference");
         var xreferenceSearchObj = $("#XReferenceGrid");
-        var xreferenceSearchResults = $("#dvRequestSearchResults");
         var itemsChecked = 0;
         var requestSearchModel = {};
+        var radioButtonSelected = "Group";
+
         // General indexation methods
         var loadRequestsPlugin = function () {
             initializeMultiSelectCheckboxes();
@@ -31,6 +32,20 @@
                 }
             });
         }
+
+        xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
+            radioButtonSelected = $(this).val();
+            if ($(this).val() == "Group") {
+                $("#ddlGroups").closest(".k-widget").show();
+                $("#txtIndividual").closest(".k-widget").hide();
+                $("#txtIndividual").data("kendoAutoComplete").value("");
+            }
+            else {
+                $("#txtIndividual").closest(".k-widget").show();
+                $("#ddlGroups").closest(".k-widget").hide();
+            }
+        });
+
 
         xreferenceDetailObj.on("click", "#btnAssignTo", function() {
             $('#mdlAssign').find('.modal-body').html();
@@ -61,16 +76,30 @@
             e.preventDefault();
             batchDeleteObjects('gdRequests', 'unassign these request', '../XReference/SaveAssignedItems', null, false);
         });
-
-
+        
         xreferenceDetailObj.on("click", "#btnSaveAssign", function (e) {
             e.preventDefault();
-            var userName = $("#txtIndividual").data("kendoAutoComplete");
-            if (userName.value().length > 0) {
-                batchDeleteObjects('gdRequests', 'assign these request', '../XReference/SaveAssignedItems', null, true, userName.value());
+            var userName= $("#txtIndividual").data("kendoAutoComplete");
+            var selectedValue = null;
+            if (radioButtonSelected == "Group") {
+                var ddlGroups = $("#ddlGroups").data("kendoDropDownList");
+                selectedValue = ddlGroups.text();
+            } else {
+                selectedValue = userName.value();
+            }
+
+            if (selectedValue.length > 0) {
+                batchDeleteObjects('gdRequests', 'assign these request', '../XReference/SaveAssignedItems', null, true, selectedValue);
             } else {
                 $('#mdlAssign').modal('hide');
-                onDisplayError("Please provide user to assign requests.");
+                var errorMessage = null;
+
+                if ($("input[name=GroupIndividual]:radio").val()=="Group")
+                    errorMessage = "Please select a group to assigned requests items";
+                else
+                    errorMessage = "User required to be assigned to selected tasks";
+                
+                onDisplayError(errorMessage);
             }
            
         });
