@@ -47,7 +47,7 @@
 
         
 
-        xreferenceDetailObj.on("click", "#btnUnAssign", function (e) {
+        xreferenceDetailObj.on("click", "#btnUnAssignFrom", function (e) {
             e.preventDefault();
             batchDeleteObjects('gdRequests', 'unassign these request', '../XReference/SaveAssignedItems', null, false);
         });
@@ -57,7 +57,23 @@
             batchDeleteObjects('gdRequests', 'assign these request','../XReference/SaveAssignedItems',null,true);
         });
 
+        xreferenceDetailObj.on("click", "#btnUnAssign", function (e) {
+            e.preventDefault();
+            batchDeleteObjects('gdRequests', 'unassign these request', '../XReference/SaveAssignedItems', null, false);
+        });
 
+
+        xreferenceDetailObj.on("click", "#btnSaveAssign", function (e) {
+            e.preventDefault();
+            var userName = $("#txtIndividual").data("kendoAutoComplete");
+            if (userName.value().length > 0) {
+                batchDeleteObjects('gdRequests', 'assign these request', '../XReference/SaveAssignedItems', null, true, userName.value());
+            } else {
+                $('#mdlAssign').modal('hide');
+                onDisplayError("Please provide user to assign requests.");
+            }
+           
+        });
 
         
         //Does search and displays search results 
@@ -89,14 +105,14 @@
                if ($("div #row #right #txtFreeField_" + initialRow).is(":hidden")) {
                    if (drpFields.text() == "Language") {
                        var drpLanguage = $("div #row #right #drpLanguage_" + initialRow).data("kendoDropDownList");
-                       criteria.SearchFor = drpLanguage.value();
+                       var language = drpLanguage.value();
+                       criteria.SearchFor = language.replace("flag-", "");
                    }
 
 
                    if (drpFields.text() == "Document Type") {
                        var drpDocType = $("div #row #right #drpDocumentType_" + initialRow).data("kendoDropDownList");
-                       criteria.SearchFor = drpDocType.text();
-                       debugger;
+                       criteria.SearchFor = drpDocType.value();
                    }
 
 
@@ -227,7 +243,7 @@
             });
         }
 
-        function batchDeleteObjects(targetGrid, objName, url, data, isAssign, completeCallback) {
+        function batchDeleteObjects(targetGrid, objName, url, data, isAssign, assignTo, completeCallback) {
             if (!targetGrid || !objName || !url) {
                 return false;
             }
@@ -251,18 +267,27 @@
                     data['ids'] = selectedIds;
                     data["searchCriteria"] = $("#SearchCriteria").val();
                     data["isAssign"] = isAssign;
+
+                    if (typeof (assignTo) != "undefined") {
+                        data["assignedTo"] = assignTo;
+                        $('#mdlAssign').modal('hide');
+                    }
+
+
                     var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
-                    DisplayConfirmationModal(args, function () {
+                    DisplayConfirmationModal(args, function() {
                         $.ajax({
                             url: url,
                             data: JSON.stringify(data),
                             type: "POST",
                             contentType: 'application/json; charset=utf-8',
-                            beforeSend: function () {
+                            beforeSend: function() {
                                 kendo.ui.progress(xreferenceDetailObj, true);
-                            }, error: function () {
+                            },
+                            error: function() {
                                 onDisplayError('Requests could not be assigned');
-                            }, success: function (successData) {
+                            },
+                            success: function(successData) {
 
                                 if (successData.success == true) {
 
@@ -275,13 +300,15 @@
                                     grid = $(targetGridSelector).data("kendoGrid");
                                     grid.dataSource.read();
 
-                                   // displayCreatedMessage('Items Assigned Successful');
+
+                                    // displayCreatedMessage('Items Assigned Successful');
 
                                 } else {
-                                    onDisplayError("fja;lsfja;lsfdja;slj");
+                                    onDisplayError("Error Occurred");
                                 }
 
-                            }, complete: function (compData) {
+                            },
+                            complete: function(compData) {
 
                                 kendo.ui.progress(xreferenceDetailObj, false);
 
@@ -291,6 +318,9 @@
                             }
                         });
                     });
+                } else {
+                    $('#mdlAssign').modal('hide');
+                    onDisplayError("No items have been selected");
                 }
             }
         };
