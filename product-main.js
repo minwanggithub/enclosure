@@ -51,11 +51,13 @@
                     });
 
                 } else if (flag == '2') {
-                    alert('Document(s) already exist in this product. Cannot attach document(s).');
+                    $("#documentSearchWindow").data("kendoWindow").close();
+                    onDisplayError('Document(s) already exist in this product. Cannot attach document(s).');
                 }
                 else if (flag == '3') {
+                    $("#documentSearchWindow").data("kendoWindow").close();
                     var msg = 'Product ' + productid + ' - ' + productName + ' has the same document set. Cannot attach document(s).';
-                    alert(msg);
+                    onDisplayError(msg);
                 }
             });
         };
@@ -75,38 +77,6 @@
             var url = indexArea + "/Operations/Document/LoadSingleDocument?documentId=0&revisionId=0";
             window.open(url, "_blank");
         }
-
-
-        function AddDocumentProduct(documentId, e) {
-            //var url = '@Url.Action("AddDocumentToProduct", "ProductManager")';
-            var url = "../ProductManager/AddDocumentToProduct";
-            $.post(url, { productId: activeProduct, documentId: documentId }, function (data) {
-                if (data == '0') {
-                    documentSearchDialog.data("kendoWindow").close();
-                    var curGdProductDoc = $("#gdProductDocuments_" + activeProduct).data("kendoGrid");
-                    if (newProductActive)
-                        curGdProductDoc = $("#gdProductDocuments_0").data("kendoGrid");
-                    curGdProductDoc.dataSource.page(1);
-                    curGdProductDoc.dataSource.read();
-
-                    var currentProductAttributes = "#txtProductAttributes_" + activeProduct;
-                    if (newProductActive)
-                        currentProductAttributes = "#txtProductAttributes_0";
-
-                    //url = '@Url.Action("GetProductPartNumberById", "ProductManager")';
-                    $.post("../ProductManager/GetProductPartNumberById", { productId: activeProduct }, function (partNumber) {
-                        $(currentProductAttributes).val(partNumber);
-                    });
-                    return true;
-                }
-                if (data == "3") {
-                    alert('A product has the same document set exists. Cannot attach document.');
-                }
-                else {
-                    alert('Document already exists in this product');
-                }
-            });
-        };
 
         function GridDocumentSearchResult() {
             var grid = $("#gdSearchDocument").data("kendoGrid");
@@ -368,7 +338,11 @@
 
         var DeleteDoc = function(e) {
             e.preventDefault();
-          
+            var strconfirm = confirm("Are you sure you want delete this document?");
+            if (strconfirm == false) {
+                return;
+            }
+
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             var targetId = e.delegateTarget.id;
             var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
@@ -702,7 +676,7 @@
             RefreshProductData: RefreshProductData,
             DeleteDoc: DeleteDoc,
             OnProductDocumentRequestEnd: OnProductDocumentRequestEnd,
-            AddDocumentProduct: AddDocumentProduct,
+            AddDocumentListToProduct: AddDocumentListToProduct,
             displaySingleDocument: displaySingleDocument,
             panelbar_expand: panelbar_expand,
             panelbar_collapse: panelbar_collapse,
@@ -739,8 +713,33 @@
 
         $('#gdSearchDocument').on('dblclick', 'table tr', function (e) {
             e.preventDefault();
-            if(prodlib != undefined)
-                prodlib.AddDocumentProduct(prodlib.getSelectDocID, e);
+
+            if (prodlib != undefined) {
+
+                var grid = $("#gdSearchDocument").data("kendoGrid");
+                if (grid.dataSource.total() == 0) {
+                    alert("No row selected");
+                    return;
+                }
+                var data = grid.dataItem(grid.select());
+                if (data == null) {
+                    alert("No row selected");
+                    return;
+                }
+
+                if (grid.select().length >= 1) {
+                    var rows = grid.select();
+                    var doclists = [];
+                    rows.each(
+                        function(index, row) {
+                            var selectedItem = grid.dataItem(row);
+                            doclists.push(selectedItem.ReferenceId);
+                        }
+                    );
+
+                    prodlib.AddDocumentListToProduct(doclists, e);
+                }
+            }
         });
     });
 
