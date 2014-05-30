@@ -113,6 +113,28 @@
             }
         };
 
+        function concentrationTypeDropdownChange(selectedValue, affectedFields, moreNeeded) {
+
+            if (!affectedFields) {
+                return false;
+            }
+
+            var fieldEnabled = selectedValue == 4;
+            for (var idx = 0; idx < affectedFields.length; idx++) {
+
+                var currentDdl = $('#' + affectedFields[idx]).data("kendoDropDownList");
+                if (fieldEnabled == false) {
+                    currentDdl.select(0);
+                }
+
+                currentDdl.enable(fieldEnabled);
+            }
+
+            if (moreNeeded) {
+                moreNeeded(selectedValue);
+            }
+        }
+
         function onElementDisable(index, oldPropertyValue) {
             if (oldPropertyValue == false) {
                 removeValidationToolTips(this);
@@ -758,6 +780,71 @@
                     $("#CoeffDistribEquals").val("").prop("disabled", true);
                 }
             });
+
+            indexationDetailObj.on("change", "#MiscibilityType", function (e) {
+                var selectedValue = $(this).data("kendoDropDownList").value();
+                var affectedFields = ["MiscibilityWeight", "MiscibilityVolume"];
+
+                concentrationTypeDropdownChange(selectedValue, affectedFields, function (val) {
+                    onConcentrationChangeCallback(val, 'Miscibility');
+                });
+            });
+
+            indexationDetailObj.on("change", "#SolubilityWaterType", function (e) {
+                var selectedValue = $(this).data("kendoDropDownList").value();
+                var affectedFields = ["SolubilityWaterWeight", "SolubilityWaterVolume"];
+                concentrationTypeDropdownChange(selectedValue, affectedFields, function(val) {
+                    onConcentrationChangeCallback(val, 'SolubilityWater');
+                });
+            });
+
+            indexationDetailObj.on("change", "#SolubilityOtherType", function (e) {
+                var selectedValue = $(this).data("kendoDropDownList").value();
+                var affectedFields = ["SolubilityOtherWeight", "SolubilityOtherVolume"];
+                concentrationTypeDropdownChange(selectedValue, affectedFields, function (val) {
+                    onConcentrationChangeCallback(val, 'SolubilityOther');
+                });
+            });
+        }
+
+        function initializePhysicalChemicalValidator() {
+
+            physicalChemicalValidator = $('#FormPhyChemProperties').kendoValidator({
+                messages: {
+                    decimalvalidate: function (input) {
+                        return input.data('valNumber');
+                    },
+                    rangeValidation: function (input) {
+                        return input.attr('data-val-range-message');
+                    }
+                },
+                rules: {
+                    decimalvalidate: function (input) {
+                        if (input.is('[class="val-decimal"]') && input.val()) {
+                            return isValidDecimal(input.val());
+                        }
+
+                        return true;
+                    },
+                    rangeValidation: function (input) {
+                        if (input.is('[class*="val-range-value"]') && input.val()) {
+                            if (input.attr("data-val-range-min")) {
+                                var userValue = parseInt(input.val());
+                                var minValue = parseInt(input.attr("data-val-range-min"));
+                                var maxValue = parseInt(input.attr("data-val-range-max"));
+                                return (userValue >= minValue && userValue <= maxValue);
+                            }
+
+                            return true;
+                        }
+
+                        return true;
+                    }
+                }
+
+            }).data('kendoValidator');
+
+            return physicalChemicalValidator;
         }
 
         function boilingPointMoreNeeded(selectedValue) {
@@ -801,27 +888,32 @@
             }
         }
 
-        function initializePhysicalChemicalValidator() {
+        function onConcentrationChangeCallback(concentrationValue, valueField) {
+            
+            var textField = $('#' + valueField);
+            if (concentrationValue != 0) {
+                var minValue = 0;
+                var maxValue = (concentrationValue == 4 || concentrationValue == 5) ? 999 : 100;
+                var errorMessage = 'The numeric value must be between ' + minValue + ' and ' + maxValue;
 
-            physicalChemicalValidator = $('#FormPhyChemProperties').kendoValidator({
-                messages: {
-                    decimalvalidate: function (input) {
-                        return input.data('valNumber');
-                    }
-                },
-                rules: {
-                    decimalvalidate: function(input) {
-                        if (input.is('[class="val-decimal"]') && input.val()) {
-                            return isValidDecimal(input.val());
-                        }
+                textField.attr({
+                    'data-val-range-message': errorMessage,
+                    'data-val-range-min': minValue,
+                    'data-val-range-max': maxValue,
+                });
 
-                        return true;
-                    }
+                initializePhysicalChemicalValidator();
+                physicalChemicalValidator.validate(textField);
+
+            } else {
+                textField.removeAttr('data-val-range-message data-val-range-max data-val-range-min');
+                textField.val("");
+                var validationTooltip = textField.siblings('.k-tooltip-validation');
+                if (validationTooltip) {
+                    validationTooltip.hide();
                 }
+            }
 
-            }).data('kendoValidator');
-
-            return physicalChemicalValidator;
         }
 
         var onBoilingPointOperatorChange = function (e) {
@@ -907,9 +999,15 @@
             operatorDropdownChange(e.sender._selectedValue, "FromVolatility", "ToVolatility", volatilityMoreNeeded);
         };
 
+        var onPhysChemPropertiesPartialReady = function (settings) {
+            onConcentrationChangeCallback(settings.miscibilitytype, 'Miscibility');
+            onConcentrationChangeCallback(settings.solubilitywatertype, 'SolubilityWater');
+            onConcentrationChangeCallback(settings.solubilityothertype, 'SolubilityOther');
+        };
+
         // Transport section methods
         function initializeTransportControls()
-        {
+        {     
             indexationDetailObj.on("click", "#ancNipBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects('GridNIP', 'nips', "../Indexation/BatchDeleteNIPs");
@@ -2540,6 +2638,7 @@
             onIngredientSelection: onIngredientSelection,
             onMultiDeleteGridDataBinding: onMultiDeleteGridDataBinding,
             onMultiDeleteGridDataBound: onMultiDeleteGridDataBound,
+            onPhysChemPropertiesPartialReady: onPhysChemPropertiesPartialReady,
             onPpeReady: onPpeReady,
             onRegOthersPartialReady: onRegOthersPartialReady,
             onPpeHmisChange: onPpeHmisChange,
