@@ -11,9 +11,12 @@
 
         // General indexation methods
         var loadRequestsPlugin = function () {
-            initializeMultiSelectCheckboxes();
+            initializeMultiSelectCheckboxes(xreferenceDetailObj);
         };
 
+        var loadMyRequestsPlugin = function () {
+            initializeMultiSelectCheckboxes(xreferenceSearchObj);
+        };
        
         var IsReadOnlyMode = function () {
             return ($("#SearchPanel").find("span.icon-lock.icon-white").length == 1);
@@ -22,15 +25,7 @@
         var onDisplayError = function (errorMessage) {
             var message = errorMessage;
             $('#errorReport').find('.modal-body').html(message);
-            $("#errorReport").modal({
-                backdrop: true,
-                keyboard: true
-            }).css({
-                width: 'auto',
-                'margin-left': function () {
-                    return -($(this).width() / 2); //auto size depending on the message
-                }
-            });
+            DisplayModal("errorReport");
         }
 
         xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
@@ -48,16 +43,7 @@
 
 
         xreferenceDetailObj.on("click", "#btnAssignTo", function() {
-            $('#mdlAssign').find('.modal-body').html();
-            $("#mdlAssign").modal({
-                backdrop: true,
-                keyboard: true
-            }).css({
-                width: 'auto',
-                'margin-left': function () {
-                    return -($(this).width() / 2); 
-                }
-            });
+            DisplayModal("mdlAssign");
         });
 
         
@@ -89,22 +75,54 @@
             }
 
             if (selectedValue.length > 0) {
-                batchDeleteObjects('gdRequests', 'assign these request', '../XReference/SaveAssignedItems', null, true, selectedValue);
+                batchDeleteObjects('gdRequests', 'assign these request item(s)', '../XReference/SaveAssignedItems', null, true, selectedValue);
             } else {
                 $('#mdlAssign').modal('hide');
                 var errorMessage = null;
 
                 if ($("input[name=GroupIndividual]:radio").val()=="Group")
-                    errorMessage = "Please select a group to assigned requests items";
+                    errorMessage = "Please select a group to assign request item(s)";
                 else
-                    errorMessage = "User required to be assigned to selected tasks";
+                    errorMessage = "User required to assign selected request item(s)";
                 
                 onDisplayError(errorMessage);
             }
            
         });
 
+        //clears search results
+        xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function (e) {
+            xreferenceDetailObj.html("");
+        });
+
+        xreferenceSearchObj.on("click", "#btnResolve", function (e) {
+            e.preventDefault();
+            $("#hdnDialogOpen").val("resolveOpen");
+            DisplayModal("mdlResolve");
+        });
         
+        xreferenceSearchObj.on("click", "#btnObtainment", function (e) {
+            e.preventDefault();
+            DisplayModal("mdlObtainment");
+        });
+
+        xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function (e) {
+            activeSupplier = "txtSearchSupplierId";
+            $("#supplierSearchWindow").data("kendoWindow").center();
+            $("#supplierSearchWindow").data("kendoWindow").open();
+        });
+
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : event.keyCode
+            if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+
+         
+
         //Does search and displays search results 
         xreferenceSearchObj.on("click", "#searchRequestBtn", function (e) {
             var numberOfRows = $('div #row').length;
@@ -167,10 +185,8 @@
             });
         });
 
-        //clears search results
-        xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function (e) {
-            xreferenceDetailObj.html("");
-        });
+      
+        
 
        //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
@@ -218,11 +234,22 @@
             }
         });
      
-        
+        function DisplayModal(modalId) {
+            $('#' + modalId).find('.modal-body').html();
+            $('#' + modalId).modal({
+                backdrop: true,
+                keyboard: true
+            }).css({
+                width: 'auto',
+                'margin-left': function () {
+                    return -($(this).width() / 2);
+                }
+            });
+        }
 
-        function initializeMultiSelectCheckboxes() {
+        function initializeMultiSelectCheckboxes(obj) {
 
-            xreferenceDetailObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
@@ -244,12 +271,12 @@
                 });
 
                 $("#numberOfItems").text("(" + itemsChecked + ")");
-
+                $("#numberOfItems").val(itemsChecked);
                 // Keep grid from changing seleted information
                 e.stopImmediatePropagation();
             });
 
-            xreferenceDetailObj.on("click", ".chkMasterMultiSelect", function (e) {
+            obj.on("click", ".chkMasterMultiSelect", function (e) {
                 itemsChecked = 0;
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -258,12 +285,15 @@
                     if (kgrid._data.length > 0) {
                         $.each(kgrid._data, function () {
                             this['IsSelected'] = checked;
-                            itemsChecked++;
-                          
+                            if (this['IsSelected'])
+                                itemsChecked++;
+                            else
+                                itemsChecked=0;
                         });
 
                         kgrid.refresh();
                         $("#numberOfItems").text("(" + itemsChecked + ")");
+                        $("#numberOfItems").val(itemsChecked);
                         // No items were found in the datasource, return from the function and cancel the current event
                     } else {
                         return false;
@@ -354,10 +384,23 @@
             }
         };
 
+        //Foreign script from suppplier not being in this module
+        gdGroupsChange = function (e) {
+            var selectedData = this.dataItem(this.select());
+            var groupId = selectedData.GroupID;
+            var url = "../Configuration/RequestManager/GetGroupUsers";
+            $.post(url, { groupId: groupId }, function (result) {
+                $("#GroupUsersDetail").html($(result));
+            });
+
+        };
+
         return {
             loadRequestsPlugin: loadRequestsPlugin,
+            loadMyRequestsPlugin: loadMyRequestsPlugin,
             IsReadOnlyMode: IsReadOnlyMode,
-            onDisplayError: onDisplayError
+            onDisplayError: onDisplayError,
+            gdGroupsChange: gdGroupsChange
         };
     };
 })(jQuery);
