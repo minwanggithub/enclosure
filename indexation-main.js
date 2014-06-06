@@ -11,9 +11,11 @@
         var menuYloc = null;
         var indexationDetailObj = $("#IndexationDetail");
         var ingredientValidator = null;
+        var settings = null;
 
         // General indexation methods
-        var loadIndexationPlugin = function() {
+        var loadIndexationPlugin = function(callbackSettings) {
+            settings = callbackSettings;
             initializeMenu();
 
             $("#IndexationDetailPanel").kendoPanelBar({
@@ -95,6 +97,22 @@
         };
 
         // Helper Methods
+        function displayErrorMessage(message) {
+            if (settings && settings.onErrorCallback) {
+                settings.onErrorCallback(message);
+            } else {
+                alert(message);
+            }
+        };
+
+        function displayKendoPopup(element) {
+            if (settings && settings.popupCallback && element) {
+                settings.popupCallback(element);
+            } else {
+                displayErrorMessage('An error occurred displaying the popup');
+            }
+        }
+
         function operatorDropdownChange(selectedValue, fromDdl, toDdl, moreNeeded) {
             $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
 
@@ -551,6 +569,74 @@
             });
         }
 
+        function initializeIngredientCreationControls(editorWindow) {
+            if (!editorWindow) {
+                return false;
+            }
+
+            var editorForm = editorWindow.find("#ingredientForm");
+            if (editorForm) {
+
+                // Modify existing layout
+                var container = editorForm.find('.form-horizontal');
+                if (container) {
+                    container.css({ height: '', margin: '35px' });
+                    container.find('.controls input[style*="width"], span[style*="width"]').each(function () {
+                        $(this).css('width', '');
+                    });
+
+                    var row = container.find(".row-fluid:first");
+                    if (row) {
+                        container.append(row);
+                    }
+
+                    // Initialize all button events
+                    editorWindow.on("click", "#btnSaveIngredient", function(e) {
+                        e.preventDefault();
+
+                        var url = editorForm.attr("action");
+                        var formData = editorForm.serialize();
+
+                        // Check if the form is valid
+                        var validator = editorForm.kendoValidator().data("kendoValidator");
+                        if (validator.validate()) {
+
+                            $.post(url, formData, function(data) {
+                                if (!data.Errors) {
+                                    editorWindow.data('kendoWindow').close();
+                                    displayCreatedMessage("Ingredient Saved");
+
+                                    var grid = $('#gdIngredientsSearch').data("kendoGrid");
+                                    grid.dataSource.read();
+
+                                    return true;
+                                } else {
+
+                                    var errorMessage = 'Error occured while saving the ingredient details';
+                                    var keys = Object.keys(data.Errors);
+                                    for (var idx = 0; idx < keys.length; idx++) {
+                                        var errorobj = data.Errors[keys[idx]];
+                                        if (errorobj.errors && errorobj.errors.length > 0) {
+                                            errorMessage = errorobj.errors[0];
+                                            break;
+                                        }
+                                    }
+
+                                    displayErrorMessage(errorMessage);
+                                    return false;
+                                }
+                            });
+                        }
+                    });
+
+                    editorWindow.on("click", "#btnDiscardIngredient", function(e) {
+                        e.preventDefault();
+                        editorWindow.data('kendoWindow').close();
+                    });
+                }
+            }
+        }
+
         function retrieveIngredientValidator() {
 
             ingredientValidator = $('#ingredientForm').kendoValidator({
@@ -682,6 +768,89 @@
                     cacheObj.value = ingredientId;
                 }
             }
+        };
+
+        var onIngredientSearchReady = function() {
+
+            var searchwindow = $("#IndexationSearchWindow");
+
+            searchwindow.on("click", "#btnSearchIngredient", function(e) {
+                e.preventDefault();
+
+                var grid = $("#gdIngredientsSearch").data("kendoGrid");
+                grid.dataSource.data([]);
+
+                grid.bind("dataBound", function ingredientBind() {
+                    displayKendoPopup($('#SearchIngredientWindow'));
+                    grid.unbind("dataBound", ingredientBind);
+                });
+
+                grid.dataSource.read();
+                grid.dataSource.page(1);
+            });
+
+            searchwindow.on("click", "#btnSelectIngredient", function(e) {
+                e.preventDefault();
+
+                var grid = $("#gdIngredientsSearch").data("kendoGrid");
+                if (grid.dataSource.total() == 0) {
+                    displayErrorMessage("No rows selected");
+                    return;
+                }
+
+                var selectedData = grid.dataItem(grid.select());
+                if (selectedData == null) {
+                    displayErrorMessage("No rows selected");
+                    return;
+                }
+
+                var window = $("#SearchIngredientWindow").data("kendoWindow");
+                window.close();
+
+                var url = '../Indexation/GetIndexationIngredient';
+                var indexationId = $("#IndexationId").val();
+                var data = { ingredientId: selectedData.IngredientId, indexationId: indexationId };
+                $.post(url, data, onIngredientSelection);
+            });
+
+            searchwindow.on("click", "#btnCancelIngSearch", function(e) {
+                e.preventDefault();
+                $("#SearchIngredientWindow").data("kendoWindow").close();
+            });
+
+            searchwindow.on("click", "#btnClearIngSearch", function(e) {
+                e.preventDefault();
+                $('#IngredientId, #CasNo, #IngredientName').val("");
+                $("#gdIngredientsSearch").data("kendoGrid").dataSource.data([]);
+                $('#ingredientEditorWindow').data('kendoWindow').center();
+            });
+
+            searchwindow.on("click", "#btnAddNewIngredient", function(e) {
+                e.preventDefault();
+
+                var editorWindow = $('#ingredientEditorWindow');
+                var url = "../Ingredient/GetIngredient";
+                var data = { ingredientId: 0 };
+
+                if (editorWindow) {
+
+                    $.ajax({
+                        url: url,
+                        data: data,
+                        success: function(layout) {
+                            editorWindow.find("#ingredientEditorContents").html(layout);
+                        },
+                        complete: function() {
+                            initializeIngredientCreationControls(editorWindow);
+                            editorWindow.data('kendoWindow').open();
+                            editorWindow.data('kendoWindow').center();
+                        }
+                    });
+
+                } else {
+                    displayErrorMessage('An error occurred adding a new ingredient');
+                }
+            });
         };
 
         var onGridIngredientChange = function(e) {
@@ -2631,6 +2800,7 @@
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onHmisPpeChange: onHmisPpeChange,
+            onIngredientSearchReady: onIngredientSearchReady,
             onRegEuropePartialReady: onRegEuropePartialReady,
             onRegGhsPartialReady: onRegGhsPartialReady,
             onIngredientConcentrationChange: onIngredientConcentrationChange,

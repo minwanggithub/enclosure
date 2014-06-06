@@ -75,19 +75,35 @@
 
         ingredientDetailObj.on("click", "#btnSaveIngredient", function (e) {
             e.preventDefault();
-            //var validator = retrieveIngredientValidator();
+            
             var form = $("#ingredientForm");
-            var url = form.attr("action");
-            var formData = form.serialize();
-            $.post(url, formData, function (data) {
-                if (data == "Ingredient Saved") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                    return true;
-                } else {
-                    alert('Error occured while saving the ingredient details, ' + data);
-                    return false;
-                }
-            });
+            var validator = form.kendoValidator().data("kendoValidator");
+            if (validator.validate()) {
+
+                var url = form.attr("action");
+                var formData = form.serialize();
+
+                $.post(url, formData, function(data) {
+                    if (!data.Errors) {
+                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Ingredient Saved");
+                        return true;
+                    } else {
+
+                        var errorMessage = 'Error occured while saving the ingredient details';
+                        var keys = Object.keys(data.Errors);
+                        for (var idx = 0; idx < keys.length; idx++) {
+                            var errorobj = data.Errors[keys[idx]];
+                            if (errorobj.errors && errorobj.errors.length > 0) {
+                                errorMessage = errorobj.errors[0];
+                                break;
+                            }
+                        }
+
+                        onDisplayError(errorMessage);
+                        return false;
+                    }
+                });
+            }
         });
 
         //Expose to public
