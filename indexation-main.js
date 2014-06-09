@@ -40,6 +40,7 @@
             initializeOthersControls();
             initializeHandlingStorageControls();
             initializeFirstAidControls();
+            initializeFireFightingControls();
             initializePpeControls();
         };
 
@@ -1025,15 +1026,6 @@
             }
         }
 
-        function flashPointMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
-                $('#SelectFlashPointTempUnit').data("kendoDropDownList").select(0);
-                $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(false);
-            } else {
-                $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(true);
-            }
-        }
-
         function volatilityMoreNeeded(selectedValue) {
             if (!selectedValue || selectedValue == 7) {
                 $('#SelectFromToVolatility').data("kendoDropDownList").select(0);
@@ -1087,10 +1079,6 @@
 
         var onBoilingPointOperatorChange = function (e) {
             operatorDropdownChange(e.sender._selectedValue, "FromBoilingPoint", "ToBoilingPoint", boilingPointMoreNeeded);
-        };
-
-        var onFlashPointOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromFlashPoint", "ToFlashPoint", flashPointMoreNeeded);
         };
 
         var onGravityOperatorChange = function (e) {
@@ -2661,6 +2649,68 @@
             });
         }
 
+        // Fire fighting section methods
+        function initializeFireFightingControls() {
+
+            indexationDetailObj.on("click", "#btnSaveFireFighting", function(e) {
+                e.preventDefault();
+
+                var form = $("#FormFireFighting");
+                var validator = form.kendoValidator().data("kendoValidator");
+                if (validator.validate()) {
+                    var url = form.attr("action");
+                    var formData = form.serialize();
+                    $.post(url, formData, function (data) {
+
+                        if (!data.Errors) {
+                            displayCreatedMessage("Fire Fighting Saved");
+                            return true;
+                        } else {
+
+                            var errorMessage = 'Error occured while saving the fire fighting details';
+                            var keys = Object.keys(data.Errors);
+                            for (var idx = 0; idx < keys.length; idx++) {
+                                var errorobj = data.Errors[keys[idx]];
+                                if (errorobj.errors && errorobj.errors.length > 0) {
+                                    errorMessage = errorobj.errors[0];
+                                    break;
+                                }
+                            }
+
+                            onDisplayError(errorMessage);
+                            return false;
+                        }
+                    });
+                }
+            });
+        }
+
+        function flashPointMoreNeeded(selectedValue) {
+            if (!selectedValue || selectedValue == 7) {
+                $('#SelectFlashPointTempUnit').data("kendoDropDownList").select(0);
+                $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(false);
+            } else {
+                $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(true);
+            }
+        }
+
+        function flameExtensionMoreNeeded(selectedValue) {
+            if (!selectedValue || selectedValue == 7) {
+                $('#FlameExtensionUnitLength').data("kendoDropDownList").select(0);
+                $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(false);
+            } else {
+                $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(true);
+            }
+        }
+
+        var onFlashPointOperatorChange = function (e) {
+            operatorDropdownChange(e.sender._selectedValue, "FromFlashPoint", "ToFlashPoint", flashPointMoreNeeded);
+        };
+
+        var onFlameExtensionOperatorChange = function(e) {
+            operatorDropdownChange(e.sender._selectedValue, "FlameExtensionFrom", "FlameExtensionTo", flameExtensionMoreNeeded);
+        };
+
         // PPE section methods
         function initializePpeControls() {
             indexationDetailObj.on("click", "#btnAddPpe", function (e) {
@@ -2788,6 +2838,7 @@
             loadWorkLoadPlugIn: loadWorkLoadPlugIn,
             onAttachmentRequestEnd: onAttachmentRequestEnd,
             onBoilingPointOperatorChange: onBoilingPointOperatorChange,
+            onFlameExtensionOperatorChange: onFlameExtensionOperatorChange,
             onFlashPointOperatorChange: onFlashPointOperatorChange,
             onGravityOperatorChange: onGravityOperatorChange,
             onGridEditChangeTitle: onGridEditChangeTitle,
@@ -2798,7 +2849,7 @@
             onGridIngredientChange: onGridIngredientChange,
             onGridIngredientRemove: onGridIngredientRemove,
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
-            onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
+            onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,        
             onHmisPpeChange: onHmisPpeChange,
             onIngredientSearchReady: onIngredientSearchReady,
             onRegEuropePartialReady: onRegEuropePartialReady,
