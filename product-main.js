@@ -1,4 +1,5 @@
-﻿;(function($) {
+﻿
+    ;(function($) {
     if ($.fn.complibProduct == null) {
         $.fn.complibProduct = {};
     }
@@ -56,7 +57,7 @@
                 }
                 else if (flag == '3') {
                     $("#documentSearchWindow").data("kendoWindow").close();
-                    var msg = 'Product ' + productid + ' - ' + productName + ' has the same document set. Cannot attach document(s).';
+                    var msg = 'Product ' + productid + ' - ' + productName + ' has the same document set as other product. Cannot attach document(s).';
                     onDisplayError(msg);
                 }
             });
@@ -336,44 +337,112 @@
         };
 
 
-        var DeleteDoc = function(e) {
-            e.preventDefault();
-            var strconfirm = confirm("Are you sure you want delete this document?");
+        //var DeleteDoc = function(e) {
+        //    e.preventDefault();
+        //    var strconfirm = confirm("Are you sure you want to delete this document?");
+        //    if (strconfirm == false) {
+        //        return;
+        //    }
+
+        //    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        //    var targetId = e.delegateTarget.id;
+        //    var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
+        //    var doclists = [];
+        //    doclists.push(dataItem.ReferenceId);
+
+        //    var url = "../ProductManager/DeleteProductDocument";
+        //    $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
+               
+        //        if (data.indexOf("Successfully") < 0 ) {
+        //            alert(data);
+        //            return;
+        //        }
+
+        //        //delete a row from the grid after successfully delete a document
+        //        var index1 = data.indexOf("document");
+        //        var index2 = data.indexOf("for product");
+        //        var docid = data.substring(index1 + 12, index2 - 1);
+        //        var prodid = data.substring(index2 + 12, data.length);
+        //        var prodObj = $('div#gdProductDocuments_' + prodid);
+        //        var tbody = $('tbody', prodObj);
+        //        $("td", tbody).each(function () {
+        //            if ($(this).html() == docid) {
+        //                $(this).parent().html("");
+        //            }
+        //        });
+
+        //    });
+        //}
+
+        var DeleteSelectedDocFromProd = function (productId, doclists) {
+
+            if (doclists.length <= 0) {
+                alert("Please select document(s) to delete.");
+                return;
+            }
+
+            var strconfirm = confirm("Are you sure you want to delete the document(s)?");
             if (strconfirm == false) {
                 return;
             }
 
-            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-            var targetId = e.delegateTarget.id;
-            var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
-            var docid = dataItem.ReferenceId;
-
             var url = "../ProductManager/DeleteProductDocument";
-            $.post(url, { productId: pid, docId: docid }, function (data) {
+            if (doclists.length > 0) {
+                $.post(url, {
+                    productId: productId,
+                    documentList: JSON.stringify(doclists) 
+                }, function (data) {
 
-                if (data.indexOf("Successfully") < 0 ) {
-                    alert(data);
-                    return;
-                }
+                   if (data.indexOf("Successfully") < 0) {
+                      alert(data);
+                      return;
+                   }
 
-                //delete a row from the grid after successfully delete a document
-                var index1 = data.indexOf("document");
-                var index2 = data.indexOf("for product");
-                var docid = data.substring(index1+9, index2-1);
-                var prodid = data.substring(index2 + 12, data.length);
-                var prodObj = $('div#gdProductDocuments_' + prodid);
-                var tbody = $('tbody', prodObj);
-                $("td", tbody).each(function () {
-                    if ($(this).html() == docid) {
-                        $(this).parent().html("");
-                    }
+                   //delete a row from the grid after successfully delete document
+                   var index1 = data.indexOf("document");
+                   var index2 = data.indexOf("for product");
+                   var docidlst = data.substring(index1 + 13, index2 - 2).split(',');
+                   var prodid = data.substring(index2 + 12, data.length);
+                   var prodObj = $('div#gdProductDocuments_' + prodid);
+                   var tbody = $('tbody', prodObj);
+
+                   $(".chkMasterMultiSelect", prodObj).removeAttr("checked");
+                   
+                   var gridId = 'gdProductDocuments_' + prodid;
+                   var singleProdObj = selectedProdIdObj[gridId];
+
+                    //uncheck checkboxes
+                    var grid = $('#gdProductDocuments_' + productId);
+                    var kgrid = grid.data().kendoGrid;
+                    if (kgrid._data.length > 0) {
+                        $.each(kgrid._data, function () {
+                            for (var i = 0; i < docidlst.length; i++) {
+                                if ("\""+this.ReferenceId+"\""==docidlst[i] && this['IsSelected']) {
+                                    this['IsSelected'] = false;
+                                    var index = singleProdObj.idList.indexOf(this.ReferenceId.toString());
+                                    if (index >= 0) {
+                                        singleProdObj.idList.splice(index, 1);
+                                    }
+                                }
+                            }
+                        });
+
+                        kgrid.refresh();
+                    } 
+
+                    //remove tr
+                    $("td", tbody).each(function () {
+                        for (var i = 0; i < docidlst.length; i++) {
+                            if ("\""+$(this).html()+"\"" == docidlst[i]) {
+                                $(this).parent().html("");
+                            }
+                        }
+                    });
+
                 });
+            } 
 
-
-
-
-            });
-        }
+    };
 
         var OnProductDocumentRequestEnd = function (e) {
         };
@@ -434,6 +503,9 @@
 
         var LoadProductMatchDetailsCompleted = function (e) {
             var pKey = e.item.id.substring(0, e.item.id.indexOf('_tbProductDetail'));
+
+            var productObj = $('[id*=gdProductDocuments_' + pKey + ']');
+            initializeMultiSelectCheckboxes(productObj);
 
             $('#txtSupplierId_' + pKey).keyup(function (e1) {
                 var code = (e1.keyCode ? e1.keyCode : e1.which);
@@ -498,7 +570,7 @@
             });
 
             //Add doc parts
-            $("#btnAddDocToProduct_" + pKey).click(function (e3) {
+            $("#btnAddDocToProduct_" +pKey).click(function(e3) {
                 activeProduct = pKey;
                 newProductActive = false;
 
@@ -527,6 +599,21 @@
                     prodlib.showSupplierPlugIn("txtSearchSupplierId");
                 });
 
+            });
+
+            $("#btnDeleteDocFromProduct_" + pKey).click(function(e3) {
+                
+                var grid = $(this).parents('.k-grid:first');
+                var gridId = grid.attr('id');
+                var singleProdObj = selectedProdIdObj[gridId];
+                if (gridId in selectedProdIdObj) {
+                    singleProdObj = selectedProdIdObj[gridId];
+                }
+                if (singleProdObj != undefined) {
+                    DeleteSelectedDocFromProd(pKey, singleProdObj.idList);
+                } else {
+                    alert('Please select document(s) to delete.');
+                }
             });
 
             $("#addNewDocumentBtn").hide();
@@ -667,14 +754,177 @@
                 });
             });
         };
+
         //--------------------end _NewProductView.cshtml-----------------------
-       
+
+        var selectedProdIdObj = {};
+        var multiDeleteCache = {
+            cache: {},
+            getCache: function(tableName) {
+                var cacheObj = this.cache[tableName] = this.cache[tableName] || {};
+                return cacheObj;
+            },
+            addId: function(obj, id) {
+                if (obj) {
+                    obj.push(id);
+                }
+            },
+            clearCache: function (tableName) {
+                this.cache[tableName] = {};
+            },
+        };
+
+        function initializeMultiSelectCheckboxes(productObj) {
+
+            productObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+                var checked = $(this).is(':checked');  //checkbox status BEFORE click event
+                var grid = $(this).parents('.k-grid:first');
+
+                var singleProdObj = Object;
+                if (grid in selectedProdIdObj) {
+                    singleProdObj = selectedProdIdObj[grid];
+                } else {
+                    selectedProdIdObj[grid]= singleProdObj;
+                }
+
+                if (grid) {
+                     if (singleProdObj.idList == undefined) {
+                        singleProdObj.idList = [];
+                    }
+
+                    var kgrid = grid.data().kendoGrid;
+                    var selectedRow = $(this).parent().parent();
+                    var dataItem = kgrid.dataItem($(this).closest('tr'));
+                    if (dataItem) {
+                        dataItem.set('IsSelected', !checked);
+                        var id = $('td:nth-child(3)', selectedRow).text(); //get docid
+                        if (id) {
+                            var index = singleProdObj.idList.indexOf(id);
+                            if (!checked) {
+                                if (index < 0) {
+                                    singleProdObj.idList.push(id);
+                                }
+                            } else {
+                                if (index >=0) {
+                                    singleProdObj.idList.splice(index, 1);
+                                }
+                            }
+                        }
+
+                        if (selectedRow.length > 0) {
+                            if (!checked) {
+                               grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
+                            }
+                            else {
+                               grid.find('tr[data-uid="' +selectedRow.attr('data-uid') + '"]').removeClass('k-state-selected');
+                            }
+                        }
+                    }
+                }
+
+                // Keep grid from changing seleted information
+                e.stopImmediatePropagation();
+            });
+
+            productObj.on("click", ".chkMasterMultiSelect", function (e) {
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+                var singleProdObj = Object;
+
+                var gridId = grid.attr('id');
+                if (gridId in selectedProdIdObj) {
+                    singleProdObj = selectedProdIdObj[gridId];
+                } else {
+                    selectedProdIdObj[gridId] = singleProdObj;
+                }
+
+                if (grid) {
+                    if (singleProdObj.idList == undefined) {
+                        singleProdObj.idList = [];
+                    }
+
+                    $('tr', grid).each(function () {
+                        var tr = $(this);
+                        var id = $('td:nth-child(3)', tr).text(); //get docid
+                        
+                        if (id) {
+                            var index = singleProdObj.idList.indexOf(id);
+                            if (checked) {
+                                if (index < 0) {
+                                    singleProdObj.idList.push(id);
+                                }
+                            } else {
+                                if (index >= 0) {
+                                    singleProdObj.idList.splice(index, 1);
+                                }
+                            }
+                        }
+
+                    });
+
+                    var kgrid = grid.data().kendoGrid;
+                    if (kgrid._data.length > 0) {
+                        $.each(kgrid._data, function () {
+                            this['IsSelected'] = checked;
+                        });
+
+                        kgrid.refresh();
+
+                        // No items were found in the datasource, return from the function and cancel the current event
+                    } else {
+                        return false;
+                    }
+                }
+            });
+
+        };
+   
+
+        var onMultiDeleteGridDataBinding = function (e) {
+            
+            // Set the checkbox style only on rebind of the grid
+            if (e.action == "rebind") {
+                var grid = $(e.sender.table.context);
+                if (grid.length > 0) {
+                    var kgrid = grid.data("kendoGrid");
+                    if (kgrid) {
+                        var readonly = kgrid.dataSource.total() <= 0;
+                        grid.find('.chkMasterMultiSelect').attr("readonly", readonly); 
+
+                        // Capture the most recent selected row of the table
+                        var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
+                        var selectedRow = kgrid.tbody.find(".k-state-selected:first");
+                        if (selectedRow && selectedRow.length > 0) {
+                            //cacheObj["selected"] = selectedRow.data('uid');
+                            cacheObj.addId(selectedRow.data('uid'));
+                        }
+                    }
+                }
+            }
+        };
+
+        var onMultiDeleteGridDataBound = function (e) {
+            var grid = $(e.sender.table.context);
+            if (grid) {
+                var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
+                if (cacheObj.selected) {
+                    var row = grid.find('tr[data-uid="' + cacheObj.selected + '"]');
+                    if (row) {
+                        row.addClass('k-state-selected');
+                        multiDeleteCache.clearCache(grid.attr('id'));
+                    }
+                }
+            }
+        };
+
+
+
         return {
             //--------------------start of ConfigProduct.cshtml-----------------------
             panelbar_activated: panelbar_activated,
             RemovedProductDocument: RemovedProductDocument,
             RefreshProductData: RefreshProductData,
-            DeleteDoc: DeleteDoc,
+          //  DeleteDoc: DeleteDoc,
             OnProductDocumentRequestEnd: OnProductDocumentRequestEnd,
             AddDocumentListToProduct: AddDocumentListToProduct,
             displaySingleDocument: displaySingleDocument,
@@ -683,18 +933,22 @@
             OngdSearchDocumentChange: OngdSearchDocumentChange,
             OngdProductDocumentSelectChange: OngdProductDocumentSelectChange,
             OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
-            getSelectDocID : getSelectDocID,
+            getSelectDocID: getSelectDocID,
             documentQuery: documentQuery,
             viewSingleSupplier: viewSingleSupplier,
             getUrl: getUrl,
+            onMultiDeleteGridDataBound: onMultiDeleteGridDataBound,
+            onMultiDeleteGridDataBinding: onMultiDeleteGridDataBinding,
+           // initializeMultiSelectCheckboxes: initializeMultiSelectCheckboxes,
+
             //--------------------end of ConfigProduct.cshtml-----------------------
 
             //--------------------start of _SearchProduct.cshtml-----------------------
             BindingSaveCancel: BindingSaveCancel,
             UnBindingSaveCancel: UnBindingSaveCancel,
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
-            showSupplierPlugIn : showSupplierPlugIn,
-            refreshProductSearchResultGrid : refreshProductSearchResultGrid,
+            showSupplierPlugIn: showSupplierPlugIn,
+            refreshProductSearchResultGrid: refreshProductSearchResultGrid,
             //--------------------end of _SearchProduct.cshtml-----------------------
 
             //--------------------start of AgentManager.cshtml-----------------------
@@ -704,7 +958,7 @@
             //--------------------start of _NewProductView.cshtml-----------------------
             pnlNewProduct_Activated: pnlNewProduct_Activated,
             //--------------------end _NewProductView.cshtml-----------------------
-        };
+    };
     };
 
     //Initialize
