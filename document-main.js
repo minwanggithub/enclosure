@@ -1199,14 +1199,24 @@
             //Always warn if there is no attachment for SINGLE
             if (containerOption == "1") {
                 var currenRevId = $("#RevisionID").val();
-                var singleAttachment = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid").dataSource.data().length;
-                if (singleAttachment == 0) {
-                    if ($("#IsNewRevision").val() == "True") {
+                var currenDocId = $("#DocumentID").val();
+
+                if (currenDocId == 0) { //New document must have an attachment, check single upload first
+                    if ($("#txtFileName").val() == '') {
                         onDisplayError("No attachment has been provided, unable to save.");
                         return false;
-                    } else {
+                    }
+                } else {  //Existing document
+                    var singleAttachment = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid").dataSource.data().length;
+                    if (singleAttachment == 0) {
+                        if ($("#IsNewRevision").val() == "True") { //Existing document but new revision
+                            onDisplayError("No attachment has been provided, unable to save.");
+                            return false;
+                        }
+                        //Existing document, but give a reminder
                         onDisplayError("This is reminder: Even document info will be saved, no attachment has been provided for this document");
                         return true;
+
                     }
                 }
             }
