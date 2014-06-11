@@ -459,7 +459,7 @@
         };
 
         var loadNewRevision = function () {
-            //$("#IsNewRevision").val("True");
+            $("#IsNewRevision").val("True");
             //$("#txtManufacturerId").val('');
             //$("#txtSupplierId").val('');
             $("#RevisionDate").val('');
@@ -638,10 +638,8 @@
             if (form.valid()) {
                 var url = form.attr("action");
                 var formData = form.serialize();
-                console.log("within saveDocumentDetail, formData:", formData);
                 var containerTypeId = getContainerTypeId();
                 $.post(url, formData, function(data) {
-                    console.log("within saveDocumentDetail, retrieved data: ", data);
                     if (data.DisplayMessage != "Error") {
                         //special handling for group's element addition
                         if ($("#DocumentCreationIntention").val() == "31") { //wip
@@ -709,10 +707,7 @@
                         console.log("within saveDocumentDetail, selectedNode: ", selectedNode);
                         repopulateTreeBranch(form, docNode);
                     }
-                    console.log("within saveDocumentDetail, done tree update");
                 });
-            } else {
-                console.log("within saveDocumentDetail, form is not valid");
             }
         };
 
@@ -1199,8 +1194,23 @@
         };
         
         var checkAttachmentsBeforeSave = function() {
-            var message = " a kit needs at least two components attached, please resolve it and try again. Alternatively you may change the container type to single to avoid this complaint.";
+            var message = "The Kit needs at least two components attached.";
             var containerOption = $("#ContainerTypeId").val();
+            //Always warn if there is no attachment for SINGLE
+            if (containerOption == "1") {
+                var currenRevId = $("#RevisionID").val();
+                var singleAttachment = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid").dataSource.data().length;
+                if (singleAttachment == 0) {
+                    if ($("#IsNewRevision").val() == "True") {
+                        onDisplayError("No attachment has been provided, unable to save.");
+                        return false;
+                    } else {
+                        onDisplayError("This is reminder: Even document info will be saved, no attachment has been provided for this document");
+                        return true;
+                    }
+                }
+            }
+
             if (containerOption == "2") {
                 //if this is a new kit we will do the checking
                 if (!isInEditingMode()) {
