@@ -336,43 +336,35 @@
                 return { productInfo: $("#txtProductId_" + activeProduct).val() };
         };
 
+        var DeleteDoc = function(e) {
+            e.preventDefault();
 
-        //var DeleteDoc = function(e) {
-        //    e.preventDefault();
-        //    var strconfirm = confirm("Are you sure you want to delete this document?");
-        //    if (strconfirm == false) {
-        //        return;
-        //    }
+            var strconfirm = confirm("Are you sure you want to delete this document?");
+                 if (strconfirm == false) {
+                   return;
+            }
 
-        //    var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-        //    var targetId = e.delegateTarget.id;
-        //    var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
-        //    var doclists = [];
-        //    doclists.push(dataItem.ReferenceId);
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            dataItem.IsSelected = true;
+            var targetId = e.delegateTarget.id;
+            var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
+            var doclists = [];
+            doclists.push(dataItem.ReferenceId);
 
-        //    var url = "../ProductManager/DeleteProductDocument";
-        //    $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
-               
-        //        if (data.indexOf("Successfully") < 0 ) {
-        //            alert(data);
-        //            return;
-        //        }
-
-        //        //delete a row from the grid after successfully delete a document
-        //        var index1 = data.indexOf("document");
-        //        var index2 = data.indexOf("for product");
-        //        var docid = data.substring(index1 + 12, index2 - 1);
-        //        var prodid = data.substring(index2 + 12, data.length);
-        //        var prodObj = $('div#gdProductDocuments_' + prodid);
-        //        var tbody = $('tbody', prodObj);
-        //        $("td", tbody).each(function () {
-        //            if ($(this).html() == docid) {
-        //                $(this).parent().html("");
-        //            }
-        //        });
-
-        //    });
-        //}
+            var url = "../ProductManager/DeleteProductDocument";
+            $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
+                if (data.indexOf("Successfully") < 0 ) {
+                      alert(data);
+                      return;
+                }
+                
+                var index = data.indexOf("for product");
+                var prodid = data.substring(index + 12, data.length);
+                var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
+                grid1.dataSource.page(1);
+                grid1.dataSource.read();
+            });
+        }
 
         var DeleteSelectedDocFromProd = function (productId, doclists) {
 
@@ -399,9 +391,7 @@
                    }
 
                    //delete a row from the grid after successfully delete document
-                   var index1 = data.indexOf("document");
                    var index2 = data.indexOf("for product");
-                   var docidlst = data.substring(index1 + 13, index2 - 2).split(',');
                    var prodid = data.substring(index2 + 12, data.length);
                    var prodObj = $('div#gdProductDocuments_' + prodid);
                    var tbody = $('tbody', prodObj);
@@ -410,34 +400,27 @@
                    
                    var gridId = 'gdProductDocuments_' + prodid;
                    var singleProdObj = selectedProdIdObj[gridId];
-
+                   var cloneSingleProdObj = singleProdObj.slice(0);
+                
                     //uncheck checkboxes
                     var grid = $('#gdProductDocuments_' + productId);
-                    var kgrid = grid.data().kendoGrid;
-                    if (kgrid._data.length > 0) {
-                        $.each(kgrid._data, function () {
-                            for (var i = 0; i < docidlst.length; i++) {
-                                if ("\""+this.ReferenceId+"\""==docidlst[i] && this['IsSelected']) {
-                                    this['IsSelected'] = false;
-                                    var index = singleProdObj.idList.indexOf(this.ReferenceId.toString());
-                                    if (index >= 0) {
-                                        singleProdObj.idList.splice(index, 1);
-                                    }
+                    var gData = grid.data("kendoGrid").dataSource.data();
+                    var totalNumber = gData.length;
+                    
+                    if (totalNumber > 0) {
+                        $.each(gData, function () {
+                            for (var i = 0; i < singleProdObj.length; i++) {
+                                if ( this.ReferenceId == singleProdObj[i]) {
+                                //    this['IsSelected'] = false;
+                                    singleProdObj.splice(i, 1);
                                 }
                             }
                         });
+                    }
 
-                        kgrid.refresh();
-                    } 
-
-                    //remove tr
-                    $("td", tbody).each(function () {
-                        for (var i = 0; i < docidlst.length; i++) {
-                            if ("\""+$(this).html()+"\"" == docidlst[i]) {
-                                $(this).parent().html("");
-                            }
-                        }
-                    });
+                    var grid1 = $('#gdProductDocuments_' + productId).data("kendoGrid");
+                    grid1.dataSource.page(1);
+                    grid1.dataSource.read();
 
                 });
             } 
@@ -610,7 +593,7 @@
                     singleProdObj = selectedProdIdObj[gridId];
                 }
                 if (singleProdObj != undefined) {
-                    DeleteSelectedDocFromProd(pKey, singleProdObj.idList);
+                    DeleteSelectedDocFromProd(pKey, singleProdObj);
                 } else {
                     alert('Please select document(s) to delete.');
                 }
@@ -758,40 +741,21 @@
         //--------------------end _NewProductView.cshtml-----------------------
 
         var selectedProdIdObj = {};
-        var multiDeleteCache = {
-            cache: {},
-            getCache: function(tableName) {
-                var cacheObj = this.cache[tableName] = this.cache[tableName] || {};
-                return cacheObj;
-            },
-            addId: function(obj, id) {
-                if (obj) {
-                    obj.push(id);
-                }
-            },
-            clearCache: function (tableName) {
-                this.cache[tableName] = {};
-            },
-        };
 
         function initializeMultiSelectCheckboxes(productObj) {
 
             productObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 var checked = $(this).is(':checked');  //checkbox status BEFORE click event
                 var grid = $(this).parents('.k-grid:first');
-
-                var singleProdObj = Object;
-                if (grid in selectedProdIdObj) {
-                    singleProdObj = selectedProdIdObj[grid];
-                } else {
-                    selectedProdIdObj[grid]= singleProdObj;
+                var gridId = grid.attr('id');
+                var singleProdObj = [];
+                if (gridId in selectedProdIdObj) {
+                    singleProdObj = selectedProdIdObj[gridId];
+                }else {
+                    selectedProdIdObj[gridId] = singleProdObj;
                 }
 
                 if (grid) {
-                     if (singleProdObj.idList == undefined) {
-                        singleProdObj.idList = [];
-                    }
-
                     var kgrid = grid.data().kendoGrid;
                     var selectedRow = $(this).parent().parent();
                     var dataItem = kgrid.dataItem($(this).closest('tr'));
@@ -799,18 +763,18 @@
                         dataItem.set('IsSelected', !checked);
                         var id = $('td:nth-child(3)', selectedRow).text(); //get docid
                         if (id) {
-                            var index = singleProdObj.idList.indexOf(id);
+                            var index = singleProdObj.indexOf(id);
                             if (!checked) {
                                 if (index < 0) {
-                                    singleProdObj.idList.push(id);
+                                    singleProdObj.push(id);
                                 }
                             } else {
                                 if (index >=0) {
-                                    singleProdObj.idList.splice(index, 1);
+                                    singleProdObj.splice(index, 1);
                                 }
                             }
                         }
-
+                     
                         if (selectedRow.length > 0) {
                             if (!checked) {
                                grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
@@ -829,7 +793,7 @@
             productObj.on("click", ".chkMasterMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
-                var singleProdObj = Object;
+                var singleProdObj = [];
 
                 var gridId = grid.attr('id');
                 if (gridId in selectedProdIdObj) {
@@ -839,23 +803,19 @@
                 }
 
                 if (grid) {
-                    if (singleProdObj.idList == undefined) {
-                        singleProdObj.idList = [];
-                    }
-
                     $('tr', grid).each(function () {
                         var tr = $(this);
                         var id = $('td:nth-child(3)', tr).text(); //get docid
                         
                         if (id) {
-                            var index = singleProdObj.idList.indexOf(id);
+                            var index = singleProdObj.indexOf(id);
                             if (checked) {
                                 if (index < 0) {
-                                    singleProdObj.idList.push(id);
+                                    singleProdObj.push(id);
                                 }
                             } else {
                                 if (index >= 0) {
-                                    singleProdObj.idList.splice(index, 1);
+                                    singleProdObj.splice(index, 1);
                                 }
                             }
                         }
@@ -867,10 +827,7 @@
                         $.each(kgrid._data, function () {
                             this['IsSelected'] = checked;
                         });
-
                         kgrid.refresh();
-
-                        // No items were found in the datasource, return from the function and cancel the current event
                     } else {
                         return false;
                     }
@@ -878,53 +835,12 @@
             });
 
         };
-   
-
-        var onMultiDeleteGridDataBinding = function (e) {
-            
-            // Set the checkbox style only on rebind of the grid
-            if (e.action == "rebind") {
-                var grid = $(e.sender.table.context);
-                if (grid.length > 0) {
-                    var kgrid = grid.data("kendoGrid");
-                    if (kgrid) {
-                        var readonly = kgrid.dataSource.total() <= 0;
-                        grid.find('.chkMasterMultiSelect').attr("readonly", readonly); 
-
-                        // Capture the most recent selected row of the table
-                        var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
-                        var selectedRow = kgrid.tbody.find(".k-state-selected:first");
-                        if (selectedRow && selectedRow.length > 0) {
-                            //cacheObj["selected"] = selectedRow.data('uid');
-                            cacheObj.addId(selectedRow.data('uid'));
-                        }
-                    }
-                }
-            }
-        };
-
-        var onMultiDeleteGridDataBound = function (e) {
-            var grid = $(e.sender.table.context);
-            if (grid) {
-                var cacheObj = multiDeleteCache.getCache(grid.attr('id'));
-                if (cacheObj.selected) {
-                    var row = grid.find('tr[data-uid="' + cacheObj.selected + '"]');
-                    if (row) {
-                        row.addClass('k-state-selected');
-                        multiDeleteCache.clearCache(grid.attr('id'));
-                    }
-                }
-            }
-        };
-
-
-
+       
         return {
             //--------------------start of ConfigProduct.cshtml-----------------------
             panelbar_activated: panelbar_activated,
             RemovedProductDocument: RemovedProductDocument,
             RefreshProductData: RefreshProductData,
-          //  DeleteDoc: DeleteDoc,
             OnProductDocumentRequestEnd: OnProductDocumentRequestEnd,
             AddDocumentListToProduct: AddDocumentListToProduct,
             displaySingleDocument: displaySingleDocument,
@@ -937,9 +853,7 @@
             documentQuery: documentQuery,
             viewSingleSupplier: viewSingleSupplier,
             getUrl: getUrl,
-            onMultiDeleteGridDataBound: onMultiDeleteGridDataBound,
-            onMultiDeleteGridDataBinding: onMultiDeleteGridDataBinding,
-           // initializeMultiSelectCheckboxes: initializeMultiSelectCheckboxes,
+            DeleteDoc: DeleteDoc,
 
             //--------------------end of ConfigProduct.cshtml-----------------------
 
