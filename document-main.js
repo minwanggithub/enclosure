@@ -459,29 +459,35 @@
         };
 
         var loadNewRevision = function () {
-            $("#IsNewRevision").val("True");
-            $("#txtManufacturerId").val('');
-            $("#txtSupplierId").val('');
+            //$("#IsNewRevision").val("True");
+            //$("#txtManufacturerId").val('');
+            //$("#txtSupplierId").val('');
             $("#RevisionDate").val('');
             $("#ConfirmationDate").val('');
-            $("#RevisionTitle").val('');
-            $("#DocumentIdentification").val('');
-            $("#DocumentVersion").val('');
-            $("#VersionStatusDate").val('');
-            $("#IndexationStatusDate").val('');
+            //$("#RevisionTitle").val('');
+            //$("#DocumentIdentification").val('');
+            //$("#DocumentVersion").val('');
+            //$("#VersionStatusDate").val('');
+            //$("#IndexationStatusDate").val('');
             $("#tabRevisionNameNumber").hide();
             $("#tabRevisionFileInfo").hide();
             $("#divCancelRevision").show();
 
             $("#divExistRevision").addClass("new-document-revision");
 
-            var ddlistLanguage = $("#DocumentLanguageId").data("kendoDropDownList");
-            var ddlistDocumentType = $("#DocumentTypeId").data("kendoDropDownList");
-            var ddlistContainer = $("#ContainerTypeId").data("kendoDropDownList");
-            //ddlistLanguage.readonly();
-            ddlistLanguage.enable(false);
-            ddlistDocumentType.enable(false);
-            ddlistContainer.enable(false);
+            var objDisableArray = [];
+            objDisableArray.push($("#ContainerTypeId").data("kendoDropDownList"));
+            objDisableArray.push($("#DocumentLanguageId").data("kendoDropDownList"));
+            objDisableArray.push($("#DocumentTypeId").data("kendoDropDownList"));
+            for (var i = 0 ; i < objDisableArray.length; i++) {
+                objDisableArray[i].readonly();
+                objDisableArray[i]._inputWrapper.css({
+                    "background-color": "#eeeeee",
+                    "cursor": "not-allowed"
+                });
+            }
+
+
             $("#dvAddNewAttachment").show();
             $("#lblRevisionFileInfoDetail").hide();
             $("#divCancelRevision").click(function (e) {
