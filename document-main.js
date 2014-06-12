@@ -635,7 +635,12 @@
 
         var saveDocumentDetail = function () {
             var form = $("#documentRevisionTab").updateValidation();
-            if (form.valid()) {
+            var validForm = form.valid();
+
+            if (validForm) {
+                if (!checkAttachmentsBeforeSave())    //check all the attachment if form is valid before preceed
+                    return;
+
                 var url = form.attr("action");
                 var formData = form.serialize();
                 var containerTypeId = getContainerTypeId();
@@ -1200,23 +1205,26 @@
             if (containerOption == "1") {
                 var currenRevId = $("#RevisionID").val();
                 var currenDocId = $("#DocumentID").val();
-
                 if (currenDocId == 0) { //New document must have an attachment, check single upload first
                     if ($("#txtFileName").val() == '') {
                         onDisplayError("No attachment has been provided, unable to save.");
                         return false;
                     }
                 } else {  //Existing document
-                    var singleAttachment = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid").dataSource.data().length;
-                    if (singleAttachment == 0) {
-                        if ($("#IsNewRevision").val() == "True") { //Existing document but new revision
+                    if ($("#IsNewRevision").val() == "True") { //Existing document but new revision, check the single attachment
+                        if ($("#txtFileName").val() == '') {
                             onDisplayError("No attachment has been provided, unable to save.");
                             return false;
                         }
-                        //Existing document, but give a reminder
-                        onDisplayError("This is reminder: Even document info will be saved, no attachment has been provided for this document");
                         return true;
+                    }
 
+                    //Normal case
+                    var multiAttachment = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid").dataSource.data().length;
+                    if (multiAttachment == 0) {
+                        //Existing document, but give a reminder
+                        onDisplayError("This is reminder:  No attachment has been provided for this document");
+                        return true;
                     }
                 }
             }
