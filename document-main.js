@@ -1201,7 +1201,6 @@
         //Specifically used for document attachment delete
         var customDeleteAttachment = function (infoId) {
             var message = "Are you sure you want to delete this file?";
-            
             var cResult = confirm(message);
             if (!cResult)
                 return;
