@@ -1197,7 +1197,37 @@
             }
             return false;
         };
+
+        //Specifically used for document attachment delete
+        var customDeleteAttachment = function (infoId) {
+            var message = "Are you sure you want to delete this file?";
+            
+            var cResult = confirm(message);
+            if (!cResult)
+                return;
+
+            var multiAttachment = $("#gdRevisionFileInfoDetail_" + $("#RevisionID").val()).data("kendoGrid").dataSource.data().length;
+            if (multiAttachment == 1)
+            {
+                onDisplayError("Reminder:  the deleted item was the last attachment for this document.");
+            }
+            var url = getUrl("Operations", "Operations/Document/CustomDocumentFileDelete");
+            $.post(url, { infoId: infoId }, function (data) {                
+                var currenRevId = $("#RevisionID").val();
+                var grid = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid");
+                grid.dataSource.read();
+                grid.dataSource.page(1);
+            });            
+        };
         
+        var currentRevisionId = function () {
+            var currenRevId = $("#RevisionID").val();
+            return {
+                RevisionId: currenRevId
+            };
+        };
+
+
         var checkAttachmentsBeforeSave = function() {
             var message = "The Kit needs at least two components attached.";
             var containerOption = $("#ContainerTypeId").val();
@@ -2660,6 +2690,8 @@
 
             //------start of kit and group implementation------
             checkAttachmentsBeforeSave: checkAttachmentsBeforeSave,
+            customDeleteAttachment: customDeleteAttachment,
+            currentRevisionId: currentRevisionId,
             viewAndUpdateAttachments: viewAndUpdateAttachments,
             onContainerTypeIdChange: onContainerTypeIdChange,
 
