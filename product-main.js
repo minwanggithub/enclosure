@@ -337,6 +337,7 @@
             dataItem.IsSelected = true;
             var targetId = e.delegateTarget.id;
             var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
+            activeProduct = pid;
             var doclists = [];
             doclists.push(dataItem.ReferenceId);
 
@@ -350,7 +351,7 @@
                 
                 var index = data.indexOf("from product");
                 var prodid = data.substring(index + 13, data.length);
-                debugger;
+              
                 var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
                 grid1.dataSource.page(1);
                 grid1.dataSource.read();
@@ -414,10 +415,6 @@
             } 
 
     };
-
-        var OnProductDocumentRequestEnd = function (e) {
-        };
-
 
         var panelbar_collapse = function() {
         };
@@ -829,7 +826,6 @@
             panelbar_activated: panelbar_activated,
             RemovedProductDocument: RemovedProductDocument,
             RefreshProductData: RefreshProductData,
-            OnProductDocumentRequestEnd: OnProductDocumentRequestEnd,
             AddDocumentListToProduct: AddDocumentListToProduct,
             displaySingleDocument: displaySingleDocument,
             panelbar_expand: panelbar_expand,
