@@ -25,6 +25,7 @@
             var urlmultiple = "../ProductManager/AddDocumentListToProduct";
 
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
+              
                 var flag = data.substring(5, 6);
 
                 if (flag == '0') {
@@ -408,7 +409,7 @@
                     }
                  
                     var grid1 = $('#gdProductDocuments_' + productId).data("kendoGrid");
-                    
+                    activeProduct = productId;
                     grid1.dataSource.read();
                     grid1.dataSource.page(1);
                 });
