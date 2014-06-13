@@ -325,7 +325,7 @@
             else
                 return { productInfo: $("#txtProductId_" + activeProduct).val() };
         };
-
+  
         var DeleteDoc = function(e) {
             e.preventDefault();
 
@@ -676,6 +676,10 @@
 
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
+        var setDeleteImageIcon = function (e) {
+            $(".k-grid-Remove").html("<span class='k-icon k-delete'></span>")
+        }
+
         var pnlNewProduct_Activated = function(event) {
 
             $("#btnDiscardNewProduct").click(function(evt) {
@@ -775,6 +779,7 @@
                 // Keep grid from changing seleted information
                 e.stopImmediatePropagation();
             });
+          
 
             productObj.on("click", ".chkMasterMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
@@ -820,6 +825,8 @@
                 }
             });
 
+         
+
         };
        
         return {
@@ -839,6 +846,7 @@
             viewSingleSupplier: viewSingleSupplier,
             getUrl: getUrl,
             DeleteDoc: DeleteDoc,
+            setDeleteImageIcon: setDeleteImageIcon,
 
             //--------------------end of ConfigProduct.cshtml-----------------------
 
