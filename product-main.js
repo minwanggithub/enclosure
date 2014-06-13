@@ -16,7 +16,6 @@
         var selectProductDocID = undefined;
         var selectProductRevisionID = 0;
 
-
         var documentSearchDialog = $("#documentSearchWindow");
         var supplierSearchDialog = $("#supplierSearchWindow");
 
@@ -26,12 +25,7 @@
             var urlmultiple = "../ProductManager/AddDocumentListToProduct";
 
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
-                var index1 = data.indexOf("flag");
-                var index2 = data.indexOf("productname");
-                var index3 = data.indexOf("productid");
                 var flag = data.substring(5, 6);
-                var productName = data.substring(index2 + 12, index3-1);
-                var productid = data.substring(index3 + 10, data.length);
 
                 if (flag == '0') {
                     documentSearchDialog.data("kendoWindow").close();
@@ -57,8 +51,8 @@
                 }
                 else if (flag == '3') {
                     $("#documentSearchWindow").data("kendoWindow").close();
-                    var msg = 'Product ' + productid + ' - ' + productName + ' has the same document set as other product. Cannot attach document(s).';
-                    onDisplayError(msg);
+                    var index = data.indexOf('msg:');
+                    onDisplayError(data.substring(index + 4));
                 }
             });
         };
@@ -135,8 +129,7 @@
         }
 
         function saveBtnEvent(activeSaveButton) {
-
-            //e.preventDefault();
+           
             var form = $("#frmProductDetail_" + activeSaveButton).updateValidation();
             if (!form.valid()) {
                 return;
@@ -150,20 +143,16 @@
                 ProductName: $("#txtProductName_" + activeSaveButton).val(),
                 SupplierId: selectedSuppilerId
             };
-
-            //var url = '@Url.Action("SaveProduct", "ProductManager")';
+            
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (activeSaveButton == 0) {
-
-                    //display error, don't disable button
+                   
                     if (data.indexOf("Error") >= 0) {
-                        $('#productErrorMessage').css("color", "red");
-                        $('#productErrorMessage').html(data);
+                        onDisplayError(data);
                         return;
                     }
 
-                    clearMessage(activeSaveButton);
                     $("#txtProductId_" + activeSaveButton).val(data);
 
                         if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
@@ -172,7 +161,7 @@
                             $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
                                 activeProduct = data;
                                 newProductActive = true;
-                                //$("#popupDocumentSearch").modal("show");
+
                                 documentSearchDialog.data("kendoWindow").center();
                                 documentSearchDialog.data("kendoWindow").open();
                                 $("#addNewDocumentBtn").hide();
@@ -353,13 +342,15 @@
 
             var url = "../ProductManager/DeleteProductDocument";
             $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
-                if (data.indexOf("Successfully") < 0 ) {
-                      alert(data);
+               
+                if (data.indexOf("Successfully") < 0) {
+                      onDisplayError(data);
                       return;
                 }
                 
-                var index = data.indexOf("for product");
-                var prodid = data.substring(index + 12, data.length);
+                var index = data.indexOf("from product");
+                var prodid = data.substring(index + 13, data.length);
+                debugger;
                 var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
                 grid1.dataSource.page(1);
                 grid1.dataSource.read();
@@ -369,11 +360,11 @@
         var DeleteSelectedDocFromProd = function (productId, doclists) {
 
             if (doclists.length <= 0) {
-                alert("Please select document(s) to delete.");
+                onDisplayError("Please select document(s) to delete.");
                 return;
             }
 
-            var strconfirm = confirm("Are you sure you want to delete the document(s)?");
+            var strconfirm = confirm("Are you sure you want to delete these document(s)?");
             if (strconfirm == false) {
                 return;
             }
@@ -384,26 +375,24 @@
                     productId: productId,
                     documentList: JSON.stringify(doclists) 
                 }, function (data) {
-
-                   if (data.indexOf("Successfully") < 0) {
-                      alert(data);
-                      return;
+                   
+                    if (data.indexOf("Successfully") < 0) {
+                      onDisplayError(data);
+                      return false;
                    }
 
                    //delete a row from the grid after successfully delete document
-                   var index2 = data.indexOf("for product");
-                   var prodid = data.substring(index2 + 12, data.length);
-                   var prodObj = $('div#gdProductDocuments_' + prodid);
-                   var tbody = $('tbody', prodObj);
+                   var index2 = data.indexOf("from product");
+                   var prodid = data.substring(index2 + 13, data.length);
+                   var grid = $('#gdProductDocuments_' + prodid);
 
-                   $(".chkMasterMultiSelect", prodObj).removeAttr("checked");
+                   $(".chkMasterMultiSelect", grid).removeAttr("checked");
                    
                    var gridId = 'gdProductDocuments_' + prodid;
+
                    var singleProdObj = selectedProdIdObj[gridId];
-                   var cloneSingleProdObj = singleProdObj.slice(0);
                 
                     //uncheck checkboxes
-                    var grid = $('#gdProductDocuments_' + productId);
                     var gData = grid.data("kendoGrid").dataSource.data();
                     var totalNumber = gData.length;
                     
@@ -411,17 +400,16 @@
                         $.each(gData, function () {
                             for (var i = 0; i < singleProdObj.length; i++) {
                                 if ( this.ReferenceId == singleProdObj[i]) {
-                                //    this['IsSelected'] = false;
                                     singleProdObj.splice(i, 1);
                                 }
                             }
                         });
                     }
-
+                 
                     var grid1 = $('#gdProductDocuments_' + productId).data("kendoGrid");
-                    grid1.dataSource.page(1);
+                    
                     grid1.dataSource.read();
-
+                    grid1.dataSource.page(1);
                 });
             } 
 
