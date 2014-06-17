@@ -356,6 +356,9 @@
                 var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
                 grid1.dataSource.page(1);
                 grid1.dataSource.read();
+
+                var tabId = "#" + prodid + "_tbProductDetail";
+                TabReload(tabId, 0);
             });
         }
 
@@ -580,6 +583,10 @@
                 }
                 if (singleProdObj != undefined) {
                     DeleteSelectedDocFromProd(pKey, singleProdObj);
+
+                    var tabId = "#" + pKey + "_tbProductDetail";
+                    TabReload(tabId, 0);
+                    
                 } else {
                     alert('Please select document(s) to delete.');
                 }
