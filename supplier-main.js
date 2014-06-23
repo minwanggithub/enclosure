@@ -350,7 +350,7 @@
                     return false;
                 }
 
-                grid.dataSource.filter([]);
+               // grid.dataSource.filter([]);
                 grid.dataSource.data([]);
                 $('#txtSupplierSearch').val("");
                 $('#DetailSupplier').html("");
@@ -1111,6 +1111,17 @@
 
         var fnSearchSupplier = function (e) {
             activeSupplier = "txtSearchSupplierId";
+            var urlSearch = "../ObtainmentSettings/PlugInSupplierSearch";
+            $.post(urlSearch, { supplierId: 0 }, function (data) {
+                $("#dgSupplierPlugIn").html(data);
+            });
+
+            var supplierSearchDialog = $("#supplierSearchWindow");
+
+            $("#btnCancelSupplierSearch").click(function () {
+                supplierSearchDialog.data("kendoWindow").close();
+            });
+
             supplierSearchDialog.data("kendoWindow").center();
             supplierSearchDialog.data("kendoWindow").open();
         };
