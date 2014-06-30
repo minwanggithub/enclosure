@@ -7,6 +7,7 @@
         var xreferenceSearchObj = $("#XReferenceGrid");
         var itemsChecked = 0;
         var requestSearchModel = {};
+        var selectedRequests = new Array();
         var radioButtonSelected = "Group";
 
         // General indexation methods
@@ -63,6 +64,12 @@
             batchDeleteObjects('gdRequests', 'unassign these request', '../XReference/SaveAssignedItems', null, false);
         });
         
+        xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
+            e.preventDefault();
+            batchDeleteObjects('gdRequests', 'unassign these request', '../XReference/SaveAssignedItems', null, false);
+        });
+
+        
         xreferenceDetailObj.on("click", "#btnSaveAssign", function (e) {
             e.preventDefault();
             var userName= $("#txtIndividual").data("kendoAutoComplete");
@@ -106,10 +113,28 @@
             DisplayModal("mdlObtainment");
         });
 
+         xreferenceSearchObj.on("click", "#btnCustomerAction", function (e) {
+            e.preventDefault();
+            $("#lblNotes").css("display", "none");
+            $("#txtNotes").css("display", "none");
+            DisplayModal("mdlCustomerAction");
+         });
+
         xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function (e) {
             activeSupplier = "txtSearchSupplierId";
             $("#supplierSearchWindow").data("kendoWindow").center();
             $("#supplierSearchWindow").data("kendoWindow").open();
+        });
+
+        xreferenceSearchObj.on("change", "#selCustomerAction", function(e) {
+        var selCustomerAction = $("#selCustomerAction").data("kendoDropDownList");
+            if(selCustomerAction.text() == "Other") {
+                $("#lblNotes").css("display", "inline");
+                $("#txtNotes").css("display", "inline");
+            } else {
+                $("#lblNotes").css("display", "none");
+            $("#txtNotes").css("display", "none");
+            }
         });
 
         function isNumberKey(evt) {
@@ -185,8 +210,77 @@
             });
         });
 
-      
-        
+
+        xreferenceSearchObj.on("click", "#btnSaveResolve", function (e) {
+            if ($("#numberOfItems").val().length == 0) {
+                HideModal("mdlResolve");
+                onDisplayError("No items have been selected to be resolved");
+            } else {
+                if ($("#txtDocumentID").val().length > 0) {
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['docId'] = $("#txtDocumentID").val();
+                    data['revId'] = $("#hdnRevId").val();
+                    SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
+                } else {
+                    HideModal("mdlResolve");
+                    onDisplayError("No document has been selected");
+                }
+            }
+            
+       });
+
+        xreferenceSearchObj.on("click", "#btnSaveCustomerAction", function (e) {
+            if ($("#numberOfItems").val()  == "") {
+                HideModal("mdlCustomerAction");
+                onDisplayError("No items have been selected for customer action");
+            } else {
+                  var selCustomerAction = $("#selCustomerAction").data("kendoDropDownList");
+                if (selCustomerAction.text().length > 0 || $("#txtNotes").text().length > 0) {
+                    var data = {};
+                    data['ids']= selectedRequests;
+                    data['customerAction']= selCustomerAction.text();
+                    data['notes']= $("#txtNotes").text();
+                    SaveRequest("../XReference/SaveCustomerActionRequests", data, "mdlCustomerAction");
+                } else {
+                    HideModal("mdlCustomerAction");
+                    onDisplayError("No customer action has been specified");
+                }
+             }
+
+        });
+
+        function SaveRequest(strUrl, dataArray, modalId) {
+            if (selectedRequests.length > 0) {
+               $.ajax({
+                url: strUrl,
+                data: JSON.stringify(dataArray),
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    beforeSend: function() {
+                        kendo.ui.progress(xreferenceDetailObj, true);
+                    },
+                    error: function() {
+                        onDisplayError('Requests could not be saved');
+                    },
+                    success: function(successData) {
+
+                        if (successData.success == true) {
+                             kendo.ui.progress(xreferenceDetailObj, false);
+                            var grid = $("#gdRequests").data("kendoGrid");
+                            grid.dataSource.read();
+                          HideModal(modalId);
+
+                        } else {
+                            onDisplayError('Requests could not be saved');
+                        }
+
+                    }
+                });
+            }
+        }
+
+    
 
        //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
@@ -234,7 +328,7 @@
             }
         });
      
-        function DisplayModal(modalId) {
+        function DisplayModal(modalId, show) {
             $('#' + modalId).find('.modal-body').html();
             $('#' + modalId).modal({
                 backdrop: true,
@@ -247,8 +341,11 @@
             });
         }
 
-        function initializeMultiSelectCheckboxes(obj) {
+        function HideModal(modalId) {
+            $("#" + modalId).modal("toggle");
+        }
 
+        function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -263,13 +360,19 @@
                         }
                     }
                 }
-
+                
                 itemsChecked = 0;
                 $.each(kgrid._data, function () {
-                    if(this['IsSelected'])
+                    if (this['IsSelected']) {
+                        selectedRequests.push(this["RequestWorkItemID"]);
                         itemsChecked++;
+                    } else {
+                        var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                        if (index > -1)
+                            selectedRequests.splice(index, 1);
+                    }
+                        
                 });
-
                 $("#numberOfItems").text("(" + itemsChecked + ")");
                 $("#numberOfItems").val(itemsChecked);
                 // Keep grid from changing seleted information
@@ -285,10 +388,14 @@
                     if (kgrid._data.length > 0) {
                         $.each(kgrid._data, function () {
                             this['IsSelected'] = checked;
-                            if (this['IsSelected'])
+                            if (this['IsSelected']) {
+                                selectedRequests.push(this["RequestWorkItemID"]);
                                 itemsChecked++;
-                            else
-                                itemsChecked=0;
+                            } else {
+                                var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                                if (index > -1)
+                                    selectedRequests.splice(index, 1);
+                            }
                         });
 
                         kgrid.refresh();
@@ -310,7 +417,6 @@
             var targetGridSelector = '#' + targetGrid;
             var grid = $(targetGridSelector).data("kendoGrid");
             if (grid && grid.dataSource._total > 0) {
-
                 var selectedIds = new Array();
                 $.each(grid.dataSource.data(), function () {
                     if (this.IsSelected == true) {
