@@ -190,10 +190,6 @@
             }
         }
 
-        function isValidInteger(val) {
-            return val.length > 0 && !isNaN(val) && val == (val | 0);
-        }
-
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
             return decimalVal == val;
