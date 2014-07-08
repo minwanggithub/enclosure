@@ -532,6 +532,8 @@
             $("label[for='CompanyWebsiteId']").parent().hide();
             $('#CompanyWebsiteId').parent().hide();
 
+            removeModelFields(e.container);
+
             //reload website Grid.
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdWebSite").data("kendoGrid");
@@ -1263,7 +1265,7 @@
 
 
             initObtainmentSettingWiring: initObtainmentSettingWiring,
-            initializeSupplierLibrary: initializeSupplierLibrary,
+            initializeSupplierLibrary: initializeSupplierLibrary
         };
     };
 
