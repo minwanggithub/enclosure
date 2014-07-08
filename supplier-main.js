@@ -193,15 +193,6 @@
             });
         };
 
-
-        var OnSelectSupplierTabstrip = function (e) {
-            setTimeout(function () {
-                $(e.contentElement).find(".k-splitter").each(function () {
-                    $(this).data("kendoSplitter").trigger("resize");
-                });
-            }, 500);
-        };
-
         var onGetObtainmentSettingId = function () {
             return {
                 ObtainmentSettingID: obtainmentSettingId
@@ -1190,7 +1181,6 @@
             refreshSupplierSearchResultGrid: refreshSupplierSearchResultGrid,
             refreshAndQuery: refreshAndQuery,
 
-            OnSelectSupplierTabstrip: OnSelectSupplierTabstrip,
             onGetObtainmentSettingId: onGetObtainmentSettingId,
             OnChangeCountry: OnChangeCountry,
             OnChangeRegion: OnChangeRegion,
@@ -1288,5 +1278,3 @@
     });
 
 })(jQuery);
-
-
