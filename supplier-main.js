@@ -1,8 +1,6 @@
 ﻿; (function ($) {
     if ($.fn.complibSupplier == null) {
-        $.fn.complibSupplier = {
-
-        };
+        $.fn.complibSupplier = { };
     }
 
     $.fn.complibSupplier = function () {
@@ -111,9 +109,7 @@
             //the following snippet has been modified to support the post action in lib
             $("#DetailSupplier").on("click", "#AddObtainmentType", function (e) {
                 e.preventDefault();
-                //var url = '@Url.Action("GetObtainmentSettingsDetail", "ObtainmentSettings")';
                 var url = "../ObtainmentSettings/GetObtainmentSettingsDetail";
-
                 var supplierId = $("#SupplierId").val();
                 obtainmentSettingId = 0;
 
@@ -226,11 +222,6 @@
             var selectedUrl = $("tr:nth(" + selectedIndex + ")", grid.tbody).find("td:nth(0)").find("a");
             selectedUrl.addClass("inverturl");
         };
-
-        var LoadObtainmentSettingsDetailsCompleted = function (e) {
-            $("#ObtainmentTypeSplitter").data("kendoSplitter").trigger("resize");
-        };
-
 
         var onChangeSupplierCountry = function () {
             if ($('#FacilityCountry').length > 0) {
@@ -1197,13 +1188,10 @@
             fnSaveObtainmentSettings: fnSaveObtainmentSettings,
             fnSearchSupplier: fnSearchSupplier,
 
-
-            LoadObtainmentSettingsDetailsCompleted: LoadObtainmentSettingsDetailsCompleted,
             onChangeSupplierCountry: onChangeSupplierCountry,
             gdSupplierContacts_Change: gdSupplierContacts_Change,
             gdSupplierContacts_Remove: gdSupplierContacts_Remove,
             gdSupplierFacility_Change: gdSupplierFacility_Change,
-
 
             panelbar_activated: panelbar_activated,
             panelbar_collapse: panelbar_collapse,
@@ -1259,22 +1247,7 @@
         };
     };
 
-    ////Initialize
-    $(function () {
-
-
-
-
-
-        //--------------------start of _SearchSupplierNew.cshtml-----------------------
-
-        //--------------------end of _SearchSupplierNew.cshtml-----------------------
-
-
-        //--------------------start of _SearchSupplier.cshtml-----------------------
-
-        //--------------------start of _SearchSupplier.cshtml-----------------------
-
-    });
+    // Initializer
+    $(function () { });
 
 })(jQuery);
