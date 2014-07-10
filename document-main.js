@@ -3,9 +3,6 @@
         $.fn.complibDocument = {};
     }
 
-
-
-
     $.fn.complibDocument = function () {
         //local variables
         var selectType;
@@ -290,12 +287,25 @@
             return result;
         }
 
+        // Method to deal with the resizing issue for the document splitter
+        function onDocumentWindowResize() {
+            var parent = $('#splitterResultAndDetail');
+            if (parent && parent.width() > 0) {
+
+                var tree = parent.find('#panelTreeView');
+                var splitbar = parent.find('.k-splitbar:first');
+                var detail = parent.find('#panelDocDetail');
+
+                // Only continue if all components are found in the splitter
+                if (tree && detail && splitbar) {
+                    var detailPaneWidth = parent.width() - tree.width() - splitbar.width();
+                    detail.width(detailPaneWidth);
+                }
+            }
+        }
+
         //Public functions
         var loadSupplierPlugIn = function () {
-            //var url = '@Url.Action("PlugInSupplierSearch", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
 
             var url = "PlugInSupplierSearch";
             $.post(url, { supplierId: 0 }, function (data) {
@@ -303,6 +313,8 @@
             });
 
             supplierSearchDialog = $("#supplierSearchWindow");
+
+            $(window).off('resize', onDocumentWindowResize).on('resize', onDocumentWindowResize);
         };
 
         var showSupplierPlugIn = function (currentSupplier) {
@@ -442,7 +454,6 @@
         };
 
         var loadDocumentDetail = function (documentId, revisionId) {
-            console.log("hitting loadDocumentDetail");
             loadNodeInformation("LoadDocumentDetail", { documentId: documentId, revisionId: revisionId });
         };
 
@@ -450,7 +461,6 @@
             if (loadingIndicator)
                 kendo.ui.progress($('#panelDocDetailInner'), true);
 
-            console.log("hitting loadNodeInformation, url:", url);
             $.post(url, options, function (data) {
                 if (loadingIndicator)
                     kendo.ui.progress($('#panelDocDetailInner'), false);
@@ -461,15 +471,8 @@
 
         var loadNewRevision = function () {
             $("#IsNewRevision").val("True");
-            //$("#txtManufacturerId").val('');
-            //$("#txtSupplierId").val('');
             $("#RevisionDate").val('');
             $("#ConfirmationDate").val('');
-            //$("#RevisionTitle").val('');
-            //$("#DocumentIdentification").val('');
-            //$("#DocumentVersion").val('');
-            //$("#VersionStatusDate").val('');
-            //$("#IndexationStatusDate").val('');
             $("#tabRevisionNameNumber").hide();
             $("#tabRevisionFileInfo").hide();
             $("#divCancelRevision").show();
@@ -494,13 +497,6 @@
             $("#divCancelRevision").click(function (e) {
                 loadDocumentDetail($("#DocumentId").val(), $("#RevisionId").val());
             });
-
-            //             var url = '@Url.Action("NewRevisionContent", "Document")';
-            //                $.post(url, function(data) {
-            //                    $("#divExistRevision").hide();
-            //                    $("#divNewRevision").show();
-            //                    $('#divNewRevision').html(data);
-            //                });
         };
 
 
@@ -514,7 +510,6 @@
             var selectedNode = treeView.dataItem(treeView.select().parent());
             $.ajax({
 
-                //url: '@Url.Action("ObsoleteDocument", "Document")',
                 url: "ObsoleteDocument",
                 type: 'POST',
                 cache: false,
@@ -561,14 +556,10 @@
                     }
                 },
                 error: function (xhr, textStatus, error) {
-                    //alert(xhr.statusText);
-                    //alert(textStatus);
-                    alert(error);
+                    onDisplayError(error);
                 }
             });
-            //Not working for on-demand fetch
-            //var docNode = selectedNode.parent();
-            //treeview.remove(selectedNode.parent());
+            
             return true;
         };
 
@@ -603,8 +594,6 @@
             var allData = dataSource.data();
             var query = new kendo.data.Query(allData);
             var filteredData = query.filter(filters).data;
-            console.log("filteredData: ", filteredData);
-
             
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
@@ -612,14 +601,10 @@
                 console.log("childDocumentIdSet: ", childDocumentIdSet);
                 if ($.inArray(item.ReferenceId, childDocumentIdSet) == -1) {
                     childDocumentIdSet.push(item.ReferenceId);
-                } else {
-                    console.log("already contained in cs, ", item);
                 }
-
             });
 
             updateKitAndGroup(parentDocumentId, containerTypeId, childDocumentIdSet, vKitGroupContainerId);
-            console.log("exiting dispatch");
         }
 
         function getContainerTypeId()
@@ -649,9 +634,6 @@
                     if (data.DisplayMessage != "Error") {
                         //special handling for group's element addition
                         if ($("#DocumentCreationIntention").val() == "31") { //wip
-                            console.log("to add to group control");
-                            //handleExitFromSingleNewDocCreation(data);
-                            //we need add association for the newly created doc 
                             var parentDocumentId = $("#ParentDocumentId").val();
                             insertKitAndGroup(parentDocumentId, 3, data.DocumentId);
                             var parentRevisionId = $("#ParentRevisionId").val();
@@ -659,8 +641,6 @@
                             return;
                         }
 
-
-                        //if (data.NewDocument == "true" || data.NewDocument == "True") {
                         //the following line is faulty, but leave it as is since there would be some repurcussion if changed
                         if (data.NewDocument) {
                             if (containerTypeId == 2 || containerTypeId == 3) {
@@ -680,10 +660,6 @@
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                             loadDocumentDetail(data.DocumentId, data.RevisionId);
 
-                            //if (containerTypeId != 2) {
-                            //    alert("This is a reminder, please attach all necessary file to this newly created document, otherwise it will ge treated as incomplete.");
-                            //}
-
                             return;
                         }
                     } else {
@@ -702,15 +678,12 @@
                     if (data.NewRevision == true) {
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
                         docNode.hasChildren = true;
-                        console.log("within saveDocumentDetail, is a new document: ", data.NewRevision);
                     }
 
                     var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
                     var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
                     if (typeof(tvDataItem) != "undefined") {
                         selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id; 
-                 
-                        console.log("within saveDocumentDetail, selectedNode: ", selectedNode);
                         repopulateTreeBranch(form, docNode);
                     }
                 });
@@ -749,19 +722,14 @@
                     //data: { id:80000 },
                     success: function (data) {
                         if (data != '') {
-                            //alert('This function is under construction. It will set the current manufacturer to unknonw.');
                             $("#txtManufacturerId").val(data);
                         }
                     },
                     error: function (xhr, textStatus, error) {
-                        //alert(xhr.statusText);
-                        //alert(textStatus);
-                        alert(error);
+                        onDisplayError(error);
                     }
                 });
-                //Not working for on-demand fetch
-                //var docNode = selectedNode.parent();
-                //treeview.remove(selectedNode.parent());
+                
                 return true;
             });            
         };
@@ -788,7 +756,6 @@
         var selectSupplier = function () {
             var grid = $("#gdSearchSupplier").data("kendoGrid");
             if (grid.dataSource.total() == 0) {
-                //$("#popupSupplierSearch").modal("hide");
                 alert("No row selected");
                 return;
             }
@@ -822,22 +789,10 @@
                 //This sequence is very important
                 var splitter = $("#splitterResultAndDetail").data("kendoSplitter");
                 splitter.collapse("#panelTreeView");
-
-                //setTimeout(function () {
-                //    $("#tabRevisionNameNumber").hide();
-                //    $("#tabRevisionFileInfo").hide();
-                //}, 500);
-
             });
 
 
             $("#clearDocumentBtn").click(function (e) {
-                //                var ddlDocumentType = $("#ddlDocumentType").data("kendoDropDownList");
-                //                ddlDocumentType.select(0);
-                //                var ddlDocumentLanguage = $("#ddlDocumentLanguage").data("kendoDropDownList");
-                //                ddlDocumentLanguage.select(0);
-                //                var ddlDocumentRegion = $("#ddlDocumentRegion").data("kendoDropDownList");
-                //                ddlDocumentRegion.select(0);
                 $("[name^='ddlDocument']").each(function (index) {
                     var ddl = $(this).data("kendoDropDownList");
                     if (ddl != undefined) {
@@ -867,7 +822,6 @@
                 var code = (e.keyCode ? e.keyCode : e.which);
                 if (code == 13) { //Search only on enter
                     doDocumentSearch();
-                    //GridResultTest();
                     return false;
                 }
                 return true;
@@ -877,7 +831,6 @@
             $('#txtSearchSupplierId').keyup(function (e) {
                 var code = (e.keyCode ? e.keyCode : e.which);
                 if (code == 13) { //Search only on enter
-                    //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
                     var url = "../Company/LookUpSupplierOnKeyEnter";
                     var supplierInfo = $("#txtSearchSupplierId").val();
                     $.post(url, { supplierInfo: supplierInfo }, function (data) {
@@ -888,7 +841,6 @@
 
 
             $("#DetailSupplier").on("click", "#AddSupplierFacility", function (e) {
-                //var url = '@Url.Action("GetSupplierFacilityDetail", "Company")';
                 var url = "../Company/GetSupplierFacilityDetail";
                 var supplierId = $("#SupplierId").val();
                 $.post(url, { SupplierId: supplierId, SupplierFacilityId: '0' },
@@ -899,7 +851,6 @@
 
 
             //Initialize the dialog but not show
-            //supplierSearchDialog.data("kendoWindow").open();		    
             supplierSearchDialog.data("kendoWindow").close();
 
             //No Access here for add new supplier
@@ -909,24 +860,15 @@
             $("#clearSupplierBtn").click(function (e) {
                 //Remove search result
                 var grid = $("#gdSearchSupplier").data("kendoGrid");
-                //grid.dataSource.filter({});
                 grid.dataSource.data([]);
                 $('#' + activeSupplier).val("");
                 $('#txtSupplierSearch').val("");
                 return false;
             });
 
-            //$("#searchSupplierBtn").bind('click', function () {
-            //    KendoPopUpAjust(supplierSearchDialog);
-            //});
-
-
             $("#searchSupplierIdBtn").click(function (e) {
-                //showSupplierPlugIn("txtSearchSupplierId");
                 doclib.showSupplierPlugIn("txtSearchSupplierId");
             });
-
-
 
             $("#btnCancelSupplierSearch").click(function (e) {
                 hideSupplierPlugIn();
@@ -966,10 +908,7 @@
         };
 
         var documentQuery = function (e) {
-            //alert($("#radiogroupTitleSearchOption:checked").val());  unlikely
-
-            //var params = $("input[name=radiogroupTitleSearchOption]:checked").val();
-            //alert(params);
+            
             var queryText = {
                 ReferenceId: $("#txtSearchDocumentId").val(),
                 DocumentTypeId: $("#ddlDocumentType").val(),
@@ -990,7 +929,6 @@
 
         function setLblRevisionFileInfoDetaillib(text) {
             text = (typeof text !== 'undefined') ? text : "Attachment";
-            //console.log("to set lblRevisionFileInfoDetail with value: ", text);
             $("#lblRevisionFileInfoDetail").html(text);
             $("#addNewFilesBtn").html("Add " + text);
 
@@ -998,24 +936,15 @@
 
         // Method resize splitters when all content is loaded into the selected tab
         var onTabContentLoad = function (e) {
-            setTimeout(function () {
-                $(e.contentElement).find('.k-splitter').each(function () {
-                    $(this).data("kendoSplitter").trigger("resize");
-                });
-            }, 200);
-
             var containerTypeId = $("#ContainerTypeId").val();
             if (containerTypeId == "2") {
                 setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
 
                 $("#btnDissembleKit").show();
 
-                console.log("set the destroy link");
                 $(document).off('click', "#btnDissembleKit");
                 $(document).on('click', "#btnDissembleKit", function (e) {
-                    console.log("btnDissembleKit clicked via on ");
                     if (confirm("Are you sure to destroy or dissemble this kit?")) {
-                        console.log("user chooses to delete the kit");
                         disembleKitOrGroup(2);
                     }
                 });
@@ -1025,12 +954,9 @@
                     
                 $("#btnDissembleKit").show();
 
-                console.log("set the destroy link");
                 $(document).off('click', "#btnDissembleKit");
                 $(document).on('click', "#btnDissembleKit", function (e) {
-                    console.log("btnDissembleKit clicked via on ");
                     if (confirm("Are you sure to destroy or dissemble this group?")) {
-                        console.log("user chooses to delete the kit");
                         disembleKitOrGroup(3);
                     }
                 });
@@ -1045,6 +971,7 @@
                 $("#tabRevisionFileInfo").show();
             }
 
+            //onSplitterContentLoad(e);
         };
 
 
@@ -1121,18 +1048,6 @@
             var editClass = "tr.k-grid-edit-row.k-state-selected";
             var dataItem = e.sender.tbody.find(editClass);
             dataItem.closest("tr").removeClass("k-state-selected").addClass("k-active");
-
-            //not sure we should implement the following logic, need confirm with mw
-            //var currentNameOrNumber = e.model.NameOrNumber;
-            //var data = this.dataSource.data();
-            //$.each(data, function (i, row) {
-            //    if (i != 0 && currentNameOrNumber == row.NameOrNumber) {
-            //        alert("Duplicates not allowed");
-            //        e.preventDefault();
-            //        return false;
-            //    }
-            //    return true;
-            //});
         };
 
         var onRequestEnd = function (e) {
@@ -1175,9 +1090,7 @@
         //------This implementation contains two tabs: doc id tab and kg tab-------
         //------start of doc id tab---
         var dlgDocumentSearch = $("#documentSearchWindow_kg");
-        //var supplierSearchDialog = $("#supplierSearchWindow");
         var prevRadioButtonState = [0, 0, 0, 0];
-
         var listOfChildDocumentId = JSON.parse("[" + (($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val())+ "]");
 
         function getUrl(area, controllerAndFunc){
@@ -1227,10 +1140,10 @@
             };
         };
 
-
         var checkAttachmentsBeforeSave = function() {
             var message = "The Kit needs at least two components attached.";
             var containerOption = $("#ContainerTypeId").val();
+
             //Always warn if there is no attachment for SINGLE
             if (containerOption == "1") {
                 var currenRevId = $("#RevisionID").val();
@@ -2727,5 +2640,3 @@
     });
 
 })(jQuery);
-
-
