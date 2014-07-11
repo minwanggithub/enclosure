@@ -1129,7 +1129,6 @@
         };
 
         var checkAttachmentsBeforeSave = function() {
-            var message = "The Kit needs at least two components attached.";
             var containerOption = $("#ContainerTypeId").val();
 
             //Always warn if there is no attachment for SINGLE
@@ -1164,15 +1163,10 @@
                 //if this is a new kit we will do the checking
                 if (!isInEditingMode()) {
                     var componentsCount = $("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length;
-                    if (componentsCount <= 0) {
-                        if (confirm("The kit has no components attached," + message)) {
+                    if (componentsCount <= 1) {
+                        DisplayConfirmationModal({ message: 'The kit has ' + componentsCount + ' component attached. Do you want to attach the components now?', header: 'Confirm attach components' }, function () {
                             launchKGPopup(containerOption);
-                        }
-                        return false;
-                    } else if (componentsCount == 1) {
-                        if (confirm("The kit has only one components attached," + message)) {
-                            launchKGPopup(containerOption);
-                        }
+                        });
                         return false;
                     };
                 }
@@ -2186,8 +2180,6 @@
 
         //--------------------------end of kit and group implementation---------------------------------
         var handleAddDocument = function () {
-            //add the select records to container grid
-            console.log("hitting handleAddDocument");
             var parent = getHandle("#gdSearchDocument").data("kendoGrid");
             if (parent == null) {
                 console.log("handleAddDocument parent is null");
@@ -2195,14 +2187,11 @@
             }
 
             var selectedRows = parent.select();
-            console.log("handleAddDocument selected rows: ", selectedRows);
-            console.log("handleAddDocument # of selected rows: ", selectedRows.length);
 
             selectedRows.each(function (index, row) {
                 var selectedDataItem;
                 try {
                     selectedDataItem = parent.dataItem(row);
-                    console.log("try, selectedDataItem: ", selectedDataItem);
                 } catch (err) {
                     selectedDataItem = {
                         ReferenceId: "",
