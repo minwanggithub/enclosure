@@ -959,7 +959,7 @@
                 $("#tabRevisionFileInfo").show();
             }
 
-            //onSplitterContentLoad(e);
+            onSplitterContentLoad(e);
         };
 
 
