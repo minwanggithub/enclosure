@@ -287,22 +287,6 @@
             return result;
         }
 
-        // Method to deal with the resizing issue for the document splitter
-        function onDocumentWindowResize() {
-            var parent = $('#splitterResultAndDetail');
-            if (parent && parent.width() > 0) {
-
-                var tree = parent.find('#panelTreeView');
-                var splitbar = parent.find('.k-splitbar:first');
-                var detail = parent.find('#panelDocDetail');
-
-                // Only continue if all components are found in the splitter
-                if (tree && detail && splitbar) {
-                    var detailPaneWidth = parent.width() - tree.width() - splitbar.width();
-                    detail.width(detailPaneWidth);
-                }
-            }
-        }
 
         //Public functions
         var loadSupplierPlugIn = function () {
@@ -313,8 +297,6 @@
             });
 
             supplierSearchDialog = $("#supplierSearchWindow");
-
-            $(window).off('resize', onDocumentWindowResize).on('resize', onDocumentWindowResize);
         };
 
         var showSupplierPlugIn = function (currentSupplier) {
@@ -931,8 +913,14 @@
             text = (typeof text !== 'undefined') ? text : "Attachment";
             $("#lblRevisionFileInfoDetail").html(text);
             $("#addNewFilesBtn").html("Add " + text);
+        };
 
-        }
+
+        var onJustifySpliter = function (spliter) {
+            $(window).resize(function () {
+                kendo.resize(spliter);
+            });
+        };
 
         // Method resize splitters when all content is loaded into the selected tab
         var onTabContentLoad = function (e) {
@@ -2597,7 +2585,7 @@
             onRequestEnd: onRequestEnd,
             OnddlContainerTypeSelect: OnddlContainerTypeSelect,
             onIUserInfo: onIUserInfo,
-
+            onJustifySpliter: onJustifySpliter,
             selectSupplier: selectSupplier,
             viewSingleSupplier: viewSingleSupplier,
 
