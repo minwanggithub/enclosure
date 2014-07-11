@@ -931,10 +931,10 @@
                 $("#btnDissembleKit").show();
 
                 $(document).off('click', "#btnDissembleKit");
-                $(document).on('click', "#btnDissembleKit", function (e) {
-                    if (confirm("Are you sure to destroy or dissemble this kit?")) {
+                $(document).on('click', "#btnDissembleKit", function (e) {                    
+                    DisplayConfirmationModal({ message: 'Are you sure you want to disassemble this kit?', header: 'Confirm for disassembling kits' }, function () {
                         disembleKitOrGroup(2);
-                    }
+                    });
                 });
 
             } else if (containerTypeId == "3") {
@@ -1403,7 +1403,7 @@
             return $("#documentSearchWindow_kg").find(id);
         };
 
-        function canDeelete(e) {
+        function CheckRemoveComponentsFromKits (e) {
             //if this is an existing kit, we prevent deleting the last two records
             var containerTypeId = $("#ContainerTypeId").val();
             if (shouldPostToServer() && containerTypeId == "2") {
@@ -1412,9 +1412,7 @@
                 var dataSource = grid.dataSource;
                 if (dataSource.data().length <= 2) {
                     return false;
-                } else {
-                    console.log("permitting delete from kit");
-                }
+                } 
             }
             return true;
         }
@@ -1422,10 +1420,9 @@
         var onCustomCommand = function(e) {
             e.stopPropagation();
             $("#canViewConstituentDocument").val("0");
-            console.log("onCustomCommand e.isPropagationStopped(): ", e.isPropagationStopped());
 
-            if (!canDeelete(e)) {
-                confirm("You can't delete this record as it is one of the last two records in the kit");
+            if (!CheckRemoveComponentsFromKits(e)) {                
+                onDisplayError("Component can not be removed from this Kits because a kit must contain at lease two components.");
                 return;
             }
 
@@ -2162,18 +2159,14 @@
         };
 
         var disembleKitOrGroup = function (vContainerTypeId) {
-            //delete this kit's component and cover sheet
-            console.log("delete this kit's component");
             var url = getUrl("Operations", "Operations/Document/DocumentKitAndGroup_Update");
             $.post(url, {
                 parentDocumentId: $("input#DocumentID.doc-ref-id").val(),
                 containerTypeId: vContainerTypeId,
                 childDocumentIdSet: JSON.stringify([]),
                 kitGroupContainerId: -1
-            }, function(data) {
-                console.log("after posted after kit destroy, data: ", data);
-
-                //redirect to the doc main
+            }, function (data) {
+                //Confirmation message for kit disassembled
                 doDocumentSearch();
             });
         };
