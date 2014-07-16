@@ -95,6 +95,7 @@
                 SupplierId: parseInt($("#txtSearchSupplierId").val()),
                 RevisionTitle: $("#txtRevisionTitle").val(),
                 SearchOption: $("input[name=radiogroupTitleSearchOption]:checked").val(),
+                ContainerTypeId: $("#ddlDocumentContainer").val(),
                 LatestRevisionOnly: $("#chkLatestRevision:checked").length == 1
             };
             return {
