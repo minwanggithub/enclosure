@@ -244,6 +244,27 @@
 
         });
 
+        //Save Request for Pending Action
+        xreferenceSearchObj.on("click", "#btnSavePending", function () {
+            if ($("#numberOfItems").val() == "") {
+                HideModal("mdlPending");
+                onDisplayError("No items have been selected for customer action");
+            } else {
+                var selPending = $("#selPending").data("kendoDropDownList");
+                if (selPending.text().length > 0 || $("#txtPendingNotes").text().length > 0) {
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['pendingAction'] = selPending.text();
+                    data['notes'] = $("#txtPendingNotes").text();
+                    SaveRequest("../XReference/SavePendingRequests", data, "mdlPending");
+                } else {
+                    HideModal("mdlPending");
+                    onDisplayError("No customer action has been specified");
+                }
+            }
+
+        });
+
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
@@ -361,6 +382,7 @@
 
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+                selectedRequests = new Array();
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
