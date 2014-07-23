@@ -42,6 +42,12 @@
 
         };
 
+        xreferenceSearchObj.on("click","#clearRequestSearchBtn" , function () {
+           var url = "../XReference/SearchXReferenceContent";
+            $.post(url, function (data) {
+                $("#divSearchSection").html(data);
+            });
+        });
 
         xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
             radioButtonSelected = $(this).val();
@@ -193,6 +199,7 @@
 
             //add filter array to requestSearchModel
            requestSearchModel.Criterias = criteriaList;
+           kendo.ui.progress(xreferenceDetailObj, true);
             var url = "../XReference/SearchRequests";
             $.post(url, {
                 searchCriteria: JSON.stringify(requestSearchModel) }, function (data) {
@@ -267,6 +274,7 @@
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
+            debugger;
             e.preventDefault();
             var url = "../Xreference/RequestWorkLoadHistory";
             $.post(url, {
@@ -331,6 +339,9 @@
                            onDisplayError('Requests could not be saved');
                        }
 
+                   },
+                   done:function() {
+                       $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
                    }
                });
             }
@@ -416,6 +427,7 @@
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
+                selectedRequests = new Array();
                 itemsChecked = 0;
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -442,7 +454,6 @@
                         return false;
                     }
                 }
-                return false;
             });
         }
 
@@ -513,7 +524,7 @@
                             complete: function(compData) {
 
                                 kendo.ui.progress(xreferenceDetailObj, false);
-
+                                $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
                                 if (completeCallback) {
                                     completeCallback(compData);
                                 }
