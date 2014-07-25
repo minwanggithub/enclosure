@@ -258,15 +258,17 @@
                 onDisplayError("No items have been selected for customer action");
             } else {
                 var selPending = $("#selPending").data("kendoDropDownList");
+                var selYesNo = $("#selYesNo").data("kendoDropDownList");
                 if (selPending.text().length > 0 || $("#txtPendingNotes").text().length > 0) {
                     var data = {};
                     data['ids'] = selectedRequests;
+                    data['keepInWorkload'] = selYesNo.value();
                     data['pendingAction'] = selPending.text();
                     data['notes'] = $("#txtPendingNotes").text();
                     SaveRequest("../XReference/SavePendingRequests", data, "mdlPending");
                 } else {
                     HideModal("mdlPending");
-                    onDisplayError("No customer action has been specified");
+                    onDisplayError("No action has been specified");
                 }
             }
 
