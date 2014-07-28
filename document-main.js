@@ -436,7 +436,7 @@
         };
 
         var loadDocumentDetail = function (documentId, revisionId) {
-            loadNodeInformation("LoadDocumentDetail", { documentId: documentId, revisionId: revisionId });
+            loadNodeInformation("LoadDocumentDetail", { documentId: documentId, revisionId: revisionId }, true);
         };
 
         var loadNodeInformation = function (url, options, loadingIndicator) {
