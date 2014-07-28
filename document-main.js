@@ -1376,6 +1376,7 @@
                 DocumentTypeId: getHandle("#ddlDocumentType").val(),
                 DocumentLanguageId: getHandle("#ddlDocumentLanguage").val(),
                 DocumentRegionId: getHandle("#ddlDocumentRegion").val(),
+                ContainerTypeId: 1,
                 PartNumber: getHandle("#txtSearchPartNumber").val(),
                 UPC: getHandle("#txtSearchUPC").val(),
                 SupplierId: parseInt(getHandle("#txtSearchSupplierId").val()),
@@ -1949,6 +1950,9 @@
             $("#documentSearchWindow_kg #lblIncludeDeletedDocument").hide();
             $("#documentSearchWindow_kg #chkIncludeDeletedDocument").hide();
             $("#documentSearchWindow_kg #addNewDocumentBtn").hide();
+
+            $('label[for="ContainerTypeId"]').css('visibility', 'hidden');
+            $("#documentSearchWindow_kg #ddlDocumentContainer").hide();
         };
 
       
