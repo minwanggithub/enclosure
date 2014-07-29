@@ -398,6 +398,7 @@
 
         var doDocumentSearch = function () {
             $("#DocumentDetail").show();
+
             //Hide the side menu
             $('#eeeSideBar').hide();
             toggleTreeViewPanel(true);
@@ -413,14 +414,11 @@
                 RevisionTitle: $("#txtRevisionTitle").val(),
                 SearchOption: $("input[name=radiogroupTitleSearchOption]:checked").val(),
                 LatestRevisionOnly: $("#chkLatestRevision:checked").length == 1,
-                IncludeDeletedDocument: $("#chkIncludeDeletedDocument:checked").length == 1
+                IncludeDeletedDocument: $("#chkIncludeDeletedDocument:checked").length == 1,
+                PhysicalStateId: $("#ddlDocumentPhysicalState").val()
             };
             var treeview = $(productTreeName).data("kendoTreeView");
-            //var url = '@Url.Action("ProductSearchResultRoute", "Document", new
-            //{
-            //    searchText = "parameter"
-            //})';
-            //url = url.replace("parameter", JSON.stringify(queryText));
+            
             var url = "ProductSearchResultRoute";
             var param = { searchText: JSON.stringify(queryText) };
             treeview.dataSource.transport.options.read.url = url;
@@ -902,7 +900,8 @@
                 RevisionTitle: $("#txtRevisionTitle").val(),
                 SearchOption: $("input[name=radiogroupTitleSearchOption]:checked").val(),
                 LatestRevisionOnly: $("#chkLatestRevision:checked").length == 1,
-                IncludeDeletedDocument: $("#chkIncludeDeletedDocument:checked").length == 1
+                IncludeDeletedDocument: $("#chkIncludeDeletedDocument:checked").length == 1,
+                PhysicalStateId: $("#ddlDocumentPhysicalState").val()
             };
             return {
                 searchText: JSON.stringify(queryText)
@@ -1382,7 +1381,8 @@
                 SupplierId: parseInt(getHandle("#txtSearchSupplierId").val()),
                 RevisionTitle: getHandle("#txtRevisionTitle").val(),
                 SearchOption: getHandle("input[name=radiogroupTitleSearchOption]:checked").val(),
-                LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1
+                LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1,
+                PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val()
             };
             return {
                 searchText: JSON.stringify(queryText)
@@ -1591,10 +1591,7 @@
         }
 
         function hidePopups() {
-            console.log("hitting hidePopups");
             getHandle("#documentModalPopup").hide();
-            //getHandle("#supplierModalPopup").hide();
-            console.log("exiting hidePopups");
         }
 
         function resetDropDown(did) {
@@ -1615,6 +1612,7 @@
             resetDropDown('#ddlDocumentLanguage');
             resetDropDown("#ddlDocumentRegion");
             resetDropDown("#ddlDocumentType");
+            resetDropDown('#ddlDocumentPhysicalState');
 
             //Remove document search grid result
             var grid = getHandle("#gdSearchDocument").data("kendoGrid");
@@ -1922,28 +1920,20 @@
         }
 
         var setupDropDowns = function() {
-            //var url = '@Url.Action("LoadDocumentLanguage", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
             var url = getUrl("Operations", "Operations/Document/LoadDocumentLanguage");
             var ddlid = "ddlDocumentLanguage";
             setupOneDropDown(url, ddlid);
 
-            //url = '@Url.Action("LoadDocumentType", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
             url = getUrl("Operations", "Operations/Document/LoadDocumentType");
             ddlid = "ddlDocumentType";
             setupOneDropDown(url, ddlid);
 
-            //url = '@Url.Action("LoadDocumentRegion", "Document", new
-            //{
-            //    Area = "Operations"
-            //})';
             url = getUrl("Operations", "Operations/Document/LoadDocumentRegion");
             ddlid = "ddlDocumentRegion";
+            setupOneDropDown(url, ddlid);
+
+            url = getUrl("Operations", "Operations/Document/LoadPhysicalStateOptions");
+            ddlid = "ddlDocumentPhysicalState";
             setupOneDropDown(url, ddlid);
 
             //mod the popup appearance
