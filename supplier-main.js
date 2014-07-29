@@ -223,6 +223,14 @@
             selectedUrl.addClass("inverturl");
         };
 
+        var gdGdDomainChange = function (e) {
+            var grid = $("#gdCompanyIdentificationDomains").data("kendoGrid");
+            var selectedRow = grid.select();
+            
+            var data = this.dataItem(selectedRow);
+            this.element.attr("SelectedDomainId", data.CompanyDomainId);
+        };
+
         var onChangeSupplierCountry = function () {
             if ($('#FacilityCountry').length > 0) {
                 var autoFacilityCountry = $("#SupplierFacilityState").data("kendoAutoComplete");
@@ -524,6 +532,44 @@
 
         };
 
+        var onGridEditChangeDomain = function (e) {
+            var update = $(e.container).parent().find(".k-grid-update");
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.CompanyDomainId > 0) {
+                $(title).html('Edit');
+            } else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+            }
+
+            //hide some fields from the pop up form.
+            $("label[for='CompanyDomainId']", e.container).parent().hide();
+            $('#CompanyDomainId', e.container).parent().hide();
+            
+            $("label[for='CreatedDate']", e.container).parent().hide();
+            $('#CreatedDate', e.container).parent().hide();
+
+            $("label[for='CreatedBy']", e.container).parent().hide();
+            $('#CreatedBy', e.container).parent().hide();
+
+            $("label[for='LastUpdate']", e.container).parent().hide();
+            $('#LastUpdate', e.container).parent().hide();
+            
+            $("label[for='LastUpdateBy']", e.container).parent().hide();
+            $('#LastUpdateBy', e.container).parent().hide();
+
+            removeModelFields(e.container);
+
+            //reload domain Grid.
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdCompanyIdentificationDomains").data("kendoGrid");
+                grid.dataSource.read();
+            });
+
+        };
+
         //======Security group Read-Only Integration Section Starts
         var onSupplierIdentificationActivate = function (e) {
             //alert($(e.item).find("> .k-link").text());
@@ -684,6 +730,30 @@
                 }
 
             }); 
+
+        };
+
+        var onGdDomainDataBound = function (e) {
+            if (IsReadOnlyMode()) {
+                setTimeout(function () {
+                    DisableGridInLineEditing("gdCompanyIdentificationDomains");
+                }, 200);
+            }
+
+            var selectedid = $('#gdCompanyIdentificationDomains').attr("selecteddomainid");
+
+            $('td', '#gdCompanyIdentificationDomains').each(function (e) {
+                var txt = $(this).html().toLowerCase();
+                var i = txt.indexOf("domainid");
+                if (i >= 0) {
+                    var domainid = txt.substr(17, txt.length);
+                    if (domainid == selectedid) {
+                        var parent = $(this).parent();
+                        parent.addClass("k-state-selected");
+                    }
+                }
+
+            });
 
         };
 
@@ -1177,6 +1247,7 @@
             OnChangeRegion: OnChangeRegion,
 
             gdGdWebSiteChange: gdGdWebSiteChange,
+            gdGdDomainChange: gdGdDomainChange,
 
             fnInitializeObtainmentSettings: fnInitializeObtainmentSettings,
             fnbtnAddContact: fnbtnAddContact,
@@ -1211,6 +1282,7 @@
             serialize: serialize,
             onGridEditChangeTitle: onGridEditChangeTitle,
             onGridEditChangeWebSite: onGridEditChangeWebSite,
+            onGridEditChangeDomain: onGridEditChangeDomain,
 
             onSupplierIdentificationActivate: onSupplierIdentificationActivate,
             onFaciltyGeneralActivate: onFaciltyGeneralActivate,
@@ -1221,6 +1293,7 @@
             DisableGridInCellEditing: DisableGridInCellEditing,
             DisableGridInLineEditing: DisableGridInLineEditing,
             onGdWebSiteDataBound: onGdWebSiteDataBound,
+            onGdDomainDataBound: onGdDomainDataBound,
             onGdAliasDataBound: onGdAliasDataBound,
             onGdCompanyIdentifierDataBound: onGdCompanyIdentifierDataBound,
             onGdCompanyIdentifierEdit: onGdCompanyIdentifierEdit,
