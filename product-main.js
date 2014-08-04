@@ -690,13 +690,18 @@
 
         var pnlNewProduct_Activated = function(event) {
 
-            $("#btnDiscardNewProduct").click(function(evt) {
-                evt.preventDefault();
-                $("#btnDiscardNewProduct").closest('div').html("");
+            //$("#btnDiscardNewProduct").click(function(evt) {
+            //    evt.preventDefault();
+            //    $("#btnDiscardNewProduct").closest('div').html("");
+            //});
+
+            $("#btnCancelProductEdit_0").click(function (evt) {
+                $("#divNewProductDetail").html("");
             });
 
             var pKey = 0;
-            $("#btnCancelProductEdit_0").hide();
+            //$("#btnCancelProductEdit_0").hide();
+            $("#btnRefreshProduct_0").hide();
 
             UnBindingSaveCancel(pKey);
             BindingSaveCancel(pKey);
