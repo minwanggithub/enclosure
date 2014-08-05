@@ -43,7 +43,7 @@
             initializeFireFightingControls();
             initializePpeControls();
         };
-
+        
         var loadWorkLoadPlugIn = function() {
             initializeIngredientControls();
             initializeAmericanControls();
@@ -193,6 +193,24 @@
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
             return decimalVal == val;
+        }
+
+        function parseErrorMessage(data) {
+
+            var errorMessage = '';
+            if (data && data.Errors) {
+                
+                var keys = Object.keys(data.Errors);
+                for (var idx = 0; idx < keys.length; idx++) {
+                    var errorobj = data.Errors[keys[idx]];
+                    if (errorobj.errors && errorobj.errors.length > 0) {
+                        errorMessage = errorobj.errors[0];
+                        break;
+                    }
+                }
+            }
+
+            return errorMessage;
         }
 
         function searchGridDoubleClick(searchGrid, button) {
@@ -1159,114 +1177,93 @@
         };
 
         // Transport section methods
-        function initializeTransportControls()
-        {     
-            indexationDetailObj.on("click", "#ancNipBatchDelete", function (e) {
+        function initializeTransportControls() {
+
+            indexationDetailObj.on("click", "#btnAddTransportMode", function (e) {
                 e.preventDefault();
-                batchDeleteObjects('GridNIP', 'nips', "../Indexation/BatchDeleteNIPs");
+
+                var indexationObj = getIndexationId();
+                var url = '../Indexation/EditTransportMode';
+                $.post(url, { indexationId: indexationObj.IndexationId, indexationTransportModeId: 0 },
+                    function (data) {
+                        $('#AddEditTransportMode').html(data).show();
+                    });
             });
 
-            indexationDetailObj.on("click", "#ancShippingNameBatchDelete", function (e) {
+            indexationDetailObj.on("click", "#ancTransportModeBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteObjects("GridShippingName", "shipping names", "../Indexation/BatchDeleteShippingNames");
+
+                batchDeleteObjects("GridTransportMode"
+                    , "transport modes"
+                    , "../Indexation/BatchDeleteTransportModes"
+                    , null
+                    , function () { hideEditorSection("AddEditTransportMode"); });
             });
 
-            indexationDetailObj.on("click", "#ancTransClassBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#btnSaveTransportMode", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridTransClass", "transport classification", "../Indexation/BatchDeleteTransportClassification"); 
-            });
-
-            indexationDetailObj.on("click", "#btnAddTransClass", function (e) {
-                e.preventDefault();
-                if ($("#popupTransClassSearch").length > 0) {
-                    var grid = $("#GridSearchTransClass").data("kendoGrid");
-                    grid.dataSource.read();
-                }
-                $("#popupTransClassSearch").modal("show");
-            });
-
-            indexationDetailObj.on("click", "#btnSaveTransport", function (e) {
-                e.preventDefault();
-                var form = $("#FormTransport");
+                var form = $("#FormEditTransportMode");
                 if (form.valid()) {
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                        var errorMessage = parseErrorMessage(data);
+                        if (errorMessage) {
+                            onDisplayError(errorMessage);
+                        } else {
+                            displayCreatedMessage('Transport Model Saved');
+                            hideEditorSection('AddEditTransportMode');
+
+                            var grid = $('#GridTransportMode').data("kendoGrid");
+                            grid.dataSource.read();
+                        }
+
+                        return !errorMessage;
                     });
-                    return true;
                 } else {
                     return false;
                 }
             });
 
-            indexationDetailObj.on("click", "#btnSelectTransClass", function (e) {
+            indexationDetailObj.on("click", "#btnDiscardTransportMode", function (e) {
                 e.preventDefault();
-                var grid = $("#GridSearchTransClass").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
-                    return;
-                }
-                var selectedData = grid.dataItem(grid.select());
-                if (selectedData == null) {
-                    alert("No rows selected");
-                    return;
-                }
-                if (grid.select().length > 1) {
-                    var rows = grid.select();
-                    var transclasslists = [];
-                    rows.each(
-                        function (index, row) {
-                            var selectedItem = grid.dataItem(row);
-                            transclasslists.push(selectedItem.Reference);
+                hideEditorSection('AddEditTransportMode');
+            });
+        }
+
+        var onGridTransportModeChange = function (e) {
+            var selectedrows = this.select();
+            if (selectedrows && selectedrows.length > 0) {
+
+                var indexationObj = getIndexationId();
+                var transClass = this.dataSource.getByUid($(selectedrows[0]).data("uid"));
+                if (transClass) {
+                    var ajaxdata = { indexationId: indexationObj.IndexationId, indexationTransportModeId: transClass.IndexationTransportModeId };
+                    var url = '../Indexation/EditTransportMode';
+
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: ajaxdata,
+                        success: function(data) {
+                            $('#AddEditTransportMode').html(data).show();
+                        },
+                        error: function(data) {
+                            onDisplayError('An error occurred retrieving transport classification information');
                         }
-                    );
-                    addTransportClassificationList(transclasslists);
-                    return;
+                    });
+                } else {
+                    hideEditorSection('AddEditTransportMode');
                 }
-                addTransportClassification(selectedData.Reference);
-            });
+            } else {
+                hideEditorSection('AddEditTransportMode');
+            }
+        };
 
-            indexationDetailObj.on("dblclick", "#GridSearchTransClass table tr", function () {
-                searchGridDoubleClick("#GridSearchTransClass", "#btnSelectTransClass");
-            });
-        }
-
-        function addTransportClassification(reference) {
-            var url = '../Indexation/TransClass_Create';
-            var indexationId = $("#IndexationId").val();
-            $.post(url, { iReference: reference, indexationId: indexationId },
-                function (data) {
-                    $("#popupTransClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                    var transClassGrid = $("#GridTransClass").data("kendoGrid");
-                    transClassGrid.dataSource.read();
-                });
-        }
-
-        function addTransportClassificationList(transclasslists) {
-            var urlmultiple = '../Indexation/TransClass_CreateList';
-            var indexationId = $("#IndexationId").val();
-            $.post(urlmultiple, { classificationList: JSON.stringify(transclasslists), indexationId: indexationId },
-                function (data) {
-                    $("#popupTransClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                    var transClassGrid = $("#GridTransClass").data("kendoGrid");
-                    transClassGrid.dataSource.read();
-                });
-        }
-
-        var onTransportPartialReady = function() {
-            $('#popupTransClassSearch').modal({
-                keyboard: false,
-                show: false,
-                backdrop: true
-            });
-
-            var url = '../Indexation/GetSearchTransportClassification';
-            $.post(url, function (data) {
-                $("#dgTranClassPlugIn").html(data);
-            });
+        var onGridTransportModeRequestComplete = function(e) {
+            if(e.type == "destroy") {
+                hideEditorSection('AddEditTransportMode');
+            }
         };
 
         // American regulatory section methods
@@ -2845,7 +2842,8 @@
             onGridIngredientChange: onGridIngredientChange,
             onGridIngredientRemove: onGridIngredientRemove,
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
-            onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,        
+            onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
+            onGridTransportModeRequestComplete: onGridTransportModeRequestComplete,
             onHmisPpeChange: onHmisPpeChange,
             onIngredientSearchReady: onIngredientSearchReady,
             onRegEuropePartialReady: onRegEuropePartialReady,
@@ -2862,7 +2860,7 @@
             onSaveReachUse: onSaveReachUse,
             onRegulatoryGhsActivate: onRegulatoryGhsActivate,
             onSaveNameNumber: onSaveNameNumber,
-            onTransportPartialReady: onTransportPartialReady,
+            onGridTransportModeChange: onGridTransportModeChange,
             onViscosity1Change: onViscosity1Change,
             onViscosity2Change: onViscosity2Change,
             onVocCodeChange: onVocCodeChange,
