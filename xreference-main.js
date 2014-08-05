@@ -42,8 +42,21 @@
 
         };
 
-        xreferenceSearchObj.on("click","#clearRequestSearchBtn" , function () {
-           var url = "../XReference/SearchXReferenceContent";
+       
+        //Assgn and Unassign Request and saves them
+        AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
+        AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
+        AssignUnassignRequest("btnAssignMe", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
+
+        //Display Modals on Button Clicks
+        ShowDisplayModal("btnResolve", "mdlResolve");
+        ShowDisplayModal("btnObtainment", "mdlObtainment");
+        ShowDisplayModal("btnPending", "mdlPending");
+        ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
+
+
+        xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function () {
+            var url = "../XReference/SearchXReferenceContent";
             $.post(url, function (data) {
                 $("#divSearchSection").html(data);
             });
@@ -65,13 +78,7 @@
         xreferenceDetailObj.on("click", "#btnAssignTo", function () {
             DisplayModal("mdlAssign");
         });
-
-        //Assgn and Unassign Request and saves them
-        AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
-        AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
-        AssignUnassignRequest("btnAssignMe", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
-        AssignUnassignRequest("btnRemoveRequests", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
-
+        
         xreferenceDetailObj.on("click", "#btnSaveAssign", function (e) {
             e.preventDefault();
             var userName = $("#txtIndividual").data("kendoAutoComplete");
@@ -104,12 +111,7 @@
             xreferenceDetailObj.html("");
         });
 
-        //Display Modals on Button Clicks
-        ShowDisplayModal("btnResolve", "mdlResolve");
-        ShowDisplayModal("btnObtainment", "mdlObtainment");
-        ShowDisplayModal("btnPending", "mdlPending");
-        ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
-
+        
         //Show Supplier
         xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function () {
             var activeSupplier = "txtSearchSupplierId";
@@ -152,13 +154,15 @@
             var dteDateCreated = $("#divSearchSection #DateCreated").data("kendoDatePicker");
             var dteDateAssigned = $("#divSearchSection #DateAssigned").data("kendoDatePicker");
             var drpStatus = $("#divSearchSection #ddlStatus").data("kendoDropDownList");
-
+            var drpDays = $("#divSearchSection #ddlDays").data("kendoDropDownList");
+            debugger;
             //create requestSearchModel to be passed to the controller
             requestSearchModel.Priority = drpPriorities.value() == "" ? null : drpPriorities.value();
             requestSearchModel.Assigned = drpAssigned.value() == "" ? null : drpAssigned.value();
-            requestSearchModel.DateCreated = dteDateCreated.value() == "" ? null : dteDateCreated.value();
+            //requestSearchModel.DateCreated = dteDateCreated.value() == "" ? null : dteDateCreated.value();
             requestSearchModel.DateAssigned = dteDateAssigned.value() == "" ? null : dteDateAssigned.value();
             requestSearchModel.StatusId = drpStatus.value() == "" ? null : drpStatus.value();
+            requestSearchModel.DaysSelected = drpDays.value() == "" ? null : drpDays.value();
 
             var criteriaList = [];
 
@@ -273,6 +277,11 @@
             }
 
         });
+
+        xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
+                e.preventDefault();
+                batchDeleteObjects("gdRequests", "unassign these request", "../XReference/SaveAssignedItems", null, false);
+       });
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
