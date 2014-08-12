@@ -334,15 +334,14 @@
             //Can not be moved to partial view, or it cause clear and search again
             $("#clearSupplierBtn").click(function (e) {
                 //Remove search result
-                var grid = $("#gdSearchSupplier").data("kendoGrid");
+                $('#txtSupplierSearch').val("");
 
+                var grid = $("#gdSearchSupplier").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
                     return false;
                 }
-
-               // grid.dataSource.filter([]);
+               
                 grid.dataSource.data([]);
-                $('#txtSupplierSearch').val("");
                 $('#DetailSupplier').html("");
                 return false;
             });
