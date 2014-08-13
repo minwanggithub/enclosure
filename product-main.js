@@ -733,9 +733,10 @@
                 $("#clearSupplierBtn").click(function(e) {
                     //Remove search result
                     var grid = $("#gdSearchSupplier").data("kendoGrid");
-                    grid.dataSource.filter({});
+                   // grid.dataSource.filter({});
                     grid.dataSource.data([]);
                     //$('#' + activeSupplier).val("");
+                    $('#txtSupplierSearch').val("");
                     return false;
                 });
             });
