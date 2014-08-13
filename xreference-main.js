@@ -149,20 +149,23 @@
             $("#clearRequestSearchBtn").attr("disabled", "disabled");
             var numberOfRows = $('div #row').length;
             var initialRow = 0;
-            var drpPriorities = $("#divSearchSection #ddlPriorities").data("kendoDropDownList");
+            var mltCategories = $("#divSearchSection #mltCategories").data("kendoMultiSelect");
             var drpAssigned = $("#divSearchSection #ddlAssignations").data("kendoDropDownList");
             var dteDateCreated = $("#divSearchSection #DateCreated").data("kendoDatePicker");
             var dteDateAssigned = $("#divSearchSection #DateAssigned").data("kendoDatePicker");
             var drpStatus = $("#divSearchSection #ddlStatus").data("kendoDropDownList");
             var drpDays = $("#divSearchSection #ddlDays").data("kendoDropDownList");
-            debugger;
+
+            var strCategoryValue = mltCategories.value();
+            var intCategoryValue = 0;
+            for (var i = 0; i < strCategoryValue.length; i++) 
+                intCategoryValue += parseInt(strCategoryValue[i]);
+
             //create requestSearchModel to be passed to the controller
-            requestSearchModel.Priority = drpPriorities.value() == "" ? null : drpPriorities.value();
-            requestSearchModel.Assigned = drpAssigned.value() == "" ? null : drpAssigned.value();
-            //requestSearchModel.DateCreated = dteDateCreated.value() == "" ? null : dteDateCreated.value();
             requestSearchModel.DateAssigned = dteDateAssigned.value() == "" ? null : dteDateAssigned.value();
             requestSearchModel.StatusId = drpStatus.value() == "" ? null : drpStatus.value();
             requestSearchModel.DaysSelected = drpDays.value() == "" ? null : drpDays.value();
+            requestSearchModel.Category = intCategoryValue == 0 ? null : intCategoryValue;
 
             var criteriaList = [];
 
@@ -200,7 +203,7 @@
                }
                criteriaList.push(criteria);
            }
-
+            
             //add filter array to requestSearchModel
            requestSearchModel.Criterias = criteriaList;
            kendo.ui.progress(xreferenceDetailObj, true);
