@@ -1235,6 +1235,16 @@
         };
         //----------------------end of not in use-----------------------
 
+        var loadSupplierDetail = function (supplierId) {
+            var url = '../Company/GetSupplierDetail';
+            $.post(url, { SupplierId: supplierId }, function (data) {
+                var detail = $('#DetailSupplier');
+                if (detail) {
+                    detail.html(data);
+                }
+            });
+        };
+
         //Expose to public
         return {
             QueueQuery: QueueQuery,
@@ -1315,7 +1325,9 @@
 
 
             initObtainmentSettingWiring: initObtainmentSettingWiring,
-            initializeSupplierLibrary: initializeSupplierLibrary
+            initializeSupplierLibrary: initializeSupplierLibrary,
+
+            loadSupplierDetail: loadSupplierDetail
         };
     };
 

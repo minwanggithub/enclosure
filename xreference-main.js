@@ -288,7 +288,6 @@
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
-            debugger;
             e.preventDefault();
             var url = "../Xreference/RequestWorkLoadHistory";
             $.post(url, {
