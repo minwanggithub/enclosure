@@ -279,7 +279,6 @@
                         dataSource: new kendo.data.DataSource({
                             transport: {
                                 read: {
-                                    //url: '@Url.Action("GetStateProvince", "Company")',
                                     url: "../Company/GetStateProvince",
                                     data: {
                                         userInput: function () {
@@ -1245,6 +1244,24 @@
             });
         };
 
+        var getFacilityCountryDropdownData = function() {
+            return getCountryDropdownData("#SelectSupplierFacilityCountry", "#SupplierFacilityState");
+        };
+
+        var getContactCountryDropdownData = function() {
+            return getCountryDropdownData("#SelectSupplierContactCountry", "#SupplierContactState");
+        };
+
+        function getCountryDropdownData(ddlCountry, acState) {
+            var countryComponent = $(ddlCountry).data("kendoDropDownList");
+            var stateComponent = $(acState).data("kendoAutoComplete");
+
+            return {
+                'userInput': stateComponent.value(),
+                'countryAbbrev': countryComponent.value()
+            };
+        };
+
         //Expose to public
         return {
             QueueQuery: QueueQuery,
@@ -1327,7 +1344,9 @@
             initObtainmentSettingWiring: initObtainmentSettingWiring,
             initializeSupplierLibrary: initializeSupplierLibrary,
 
-            loadSupplierDetail: loadSupplierDetail
+            loadSupplierDetail: loadSupplierDetail,
+            getContactCountryDropdownData: getContactCountryDropdownData,
+            getFacilityCountryDropdownData: getFacilityCountryDropdownData
         };
     };
 
