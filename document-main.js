@@ -86,7 +86,7 @@
             $("#documentTreeContextMenu").kendoMenuEx({
                 dataSource: [
                     {
-                        text: "Indexation",
+                        text: "Indexing",
                         click: function (event, obj) {
                             var treeView = $("#tvProductSearchResult").data("kendoTreeView");
                             var target = this.target;
@@ -103,7 +103,7 @@
                         spriteCssClass: "k-icon k-i-pencil"
                     },
                     {
-                        text: 'Ext Indexation',
+                        text: 'Ext Indexing',
                         click: function (event) {
                             alert("This option is under construction");
                             return false;
