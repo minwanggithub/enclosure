@@ -1767,11 +1767,15 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
                         if (data.result == "success") {
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
                             $('#AddEditHazardClass').empty();
                             var grid = $("#GridHazardClass").data("kendoGrid");
                             grid.dataSource.read();
+                        } else {
+                            if (data.popupMessage) {
+                                onDisplayError(data.popupMessage);
+                            }
                         }
                     });
                     return true;
@@ -1992,11 +1996,16 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
+                        
                         if (data.result == "success") {
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
                             $('#AddEditHazardStatement').empty();
                             var grid = $("#GridHazardStatement").data("kendoGrid");
                             grid.dataSource.read();
+                        } else {
+                            if (data.popupMessage) {
+                                onDisplayError(data.popupMessage);
+                            }
                         }
                     });
                     return true;
@@ -2122,11 +2131,15 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
                         if (data.result == "success") {
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
                             $('#AddEditPrecautionaryStatement').empty();
                             var grid = $("#GridPrecautionaryStatement").data("kendoGrid");
                             grid.dataSource.read();
+                        } else {
+                            if (data.popupMessage) {
+                                onDisplayError(data.popupMessage);
+                            }
                         }
                     });
                     return true;
