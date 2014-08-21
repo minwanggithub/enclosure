@@ -9,6 +9,8 @@
         var requestSearchModel = {};
         var selectedRequests = new Array();
         var radioButtonSelected = "Group";
+        var requestWindow;
+
 
         // General indexation methods
         var loadRequestsPlugin = function () {
@@ -41,6 +43,57 @@
             });
 
         };
+
+        var loadRequests = function() {
+            var grid = $("#gdRequests").data("kendoGrid");
+            grid.dataSource.read();
+            setTimeout(openDocWindowSearch(), 5000);
+            $("#txtIndividual").closest(".k-widget").hide();
+            $("#eeeSideBarWorkLoad").sidemenu();
+            $('#eeeSideBarWorkLoad').show();
+            $("#atlwdg-trigger").css({ top: '100px' });
+        };
+       
+        var loadSupplierPlugIn = function () {
+            $.post("../ObtainmentSettings/PlugInSupplierSearch", { supplierId: 0 }, function (data) {
+                $("#dgSupplierPlugIn").html(data);
+            });
+            var supplierSearchDialog = $("#supplierSearchWindow");
+
+            $("#btnCancelSupplierSearch").click(function () {
+                supplierSearchDialog.data("kendoWindow").close();
+                DisableSideMenuItems();
+                EnableSideMenuItem("btnObtainment");
+                DisplayModal("mdlObtainment");
+            });
+
+            $('#dgSupplierPlugIn').on('dblclick', 'table tr', function () {
+                obtainmentSelSupplier(supplierSearchDialog);
+            });
+
+            //This is for Supplier plugIn
+            $("#searchSupplierIdSelect").click(function () {
+                obtainmentSelSupplier(supplierSearchDialog);
+            });
+
+        }
+
+        var openDocWindowSearch = function() {
+            var w = 1280;
+            var h = 1024;
+            var left = (window.screen.width / 2) - (w / 2);
+            var top = (window.screen.height / 2) - (h / 2);
+            requestWindow = window.open("../XReference/XrefDocumentSearch", "_new", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h);
+            requestWindow.moveBy(left, top);
+        }
+
+        window.onbeforeunload = function (evt) {
+            if (typeof evt == "undefined")
+                evt = window.event;
+
+            if (evt)
+                requestWindow.close();
+        }
 
        
         //Assgn and Unassign Request and saves them
@@ -114,9 +167,10 @@
         
         //Show Supplier
         xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function () {
-            var activeSupplier = "txtSearchSupplierId";
+           // var activeSupplier = "txtSearchSupplierId";
             $("#supplierSearchWindow").data("kendoWindow").center();
             $("#supplierSearchWindow").data("kendoWindow").open();
+            HideModal("mdlObtainment");
         });
 
         //Toggle Customer Action Option for Notes
@@ -145,21 +199,17 @@
 
         //Does search and displays search results 
         xreferenceSearchObj.on("click", "#searchRequestBtn", function () {
-            $("#searchRequestBtn").attr("disabled", "disabled");
-            $("#clearRequestSearchBtn").attr("disabled", "disabled");
             var numberOfRows = $('div #row').length;
             var initialRow = 0;
             var mltCategories = $("#divSearchSection #mltCategories").data("kendoMultiSelect");
-            var drpAssigned = $("#divSearchSection #ddlAssignations").data("kendoDropDownList");
-            var dteDateCreated = $("#divSearchSection #DateCreated").data("kendoDatePicker");
             var dteDateAssigned = $("#divSearchSection #DateAssigned").data("kendoDatePicker");
             var drpStatus = $("#divSearchSection #ddlStatus").data("kendoDropDownList");
             var drpDays = $("#divSearchSection #ddlDays").data("kendoDropDownList");
 
             var strCategoryValue = mltCategories.value();
             var intCategoryValue = 0;
-            for (var i = 0; i < strCategoryValue.length; i++) 
-                intCategoryValue += parseInt(strCategoryValue[i]);
+            for (var indexCategory = 0; indexCategory < strCategoryValue.length; indexCategory++)
+                intCategoryValue += parseInt(strCategoryValue[indexCategory]);
 
             //create requestSearchModel to be passed to the controller
             requestSearchModel.DateAssigned = dteDateAssigned.value() == "" ? null : dteDateAssigned.value();
@@ -170,7 +220,7 @@
             var criteriaList = [];
 
             //create filter array
-           for (var i = 0; i < numberOfRows; i++) {
+            for (var indexRows = 0; indexRows < numberOfRows; indexRows++) {
                initialRow++;
                var drpFields = $("div #row #middle #drpFields_" + initialRow).data("kendoDropDownList");
                var drpCriteria = $("div #row #right #drpContains_" + initialRow).data("kendoDropDownList");
@@ -197,25 +247,42 @@
                        criteria.SearchFor = drpCountry.value();
                    }
 
+                   if(criteria.SearchFor.length>0)
+                    criteriaList.push(criteria);
+
                } else {
                    valueAssigned = $("div #row #right #txtFreeField_" + initialRow).val();
                    criteria.SearchFor = valueAssigned;
+
+                   if (valueAssigned.length > 0)
+                    criteriaList.push(criteria);
                }
-               criteriaList.push(criteria);
-           }
-            
-            //add filter array to requestSearchModel
-           requestSearchModel.Criterias = criteriaList;
-           kendo.ui.progress(xreferenceDetailObj, true);
-            var url = "../XReference/SearchRequests";
-            $.post(url, {
-                searchCriteria: JSON.stringify(requestSearchModel) }, function (data) {
-                xreferenceDetailObj.html(data);
-                }).done(function() {
-                $("#searchRequestBtn").removeAttr("disabled");
-                $("#clearRequestSearchBtn").removeAttr("disabled");
+               
+            }
+            debugger;
+            if (dteDateAssigned.value() != null || drpStatus.value() != "" || drpDays.value() != "" || intCategoryValue > 0 || criteriaList.length > 0) {
+                //add filter array to requestSearchModel
+                $("#searchRequestBtn").attr("disabled", "disabled");
+                $("#clearRequestSearchBtn").attr("disabled", "disabled");
+                requestSearchModel.Criterias = criteriaList;
+                kendo.ui.progress(xreferenceDetailObj, true);
+                var url = "../XReference/SearchRequests";
+                $.post(url, {
+                    searchCriteria: JSON.stringify(requestSearchModel)
+                }, function (data) {
+                    xreferenceDetailObj.html(data);
+                }).done(function () {
+                    $("#searchRequestBtn").removeAttr("disabled");
+                    $("#clearRequestSearchBtn").removeAttr("disabled");
                 });
+            } else {
+                onDisplayError("A filter must be selected to execute a search");
+            }
+
+           
         });
+
+       
 
         //Save Request to be Resolved
         xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
@@ -290,9 +357,7 @@
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
             var url = "../Xreference/RequestWorkLoadHistory";
-            $.post(url, {
-                requestWorkItemID: this.id
-            }, function (result) {
+            $.post(url, {requestWorkItemID: this.id}, function (result) {
                 $("#dvRequestItemHistory").html(result);
             }).done(function() {
                 DisplayModal("mdlViewHistory");
@@ -326,6 +391,22 @@
         }
         });
 
+        function obtainmentSelSupplier(supplierSearchDialog) {
+            var grid = $("#gdSearchSupplierNew").data("kendoGrid");
+            if (grid.dataSource.total() == 0) {
+                onDisplayError("No row selected");
+                return;
+            }
+            var data = grid.dataItem(grid.select());
+            if (data == null) {
+                onDisplayError("No row selected");
+                return;
+            }
+            $("#txtSearchSupplierId").val(data.id + "," + data.Name);
+
+            supplierSearchDialog.data("kendoWindow").close();
+            DisplayModal("mdlObtainment");
+        }
 
         function SaveRequest(strUrl, dataArray, modalId) {
             if(selectedRequests.length > 0) {
@@ -384,15 +465,62 @@
             $("#" + modalId).modal("toggle");
         }
 
+        xreferenceDetailObj.on('hide', '#mdlResolve', function (e) {
+            EnableSideMenuItems();
+        });
+        xreferenceDetailObj.on('hide', '#mdlObtainment', function (e) {
+            EnableSideMenuItems();
+        });
+        xreferenceDetailObj.on('hide', '#mdlPending', function (e) {
+            EnableSideMenuItems();
+        });
+        xreferenceDetailObj.on('hide', '#mdlCustomerAction', function (e) {
+            EnableSideMenuItems();
+        });
+
+        function DisableSideMenuItems() {
+            $("#btnResolve").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnResolve");
+            $("#btnObtainment").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnObtainment");
+            $("#btnPending").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnPending");
+            $("#btnCustomerAction").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnCustomerAction");
+            $("#btnRemoveRequests").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnRemoveRequests");
+        }
+
+        function EnableSideMenuItems() {
+            $("#btnResolve").removeAttr("disabled");
+            $("#btnObtainment").removeAttr("disabled");
+            $("#btnPending").removeAttr("disabled");
+            $("#btnCustomerAction").removeAttr("disabled");
+            $("#btnRemoveRequests").removeAttr("disabled");
+            ShowDisplayModal("btnResolve", "mdlResolve");
+            ShowDisplayModal("btnObtainment", "mdlObtainment");
+            ShowDisplayModal("btnPending", "mdlPending");
+            ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
+        }
+
+        function EnableSideMenuItem(btnObj) {
+            $("#" + btnObj).removeAttr("disabled");
+        }
+
         function ShowDisplayModal(btnObj, mdlObj) {
             xreferenceSearchObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
-                if (btnObj == "btnResolve")
+               
+
+                if (btnObj == "btnResolve") {
                     $("#hdnDialogOpen").val("resolveOpen");
+                }
+                    
 
                 if (btnObj == "btnCustomerAction") {
                     $("#lblNotes").css("display", "none");
                     $("#txtNotes").css("display", "none");
+                    
                 }
 
                 if(btnObj == "btnPending") {
@@ -400,10 +528,14 @@
                     $("#txtPendingNotes").css("display", "none");
                 }
 
+                DisableSideMenuItems();
+                EnableSideMenuItem(btnObj);
                 DisplayModal(mdlObj);
+
             });
         }
 
+       
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 selectedRequests = new Array();
@@ -556,9 +688,12 @@
         return {
             loadRequestsPlugin: loadRequestsPlugin,
             loadMyRequestsPlugin: loadMyRequestsPlugin,
+            loadRequests: loadRequests,
+            loadSupplierPlugIn: loadSupplierPlugIn,
             IsReadOnlyMode: IsReadOnlyMode,
             onDisplayError: onDisplayError,
-            gdGroupsChange: gdGroupsChange
+            gdGroupsChange: gdGroupsChange,
+            openDocWindowSearch: openDocWindowSearch
         };
     };
 })(jQuery);
