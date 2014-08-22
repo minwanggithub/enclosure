@@ -519,7 +519,7 @@
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
                         if (data.result == "success") {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
+                            displayCreatedMessage(data.message);
                             $('#EditIngredient').empty();
                             if ($("#SearchIngredientWindow").length > 0) {
                                 var window = $("#SearchIngredientWindow").data("kendoWindow");
@@ -529,7 +529,7 @@
                             grid.dataSource.read();
                             return true;
                         } else {
-                            alert(data.message);
+                            onDisplayError(data.message);
                             return false;
                         }
                     });
@@ -948,7 +948,12 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                        var errorMessage = parseErrorMessage(data);
+                        if (errorMessage) {
+                            onDisplayError(errorMessage);
+                        } else {
+                            displayCreatedMessage('Physical & Chemical Properties Saved');
+                        }
                     });
                     return true;
                 } else {
