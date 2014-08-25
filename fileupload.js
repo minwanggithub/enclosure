@@ -37,22 +37,19 @@
             });
 
             $("#uploadFilesConfirmSelect").click(function (e) {
-                console.log("uploadFilesConfirmSelect clicked");
-
-                console.log("tring to enforce kit's lone cover sheet rule.");
                 if ($("#ContainerTypeId").length > 0 && $("#ContainerTypeId").val() == "2") {
                     var docId = $("input#DocumentID.doc-ref-id").val();
                     if (docId != undefined && docId != "0") {
                         var currCount = $("#addNewFilesBtn").parent().parent().data("kendoGrid").dataSource.data().length;
-                        if (currCount != undefined && currCount == 1) {
-                            if (confirm("Error: A kit can only have one cover sheet. If you want to change the cover sheet, delete it and add another one.")) {
-                                fileUploadDialog.data("kendoWindow").close();
-                                return;
-                            }
+                        if (currCount != undefined && currCount >= 1) {
+                            onDisplayError("A kit can only have one cover sheet, please remove the existing one first.");
+                               uploadStake.splice(0, uploadStake.length);
+                               $(".k-upload-files.k-reset").find("li").remove();
+                               fileUploadDialog.data("kendoWindow").close();
+                               return;
                         }
                     }
                 }
-                console.log("done passing check of kit's lone cover sheet rule.");
 
                 if (uploadStake.length == 0) {
                     //shall we prompt user why this will be close?
