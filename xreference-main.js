@@ -102,11 +102,7 @@
         AssignUnassignRequest("btnAssignMe", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
 
         //Display Modals on Button Clicks
-        ShowDisplayModal("btnResolve", "mdlResolve");
-        ShowDisplayModal("btnObtainment", "mdlObtainment");
-        ShowDisplayModal("btnPending", "mdlPending");
-        ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
-
+        EnableSideMenuItems();
 
         xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function () {
             var url = "../XReference/SearchXReferenceContent";
@@ -259,7 +255,7 @@
                }
                
             }
-            debugger;
+
             if (dteDateAssigned.value() != null || drpStatus.value() != "" || drpDays.value() != "" || intCategoryValue > 0 || criteriaList.length > 0) {
                 //add filter array to requestSearchModel
                 $("#searchRequestBtn").attr("disabled", "disabled");
@@ -347,6 +343,29 @@
             }
 
         });
+
+        //Save Request for QC Action
+        //xreferenceSearchObj.on("click", "#btnSaveQC", function () {
+        //    if ($("#numberOfItems").val() == "") {
+        //        HideModal("mdlQC");
+        //        onDisplayError("No items have been selected for customer action");
+        //    } else {
+        //        var selQC = $("#selQC").data("kendoDropDownList");
+        //        if (selQC.text().length > 0 || $("#txtQCNotes").text().length > 0) {
+        //            var data = {};
+        //            data['ids'] = selectedRequests;
+        //            data['qcStatus'] = selQC.value();
+        //            data['notes'] = $("#txtQCNotes").text();
+        //            SaveRequest("../XReference/SaveQCRequests", data, "mdlQC");
+        //        } else {
+        //            HideModal("mdlQC");
+        //            onDisplayError("No action has been specified");
+        //        }
+        //    }
+
+        //});
+
+        
 
         xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
                 e.preventDefault();
@@ -478,6 +497,10 @@
             EnableSideMenuItems();
         });
 
+        xreferenceDetailObj.on('hide', '#mdlQC', function (e) {
+            EnableSideMenuItems();
+        });
+
         function DisableSideMenuItems() {
             $("#btnResolve").attr("disabled", "disabled");
             xreferenceSearchObj.off("click", "#btnResolve");
@@ -489,6 +512,8 @@
             xreferenceSearchObj.off("click", "#btnCustomerAction");
             $("#btnRemoveRequests").attr("disabled", "disabled");
             xreferenceSearchObj.off("click", "#btnRemoveRequests");
+            $("#btnQC").attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#btnQC");
         }
 
         function EnableSideMenuItems() {
@@ -497,10 +522,12 @@
             $("#btnPending").removeAttr("disabled");
             $("#btnCustomerAction").removeAttr("disabled");
             $("#btnRemoveRequests").removeAttr("disabled");
+            $("#btnQC").removeAttr("disabled");
             ShowDisplayModal("btnResolve", "mdlResolve");
             ShowDisplayModal("btnObtainment", "mdlObtainment");
             ShowDisplayModal("btnPending", "mdlPending");
             ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
+            ShowDisplayModal("btnQC", "mdlQC");
         }
 
         function EnableSideMenuItem(btnObj) {
