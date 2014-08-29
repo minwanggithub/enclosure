@@ -98,8 +98,9 @@
        
         //Assgn and Unassign Request and saves them
         AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
+        AssignUnassignRequest("btnAssignTo", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
         AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
-        AssignUnassignRequest("btnAssignMe", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
+        AssignUnassignRequest("btnUnAssign", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
 
         //Display Modals on Button Clicks
         EnableSideMenuItems();
@@ -461,6 +462,7 @@
         }
 
         function AssignUnassignRequest(btnObj, gridObj, message, url, isAssigned) {
+
             xreferenceDetailObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
                 batchDeleteObjects(gridObj, message, url, null, isAssigned);
