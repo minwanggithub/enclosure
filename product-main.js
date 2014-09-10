@@ -326,13 +326,13 @@
             else
                 return { productInfo: $("#txtProductId_" + activeProduct).val() };
         };
-  
+
         var DeleteDoc = function(e) {
             e.preventDefault();
 
-            var strconfirm = confirm("Are you sure you want to delete this document?");
-                 if (strconfirm == false) {
-                   return;
+            var strconfirm = confirm("Are you sure you want to remove this document from product?");
+            if (strconfirm == false) {
+                return;
             }
 
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
@@ -344,16 +344,16 @@
             doclists.push(dataItem.ReferenceId);
 
             var url = "../ProductManager/DeleteProductDocument";
-            $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
-               
+            $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function(data) {
+
                 if (data.indexOf("Successfully") < 0) {
-                      onDisplayError(data);
-                      return;
+                    onDisplayError(data);
+                    return;
                 }
-                
+
                 var index = data.indexOf("from product");
                 var prodid = data.substring(index + 13, data.length);
-              
+
                 var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
                 grid1.dataSource.page(1);
                 grid1.dataSource.read();
@@ -361,7 +361,7 @@
                 var tabId = "#" + prodid + "_tbProductDetail";
                 TabReload(tabId, 0);
             });
-        }
+        };
 
         var DeleteSelectedDocFromProd = function (productId, doclists) {
 
