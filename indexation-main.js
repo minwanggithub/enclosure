@@ -43,7 +43,12 @@
             initializeFireFightingControls();
             initializePpeControls();
         };
-        
+
+        var loadNonSdsIndexationPlugin = function (callbackSettings) {
+            settings = callbackSettings;
+            initializeNonSdsControls();
+        };
+
         var loadWorkLoadPlugIn = function() {
             initializeIngredientControls();
             initializeAmericanControls();
@@ -106,11 +111,26 @@
             }
         };
 
+        function displaySuccessMessage(message) {
+            if (settings && settings.onSuccessCallback) {
+                settings.onSuccessCallback(message);
+            } else {
+                alert(message);
+            }
+        };
+
         function displayKendoPopup(element) {
             if (settings && settings.popupCallback && element) {
                 settings.popupCallback(element);
             } else {
                 displayErrorMessage('An error occurred displaying the popup');
+            }
+        }
+
+        function confirmUserSelection(header, message, yesFunc, noFunc) {
+            if (settings && settings.onConfirmationCallback) {
+                var args = { header: header, message: message };
+                settings.onConfirmationCallback(args, yesFunc, noFunc);
             }
         }
 
@@ -2838,6 +2858,69 @@
             });
         };
 
+        var initialNonSdsValues = '';
+
+        // Non Sds Indexing Methods
+        function initializeNonSdsControls() {
+
+            debugger;
+
+            var mainContent = $('.main-content');
+            if (mainContent.length > 0) {
+                kendo.ui.progress(mainContent, true);
+
+                var nonSdsContentFrame = $('#NonSdsIndexingIframe');
+                if (nonSdsContentFrame.length > 0) {
+
+                    nonSdsContentFrame.on('load', function () {
+                        var frameContents = $(this).contents();
+                        if (frameContents.length > 0) {
+
+                            // Keep track of the initial indexing values
+                            var form = frameContents.find('#NonSdsIndexingContent');
+                            if (form.length > 0) {
+                                initialNonSdsValues = form.serialize();
+                            }
+
+                            // UPDATE THE PARENT 
+                            var htmlPadding = 23;
+                            var height = frameContents.height() +(htmlPadding * 2);
+                            nonSdsContentFrame.height(height + 'px');
+                            frameContents.find('html').css('padding', htmlPadding + 'px');
+                            frameContents.find('body').css('padding', '0');
+
+                            // Scroll to the top on load of the page
+                            var windowElem = $(parent.document.body);
+                            if(windowElem.length > 0) windowElem.scrollTop(0);
+
+                            // INITIALIZE ALL BUTTONS FOUND IN THE IFRAME
+                            frameContents.on('click', '#btnSaveNonSdsIndexing', function (e) {
+                                form = $(this).parents('#NonSdsIndexingContent');
+                                form.submit();
+                            });
+
+                            frameContents.on('click', '#btnDiscardNonSdsIndexing', function (e) {
+                                e.preventDefault();
+
+                                var form = $(this).parents('#NonSdsIndexingContent');
+                                if (form.length > 0) {
+
+                                        // Check if any changes are found
+                                    if (initialNonSdsValues != form.serialize()) {
+                                        confirmUserSelection('Confirm Indexing Cancel', 'All indexing changes will be reverted. Are you sure you would like to cancel indexing?', function () {
+                                            nonSdsContentFrame.attr('src', nonSdsContentFrame.attr('src'));
+                                        });
+                                    }
+                                }
+                            });
+                        }
+
+                        kendo.ui.progress(mainContent, false);
+                    });
+                }
+            }
+        }
+
         // Exposed methods
         return {
             getDocRevisionId: getDocRevisionId,
@@ -2846,6 +2929,7 @@
             getSelectedPpe: getSelectedPpe,
             getSelectedPpeHmisReference: getSelectedPpeHmisReference,
             loadIndexationPlugin: loadIndexationPlugin,
+            loadNonSdsIndexationPlugin: loadNonSdsIndexationPlugin,
             loadWorkLoadPlugIn: loadWorkLoadPlugIn,
             onAttachmentRequestEnd: onAttachmentRequestEnd,
             onBoilingPointOperatorChange: onBoilingPointOperatorChange,

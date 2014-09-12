@@ -73,7 +73,7 @@
             //This line will expand all the non product
             //treeview.expand('.k-item:last');
 
-            //treeview.expand('.k-item:first'); 
+            //treeview.expand('.k-item:first');
 
             //var getitem = treeview.dataSource.get(0);
             //                alert(getitem.Name);
@@ -96,7 +96,7 @@
 
                             var currenturl = window.location.href;
                             var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
-                            var url = indexArea + "Indexation/Indexation?documentId=" + documentId + "&revisionId=" + revisionId;
+                            var url = indexArea + "Indexation/SelectIndexingType?documentId=" + documentId + "&revisionId=" + revisionId;
                             window.open(url, "_blank");
                             return false;
                         },
@@ -351,8 +351,7 @@
         };
 
         var onDataBound = function () {
-            //expandNonProduct();
-
+            
             var revisionNode = $(".CompliNodeTypeRevision");
             if (revisionNode.length > 0) {
                 revisionNode.mouseover(function (element) {
@@ -689,7 +688,8 @@
             var revisionId = $("#RevisionId").val();
             var currenturl = window.location.href;
             var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
-            var url = indexArea + "Indexation/Indexation?documentId=" + documentId + "&revisionId=" + revisionId;
+
+            var url = indexArea + "Indexation/SelectIndexingType?documentId=" + documentId + "&revisionId=" + revisionId;
             window.open(url, "_blank");
         };
 
@@ -2590,7 +2590,7 @@
             disembleKitOrGroup: disembleKitOrGroup,
 
             handleAddDocument: handleAddDocument,
-            initKitAndGroup: initKitAndGroup,
+            initKitAndGroup: initKitAndGroup
 
             //------end of kit and group implementation------
         };
