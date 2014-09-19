@@ -2862,9 +2862,6 @@
 
         // Non Sds Indexing Methods
         function initializeNonSdsControls() {
-
-            debugger;
-
             var mainContent = $('.main-content');
             if (mainContent.length > 0) {
                 kendo.ui.progress(mainContent, true);
@@ -2882,18 +2879,8 @@
                                 initialNonSdsValues = form.serialize();
                             }
 
-                            // UPDATE THE PARENT 
-                            var htmlPadding = 23;
-                            var height = frameContents.height() +(htmlPadding * 2);
-                            nonSdsContentFrame.height(height + 'px');
-                            frameContents.find('html').css('padding', htmlPadding + 'px');
-                            frameContents.find('body').css('padding', '0');
+                            setiFrameHeight(nonSdsContentFrame, frameContents);
 
-                            // Scroll to the top on load of the page
-                            var windowElem = $(parent.document.body);
-                            if(windowElem.length > 0) windowElem.scrollTop(0);
-
-                            // INITIALIZE ALL BUTTONS FOUND IN THE IFRAME
                             frameContents.on('click', '#btnSaveNonSdsIndexing', function (e) {
                                 form = $(this).parents('#NonSdsIndexingContent');
                                 form.submit();
@@ -2913,12 +2900,39 @@
                                     }
                                 }
                             });
+
+                            var contentContainer = frameContents.find('.nethub-container');
+                            if (contentContainer.length > 0) {
+
+                                var observer = new MutationObserver(function (m) {
+                                    setiFrameHeight();
+                                });
+
+                                var config = { subtree: true, attributes: true, childList: true, characterData: true };
+                                observer.observe(contentContainer[0], config);
+                            }
                         }
 
                         kendo.ui.progress(mainContent, false);
                     });
                 }
             }
+        }
+
+        function setiFrameHeight(parentFrame, contentFrame) {
+            if (!parentFrame) {
+                parentFrame = $('#NonSdsIndexingIframe');
+                if (parentFrame.length > 0) {
+                    contentFrame = parentFrame.contents();
+                }
+            }
+
+            var htmlPadding = 23;
+            contentFrame.find('html').css('padding', htmlPadding + 'px');
+            contentFrame.find('body').css('padding', '0');
+
+            var nethubContent = contentFrame.find('#NonSdsIndexingContent');
+            parentFrame.height(nethubContent.height() +(htmlPadding * 2) + 'px');
         }
 
         // Exposed methods
