@@ -1252,6 +1252,10 @@
             return getCountryDropdownData("#SelectSupplierContactCountry", "#SupplierContactState");
         };
 
+        var getSupplierCountryDropdownData = function() {
+            return getCountryDropdownData("#SelectSupplierCountry", "#SupplierState");
+        };
+
         function getCountryDropdownData(ddlCountry, acState) {
             var countryComponent = $(ddlCountry).data("kendoDropDownList");
             var stateComponent = $(acState).data("kendoAutoComplete");
@@ -1346,7 +1350,8 @@
 
             loadSupplierDetail: loadSupplierDetail,
             getContactCountryDropdownData: getContactCountryDropdownData,
-            getFacilityCountryDropdownData: getFacilityCountryDropdownData
+            getFacilityCountryDropdownData: getFacilityCountryDropdownData,
+            getSupplierCountryDropdownData: getSupplierCountryDropdownData
         };
     };
 
