@@ -1075,7 +1075,7 @@
         }
 
         function viscosity2MoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue) {
                 $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
                 $("#SelectFromToViscosity").data("kendoDropDownList").enable(false);
                 $("#SelectAtViscosity").data("kendoDropDownList").select(0);
@@ -1085,6 +1085,24 @@
                 $("#SelectFromToViscosity").data("kendoDropDownList").enable(true);
                 $("#SelectAtViscosity").data("kendoDropDownList").enable(true);
                 $("#AtViscosity").prop("disabled", false);
+
+                if (selectedValue == 7) {
+                    $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
+                    $("#SelectFromToViscosity").data("kendoDropDownList").enable(false);
+                }
+            }
+        }
+
+        function vocOperatorMoreNeeded(selectedValue) {
+            if (!selectedValue || selectedValue == 7) {
+                $('#SelectMuType').data("kendoDropDownList").select(0);
+                $('#SelectMuType').data("kendoDropDownList").enable(false);
+                $("#SelectWeightMu").data("kendoDropDownList").select(0);
+                $("#SelectWeightMu").data("kendoDropDownList").enable(false);
+                $("#SelectVolumeMu").data("kendoDropDownList").select(0);
+                $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
+            } else {
+                $('#SelectMuType').data("kendoDropDownList").enable(true);
             }
         }
 
@@ -1149,8 +1167,6 @@
             if (selectedValue != 1) {
                 $("#SelectOperator").data("kendoDropDownList").select(0);
                 $("#SelectOperator").data("kendoDropDownList").enable(false);
-                $("#SelectMuType").data("kendoDropDownList").select(0);
-                $("#SelectMuType").data("kendoDropDownList").enable(false);
                 $("#SelectParticularity").data("kendoDropDownList").select(0);
                 $("#SelectParticularity").data("kendoDropDownList").enable(false);
                 $("#Warning").prop("disabled", true).prop("checked", false);
@@ -1158,16 +1174,17 @@
                 removeValidationToolTips($('#SelectOperator'));
                 removeValidationToolTips($('#SelectMuType'));
                 removeValidationToolTips($('#SelectParticularity'));
-                operatorDropdownChange("", "FromVoc", "ToVoc");
-
-                $("#SelectMuType").data("kendoDropDownList").trigger("change");
+                operatorDropdownChange("", "FromVoc", "ToVoc", vocOperatorMoreNeeded);
 
             } else {
                 $("#SelectOperator").data("kendoDropDownList").enable(true);
-                $("#SelectMuType").data("kendoDropDownList").enable(true);
                 $("#SelectParticularity").data("kendoDropDownList").enable(true);
                 $("#Warning").prop("disabled", false);
             }
+        };
+
+        var onVocOperatorChange = function(e) {
+            operatorDropdownChange(e.sender._selectedValue, "FromVoc", "ToVoc", vocOperatorMoreNeeded);
         };
 
         var onVocMuTypeChange = function (e) {
@@ -1185,10 +1202,6 @@
                 removeValidationToolTips($('#SelectWeightMu'));
                 removeValidationToolTips($('#SelectVolumeMu'));
             }
-        };
-
-        var onVocOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromVoc", "ToVoc");
         };
 
         var onVolatilityChange = function(e) {
