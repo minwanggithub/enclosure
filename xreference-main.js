@@ -10,8 +10,11 @@
         var selectedRequests = new Array();
         var radioButtonSelected = "Group";
         var requestWindow;
+  
 
-
+        var loadSecurityAccess = function (jsonSecurity) {
+            var securityAccess = jQuery.parseJSON(jsonSecurity);
+        }
         // General indexation methods
         var loadRequestsPlugin = function () {
             initializeMultiSelectCheckboxes(xreferenceDetailObj);
@@ -195,7 +198,7 @@
             });
 
         //Does search and displays search results 
-        xreferenceSearchObj.on("click", "#searchRequestBtn", function () {
+         xreferenceSearchObj.on("click", "#searchRequestBtn", function () {
             var numberOfRows = $('div #row').length;
             var initialRow = 0;
             var mltCategories = $("#divSearchSection #mltCategories").data("kendoMultiSelect");
@@ -268,6 +271,7 @@
                     searchCriteria: JSON.stringify(requestSearchModel)
                 }, function (data) {
                     xreferenceDetailObj.html(data);
+                   
                 }).done(function () {
                     $("#searchRequestBtn").removeAttr("disabled");
                     $("#clearRequestSearchBtn").removeAttr("disabled");
@@ -279,7 +283,6 @@
            
         });
 
-       
 
         //Save Request to be Resolved
         xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
@@ -462,11 +465,11 @@
         }
 
         function AssignUnassignRequest(btnObj, gridObj, message, url, isAssigned) {
-
             xreferenceDetailObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
                 batchDeleteObjects(gridObj, message, url, null, isAssigned);
             });
+            
         }
 
         function DisplayModal(modalId) {
@@ -486,20 +489,20 @@
             $("#" + modalId).modal("toggle");
         }
 
-        xreferenceDetailObj.on('hide', '#mdlResolve', function (e) {
+        xreferenceDetailObj.on('hide', '#mdlResolve', function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlObtainment', function (e) {
+        xreferenceDetailObj.on('hide', '#mdlObtainment', function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlPending', function (e) {
+        xreferenceDetailObj.on('hide', '#mdlPending', function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlCustomerAction', function (e) {
+        xreferenceDetailObj.on('hide', '#mdlCustomerAction', function () {
             EnableSideMenuItems();
         });
 
-        xreferenceDetailObj.on('hide', '#mdlQC', function (e) {
+        xreferenceDetailObj.on('hide', '#mdlQC', function () {
             EnableSideMenuItems();
         });
 
@@ -715,6 +718,7 @@
 
 
         return {
+            loadSecurityAccess:loadSecurityAccess,
             loadRequestsPlugin: loadRequestsPlugin,
             loadMyRequestsPlugin: loadMyRequestsPlugin,
             loadRequests: loadRequests,
