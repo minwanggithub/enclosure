@@ -50,7 +50,7 @@
         var loadRequests = function() {
             var grid = $("#gdRequests").data("kendoGrid");
             grid.dataSource.read();
-            setTimeout(openDocWindowSearch(), 5000);
+            //setTimeout(openDocWindowSearch(), 5000);
             $("#txtIndividual").closest(".k-widget").hide();
             $("#eeeSideBarWorkLoad").sidemenu();
             $('#eeeSideBarWorkLoad').show();
@@ -80,24 +80,6 @@
             });
 
         }
-
-        var openDocWindowSearch = function() {
-            var w = 1280;
-            var h = 1024;
-            var left = (window.screen.width / 2) - (w / 2);
-            var top = (window.screen.height / 2) - (h / 2);
-            requestWindow = window.open("../XReference/XrefDocumentSearch", "_new", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + w + ', height=' + h);
-            requestWindow.moveBy(left, top);
-        }
-
-        window.onbeforeunload = function (evt) {
-            if (typeof evt == "undefined")
-                evt = window.event;
-
-            if (evt)
-                requestWindow.close();
-        }
-
        
         //Assgn and Unassign Request and saves them
         AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
@@ -290,11 +272,10 @@
                 HideModal("mdlResolve");
                 onDisplayError("No items have been selected to be resolved");
             } else {
-                if ($("#txtDocumentID").val().length > 0) {
+                if ($("#txtProductId").val().length > 0) {
                     var data = { };
                     data['ids'] = selectedRequests;
-                    data['docId'] = $("#txtDocumentID").val();
-                    data['revId'] = $("#hdnRevId").val();
+                    data['productId'] = $("#txtProductId").val();
                     SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
                 } else {
                     HideModal("mdlResolve");
@@ -725,8 +706,7 @@
             loadSupplierPlugIn: loadSupplierPlugIn,
             IsReadOnlyMode: IsReadOnlyMode,
             onDisplayError: onDisplayError,
-            gdGroupsChange: gdGroupsChange,
-            openDocWindowSearch: openDocWindowSearch
+            gdGroupsChange: gdGroupsChange
         };
     };
 })(jQuery);
