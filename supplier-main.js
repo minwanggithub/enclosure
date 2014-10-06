@@ -1163,7 +1163,7 @@
 
         var fnSearchSupplier = function (e) {
             activeSupplier = "txtSearchSupplierId";
-            var urlSearch = "../ObtainmentSettings/PlugInSupplierSearch";
+            var urlSearch = "../ObtainmentSettings/PlugInParentSupplierSearch";
             $.post(urlSearch, { supplierId: 0 }, function (data) {
                 $("#dgSupplierPlugIn").html(data);
             });
