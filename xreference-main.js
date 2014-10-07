@@ -9,7 +9,6 @@
         var requestSearchModel = {};
         var selectedRequests = new Array();
         var radioButtonSelected = "Group";
-        var requestWindow;
   
 
         var loadSecurityAccess = function (jsonSecurity) {
@@ -279,7 +278,26 @@
                     SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
                 } else {
                     HideModal("mdlResolve");
-                    onDisplayError("No document has been selected");
+                    onDisplayError("No product has been selected");
+                }
+            }
+
+        });
+
+        //Save Request for Obtainment
+        xreferenceSearchObj.on("click", "#btnSaveObtainment", function () {
+            if ($("#numberOfItems").val().length == 0 || $("#numberOfItems").val() == "0" || $("#numberOfItems").val() == "") {
+                HideModal("mdlObtainment");
+                onDisplayError("No items have been selected to be sent to obtainment");
+            } else {
+                if ($("#txtSearchSupplierId").val().length > 0) {
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['supplierId'] = Remove($("#txtSearchSupplierId").val(), $("#txtSearchSupplierId").val().indexOf(","));
+                    SaveRequest("../XReference/SaveObtainment", data, "mdlObtainment");
+                } else {
+                    HideModal("mdlObtainment");
+                    onDisplayError("No supplier has been selected");
                 }
             }
 
@@ -394,6 +412,10 @@
                 }
         }
         });
+
+        function Remove(str, startIndex) {
+            return str.substr(0, startIndex);
+        }
 
         function obtainmentSelSupplier(supplierSearchDialog) {
             var grid = $("#gdSearchSupplierNew").data("kendoGrid");
@@ -608,10 +630,10 @@
                         $("#numberOfItems").text("(" + itemsChecked + ")");
                         $("#numberOfItems").val(itemsChecked);
                         // No items were found in the datasource, return from the function and cancel the current event
-                    } else {
+                    } else
                         return false;
-                    }
                 }
+                return false;
             });
         }
 
