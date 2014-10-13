@@ -1092,8 +1092,9 @@
                 messages: {
                     custom: "Do Not Obtain Notes is required",
                     custom2: "Pause Notification Date is required",
-                    custom3: "Document Types is required",
-                    custom4: "Language is required"
+                    custom3: "Pause Notification Date should be in the future",
+                    custom4: "Document Types is required",
+                    custom5: "Language is required"
                 },
                 rules: {
                     custom: function (input) {
@@ -1113,12 +1114,25 @@
                         return true;
                     },
                     custom3: function (input) {
+                        if ($("#ObtainmentSettingPauseNotification").is(':checked')) {
+                            if (input.is("[name=ObtainmentSettingPauseNotificationDP]")) {
+                                var pickeddate = new Date(input.val());
+                                var todayDate = new Date();
+                                if (pickeddate > todayDate) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    custom4: function (input) {
                         if (input.is("[name=ddlDocumentType]")) {
                             return input.val() !== "";
                         }
                         return true;
                     },
-                    custom4: function (input) {
+                    custom5: function (input) {
                         if (input.is("[name=ddlDocumentLanguage]")) {
                             return input.val() !== "";
                         }
