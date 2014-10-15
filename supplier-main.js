@@ -417,6 +417,22 @@
 
         var onGdFacilityAddressEdit = function (e) {
 
+            var title = $(e.container).parent().find(".k-window-title");
+            var update = $(e.container).parent().find(".k-grid-update");
+            if (e.model.SupplierFacilityAddressId > 0) {
+                $(title).html('Edit');
+                $('input[id="CreatedDescription"]').attr('readonly', true);
+            } else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+                $('input[id="LastUpdatedDescription"]').attr('readonly', true);
+            }
+            
+            removeModelReadOnlyField(e.container);
+            readonlyModelDateFields(e.container);
+
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdFacilityAddress").data("kendoGrid");
                 grid.dataSource.read();
@@ -508,6 +524,18 @@
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
+            
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.SupplierNotesId > 0) {
+                $(title).html('Edit');
+            }
+            else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+            }
+
         };
 
         var onGridEditChangeWebSite = function (e) {
@@ -516,11 +544,23 @@
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
 
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.CompanyWebsiteId > 0) {
+                $(title).html('Edit');
+            } else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+            }
+
             //hide CompanyWebsiteId from the pop up edit form.
             $("label[for='CompanyWebsiteId']").parent().hide();
             $('#CompanyWebsiteId').parent().hide();
 
-            removeModelFields(e.container);
+            removeModelDescriptionFields(e.container);
+            removeModelReadOnlyField(e.container);
+            readonlyModelDateFields(e.container);
 
             //reload website Grid.
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
@@ -545,21 +585,11 @@
             //hide some fields from the pop up form.
             $("label[for='CompanyDomainId']", e.container).parent().hide();
             $('#CompanyDomainId', e.container).parent().hide();
-            
-            $("label[for='CreatedDate']", e.container).parent().hide();
-            $('#CreatedDate', e.container).parent().hide();
 
-            $("label[for='CreatedBy']", e.container).parent().hide();
-            $('#CreatedBy', e.container).parent().hide();
-
-            $("label[for='LastUpdate']", e.container).parent().hide();
-            $('#LastUpdate', e.container).parent().hide();
-            
-            $("label[for='LastUpdateBy']", e.container).parent().hide();
-            $('#LastUpdateBy', e.container).parent().hide();
-
-            removeModelFields(e.container);
-
+            removeModelDescriptionFields(e.container);
+            removeModelReadOnlyField(e.container);
+            readonlyModelDateFields(e.container);
+          
             //reload domain Grid.
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdCompanyIdentificationDomains").data("kendoGrid");
@@ -918,6 +948,22 @@
             //hide CompanyContactAddressId from the pop up edit form.
             $("label[for='CompanyContactAddressId']").parent().hide();
             $('#CompanyContactAddressId').parent().hide();
+
+            var title = $(e.container).parent().find(".k-window-title");
+            var update = $(e.container).parent().find(".k-grid-update");
+            if (e.model.CompanyContactAddressId > 0) {
+                $(title).html('Edit');
+                $('input[id="CreatedDescription"]').attr('readonly', true);
+            } else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+                $('input[id="LastUpdatedDescription"]').attr('readonly', true);
+            }
+
+            removeModelReadOnlyField(e.container);
+            readonlyModelDateFields(e.container);
 
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdContactAddress").data("kendoGrid");
