@@ -453,7 +453,9 @@
                             kendo.ui.progress(xreferenceDetailObj, false);
                            var grid = $("#gdRequests").data("kendoGrid");
                            grid.dataSource.read();
-                         HideModal(modalId);
+                         
+                           HideModal(modalId);
+                           onDisplayError(successData.message);
 
                        } else {
                            onDisplayError('Requests could not be saved');
