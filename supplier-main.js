@@ -421,18 +421,17 @@
             var update = $(e.container).parent().find(".k-grid-update");
             if (e.model.SupplierFacilityAddressId > 0) {
                 $(title).html('Edit');
-                $('input[id="CreatedDescription"]').attr('readonly', true);
             } else {
                 $(title).html('Create');
                 var updateHtml = $(update).html();
                 updateHtml = updateHtml.replace("Update", "Create");
                 $(update).html(updateHtml);
-                $('input[id="LastUpdatedDescription"]').attr('readonly', true);
             }
-            
+
+            removeModelDescriptionFields(e.container);
             removeModelReadOnlyField(e.container);
             readonlyModelDateFields(e.container);
-
+            
             $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
                 var grid = $("#gdFacilityAddress").data("kendoGrid");
                 grid.dataSource.read();
@@ -953,15 +952,14 @@
             var update = $(e.container).parent().find(".k-grid-update");
             if (e.model.CompanyContactAddressId > 0) {
                 $(title).html('Edit');
-                $('input[id="CreatedDescription"]').attr('readonly', true);
             } else {
                 $(title).html('Create');
                 var updateHtml = $(update).html();
                 updateHtml = updateHtml.replace("Update", "Create");
                 $(update).html(updateHtml);
-                $('input[id="LastUpdatedDescription"]').attr('readonly', true);
             }
 
+            removeModelDescriptionFields(e.container);
             removeModelReadOnlyField(e.container);
             readonlyModelDateFields(e.container);
 
