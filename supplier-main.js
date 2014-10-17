@@ -739,7 +739,7 @@
         var onGdWebSiteDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdWebSite");
+                    //DisableGridInLineEditing("gdWebSite");
                 }, 200);
             }
 
@@ -763,7 +763,7 @@
         var onGdDomainDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdCompanyIdentificationDomains");
+                   // DisableGridInLineEditing("gdCompanyIdentificationDomains");
                 }, 200);
             }
 
@@ -787,7 +787,7 @@
         var onGdAliasDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdAlias");
+                    //DisableGridInLineEditing("gdAlias");
                 }, 200);
             }
         };
@@ -795,7 +795,7 @@
         var onGdCompanyIdentifierDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInCellEditing("gdCompanyIdentifiers");
+                   // DisableGridInCellEditing("gdCompanyIdentifiers");
                 }, 200);
             }
         };
@@ -809,7 +809,7 @@
         var onGdSupplierFacilitiesDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdSupplierFacilities");
+                  //  DisableGridInLineEditing("gdSupplierFacilities");
                 }, 200);
             }
         };
@@ -818,7 +818,7 @@
             
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdFacilityAddress");
+                    //DisableGridInLineEditing("gdFacilityAddress");
                 }, 200);
             }
 
@@ -841,7 +841,7 @@
         var onGdFacilityPhoneDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdFacilityPhone");
+                   // DisableGridInLineEditing("gdFacilityPhone");
                 }, 200);
             }
         };
@@ -849,7 +849,7 @@
         var onGdFacilityEmailDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdFacilityEmail");
+                    //DisableGridInLineEditing("gdFacilityEmail");
                 }, 200);
             }
         };
@@ -857,7 +857,7 @@
         var onGdFacilityIdentifiersDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInCellEditing("gdFacilityIdentifiers");
+                    //DisableGridInCellEditing("gdFacilityIdentifiers");
                 }, 200);
             }
         };
@@ -873,7 +873,7 @@
 
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdSupplierNotes");
+                    //DisableGridInLineEditing("gdSupplierNotes");
                 }, 200);
             }
 
@@ -905,7 +905,7 @@
         var onGdSupplierContactsDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdSupplierContacts");
+                    //DisableGridInLineEditing("gdSupplierContacts");
                 }, 200);
             }
         };
@@ -913,7 +913,7 @@
         var onGdContactAddressDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdContactAddress");
+                    //DisableGridInLineEditing("gdContactAddress");
                 }, 200);
             }
         
@@ -972,7 +972,7 @@
         var onGdContactPhoneDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdContactPhone");
+                    //DisableGridInLineEditing("gdContactPhone");
                 }, 200);
             }
         };
@@ -980,7 +980,7 @@
         var onGdContactEmailDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdContactEmail");
+                    //DisableGridInLineEditing("gdContactEmail");
                 }, 200);
             }
         };
@@ -988,7 +988,7 @@
         var ongdObtainmentSettingsDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
-                    DisableGridInLineEditing("gdObtainmentSettings");
+                    //DisableGridInLineEditing("gdObtainmentSettings");
                 }, 200);
             }
 
