@@ -44,10 +44,10 @@
             initializePpeControls();
         };
 
-        var loadNonSdsIndexationPlugin = function (callbackSettings) {
-            settings = callbackSettings;
-            initializeNonSdsControls();
-        };
+     //   var loadNonSdsIndexationPlugin = function (callbackSettings) {
+     //       settings = callbackSettings;
+     //       initializeNonSdsControls();
+     //   };
 
         var loadWorkLoadPlugIn = function() {
             initializeIngredientControls();
@@ -2874,63 +2874,63 @@
         var initialNonSdsValues = '';
 
         // Non Sds Indexing Methods
-        function initializeNonSdsControls() {
-            var mainContent = $('.main-content');
-            if (mainContent.length > 0) {
-                kendo.ui.progress(mainContent, true);
+        //function initializeNonSdsControls() {
+        //    var mainContent = $('.main-content');
+        //    if (mainContent.length > 0) {
+        // //       kendo.ui.progress(mainContent, true);
 
-                var nonSdsContentFrame = $('#NonSdsIndexingIframe');
-                if (nonSdsContentFrame.length > 0) {
+        //        var nonSdsContentFrame = $('#NonSdsIndexingIframe');
+        //        if (nonSdsContentFrame.length > 0) {
 
-                    nonSdsContentFrame.on('load', function () {
-                        var frameContents = $(this).contents();
-                        if (frameContents.length > 0) {
+        //            nonSdsContentFrame.on('load', function () {
+        //                var frameContents = $(this).contents();
+        //                if (frameContents.length > 0) {
 
-                            // Keep track of the initial indexing values
-                            var form = frameContents.find('#NonSdsIndexingContent');
-                            if (form.length > 0) {
-                                initialNonSdsValues = form.serialize();
-                            }
+        //                    // Keep track of the initial indexing values
+        //                    var form = frameContents.find('#NonSdsIndexingContent');
+        //                    if (form.length > 0) {
+        //                        initialNonSdsValues = form.serialize();
+        //                    }
 
-                            setiFrameHeight(nonSdsContentFrame, frameContents);
+        //                    setiFrameHeight(nonSdsContentFrame, frameContents);
 
-                            frameContents.on('click', '#btnSaveNonSdsIndexing', function (e) {
-                                form = $(this).parents('#NonSdsIndexingContent');
-                                form.submit();
-                            });
+        //                    frameContents.on('click', '#btnSaveNonSdsIndexing', function (e) {
+        //                        form = $(this).parents('#NonSdsIndexingContent');
+        //                        form.submit();
+        //                    });
 
-                            frameContents.on('click', '#btnDiscardNonSdsIndexing', function (e) {
-                                e.preventDefault();
+        //                    frameContents.on('click', '#btnDiscardNonSdsIndexing', function (e) {
+        //                        e.preventDefault();
 
-                                var form = $(this).parents('#NonSdsIndexingContent');
-                                if (form.length > 0) {
+        //                        var form = $(this).parents('#NonSdsIndexingContent');
+        //                        if (form.length > 0) {
 
-                                        // Check if any changes are found
-                                    if (initialNonSdsValues != form.serialize()) {
-                                        confirmUserSelection('Confirm Indexing Cancel', 'All indexing changes will be reverted. Are you sure you would like to cancel indexing?', function () {
-                                            nonSdsContentFrame.attr('src', nonSdsContentFrame.attr('src'));
-                                        });
-                                    }
-                                }
-                            });
+        //                                // Check if any changes are found
+        //                            if (initialNonSdsValues != form.serialize()) {
+        //                                confirmUserSelection('Confirm Indexing Cancel', 'All indexing changes will be reverted. Are you sure you would like to cancel indexing?', function () {
+        //                                    nonSdsContentFrame.attr('src', nonSdsContentFrame.attr('src'));
+        //                                });
+        //                            }
+        //                        }
+        //                    });
 
-                            var contentContainer = frameContents.find('.nethub-container');
-                            if (contentContainer.length > 0) {
+        //                    var contentContainer = frameContents.find('.nethub-container');
+        //                    if (contentContainer.length > 0) {
 
-                                var observer = new MutationObserver(function (m) {
-                                    setiFrameHeight();
-                                });
+        //                        var observer = new MutationObserver(function (m) {
+        //                            setiFrameHeight();
+        //                        });
 
-                                var config = { subtree: true, attributes: true, childList: true, characterData: true };
-                                observer.observe(contentContainer[0], config);
-                            }
-                        }
+        //                        var config = { subtree: true, attributes: true, childList: true, characterData: true };
+        //                        observer.observe(contentContainer[0], config);
+        //                    }
+        //                }
 
-                        kendo.ui.progress(mainContent, false);
-                    });
-                }
-            }
-        }
+        //          //      kendo.ui.progress(mainContent, false);
+        //            });
+        //        }
+        //    }
+        //}
 
         function setiFrameHeight(parentFrame, contentFrame) {
             if (!parentFrame) {
@@ -2956,7 +2956,7 @@
             getSelectedPpe: getSelectedPpe,
             getSelectedPpeHmisReference: getSelectedPpeHmisReference,
             loadIndexationPlugin: loadIndexationPlugin,
-            loadNonSdsIndexationPlugin: loadNonSdsIndexationPlugin,
+            //loadNonSdsIndexationPlugin: loadNonSdsIndexationPlugin,
             loadWorkLoadPlugIn: loadWorkLoadPlugIn,
             onAttachmentRequestEnd: onAttachmentRequestEnd,
             onBoilingPointOperatorChange: onBoilingPointOperatorChange,
