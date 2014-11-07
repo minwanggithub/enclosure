@@ -102,7 +102,25 @@
             });
         };
 
+        var onSaveNonSdsIndexation = function(e) {
+            var nonIndexationObj = $('#NonSdsIndexingContent');
+            nonIndexationObj.on("click", "#btnSaveNonSdsIndexing", function (e) {
+                e.preventDefault();
+
+                var form = $('#NonSdsIndexingContent');
+                var url = form.attr("action");
+                var formData = form.serialize();
+                $.post(url, formData, function (data) {
+                     displaySavedMessage("NonSdsIndexation Saved.");
+                });
+            });
+        }
+
         // Helper Methods
+        function displaySavedMessage(message) {
+            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(message);
+        }
+
         function displayErrorMessage(message) {
             if (settings && settings.onErrorCallback) {
                 settings.onErrorCallback(message);
@@ -2995,7 +3013,8 @@
             onVocCodeChange: onVocCodeChange,
             onVocMuTypeChange: onVocMuTypeChange,
             onVocOperatorChange: onVocOperatorChange,
-            onVolatilityChange: onVolatilityChange
+            onVolatilityChange: onVolatilityChange,
+            onSaveNonSdsIndexation: onSaveNonSdsIndexation
         };
     };
 
