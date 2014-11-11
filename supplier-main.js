@@ -91,6 +91,7 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
+
                         var supplierId = $("#SupplierId").val();
                         if (supplierId == 0) {
                             $('#DetailSupplier').html(data);
@@ -98,6 +99,14 @@
                                 $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
                             }, 500);
                         } else {
+
+                            // Attempt to find the history grid to refresh
+                            var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                            if (historyGrid) {
+                                historyGrid.dataSource.read();
+                                historyGrid.refresh();
+                            }
+
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
                         }
                     });
@@ -1324,6 +1333,19 @@
             };
         };
 
+        // Supplier Status History Methods
+        var clearSupplierStatusNote = function() {
+            $('#StatusNotesText').html("");
+        };
+
+        var onStatusChange = function (e) {
+            e.preventDefault();
+
+            var selectedRow = this.select();
+            var selectedData = this.dataItem(selectedRow);
+            $('#StatusNotesText').html(selectedData.Notes);
+        };
+
         //Expose to public
         return {
             QueueQuery: QueueQuery,
@@ -1409,7 +1431,10 @@
             loadSupplierDetail: loadSupplierDetail,
             getContactCountryDropdownData: getContactCountryDropdownData,
             getFacilityCountryDropdownData: getFacilityCountryDropdownData,
-            getSupplierCountryDropdownData: getSupplierCountryDropdownData
+            getSupplierCountryDropdownData: getSupplierCountryDropdownData,
+
+            clearSupplierStatusNote: clearSupplierStatusNote,
+            onStatusChange: onStatusChange
         };
     };
 
