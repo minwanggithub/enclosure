@@ -88,28 +88,25 @@
                 e.preventDefault();
                 var form = $("#FormIdentification");
                 if (form.valid()) {
-                    var url = form.attr("action");
+                    
                     var formData = form.serialize();
+
+                    // First check if a status change needs to display a notes popup
+                    var url = "../Company/IsStatusNotesNeeded";
                     $.post(url, formData, function (data) {
 
-                        var supplierId = $("#SupplierId").val();
-                        if (supplierId == 0) {
-                            $('#DetailSupplier').html(data);
-                            setTimeout(function () {
-                                $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
-                            }, 500);
+                        if (data.displayMessage) {
+                            displayStatusNoteConfirmation(data, function (e) {
+
+                                // Attach notes field information into form to be serialized
+                                $("#FormIdentification").find('#StatusNotes').val(e.modalNotes);
+                                saveIdentificationInfo();
+                            });
                         } else {
-
-                            // Attempt to find the history grid to refresh
-                            var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
-                            if (historyGrid) {
-                                historyGrid.dataSource.read();
-                                historyGrid.refresh();
-                            }
-
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                            saveIdentificationInfo();
                         }
                     });
+
                 } else {
                     return false;
                 }
@@ -197,6 +194,39 @@
                 $("#supplierSearchWindow").data("kendoWindow").close();
             });
         };
+
+
+        function saveIdentificationInfo() {
+            
+            var form = $("#FormIdentification");
+            var formData = form.serialize();
+
+            var url = form.attr("action");
+            $.post(url, formData, function(data) {
+
+                var supplierId = $("#SupplierId").val();
+                if (supplierId == 0) {
+                    $('#DetailSupplier').html(data);
+                    setTimeout(function() {
+                        $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
+                    }, 500);
+                } else {
+
+                    // Attempt to find the history grid to refresh
+                    var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                    if (historyGrid) {
+                        historyGrid.dataSource.read();
+                        historyGrid.refresh();
+                    }
+
+                    if (supplierLayoutCallback) {
+                        supplierLayoutCallback();
+                    }
+
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                }
+            });
+        }
 
         var onGetObtainmentSettingId = function () {
             return {
@@ -1333,6 +1363,80 @@
             };
         };
 
+        // Helper Methods
+        var onErrorCallback;
+        function displayErrorMessage(errorMessage) {
+            if (onErrorCallback) {
+                onErrorCallback(errorMessage);
+            } else {
+                alert(errorMessage);
+            }
+        }
+
+        // Supplier Identification Methods
+        var supplierLayoutCallback = null;
+        var initSupplierIdentification = function(layoutCallback, errorCallback) {
+            supplierLayoutCallback = layoutCallback;
+            onErrorCallback = errorCallback;
+        };
+
+        function displayStatusNoteConfirmation(args, yesFunc, noFunc) {
+
+            var modal = $('#statusNoteModal');
+            if (modal.length > 0) {
+                modal.find('#myModalLabel')
+                    .html(args.headerMessage)
+                    .end()
+                    .find('#myModalMessage')
+                    .html(args.displayMessage)
+                    .end()
+                    .find('#myModalNotes')
+                    .val('')
+                    .end()
+                    .find('#confirm-btn-yes')
+                    .text(args.headerMessage.indexOf('Deactivation') > -1 ? 'Deactivate' : 'Continue');
+
+                // Set up all click events
+                modal.off('click', '#confirm-btn-yes');
+                modal.on('click', '#confirm-btn-yes', function (e) {
+
+                    // Check if the notes field has the correct information
+                    var notesField = modal.find('#myModalNotes');
+                    if (notesField.length > 0) {
+
+                        if (notesField.val() && notesField.val().length > 0) {
+                            modal.modal('hide');
+                            if (yesFunc) {
+                                e['modalNotes'] = notesField.val();
+                                yesFunc(e);
+                            }
+                        } else {
+                            displayErrorMessage('Notes were not provided, enter notes to continue.');
+                        }
+                    }
+                });
+
+                if (noFunc) {
+                    modal.off('click', '#btn-no');
+                    modal.on('click', '#btn-no', noFunc);
+                }
+
+                modal.modal({
+                    backdrop: true,
+                    keyboard: true
+                }).css({
+                    width: 'auto',
+                    'max-width': '650px',
+                    'margin-left': function () {
+                        return -($(this).width() / 2); //auto size depending on the message
+                    },
+                    'margin-top': function () {
+                        return (document.documentElement.clientHeight / 2) - $(this).height() - 35;
+                    }
+                });
+            }
+        }
+
         // Supplier Status History Methods
         var clearSupplierStatusNote = function() {
             $('#StatusNotesText').html("");
@@ -1432,6 +1536,8 @@
             getContactCountryDropdownData: getContactCountryDropdownData,
             getFacilityCountryDropdownData: getFacilityCountryDropdownData,
             getSupplierCountryDropdownData: getSupplierCountryDropdownData,
+
+            initSupplierIdentification: initSupplierIdentification,
 
             clearSupplierStatusNote: clearSupplierStatusNote,
             onStatusChange: onStatusChange
