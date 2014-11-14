@@ -8,6 +8,7 @@
         var itemsChecked = 0;
         var requestSearchModel = {};
         var selectedRequests = new Array();
+        var selectedRows = new Array();
         var radioButtonSelected = "Group";
   
 
@@ -266,23 +267,22 @@
 
 
         //Save Request to be Resolved
-        xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
+         xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
             if($("#numberOfItems").val().length == 0) {
-                HideModal("mdlResolve");
-                onDisplayError("No items have been selected to be resolved");
-            } else {
-                if ($("#txtProductId").val().length > 0) {
-                    var data = { };
-                    data['ids'] = selectedRequests;
-                    data['productId'] = $("#txtProductId").val();
-                    SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
-                } else {
-                    HideModal("mdlResolve");
-                    onDisplayError("No product has been selected");
-                }
-            }
-
-        });
+                 HideModal("mdlResolve");
+                 onDisplayError("No items have been selected to be resolved");
+             } else {
+                 if ($("#txtProductId").val().length > 0) {
+                     var data = { };
+                     data['ids'] = selectedRequests;
+                     data['productId'] = $("#txtProductId").val();
+                     SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
+                 } else {
+                     HideModal("mdlResolve");
+                     onDisplayError("No product has been selected");
+                 }
+             }
+         });
 
         //Save Request for Obtainment
         xreferenceSearchObj.on("click", "#btnSaveObtainment", function () {
@@ -368,6 +368,48 @@
 
         //});
 
+        $(document).keypress(function(e) {
+            var code = e.keyCode || e.which;
+           
+            if (e.altKey) {
+                switch (code) {
+                    case 49: //Open Resolve Window alt+1
+                        HotKeyDisplayModal("btnResolve", "mdlResolve");
+                        return false;
+                    case 50: //Open Obtainment Window alt+2
+                        HotKeyDisplayModal("btnObtainment", "mdlObtainment");
+                        return false;
+                    case 51: //Open Pending Window alt+3
+                        HotKeyDisplayModal("btnPending", "mdlPending");
+                        return false;
+                    case 52: //Open Customer Action Window alt+4
+                        HotKeyDisplayModal("btnCustomerAction", "mdlCustomerAction");
+                        return false;
+                    case 53: //Open QC Window alt+5
+                        HotKeyDisplayModal("btnQC", "mdlQC");
+                        return false;
+                    case 54: //Remove Request alt+5
+                        batchDeleteObjects("gdRequests", "unassign these request", "../XReference/SaveAssignedItems", null, false);
+                        return false;
+                    case 114: //save Resolve alt+r
+                        $("#XReferenceGrid #btnSaveResolve").click();
+                        return false;
+                    case 111: //save obtainment alt+o
+                        $("#XReferenceGrid #btnSaveObtainment").click();
+                        return false;
+                    case 112: //save pending alt+p
+                        $("#XReferenceGrid #btnSavePending").click();
+                        return false;
+                    case 99: //save customer action alt+c
+                        $("#XReferenceGrid #btnSaveCustomerAction").click();
+                        return false;
+                    case 113: //save qc alt+q
+                        $("#XReferenceGrid #btnSaveQC").click();
+                        return false;
+                }
+            }
+            return true;
+        });
         
 
         xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
@@ -460,7 +502,6 @@
                        } else {
                            onDisplayError('Requests could not be saved');
                        }
-
                    },
                    done:function() {
                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
@@ -544,6 +585,28 @@
             $("#" + btnObj).removeAttr("disabled");
         }
 
+        function HotKeyDisplayModal(btnObj, mdlObj) {
+            if (btnObj == "btnResolve") {
+                $("#hdnDialogOpen").val("resolveOpen");
+            }
+
+
+            if (btnObj == "btnCustomerAction") {
+                $("#lblNotes").css("display", "none");
+                $("#txtNotes").css("display", "none");
+
+            }
+
+            if (btnObj == "btnPending") {
+                $("#lblPendingNotes").css("display", "none");
+                $("#txtPendingNotes").css("display", "none");
+            }
+
+            DisableSideMenuItems();
+            EnableSideMenuItem(btnObj);
+            DisplayModal(mdlObj);
+        }
+
         function ShowDisplayModal(btnObj, mdlObj) {
             xreferenceSearchObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
@@ -571,7 +634,6 @@
 
             });
         }
-
        
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -580,12 +642,17 @@
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
-                    var selectedRow = kgrid.tbody.find(".k-state-selected");;
+                    var selectedRow = $(this).parent().parent();
                     var dataItem = kgrid.dataItem($(this).closest('tr'));
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
                         if (selectedRow.length > 0) {
-                            grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
+                            if ($(this).is(':checked')) {
+                                var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
+                                if (indexUid > -1)
+                                    selectedRows.splice(indexUid, 1);
+                            }else
+                                selectedRows.push(selectedRow.attr('data-uid'));
                         }
                     }
                 }
@@ -597,14 +664,27 @@
                         itemsChecked++;
                     } else {
                         var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                        if (index > - 1)
+                        if (index > -1) 
                             selectedRequests.splice(index, 1);
                     }
 
+                    if (selectedRows.indexOf(this["uid"]) > -1)
+                        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                    else
+                        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                 });
+
                 $("#numberOfItems").text("(" + itemsChecked + ")");
                 $("#numberOfItems").val(itemsChecked);
-                // Keep grid from changing seleted information
+                
+                //highlight rows on current page
+                //$.each(kgrid._data, function () {
+                //    if (selectedRows.indexOf(this["uid"]) > -1) 
+                //        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                //     else 
+                //        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                //});
+
                 e.stopImmediatePropagation();
             });
 
@@ -623,8 +703,11 @@
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                                if (index > - 1)
+                                if (index > -1) {
                                     selectedRequests.splice(index, 1);
+                                   // grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                                }
+                                    
                             }
                         });
 
@@ -632,10 +715,19 @@
                         $("#numberOfItems").text("(" + itemsChecked + ")");
                         $("#numberOfItems").val(itemsChecked);
                         // No items were found in the datasource, return from the function and cancel the current event
-                    } else
+
+                        //highlight rows on current page
+                        $.each(kgrid._data, function () {
+                            if (this['IsSelected'])
+                                grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                             else 
+                                grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                        });
+
+                    } else {
                         return false;
+                    }
                 }
-                return false;
             });
         }
 
