@@ -139,13 +139,15 @@
 
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" + activeSaveButton).val().indexOf(',') + 1);
-
+            
             var queryText = {
                 ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
                 ProductName: $("#txtProductName_" + activeSaveButton).val(),
-                SupplierId: selectedSuppilerId
+                SupplierId: selectedSuppilerId, 
+                ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),                                
+                XReferenceNote: $("#txtXReferenceNote_" + activeSaveButton).val(),                
             };
-            
+                        
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (activeSaveButton == 0) {
@@ -505,7 +507,8 @@
                 }
             });
 
-            $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+
+            $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey + ',' + '#txtObtainmentNote_' + pKey + ',' + '#txtXReferenceNote_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
