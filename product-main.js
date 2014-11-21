@@ -139,7 +139,7 @@
 
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" + activeSaveButton).val().indexOf(',') + 1);
-            
+
             var queryText = {
                 ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
                 ProductName: $("#txtProductName_" + activeSaveButton).val(),
@@ -147,7 +147,7 @@
                 ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),                                
                 XReferenceNote: $("#txtXReferenceNote_" + activeSaveButton).val(),                
             };
-                        
+            
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (activeSaveButton == 0) {
@@ -507,12 +507,13 @@
                 }
             });
 
+            Mousetrap.bind('p r', function () { $("#btnRefreshProduct_" + pKey).click(); });
 
-            $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey + ',' + '#txtObtainmentNote_' + pKey + ',' + '#txtXReferenceNote_' + pKey).on('input', function () {
+            $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
-            $("#searchSupplierIdBtn_" + pKey).click(function (e2) {
+            $("#searchSupplierIdBtn_" + pKey).on("click", function (e2) {
                 activeSupplier = "txtSupplierId_" + pKey;
                 activeSupplierIndex = pKey;
 
@@ -533,6 +534,8 @@
                 });
             });
 
+            Mousetrap.bind('p m', function () { $("#searchSupplierIdBtn_" + pKey).click(); });
+
             //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
 
@@ -546,7 +549,7 @@
             });
 
             //Add doc parts
-            $("#btnAddDocToProduct_" +pKey).click(function(e3) {
+            $("#btnAddDocToProduct_" +pKey).on("click",function(e3) {
                 activeProduct = pKey;
                 newProductActive = false;
 
@@ -577,6 +580,8 @@
 
             });
 
+            Mousetrap.bind('p d', function () { $("#btnAddDocToProduct_" + pKey).click(); });
+
             $("#btnDeleteDocFromProduct_" + pKey).click(function(e3) {
                 
                 var grid = $(this).parents('.k-grid:first');
@@ -596,6 +601,7 @@
                 }
             });
 
+           
             $("#addNewDocumentBtn").hide();
 
             $("#clearDocumentBtn").click(function (e4) {

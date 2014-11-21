@@ -81,12 +81,44 @@
 
         }
        
-        //Assgn and Unassign Request and saves them
-        AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
-        AssignUnassignRequest("btnAssignTo", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
-        AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true);
-        AssignUnassignRequest("btnUnAssign", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false);
+        var hotKeyDisplay = function (btnObj, mdlObj) {
 
+            var xrefModals = ['mdlResolve', 'mdlObtainment', 'mdlPending', 'mdlCustomerAction', 'mdlQC'];
+            for (var i = 0; i < xrefModals.length; i++) {
+                if (mdlObj != xrefModals[i])
+                    $("#" + xrefModals[i]).modal("hide");
+            }
+
+            if (btnObj == "btnResolve") {
+                $("#hdnDialogOpen").val("resolveOpen");
+            }
+
+
+            if (btnObj == "btnCustomerAction") {
+                $("#lblNotes").css("display", "none");
+                $("#txtNotes").css("display", "none");
+
+            }
+
+            if (btnObj == "btnPending") {
+                $("#lblPendingNotes").css("display", "none");
+                $("#txtPendingNotes").css("display", "none");
+            }
+
+            DisableSideMenuItems();
+            EnableSideMenuItem(btnObj);
+            DisplayModal(mdlObj);
+        }
+
+        //Assgn and Unassign Request and saves them
+        if ($("#hdnAccess").val() == "Admin") {
+            AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false, "x u");
+            AssignUnassignRequest("btnAssignTo", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true, "x a");
+        } else {
+            AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true, "x a");
+            AssignUnassignRequest("btnUnAssign", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false, "x u");
+        }
+        
         //Display Modals on Button Clicks
         EnableSideMenuItems();
 
@@ -145,7 +177,6 @@
         xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function () {
             xreferenceDetailObj.html("");
         });
-
         
         //Show Supplier
         xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function () {
@@ -264,7 +295,6 @@
 
            
         });
-
 
         //Save Request to be Resolved
          xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
@@ -411,7 +441,6 @@
             return true;
         });
         
-
         xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("gdRequests", "unassign these request", "../XReference/SaveAssignedItems", null, false);
@@ -490,7 +519,6 @@
                        onDisplayError('Requests could not be saved');
                    },
                    success: function(successData) {
-
                        if(successData.success == true) {
                             kendo.ui.progress(xreferenceDetailObj, false);
                            var grid = $("#gdRequests").data("kendoGrid");
@@ -510,12 +538,12 @@
             }
         }
 
-        function AssignUnassignRequest(btnObj, gridObj, message, url, isAssigned) {
+        function AssignUnassignRequest(btnObj, gridObj, message, url, isAssigned, keyCombination) {
             xreferenceDetailObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
                 batchDeleteObjects(gridObj, message, url, null, isAssigned);
             });
-            
+            Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
         }
 
         function DisplayModal(modalId) {
@@ -534,7 +562,7 @@
         function HideModal(modalId) {
             $("#" + modalId).modal("toggle");
         }
-
+    
         xreferenceDetailObj.on('hide', '#mdlResolve', function () {
             EnableSideMenuItems();
         });
@@ -601,10 +629,11 @@
                 $("#lblPendingNotes").css("display", "none");
                 $("#txtPendingNotes").css("display", "none");
             }
-
+         
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
             DisplayModal(mdlObj);
+            
         }
 
         function ShowDisplayModal(btnObj, mdlObj) {
@@ -758,53 +787,52 @@
                     if (typeof (assignTo) != "undefined") {
                         data["assignedTo"] = assignTo;
                         $('#mdlAssign').modal('hide');
-                    }
+
+                        var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
+                        DisplayConfirmationModal(args, function () {
+                            $.ajax({
+                                url: url,
+                                data: JSON.stringify(data),
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                beforeSend: function () {
+                                    kendo.ui.progress(xreferenceDetailObj, true);
+                                },
+                                error: function () {
+                                    onDisplayError('Requests could not be assigned');
+                                },
+                                success: function (successData) {
+
+                                    if (successData.success == true) {
+
+                                        // Uncheck the master select checkbox if checked
+                                        var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                                        if (checkbox && checkbox.is(':checked')) {
+                                            checkbox.attr('checked', false);
+                                        }
+
+                                        grid = $(targetGridSelector).data("kendoGrid");
+                                        grid.dataSource.read();
 
 
-                    var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
-                    DisplayConfirmationModal(args, function() {
-                        $.ajax({
-                            url: url,
-                            data: JSON.stringify(data),
-                            type: "POST",
-                            contentType: 'application/json; charset=utf-8',
-                            beforeSend: function() {
-                                kendo.ui.progress(xreferenceDetailObj, true);
-                            },
-                            error: function() {
-                                onDisplayError('Requests could not be assigned');
-                            },
-                            success: function(successData) {
+                                        // displayCreatedMessage('Items Assigned Successful');
 
-                                if(successData.success == true) {
-
-                                    // Uncheck the master select checkbox if checked
-                                    var checkbox = $(grid.element).find('.chkMasterMultiSelect');
-                                    if (checkbox && checkbox.is(':checked')) {
-                                        checkbox.attr('checked', false);
+                                    } else {
+                                        onDisplayError("Error Occurred");
                                     }
 
-                                    grid = $(targetGridSelector).data("kendoGrid");
-                                    grid.dataSource.read();
+                                },
+                                complete: function (compData) {
 
-
-                                    // displayCreatedMessage('Items Assigned Successful');
-
-                                } else {
-                                    onDisplayError("Error Occurred");
+                                    kendo.ui.progress(xreferenceDetailObj, false);
+                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+                                    if (completeCallback) {
+                                        completeCallback(compData);
+                                    }
                                 }
-
-                            },
-                            complete: function(compData) {
-
-                                kendo.ui.progress(xreferenceDetailObj, false);
-                                $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
-                                if (completeCallback) {
-                                    completeCallback(compData);
-                                }
-                            }
+                            });
                         });
-                    });
+                    }
                 } else {
                     $('#mdlAssign').modal('hide');
                     onDisplayError("No items have been selected");
@@ -822,7 +850,9 @@
             loadSupplierPlugIn: loadSupplierPlugIn,
             IsReadOnlyMode: IsReadOnlyMode,
             onDisplayError: onDisplayError,
-            gdGroupsChange: gdGroupsChange
+            gdGroupsChange: gdGroupsChange,
+            hotKeyDisplay: hotKeyDisplay
         };
     };
 })(jQuery);
+
