@@ -1250,9 +1250,17 @@
                     if (data == '0') {
                         alert('Error occured while saving the contact details');
                     } else {
+                        var obtID = $("#ObtainmentSettingID").val();
                         var grid = $("#gdObtainmentSettings").data("kendoGrid");
                         grid.dataSource.read();
                         $('#ObtainmentSettingsDetail').html(data);
+
+                        if (obtID > 0) {
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings saved.');
+                        } else {
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings added.');
+                        }
+
                     }
                 });
             }
