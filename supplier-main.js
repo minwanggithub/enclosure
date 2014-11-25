@@ -1632,13 +1632,37 @@
             }
         });
 
+        $("#DetailSupplier").on("keyup", '#txtMultipleWebsites', function (e) {
+            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                var arr = $('#DetailSupplier #txtMultipleWebsites').val().split("\n");
+                var arrDistinct = new Array();
+                $(arr).each(function (index, item) {
+                    if (item.length > 0) {
+                        if ($.inArray(item, arrDistinct) == -1)
+                            arrDistinct.push(item);
+                    }
+
+                });
+                $('#DetailSupplier #txtMultipleWebsites').val("");
+                $(arrDistinct).each(function (index, item) {
+                    $('#DetailSupplier #txtMultipleWebsites').val($('#DetailSupplier #txtMultipleWebsites').val() + item + "\n");
+                });
+            }
+        });
+
         var showMultiple = function () {
-            DisplayModal();
+            DisplayModal("mdlMultipleAliases");
         }
 
-        function DisplayModal() {
-            $('#mdlMultipleAliases').find('.modal-body').html();
-            $('#mdlMultipleAliases').modal({
+        var showMultipleWebSites = function() {
+            DisplayModal("mdlMultipleWebSites");
+        }
+
+        function DisplayModal(objModal) {
+            $('#' + objModal).find('.modal-body').html();
+            $('#' + objModal).modal({
                 backdrop: true,
                 keyboard: true
             }).css(
@@ -1648,6 +1672,8 @@
                 }
             });
         }
+
+
         $("#DetailSupplier").on("click", '#btnSaveMultipleAliases', function (e) {
             var lines = $('#DetailSupplier #txtMultipleAliases').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
@@ -1676,6 +1702,42 @@
                         grid.dataSource.read();
                        //should refressh grid
                     } else 
+                        onDisplayError("Error Occurred");
+                },
+                complete: function (compData) {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+                }
+            });
+        });
+
+        $("#DetailSupplier").on("click", '#btnSaveMultipleWebSites', function (e) {
+            var lines = $('#DetailSupplier #txtMultipleWebsites').val().split(/\n/);
+            for (var i = 0; i < lines.length; i++) {
+                // only push this line if it contains a non whitespace character.
+                if (lines[i].length > 0)
+                    texts.push($.trim(lines[i]));
+            }
+            var selWebSiteType = $("#DetailSupplier #selWebSiteType").data("kendoDropDownList");
+            var data = {};
+            data['supplierId'] = $("#SupplierId").val();
+            data['websiteTypeId'] = selWebSiteType.value();
+            data['websites'] = texts;
+            e.preventDefault();
+            $.ajax({
+                url: "../Company/WebSite_Multiple_Create",
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+                    onDisplayError('WebSites could not be saved.');
+                },
+                success: function (successData) {
+                    if (successData.success == true) {
+                        $('#mdlMultipleWebSites').modal("toggle");
+                        var grid = $("#DetailSupplier #gdWebSite").data("kendoGrid");
+                        grid.dataSource.read();
+                        //should refressh grid
+                    } else
                         onDisplayError("Error Occurred");
                 },
                 complete: function (compData) {
@@ -1775,7 +1837,8 @@
 
             clearSupplierStatusNote: clearSupplierStatusNote,
             onStatusChange: onStatusChange,
-            showMultiple: showMultiple
+            showMultiple: showMultiple,
+            showMultipleWebSites: showMultipleWebSites
         };
     };
 
