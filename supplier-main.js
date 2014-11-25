@@ -103,7 +103,7 @@
 
                                     // Attach notes field information into form to be serialized
                                     $("#FormIdentification").find('#StatusNotes').val(e.modalNotes);
-                                    saveIdentificationInfo();
+                                    saveIdentificationInfo(true);
                                 });
                             }
 
@@ -197,10 +197,19 @@
                 //supplierSearchDialog.data("kendoWindow").close();
                 $("#supplierSearchWindow").data("kendoWindow").close();
             });
+
+            $('#DetailSupplier').on("resize", function() {
+
+                // Find all splitters and resize them
+                var detail = $(this);
+                detail.find('.k-splitter').each(function() {
+                    $(this).data("kendoSplitter").trigger("resize");
+                });
+            });
         };
 
 
-        function saveIdentificationInfo() {
+        function saveIdentificationInfo(reloadSupplier) {
             
             var form = $("#FormIdentification");
             var formData = form.serialize();
@@ -215,16 +224,17 @@
                         $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
                     }, 500);
                 } else {
-
-                    // Attempt to find the history grid to refresh
-                    var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
-                    if (historyGrid) {
-                        historyGrid.dataSource.read();
-                        historyGrid.refresh();
-                    }
-
-                    if (supplierLayoutCallback) {
-                        supplierLayoutCallback();
+                    
+                    if (reloadSupplier == true) {
+                        $('#gdSearchSupplier').data('kendoGrid').trigger('change');
+                    } else {
+                     
+                        // Attempt to find the history grid to refresh
+                        var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                        if (historyGrid) {
+                            historyGrid.dataSource.read();
+                            historyGrid.refresh();
+                        }
                     }
 
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
@@ -1504,9 +1514,7 @@
         };
 
         // Supplier Identification Methods
-        var supplierLayoutCallback = null;
-        var initSupplierIdentification = function(layoutCallback, errorCallback) {
-            supplierLayoutCallback = layoutCallback;
+        var initSupplierIdentification = function(errorCallback) {
             onErrorCallback = errorCallback;
 
             // Set up observer to hide all save/cancel/add/delete buttons
