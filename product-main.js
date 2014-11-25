@@ -787,15 +787,17 @@
                                 }
                             }
                         }
+
+                        $('tr', grid).each(function() {
+                            var tr = $(this);
+                            var cked = $('.chkMultiSelect', tr).is(':checked');
+                            if (cked) {
+                                tr.addClass('k-state-selected');
+                            } else {
+                                tr.removeClass('k-state-selected');
+                            }
+                        });
                      
-                        if (selectedRow.length > 0) {
-                            if (!checked) {
-                               grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
-                            }
-                            else {
-                               grid.find('tr[data-uid="' +selectedRow.attr('data-uid') + '"]').removeClass('k-state-selected');
-                            }
-                        }
                     }
                 }
 
@@ -842,6 +844,17 @@
                             this['IsSelected'] = checked;
                         });
                         kgrid.refresh();
+
+                        $('tr', grid).each(function () {
+                            var tr = $(this);
+                            var cked = $('.chkMultiSelect', tr).is(':checked');
+                            if (cked) {
+                                tr.addClass('k-state-selected');
+                            } else {
+                                tr.removeClass('k-state-selected');
+                            }
+                        });
+
                     } else {
                         return false;
                     }
