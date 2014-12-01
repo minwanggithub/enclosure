@@ -9,7 +9,7 @@
         var supplierSearchDialog;
         var activeSupplier;
         var selectedNode = null;
-
+        var texts = [];
         var productTreeName = "#tvProductSearchResult";
         var activeNode = "#tvProductSearchResult_tv_active";
         // support mutltiple elements
@@ -2528,6 +2528,80 @@
             console.log("exing initKitAndGroup");
         };
 
+        var showMultipleNames = function () {
+            DisplayModal("mdlMultipleNames");
+        }
+
+        function DisplayModal(objModal) {
+            $('#' + objModal).find('.modal-body').html();
+            $('#' + objModal).modal({
+                backdrop: true,
+                keyboard: true
+            }).css(
+            {
+                'margin-left': function () {
+                    return -($(this).width() / 2);
+                }
+            });
+        }
+
+        $("#DocumentDetail").on("keyup", '#txtNamesNumbers', function (e) {
+            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                var arr = $('#DocumentDetail #txtNamesNumbers').val().split("\n");
+                var arrDistinct = new Array();
+                $(arr).each(function (index, item) {
+                    if (item.length > 0) {
+                        if ($.inArray(item, arrDistinct) == -1)
+                            arrDistinct.push(item);
+                    }
+
+                });
+                $('#DocumentDetail #txtNamesNumbers').val("");
+                $(arrDistinct).each(function (index, item) {
+                    $('#DocumentDetail #txtNamesNumbers').val($('#DocumentDetail #txtNamesNumbers').val() + item + "\n");
+                });
+            }
+        });
+
+
+        $("#DocumentDetail").on("click", '#btnSaveMultipleNames', function (e) {
+            var lines = $('#DocumentDetail #txtNamesNumbers').val().split(/\n/);
+            for (var i = 0; i < lines.length; i++) {
+                // only push this line if it contains a non whitespace character.
+                if (lines[i].length > 0)
+                    texts.push($.trim(lines[i]));
+            }
+            var selAliaseType = $("#DocumentDetail #selNameType").data("kendoDropDownList");
+            var data = {};
+            data['documentId'] = $("#DocumentId").val();
+            data['revisionId'] = $("#RevisionId").val();
+            data['aliasTypeId'] = selAliaseType.value();
+            data['aliasesText'] = texts;
+            e.preventDefault();
+            $.ajax({
+                url: "../Document/NamesNumbers_Multiple_Create",
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+                    onDisplayError('Aliases could not be saved.');
+                },
+                success: function (successData) {
+                    if (successData.success == true) {
+                        $('#mdlMultipleNames').modal("toggle");
+                        var grid = $("#DocumentDetail #gdRevisionNameNumber").data("kendoGrid");
+                        grid.dataSource.read();
+                        //should refressh grid
+                    } else
+                        onDisplayError("Error Occurred");
+                },
+                complete: function (compData) {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+                }
+            });
+        });
         //Expose to public
 
         return {
@@ -2590,8 +2664,9 @@
             disembleKitOrGroup: disembleKitOrGroup,
 
             handleAddDocument: handleAddDocument,
-            initKitAndGroup: initKitAndGroup
+            initKitAndGroup: initKitAndGroup,
 
+            showMultipleNames: showMultipleNames
             //------end of kit and group implementation------
         };
     };
