@@ -2565,6 +2565,11 @@
             }
         });
 
+        var error_handler=function() {
+            onDisplayError("Duplicate Names are not allowed");
+            var grid = $("#DocumentDetail #gdRevisionNameNumber").data("kendoGrid");
+            grid.dataSource.read();
+        }
 
         $("#DocumentDetail").on("click", '#btnSaveMultipleNames', function (e) {
             var lines = $('#DocumentDetail #txtNamesNumbers').val().split(/\n/);
@@ -2666,7 +2671,8 @@
             handleAddDocument: handleAddDocument,
             initKitAndGroup: initKitAndGroup,
 
-            showMultipleNames: showMultipleNames
+            showMultipleNames: showMultipleNames,
+            error_handler: error_handler
             //------end of kit and group implementation------
         };
     };
