@@ -476,6 +476,34 @@
             grid.dataSource.read();
         };
 
+
+        var QueueQuery = function () {
+            var txtCntrlId = "#txtProductSearch";
+            if ($(txtCntrlId).val().length != 0) {
+                var searchQueue = $(".btn-group > ul.dropdown-menu");
+                if (searchQueue.length > 0) {
+
+                    searchQueue.prepend("<li><a href='#'><span class='hreflimit'>" + $(txtCntrlId).val() + "</span></a><span class='btn history-close'>×</span></li>");
+
+                    if ($(".btn-group > ul.dropdown-menu li").length > 10) {
+                        $(".btn-group > ul.dropdown-menu > li:last-child").remove();
+                    }
+                    $(".btn-group > ul.dropdown-menu li a").click(function (e) {
+                        $(txtCntrlId).val($(this).text());
+                        refreshProductSearchResultGrid();
+                    });
+
+                    $(".btn.history-close").click(function (e) {
+                        //$(e).parent().find("li").remove();
+                        e.target.parentNode.outerHTML = "";
+                        e.stopPropagation();
+                    });
+                }
+            }
+        };
+
+
+
         var LoadProductMatchDetailsCompleted = function (e) {
             var pKey = e.item.id.substring(0, e.item.id.indexOf('_tbProductDetail'));
 
@@ -867,6 +895,7 @@
        
         return {
             //--------------------start of ConfigProduct.cshtml-----------------------
+            QueueQuery: QueueQuery,
             panelbar_activated: panelbar_activated,
             RemovedProductDocument: RemovedProductDocument,
             RefreshProductData: RefreshProductData,
