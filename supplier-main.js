@@ -216,31 +216,75 @@
             var formData = form.serialize();
 
             var url = form.attr("action");
-            $.post(url, formData, function(data) {
+            var urlValidation = url.replace("SaveIdentification", "ValidateDuplicateIdentification");
 
-                var supplierId = $("#SupplierId").val();
-                if (supplierId == 0) {
-                    $('#DetailSupplier').html(data);
-                    setTimeout(function() {
-                        $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
-                    }, 500);
-                } else {
-                    
-                    if (reloadSupplier == true) {
-                        $('#gdSearchSupplier').data('kendoGrid').trigger('change');
-                    } else {
+            $.post(urlValidation, formData, function (data) {
+                if (data == "Duplicate") {
+
+                    var args = {
+                         header: 'Confirm Save',
+                         message: 'You are going to add a duplicate supplier, do you wish to continue?'
+                    };
+                    DisplayConfirmationModal(args, function () {
                      
-                        // Attempt to find the history grid to refresh
-                        var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
-                        if (historyGrid) {
-                            historyGrid.dataSource.read();
-                            historyGrid.refresh();
-                        }
-                    }
+                                $.post(url, formData, function (data2) {
 
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
-                }
+                                    var supplierId = $("#SupplierId").val();
+                                    if (supplierId == 0) {
+                                        $('#DetailSupplier').html(data2);
+                                        setTimeout(function () {
+                                            $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
+                                        }, 500);
+                                    } else {
+
+                                        if (reloadSupplier == true) {
+                                            $('#gdSearchSupplier').data('kendoGrid').trigger('change');
+                                        } else {
+
+                                            // Attempt to find the history grid to refresh
+                                            var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                                            if (historyGrid) {
+                                                historyGrid.dataSource.read();
+                                                historyGrid.refresh();
+                                            }
+                                        }
+
+                                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
+                                    }
+                                });
+
+
+                     });
+                } else {
+                            $.post(url, formData, function (data2) {
+
+                                var supplierId = $("#SupplierId").val();
+                                if (supplierId == 0) {
+                                    $('#DetailSupplier').html(data2);
+                                    setTimeout(function () {
+                                        $('#IdentificationSplitter').data("kendoSplitter").trigger("resize");
+                                    }, 500);
+                                } else {
+
+                                    if (reloadSupplier == true) {
+                                        $('#gdSearchSupplier').data('kendoGrid').trigger('change');
+                                    } else {
+
+                                        // Attempt to find the history grid to refresh
+                                        var historyGrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                                        if (historyGrid) {
+                                            historyGrid.dataSource.read();
+                                            historyGrid.refresh();
+                                        }
+                                    }
+
+                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                                }
+                            });
+
+               }
             });
+                   
         }
 
         var onGetObtainmentSettingId = function () {
