@@ -19,6 +19,8 @@
         var documentSearchDialog = $("#documentSearchWindow");
         var supplierSearchDialog = $("#supplierSearchWindow");
 
+        var onErrorCallback;
+
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
             
@@ -103,6 +105,78 @@
             };
         };
 
+        // Helper Methods
+        function displayErrorMessage(errorMessage) {
+            
+            if (onErrorCallback) {
+                onErrorCallback(errorMessage);
+            } else {
+                alert(errorMessage);
+            }
+        }
+
+        function displayStatusNoteConfirmation(args, yesFunc, noFunc) {
+
+            var modal = $('#statusNoteModal');
+            if (modal.length > 0) {
+                modal.find('#myModalLabel')
+                    .html(args.headerMessage)
+                    .end()
+                    .find('#myModalMessage')
+                    .html(args.displayMessage)
+                    .end()
+                    .find('#myModalNotes')
+                    .val('')
+                    .end()
+                    .find('#confirm-btn-yes')
+                    .text(args.headerMessage.indexOf('Deactivation') > -1 ? 'Deactivate' : 'Continue');
+
+                // Set up all click events
+                modal.off('click', '#confirm-btn-yes');
+                modal.on('click', '#confirm-btn-yes', function (e) {
+
+                    // Check if the notes field has the correct information
+                    var notesField = modal.find('#myModalNotes');
+                    if (notesField.length > 0) {
+
+                        if (notesField.val() && notesField.val().length > 0) {
+                            modal.modal('hide');
+                            if (yesFunc) {
+                                e['modalNotes'] = notesField.val();
+                                yesFunc(e);
+                            }
+                        } else {
+                            displayErrorMessage('Notes were not provided, enter notes to continue.');
+                        }
+                    }
+                });
+
+                if (noFunc) {
+                    modal.off('click', '#btn-no');
+                    modal.on('click', '#btn-no', noFunc);
+                }
+
+                modal.modal({
+                    backdrop: true,
+                    keyboard: true
+                }).css({
+                    width: 'auto',
+                    'max-width': '650px',
+                    'margin-left': function () {
+                        return -($(this).width() / 2); //auto size depending on the message
+                    },
+                    'margin-top': function () {
+                        return (document.documentElement.clientHeight / 2) - $(this).height() - 35;
+                    }
+                });
+            }
+        }
+
+        // Product Detail Methods
+        var initializeProductDetailControls = function(errorCallback) {
+            onErrorCallback = errorCallback;
+        };
+
         //(SH) 4-16-2014
         //(SH) 5-7-2014
         var viewSingleSupplier = function (supplierId) {
@@ -131,7 +205,7 @@
         }
 
         function saveBtnEvent(activeSaveButton) {
-           
+
             var form = $("#frmProductDetail_" + activeSaveButton).updateValidation();
             if (!form.valid()) {
                 return;
@@ -141,17 +215,19 @@
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" + activeSaveButton).val().indexOf(',') + 1);
 
             var queryText = {
-                ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
-                ProductName: $("#txtProductName_" + activeSaveButton).val(),
-                SupplierId: selectedSuppilerId, 
-                ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),                                
-                XReferenceNote: $("#txtXReferenceNote_" + activeSaveButton).val(),                
+                    ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
+                        ProductName: $("#txtProductName_" + activeSaveButton).val(),
+                        SupplierId: selectedSuppilerId,
+                            ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),
+                            XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
+                            SelectedStatusId: $("#ddlProductStatus_" +activeSaveButton).data('kendoDropDownList').value(),
+                            StatusNotes: $("#hdnStatusNotes_" +activeSaveButton).val(),
             };
-            
+
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (activeSaveButton == 0) {
-                   
+
                     if (data.indexOf("Error") >= 0) {
                         onDisplayError(data);
                         return;
@@ -159,34 +235,34 @@
 
                     $("#txtProductId_" + activeSaveButton).val(data);
 
-                        if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
-                            $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
+                    if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
+                        $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
 
-                            $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
-                                activeProduct = data;
-                                newProductActive = true;
+                        $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
+                            activeProduct = data;
+                            newProductActive = true;
 
-                                documentSearchDialog.data("kendoWindow").center();
-                                documentSearchDialog.data("kendoWindow").open();
-                                $("#addNewDocumentBtn").hide();
-                                $("#documentDisplayOptionDiv").hide();
-                            });
+                            documentSearchDialog.data("kendoWindow").center();
+                            documentSearchDialog.data("kendoWindow").open();
+                            $("#addNewDocumentBtn").hide();
+                            $("#documentDisplayOptionDiv").hide();
+                        });
 
-                            $("#searchDocumentBtn").click(function(e) {
-                                GridDocumentSearchResult();
-                            });
+                        $("#searchDocumentBtn").click(function(e) {
+                            GridDocumentSearchResult();
+                        });
                         }
 
-                    UnBindingSaveCancel(0);
+                            UnBindingSaveCancel(0);
                     return;
-                }
+                        }
 
                 if (data != '0') {
                     var prdGrid = $("#gdSearchProduct").data("kendoGrid");
                     var parentRowIndex = $("#txtProductId_" + activeSaveButton).val();
                     var dataItem = prdGrid.dataSource.get(parentRowIndex);
 
-                    //var dataItem = $("#gdSearchProduct").data("kendoGrid").dataSource.get(parentRowIndex);
+                        //var dataItem = $("#gdSearchProduct").data("kendoGrid").dataSource.get(parentRowIndex);
                     dataItem.set("ProductName", $("#txtProductName_" + activeSaveButton).val());
                     dataItem.set("SupplierId", selectedSuppilerId);
                     dataItem.set("SupplierName", selectedSuppilerName);
@@ -196,7 +272,7 @@
 
                 } else {
                     alert('Error occured while saving the product');
-                }
+                        }
             });
         }
 
@@ -435,7 +511,6 @@
 
         };
 
-
         var OngdProductDocumentSelectChange = function () {
             var model = this.dataItem(this.select());
             selectProductDocID = model.ReferenceId; //gets the value of the field DocumentID and save as global
@@ -447,7 +522,13 @@
             selectProductDocID = model.DocumentId;
             selectProductRevisionID = model.RevisionId;
         };
-        
+
+        var onProductStatusChange = function() {
+            var elemId = this.element.attr('id');
+            elemId = elemId.replace('ddlProductStatus_', '');
+            BindingSaveCancel(elemId);
+        };
+
         //--------------------end of ConfigProduct.cshtml-----------------------
 
 
@@ -888,49 +969,35 @@
                     }
                 }
             });
-
-         
-
         };
        
         return {
-            //--------------------start of ConfigProduct.cshtml-----------------------
-            QueueQuery: QueueQuery,
-            panelbar_activated: panelbar_activated,
-            RemovedProductDocument: RemovedProductDocument,
-            RefreshProductData: RefreshProductData,
             AddDocumentListToProduct: AddDocumentListToProduct,
+            BindingSaveCancel: BindingSaveCancel,
+            DeleteDoc: DeleteDoc,
             displaySingleDocument: displaySingleDocument,
-            panelbar_expand: panelbar_expand,
-            panelbar_collapse: panelbar_collapse,
-            OngdSearchDocumentChange: OngdSearchDocumentChange,
+            documentQuery: documentQuery,
+            getSelectDocID: getSelectDocID,
+            getUrl: getUrl,
+            initializeProductDetailControls: initializeProductDetailControls,
+            LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
             OngdProductDocumentSelectChange: OngdProductDocumentSelectChange,
             OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
-            getSelectDocID: getSelectDocID,
-            documentQuery: documentQuery,
-            viewSingleSupplier: viewSingleSupplier,
-            getUrl: getUrl,
-            DeleteDoc: DeleteDoc,
-            setDeleteImageIcon: setDeleteImageIcon,
-
-            //--------------------end of ConfigProduct.cshtml-----------------------
-
-            //--------------------start of _SearchProduct.cshtml-----------------------
-            BindingSaveCancel: BindingSaveCancel,
-            UnBindingSaveCancel: UnBindingSaveCancel,
-            LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
-            showSupplierPlugIn: showSupplierPlugIn,
-            refreshProductSearchResultGrid: refreshProductSearchResultGrid,
-            //--------------------end of _SearchProduct.cshtml-----------------------
-
-            //--------------------start of AgentManager.cshtml-----------------------
-            //--------------------end AgentManager.cshtml-----------------------
-
-
-            //--------------------start of _NewProductView.cshtml-----------------------
+            OngdSearchDocumentChange: OngdSearchDocumentChange,
+            onProductStatusChange: onProductStatusChange,
+            panelbar_activated: panelbar_activated,
+            panelbar_collapse: panelbar_collapse,
+            panelbar_expand: panelbar_expand,
             pnlNewProduct_Activated: pnlNewProduct_Activated,
-            //--------------------end _NewProductView.cshtml-----------------------
-    };
+            QueueQuery: QueueQuery,
+            RefreshProductData: RefreshProductData,
+            refreshProductSearchResultGrid: refreshProductSearchResultGrid,
+            RemovedProductDocument: RemovedProductDocument,
+            setDeleteImageIcon: setDeleteImageIcon,
+            showSupplierPlugIn: showSupplierPlugIn,
+            UnBindingSaveCancel: UnBindingSaveCancel,
+            viewSingleSupplier: viewSingleSupplier,
+        };
     };
 
     //Initialize
