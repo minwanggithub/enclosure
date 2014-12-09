@@ -177,6 +177,18 @@
             onErrorCallback = errorCallback;
         };
 
+        // Product Status History Methods
+        var onProductStatusGridChange = function () {
+            var productId = this.wrapper.attr('id');
+            productId = productId.substring(productId.indexOf('_') +1);
+
+            var selectedRow = this.wrapper.data('kendoGrid').select();
+            var selectedData = this.dataItem(selectedRow);
+            if (selectedData != null) {
+                $('#StatusNotesText_' + productId).html(selectedData.Notes);
+            }
+        };
+
         //(SH) 4-16-2014
         //(SH) 5-7-2014
         var viewSingleSupplier = function (supplierId) {
@@ -211,18 +223,44 @@
                 return;
             }
 
+            // Check if notes are needed for a status change
+            var formData = form.serialize();
+            kendo.ui.progress(form, true);
+
+            var url = "../ProductManager/GetStatusAction";        
+            $.post(url, formData, function (data) {
+                kendo.ui.progress(form, false);
+
+                if (data.displayMessage) {
+                    if(data.statusError == true) {
+                        displayErrorMessage(data.displayMessage);
+                    } else {
+                        displayStatusNoteConfirmation(data, function(e) {
+                            form.find('#hdnStatusNotes_' +activeSaveButton).val(e.modalNotes);
+                            saveProductInformation(activeSaveButton);
+                        });
+                    }
+
+                } else {
+                    saveProductInformation(activeSaveButton);
+                }
+            });
+        }
+
+        function saveProductInformation(activeSaveButton) {
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
-            var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" + activeSaveButton).val().indexOf(',') + 1);
+            var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" +activeSaveButton).val().indexOf(',') +1);
+            var selectedStatusId = $("#ddlProductStatus_" + activeSaveButton).data('kendoDropDownList').value();
 
             var queryText = {
-                    ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
+                        ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
                         ProductName: $("#txtProductName_" + activeSaveButton).val(),
                         SupplierId: selectedSuppilerId,
-                            ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),
-                            XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
-                            SelectedStatusId: $("#ddlProductStatus_" +activeSaveButton).data('kendoDropDownList').value(),
-                            StatusNotes: $("#hdnStatusNotes_" +activeSaveButton).val(),
-            };
+                        ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),
+                        XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
+                        SelectedStatusId: selectedStatusId,
+                        StatusNotes: $("#hdnStatusNotes_" +activeSaveButton).val(),
+                    };
 
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
@@ -251,28 +289,28 @@
                         $("#searchDocumentBtn").click(function(e) {
                             GridDocumentSearchResult();
                         });
-                        }
+                    }
 
-                            UnBindingSaveCancel(0);
+                    UnBindingSaveCancel(0);
                     return;
-                        }
+                }
 
                 if (data != '0') {
                     var prdGrid = $("#gdSearchProduct").data("kendoGrid");
                     var parentRowIndex = $("#txtProductId_" + activeSaveButton).val();
                     var dataItem = prdGrid.dataSource.get(parentRowIndex);
 
-                        //var dataItem = $("#gdSearchProduct").data("kendoGrid").dataSource.get(parentRowIndex);
                     dataItem.set("ProductName", $("#txtProductName_" + activeSaveButton).val());
                     dataItem.set("SupplierId", selectedSuppilerId);
                     dataItem.set("SupplierName", selectedSuppilerName);
+                    dataItem.set("SelectedStatusId", selectedStatusId);
 
                     var dataItemRow = prdGrid.table.find('tr[data-uid="' + dataItem.uid + '"]');
                     prdGrid.expandRow(dataItemRow);
 
                 } else {
-                    alert('Error occured while saving the product');
-                        }
+                    displayErrorMessage('Error occured while saving the product');
+                }
             });
         }
 
@@ -776,7 +814,10 @@
             if ($(saveBtn).hasClass("k-state-disabled")) {
                 $(saveBtn).removeClass("k-state-disabled");
                 $(saveBtn).unbind('click');
-                $(saveBtn).click(function(e) { saveBtnEvent(activekey); });
+                $(saveBtn).click(function (e) {
+                    e.preventDefault();
+                    saveBtnEvent(activekey);
+                });
             }
 
             if ($(cancelBtn).hasClass("k-state-disabled")) {
@@ -985,6 +1026,7 @@
             OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
             OngdSearchDocumentChange: OngdSearchDocumentChange,
             onProductStatusChange: onProductStatusChange,
+            onProductStatusGridChange: onProductStatusGridChange,
             panelbar_activated: panelbar_activated,
             panelbar_collapse: panelbar_collapse,
             panelbar_expand: panelbar_expand,
