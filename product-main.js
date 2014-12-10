@@ -273,7 +273,7 @@
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" +activeSaveButton).val().indexOf(',') +1);
             var selectedStatusId = $("#ddlProductStatus_" + activeSaveButton).data('kendoDropDownList').value();
-
+            var selectedPhysicalStateId = $("#ddlPhysicalState_" + activeSaveButton).data('kendoDropDownList').value();
             var queryText = {
                         ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
                         ProductName: $("#txtProductName_" + activeSaveButton).val(),
@@ -281,7 +281,8 @@
                         ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),
                         XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
                         SelectedStatusId: selectedStatusId,
-                        StatusNotes: $("#hdnStatusNotes_" +activeSaveButton).val(),
+                        StatusNotes: $("#hdnStatusNotes_" + activeSaveButton).val(),
+                        SelectedPhysicalStateId: selectedPhysicalStateId
                     };
 
             var url = "../ProductManager/SaveProduct";
@@ -587,6 +588,12 @@
         var onProductStatusChange = function() {
             var elemId = this.element.attr('id');
             elemId = elemId.replace('ddlProductStatus_', '');
+            BindingSaveCancel(elemId);
+        };
+
+        var onProductPhysicalStateChange = function() {
+            var elemId = this.element.attr('id');
+            elemId = elemId.replace('ddlPhysicalState_', '');
             BindingSaveCancel(elemId);
         };
 
@@ -1060,6 +1067,7 @@
             showSupplierPlugIn: showSupplierPlugIn,
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
+            onProductPhysicalStateChange: onProductPhysicalStateChange
         };
     };
 

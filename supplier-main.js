@@ -81,7 +81,7 @@
         var initializeSupplierLibrary = function () {
             menuHelper.turnMenuActive($("#menuOperations"));
 
-            $("#DetailSupplier").on("focusin", "#FormIdentification", function (e) {
+            $("#DetailSupplier").on("focusin", "#FormIdentification", function () {
                 $('#FormIdentification').updateValidation();
             });
 
@@ -89,32 +89,25 @@
                 e.preventDefault();
                 var form = $("#FormIdentification");
                 if (form.valid()) {
-                    
                     var formData = form.serialize();
-
                     // First check if a status change needs to display a notes popup
                     var url = "../Company/GetStatusAction";
                     $.post(url, formData, function (data) {
 
                         if (data.displayMessage) {
-                            if (data.statusError == true) {
+                            if (data.statusError == true)
                                 displayErrorMessage(data.displayMessage);
-                            } else {
-                                displayStatusNoteConfirmation(data, function (e) {
-
+                            else {
+                                displayStatusNoteConfirmation(data, function (eval) {
                                     // Attach notes field information into form to be serialized
-                                    $("#FormIdentification").find('#StatusNotes').val(e.modalNotes);
+                                    $("#FormIdentification").find('#StatusNotes').val(eval.modalNotes);
                                     saveIdentificationInfo(true);
                                 });
                             }
-
-                        } else {
+                        } else
                             saveIdentificationInfo();
-                        }
                     });
 
-                } else {
-                    return false;
                 }
             });
 
@@ -173,8 +166,6 @@
                         grid.dataSource.read();
                         $('#SupplierFacilitiesDetail').html(data);
                     });
-                } else {
-                    return false;
                 }
             });
 
@@ -189,12 +180,10 @@
                         contactgrid.dataSource.read();
                         $('#CompanyContactDetailResult').html(data);
                     });
-                } else {
-                    return false;
                 }
             });
 
-            $("#btnCancelSupplierSearch").click(function (e) {
+            $("#btnCancelSupplierSearch").click(function () {
                 //supplierSearchDialog.data("kendoWindow").close();
                 $("#supplierSearchWindow").data("kendoWindow").close();
             });
@@ -211,7 +200,6 @@
 
 
         function saveIdentificationInfo(reloadSupplier) {
-            
             var form = $("#FormIdentification");
             var formData = form.serialize();
 
@@ -287,26 +275,64 @@
                    
         }
 
+        function CheckFormValidationStyle(frmObj) {
+            $("#" +frmObj).on("blur", function () {
+                if ($("#" +frmObj).val() != "")
+                    $("#" + frmObj).removeClass("requiredText").addClass("validText");
+                    else
+                    $("#" +frmObj).removeClass("validText").addClass("requiredText");
+                    });
+                    }
+
+        function DropDownValidationStyle(e) {
+            var selectedText = e.sender.value();
+            if(selectedText.length > 0) {
+                $("span.k-widget.k-dropdown.k-header[aria-owns='" +e.sender.element.attr("id") + "_listbox'] span").removeClass("invalid").removeClass("k-i-arrow-s").addClass("valid");
+                $("span.k-widget.k-dropdown.k-header[aria-owns='" + e.sender.element.attr("id") + "_listbox']").css("box-shadow", "0 0 5px #5cd053");
+                } else {
+                    $("span.k-widget.k-dropdown.k-header[aria-owns='" +e.sender.element.attr("id") + "_listbox'] span").removeClass("valid").addClass("invalid");
+                $("span.k-widget.k-dropdown.k-header[aria-owns='" + e.sender.element.attr("id") + "_listbox']").css("box-shadow", "0 0 5px #d45252");
+                }
+        }
+
+        function RemoveValidationSummary(frmObj, requiredMessage, isKendoDropDown) {
+            var formObjectValue;
+            if (!isKendoDropDown)
+                formObjectValue = $("#" +frmObj).val();
+            else {
+                var kendoDropdown = $("#" +frmObj).data("kendoDropDownList");
+                formObjectValue = kendoDropdown.value();
+            }
+
+            if(formObjectValue == "") {
+                $("#" + frmObj).removeClass("validText").addClass("requiredText");
+                $("div.validation-summary-valid.validationSummary ul").append("<li>" +requiredMessage + "</li>"); 
+            } else { 
+                $("#" +frmObj).removeClass("requiredText").addClass("validText");
+                $("div.validation-summary-valid.validationSummary ul li:contains('" +requiredMessage + "')").remove();
+            }
+        }
+
         var onGetObtainmentSettingId = function () {
             return {
                 ObtainmentSettingID: obtainmentSettingId
             };
         };
 
-        var OnChangeCountry = function (e) {
+        var OnChangeCountry = function () {
             var ddlRegion = $("#ddlDocumentRegion").data("kendoDropDownList");
             if (e.item.index() != "0")
                 ddlRegion.value("");
         };
 
 
-        var OnChangeRegion = function (e) {
+        var OnChangeRegion = function () {
             var ddlCountry = $("#ddlDocumentCountry").data("kendoDropDownList");
             if (e.item.index() != "0")
                 ddlCountry.value("");
         };
 
-        var gdGdWebSiteChange = function (e) {
+        var gdGdWebSiteChange = function () {
             var grid = $("#gdWebSite").data("kendoGrid");
             var selectedRow = grid.select();
             var selectedIndex = selectedRow.index();
@@ -321,7 +347,7 @@
             selectedUrl.addClass("inverturl");
         };
 
-        var gdGdDomainChange = function (e) {
+        var gdGdDomainChange = function () {
             var grid = $("#gdCompanyIdentificationDomains").data("kendoGrid");
             var selectedRow = grid.select();
             
@@ -329,8 +355,9 @@
             this.element.attr("SelectedDomainId", data.CompanyDomainId);
         };
 
-        var onChangeSupplierCountry = function () {
+        var onChangeSupplierCountry = function (e) {
             if ($('#FacilityCountry').length > 0) {
+                DropDownValidationStyle(e);
                 var autoFacilityCountry = $("#SupplierFacilityState").data("kendoAutoComplete");
                 if (autoFacilityCountry != null) {
                     autoFacilityCountry.destroy();
@@ -363,6 +390,7 @@
                     });
                 }
             } else {
+                DropDownValidationStyle(e);
                 var autoContactCountry = $("#CompanyContactState").data("kendoAutoComplete");
                 if (autoContactCountry != null) {
                     autoContactCountry.destroy();
@@ -396,6 +424,11 @@
             }
         };
 
+        var onChangeSupplierAddressType = function (e) {
+            if ($('#SelectAddressType').length > 0) {
+                DropDownValidationStyle(e);
+            }
+        }
 
         var gdSupplierContacts_Change = function (e) {
             e.preventDefault();
@@ -406,8 +439,6 @@
                 $("#CompanyContactDetailResult").html($(result));
             });
         };
-
-
 
         var gdSupplierContacts_Remove = function (e) {
             if (e.type == "destroy") {
@@ -429,7 +460,7 @@
 
         var panelbar_activated = function () {
             //Can not be moved to partial view, or it cause clear and search again
-            $("#clearSupplierBtn").click(function (e) {
+            $("#clearSupplierBtn").click(function () {
                 //Remove search result
                 $('#txtSupplierSearch').val("");
 
@@ -513,10 +544,39 @@
             this.element.attr("selectedfacilityaddressid", data.SupplierFacilityAddressId);
         };
 
+
         var onGdFacilityAddressEdit = function (e) {
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+            $(update).attr('title', 'Save');
+            $(cancel).attr('title', 'Cancel');
+            $("#SupplierFacilityAddress1").addClass("requiredText");
+            $("#SupplierFacilityCity").addClass("requiredText");
+            $("#SupplierFacilityState").addClass("requiredText");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='FacilityCountry_listbox'] span").removeClass("k-i-arrow-s").addClass("invalid");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='FacilityCountry_listbox'] span.k-icon.invalid").html("&nbsp");
+            $("#SupplierFacilityPostalCode").addClass("requiredText");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='SelectAddressType_listbox'] span").removeClass("k-i-arrow-s").addClass("invalid");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='SelectAddressType_listbox'] span.k-icon.invalid").html("&nbsp");
+
+            CheckFormValidationStyle("SupplierFacilityAddress1");
+            CheckFormValidationStyle("SupplierFacilityCity");
+            CheckFormValidationStyle("SupplierFacilityState");
+            CheckFormValidationStyle("SupplierFacilityPostalCode");
+
+            $(update).on("click", function () {
+                $("div.validation-summary-valid.validationSummary ul li").remove();
+                RemoveValidationSummary("SupplierFacilityAddress1", "Supplier - Facility Address 1 is required",false);
+                RemoveValidationSummary("SupplierFacilityCity", "Supplier - Facility City is required",false);
+                RemoveValidationSummary("SupplierFacilityState", "Supplier - Facility State is required",false);
+                RemoveValidationSummary("FacilityCountry", "Supplier - Facility Country is required", true);
+                RemoveValidationSummary("SupplierFacilityPostalCode", "Supplier - Facility Postal Code is required", false);
+                RemoveValidationSummary("SelectAddressType", "Supplier - Facility Address Type is required", true);
+
+                $("div.validation-summary-valid.validationSummary ul").append("<li style='display:none'>");
+            });
 
             var title = $(e.container).parent().find(".k-window-title");
-            var update = $(e.container).parent().find(".k-grid-update");
             if (e.model.SupplierFacilityAddressId > 0) {
                 $(title).html('Edit');
             } else {
@@ -524,6 +584,11 @@
                 var updateHtml = $(update).html();
                 updateHtml = updateHtml.replace("Update", "Create");
                 $(update).html(updateHtml);
+                updateHtml = updateHtml.replace("Create", " ");
+                $(update).html(updateHtml);
+                var cancelHtml = $(cancel).html();
+                cancelHtml = cancelHtml.replace("Cancel", " ");
+                $(cancel).html(cancelHtml);
             }
 
             removeModelDescriptionFields(e.container);
@@ -541,7 +606,8 @@
             e.model.set("CompanyContactCountry", val);
         };
 
-        var EditSupplierNotes = function(e) {
+        var EditSupplierNotes = function (e) {
+
             e.preventDefault();
 
             onGridEditChangeTitle(e);
@@ -585,7 +651,7 @@
         };
 
 
-        var ClearNoteText = function (e) {
+        var ClearNoteText = function () {
             $('#SupplierNotesText').html("");
         };
 
@@ -619,9 +685,27 @@
         var onGridEditChangeTitle = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
-            $(update).attr('title', 'Save');
+            
+            $(update).attr('title', 'Create');
             $(cancel).attr('title', 'Cancel');
             
+            $(update).on("click", function() {
+                    $("div.validation-summary-valid.validationSummary ul li").remove();
+
+                    if ($("#SupplierNoteText").data("kendoEditor").value().length == 0)
+                        $("div.validation-summary-valid.validationSummary ul").append("<li>Supplier - Notes is required</li>");
+                    else
+                        $("div.validation-summary-valid.validationSummary ul li:contains('Supplier - Notes is required')").remove();
+
+
+                    if ($("#SupplierNoteType").data("kendoMultiSelect").value() =="")
+                        $("div.validation-summary-valid.validationSummary ul").append("<li>Supplier - Type is required</li>");
+                    else
+                        $("div.validation-summary-valid.validationSummary ul li:contains('Supplier - Type is required')").remove();
+
+                    $("div.validation-summary-valid.validationSummary ul").append("<li style='display:none'>");
+                });
+
             var title = $(e.container).parent().find(".k-window-title");
             if (e.model.SupplierNotesId > 0) {
                 $(title).html('Edit');
@@ -631,6 +715,11 @@
                 var updateHtml = $(update).html();
                 updateHtml = updateHtml.replace("Update", "Create");
                 $(update).html(updateHtml);
+                updateHtml = updateHtml.replace("Create", " ");
+                $(update).html(updateHtml);
+                var cancelHtml = $(cancel).html();
+                cancelHtml = cancelHtml.replace("Cancel", " ");
+                $(cancel).html(cancelHtml);
             }
 
         };
@@ -777,7 +866,7 @@
         };
 
         var DisableGridInCellEditing = function (gdName) {
-            $('[id^="' + gdName + '"]').each(function (e) {
+            $('[id^="' + gdName + '"]').each(function () {
                 var gridId = "#" + this.id;
 
                 var btnSaveChanges = $(gridId).find("a.k-button.k-button-icontext.k-grid-save-changes");
@@ -798,10 +887,10 @@
         };
 
         var DisableGridInLineEditing = function (gdName) {
-            $('[id^="' + gdName + '"]').each(function (e) {
+            $('[id^="' + gdName + '"]').each(function () {
                 var gridId = "#" + this.id;
 
-                var btnAdd = null;
+                var btnAdd;
                 if (gdName == "gdSupplierFacilities" || gdName == "gdSupplierContacts") {
                     btnAdd = $(gridId).find("a.k-button.k-button-icontext");
                 } else {
@@ -831,7 +920,7 @@
             });
         };
 
-        var onGdWebSiteDataBound = function (e) {
+        var onGdWebSiteDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdWebSite");
@@ -840,7 +929,7 @@
 
             var selecteddocumentnotesid = $('#gdWebSite').attr("selectedwebsiteid");
 
-            $('td', '#gdWebSite').each(function (e) {
+            $('td', '#gdWebSite').each(function () {
                 var txt = $(this).html();
                 var i = txt.indexOf("CompanyWebsiteId");
                 if (i >= 0) {
@@ -855,7 +944,7 @@
 
         };
 
-        var onGdDomainDataBound = function (e) {
+        var onGdDomainDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                    // DisableGridInLineEditing("gdCompanyIdentificationDomains");
@@ -864,7 +953,7 @@
 
             var selectedid = $('#gdCompanyIdentificationDomains').attr("selecteddomainid");
 
-            $('td', '#gdCompanyIdentificationDomains').each(function (e) {
+            $('td', '#gdCompanyIdentificationDomains').each(function () {
                 var txt = $(this).html().toLowerCase();
                 var i = txt.indexOf("domainid");
                 if (i >= 0) {
@@ -879,7 +968,7 @@
 
         };
 
-        var onGdAliasDataBound = function (e) {
+        var onGdAliasDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdAlias");
@@ -887,7 +976,7 @@
             }
         };
 
-        var onGdCompanyIdentifierDataBound = function (e) {
+        var onGdCompanyIdentifierDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                    // DisableGridInCellEditing("gdCompanyIdentifiers");
@@ -895,13 +984,13 @@
             }
         };
 
-        var onGdCompanyIdentifierEdit = function (e) {
+        var onGdCompanyIdentifierEdit = function () {
             if (IsReadOnlyMode()) {
                 $('#gdCompanyIdentifiers').data("kendoGrid").closeCell();
             }
         };
 
-        var onGdSupplierFacilitiesDataBound = function (e) {
+        var onGdSupplierFacilitiesDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                   //  DisableGridInLineEditing("gdSupplierFacilities");
@@ -909,7 +998,7 @@
             }
         };
 
-        var onGdFacilityAddressDataBound = function (e) {
+        var onGdFacilityAddressDataBound = function () {
             
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
@@ -918,7 +1007,7 @@
             }
 
             var selectedfacilityaddressid = $('#gdFacilityAddress').attr("selectedfacilityaddressid");
-            $('td', '#gdFacilityAddress').each(function (e) {
+            $('td', '#gdFacilityAddress').each(function () {
                 var txt = $(this).html();
                 var i = txt.indexOf("SupplierFacilityAddressId");
                 if (i >= 0) {
@@ -933,7 +1022,7 @@
 
         };
 
-        var onGdFacilityPhoneDataBound = function (e) {
+        var onGdFacilityPhoneDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                    // DisableGridInLineEditing("gdFacilityPhone");
@@ -941,7 +1030,7 @@
             }
         };
 
-        var onGdFacilityEmailDataBound = function (e) {
+        var onGdFacilityEmailDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdFacilityEmail");
@@ -949,7 +1038,7 @@
             }
         };
 
-        var onGdFacilityIdentifiersDataBound = function (e) {
+        var onGdFacilityIdentifiersDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInCellEditing("gdFacilityIdentifiers");
@@ -957,14 +1046,14 @@
             }
         };
 
-        var onGdFacilityIdentifierEdit = function (e) {
+        var onGdFacilityIdentifierEdit = function () {
             if (IsReadOnlyMode()) {
                 $('#gdFacilityIdentifiers').data("kendoGrid").closeCell();
             }
         };
 
 
-        var onGdSupplierNotesDataBound = function (e) {
+        var onGdSupplierNotesDataBound = function () {
 
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
@@ -973,7 +1062,7 @@
             }
 
             var selectedsuppliernotesid = $('#gdSupplierNotes').attr("selectedsuppliernotesid");
-            $('td', '#gdSupplierNotes').each(function (e) {
+            $('td', '#gdSupplierNotes').each(function () {
                 var txt = $(this).html();
                 var i = txt.indexOf("SupplierNotesId");
                 if (i >= 0) {
@@ -982,7 +1071,7 @@
                         var parent = $(this).parent();
                         parent.addClass("k-state-selected");
 
-                        $('td', parent).each(function(e) {
+                        $('td', parent).each(function() {
                             var note = $(this).html();
                             var ii = note.indexOf("SupplierNoteText");
                             if (ii >= 0) {
@@ -997,7 +1086,7 @@
 
         };
 
-        var onGdSupplierContactsDataBound = function (e) {
+        var onGdSupplierContactsDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdSupplierContacts");
@@ -1005,7 +1094,7 @@
             }
         };
 
-        var onGdContactAddressDataBound = function (e) {
+        var onGdContactAddressDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactAddress");
@@ -1013,7 +1102,7 @@
             }
         
             var selectedcontactaddressid = $('#gdContactAddress').attr("selectedcontactaddressid");
-            $('td', '#gdContactAddress').each(function (e) {
+            $('td', '#gdContactAddress').each(function () {
                 var txt = $(this).html();
                 var i = txt.indexOf("CompanyContactAddressId");
                 if (i >= 0) {
@@ -1042,9 +1131,38 @@
             //hide CompanyContactAddressId from the pop up edit form.
             $("label[for='CompanyContactAddressId']").parent().hide();
             $('#CompanyContactAddressId').parent().hide();
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+            $(update).attr('title', 'Save');
+            $(cancel).attr('title', 'Cancel');
+
+            $("#CompanyContactAddress1").addClass("requiredText");
+            $("#CompanyContactCity").addClass("requiredText");
+            $("#CompanyContactState").addClass("requiredText");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='CompanyContactCountry_listbox'] span").removeClass("k-i-arrow-s").addClass("invalid");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='CompanyContactCountry_listbox'] span.k-icon.invalid").html("&nbsp");
+            $("#CompanyContactPostalCode").addClass("requiredText");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='SelectAddressType_listbox'] span").removeClass("k-i-arrow-s").addClass("invalid");
+            $("span.k-widget.k-dropdown.k-header[aria-owns='SelectAddressType_listbox'] span.k-icon.invalid").html("&nbsp");
+
+            CheckFormValidationStyle("CompanyContactAddress1");
+            CheckFormValidationStyle("CompanyContactCity");
+            CheckFormValidationStyle("CompanyContactState");
+            CheckFormValidationStyle("CompanyContactPostalCode");
+
+            $(update).on("click", function () {
+                $("div.validation-summary-valid.validationSummary ul li").remove();
+                RemoveValidationSummary("CompanyContactAddress1", "Supplier - Contact Address 1 is required", false);
+                RemoveValidationSummary("CompanyContactCity", "Supplier - Contact City is required", false);
+                RemoveValidationSummary("CompanyContactState", "Supplier - Contact State is required", false);
+                RemoveValidationSummary("CompanyContactCountry", "Supplier - Contact Country is required", true);
+                RemoveValidationSummary("CompanyContactPostalCode", "Supplier - Contact Postal Code is required", false);
+                RemoveValidationSummary("SelectAddressType", "Supplier - Contact Address Type is required", true);
+
+                $("div.validation-summary-valid.validationSummary ul").append("<li style='display:none'>");
+            });
 
             var title = $(e.container).parent().find(".k-window-title");
-            var update = $(e.container).parent().find(".k-grid-update");
             if (e.model.CompanyContactAddressId > 0) {
                 $(title).html('Edit');
             } else {
@@ -1052,7 +1170,13 @@
                 var updateHtml = $(update).html();
                 updateHtml = updateHtml.replace("Update", "Create");
                 $(update).html(updateHtml);
+                updateHtml = updateHtml.replace("Create", " ");
+                $(update).html(updateHtml);
+                var cancelHtml = $(cancel).html();
+                cancelHtml = cancelHtml.replace("Cancel", " ");
+                $(cancel).html(cancelHtml);
             }
+
 
             removeModelDescriptionFields(e.container);
             removeModelReadOnlyField(e.container);
@@ -1064,7 +1188,7 @@
             });
         };
 
-        var onGdContactPhoneDataBound = function (e) {
+        var onGdContactPhoneDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactPhone");
@@ -1072,7 +1196,7 @@
             }
         };
 
-        var onGdContactEmailDataBound = function (e) {
+        var onGdContactEmailDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactEmail");
@@ -1090,7 +1214,7 @@
             if ($('a[title="Copy"]').size() > 0) {
                 $('a[title="Copy"]').each(function () {
                     $(this).text("");
-                    $(this).prepend("<span class='k-icon k-i-restore'></span>");
+                    $(this).prepend("<span class='k-icon k-i-refresh'></span>");
                 });
             }
         };
@@ -1322,8 +1446,7 @@
             }
         };
 
-        var fnSearchSupplier = function (e) {
-            activeSupplier = "txtSearchSupplierId";
+        var fnSearchSupplier = function () {
             var urlSearch = "../ObtainmentSettings/PlugInParentSupplierSearch";
             $.post(urlSearch, { supplierId: 0 }, function (data) {
                 $("#dgSupplierPlugIn").html(data);
@@ -1380,7 +1503,7 @@
                     if ($(".btn-group > ul.dropdown-menu li").length > 10) {
                         $(".btn-group > ul.dropdown-menu > li:last-child").remove();
                     }
-                    $(".btn-group > ul.dropdown-menu li a").click(function (e) {
+                    $(".btn-group > ul.dropdown-menu li a").click(function () {
                         $(txtCntrlId).val($(this).text());
                         refreshSupplierSearchResultGrid(gridid);
                     });
@@ -1452,17 +1575,17 @@
                 }
 
                 if (onDeactivateContentLoad) {
-                    var tabstrip = $('#SupplierTabstrip');
-                    if (tabstrip.length > 0) {
-                        tabstrip.addClass('deactivated-tabstrip');
+                var tabstrip = $('#SupplierTabstrip');
+                if (tabstrip.length > 0) {
+                    tabstrip.addClass('deactivated-tabstrip');
 
-                        var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
-                        if (ktabstrip) {
+                    var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
+                    if (ktabstrip) {
                             ktabstrip.bind('contentLoad', onDeactivateContentLoad);
-                            ktabstrip.trigger('contentLoad');
-                        }
+                        ktabstrip.trigger('contentLoad');
                     }
                 }
+            }
             }
         };
 
@@ -1535,8 +1658,7 @@
             var selectedData = this.dataItem(selectedRow);
             $('#StatusNotesText').html(selectedData.Notes);
         };
-        var PrevContent = "";
-        var CurrentContent = "";
+       
         $("#DetailSupplier").on("keyup", '#txtMultipleAliases', function (e) {
             //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
             if (e.keyCode == 13) {
@@ -1577,12 +1699,42 @@
             }
         });
 
+        $("#DetailSupplier").on("keyup", '#txtMultipleEmails', function (e) {
+            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
+            if(e.keyCode == 13) {
+                e.preventDefault();
+                var arr = $('#DetailSupplier #txtMultipleEmails').val().split("\n");
+                    var arrDistinct = new Array();
+                    $(arr).each(function (index, item) {
+                        if (item.length > 0) {
+                            if ($.inArray(item, arrDistinct) == -1) {
+                                if (/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/.test(item)) {
+                                    arrDistinct.push(item);
+                                }
+                            }
+                        }
+                    });
+                    $('#DetailSupplier #txtMultipleEmails').val("");
+                    $(arrDistinct).each(function (index, item) {
+                        $('#DetailSupplier #txtMultipleEmails').val($('#DetailSupplier #txtMultipleEmails').val() + item + "\n");
+            });
+            }
+        });
+
         var showMultiple = function () {
             DisplayModal("mdlMultipleAliases");
         }
 
         var showMultipleWebSites = function() {
             DisplayModal("mdlMultipleWebSites");
+        }
+
+        var showMultipleFacilityEmails = function() {
+            DisplayModal("mdlMultipleFacilityEmails");
+        }
+
+        var showMultipleContactEmails = function () {
+            DisplayModal("mdlMultipleContactEmails");
         }
 
         function DisplayModal(objModal) {
@@ -1598,6 +1750,88 @@
             });
         }
 
+        $("#DetailSupplier").on("click", '#btnDiscardMultipleContactEmails', function () {
+                    $('#DetailSupplier #txtMultipleEmails').val("");
+                    $('#mdlMultipleContactEmails').modal("toggle");
+        });
+
+        $("#DetailSupplier").on("click", '#btnSaveMultipleContactEmails', function (e) {
+            var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
+            for (var i = 0; i < lines.length; i++) {
+                // only push this line if it contains a non whitespace character.
+                if (lines[i].length > 0)
+                    texts.push($.trim(lines[i]));
+            }
+           var data = { };
+            data['supplierContactId'] = $("#SupplierContactId").val();
+            data['emailsText']= texts;
+            e.preventDefault();
+            $.ajax({
+                    url: "../Company/ContactEmails_Multiple_Create",
+                    data: JSON.stringify(data),
+                    type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    error: function () {
+                        onDisplayError('Emails could not be saved.');
+                    },
+                    success: function (successData) {
+                        if(successData.success == true) {
+                            $('#mdlMultipleContactEmails').modal("toggle");
+                            var grid = $("#DetailSupplier #gdContactEmail").data("kendoGrid");
+                            grid.dataSource.read();
+                            //should refressh grid
+                        } else
+                            onDisplayError("Error Occurred");
+                    },
+                    complete: function () {
+                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+                    }
+            });
+        });
+
+        $("#DetailSupplier").on("click", '#btnDiscardMultipleFacilityEmails', function () {
+            $('#DetailSupplier #txtMultipleEmails').val("");
+            $('#mdlMultipleFacilityEmails').modal("toggle");
+         });
+
+        $("#DetailSupplier").on("click", '#btnSaveMultipleFacilityEmails', function (e) {
+            var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
+            for (var i = 0; i < lines.length; i++) {
+                // only push this line if it contains a non whitespace character.
+                if (lines[i].length > 0)
+                    texts.push($.trim(lines[i]));
+            }
+           var data = {};
+            data['facilityId'] = $("#SupplierFacilityId").val();
+            data['emailsText'] = texts;
+            e.preventDefault();
+            $.ajax({
+                url: "../Company/FacilityEmails_Multiple_Create",
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+                    onDisplayError('Emails could not be saved.');
+                },
+                success: function (successData) {
+                    if (successData.success == true) {
+                        $('#mdlMultipleFacilityEmails').modal("toggle");
+                        var grid = $("#DetailSupplier #gdFacilityEmail").data("kendoGrid");
+                        grid.dataSource.read();
+                        //should refressh grid
+                    } else
+                        onDisplayError("Error Occurred");
+                },
+                complete: function () {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+        }
+            });
+        });
+
+        $("#DetailSupplier").on("click", '#btnDiscarMultipleAliases', function () {
+            $('#DetailSupplier #txtMultipleAliases').val("");
+            $('#mdlMultipleAliases').modal("toggle");
+        });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleAliases', function (e) {
             var lines = $('#DetailSupplier #txtMultipleAliases').val().split(/\n/);
@@ -1629,11 +1863,17 @@
                     } else 
                         onDisplayError("Error Occurred");
                 },
-                complete: function (compData) {
+                complete: function () {
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
                 }
             });
+                });
+        
+        $("#DetailSupplier").on("click", '#btnDiscardMultipleWebSites', function () {
+            $('#DetailSupplier #txtMultipleWebsites').val("");
+            $('#mdlMultipleWebSites').modal("toggle");
         });
+
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleWebSites', function (e) {
             var lines = $('#DetailSupplier #txtMultipleWebsites').val().split(/\n/);
@@ -1665,7 +1905,7 @@
                     } else
                         onDisplayError("Error Occurred");
                 },
-                complete: function (compData) {
+                complete: function () {
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
                 }
             });
@@ -1695,6 +1935,7 @@
             fnSearchSupplier: fnSearchSupplier,
 
             onChangeSupplierCountry: onChangeSupplierCountry,
+            onChangeSupplierAddressType:onChangeSupplierAddressType,
             gdSupplierContacts_Change: gdSupplierContacts_Change,
             gdSupplierContacts_Remove: gdSupplierContacts_Remove,
             gdSupplierFacility_Change: gdSupplierFacility_Change,
@@ -1763,7 +2004,9 @@
             clearSupplierStatusNote: clearSupplierStatusNote,
             onStatusChange: onStatusChange,
             showMultiple: showMultiple,
-            showMultipleWebSites: showMultipleWebSites
+            showMultipleWebSites: showMultipleWebSites,
+            showMultipleFacilityEmails: showMultipleFacilityEmails,
+            showMultipleContactEmails: showMultipleContactEmails
         };
     };
 
