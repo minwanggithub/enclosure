@@ -20,6 +20,7 @@
         var supplierSearchDialog = $("#supplierSearchWindow");
 
         var onErrorCallback;
+        var deactivateContent;
 
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
@@ -172,9 +173,31 @@
             }
         }
 
+        function deactivateLayout(productId) {
+            
+            // Sanity check!
+            if (!deactivateContent) {
+                return;
+            }
+
+            // Deactivate the layout if the status is set to deactivated and layout not already deactivated
+            var nameInput = $("#txtProductName_" + productId);
+            var statusDdl = $("#ddlProductStatus_" + productId).data('kendoDropDownList');
+            if (statusDdl && statusDdl.value() == '14' && nameInput.not(':disabled')) {
+
+                // Find the current tab, if not find the form
+                var container = $('#' + productId + '_tbProductDetail');
+                if (container.length == 0)
+                    container = $('#frmProductDetail_' + productId);
+
+                deactivateContent(container);
+            }
+        }
+
         // Product Detail Methods
-        var initializeProductDetailControls = function(errorCallback) {
+        var initializeProductDetailControls = function(errorCallback, deactivateContentFunc) {
             onErrorCallback = errorCallback;
+            deactivateContent = deactivateContentFunc;
         };
 
         // Product Status History Methods
@@ -217,7 +240,6 @@
         }
 
         function saveBtnEvent(activeSaveButton) {
-
             var form = $("#frmProductDetail_" + activeSaveButton).updateValidation();
             if (!form.valid()) {
                 return;
@@ -292,6 +314,7 @@
                     }
 
                     UnBindingSaveCancel(0);
+                    deactivateLayout(activeSaveButton);
                     return;
                 }
 
@@ -712,11 +735,6 @@
                 $('#txtSearchSupplierId').keyup(function (event) {
                     var code = (event.keyCode ? event.keyCode : event.which);
                     if (code == 13) { //Search only on enter
-                        //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company", new {Area="Operations"})';
-                        //var supplierInfo = $("#txtSearchSupplierId").val();
-                        //$.post(url, { supplierInfo: supplierInfo }, function (data) {
-                        //    $('#txtSearchSupplierId').val(data);
-                        //});
                         DoLookUpSupplierOnKeyEnter('#txtSearchSupplierId');
                     }
                 });
@@ -779,6 +797,9 @@
             $("#searchDocumentBtn").click(function (e5) {
                 GridDocumentSearchResult();
             });
+
+            // Deactivate the layout if the status is set to deactivated
+            deactivateLayout(pKey);
 
         }; //end of LoadProductMatchDetailsCompleted
 

@@ -1437,129 +1437,8 @@
             }
         };
 
-        function deactivateContentLoad(e) {
-            var container = null;
-
-            // If element calling the content load is a tabstrip get the active tabcontents
-            var tabstrip = $(e.sender.wrapper).data('kendoTabStrip');
-            if (tabstrip) {
-                container = $("div[id='" + tabstrip.select().attr('aria-controls') + "']");
-            } else {
-                container = $(e.sender.wrapper);
-            }
-
-            if (container && container.length > 0) {
-                deactivateContainerContents(container);
-            }
-        };
-
-        function deactivateContainerContents(container) {
-
-            var splitter = container.find('.k-splitter');
-            if (splitter.length > 0) {
-
-                var ksplitter = splitter.data('kendoSplitter');
-                if (ksplitter) {
-                    ksplitter.bind('contentLoad', deactivateContentLoad);
-                }
-
-                // Do we have a special splitter which needs an observer on the right pane?
-                var specialTabs = ["FacilitySplitter", "ContactSplitter", "ObtainmentTypeSplitter"];
-                if ($.inArray(splitter.attr('id'), specialTabs) > -1) {
-                    var detailContainer = splitter.find('.k-pane:last').find('div:first');
-                    if (detailContainer.length > 0) {
-
-                        var observer = new MutationObserver(function (records) {
-                            deactivateContainerContents($(records[0].target));
-                        });
-
-                        var config = { childList: true };
-                        observer.observe(detailContainer[0], config);
-                    }
-                }
-            }
-
-            var tabstrip = container.find('.k-tabstrip');
-            if (tabstrip.length > 0) {
-                var ktabstrip = tabstrip.data('kendoTabStrip');
-                if (ktabstrip) {
-                    ktabstrip.bind('contentLoad', deactivateContentLoad);
-                }
-            }
-
-            // Find all elements to hide
-            container.find('.k-toolbar, .k-button').hide();
-            container.find('.k-button').unbind('click');
-            container.find('input[type="text"], textarea, button').prop('disabled', true);
-            container.find('input[type="checkbox"]')
-                .prop('disabled', true)
-                .parents('.row-fluid:first')
-                .addClass('k-state-disabled');
-
-            var dropdownlist = container.find('[data-role="dropdownlist"]');
-            if (dropdownlist.length > 0) {
-                dropdownlist.each(function () {
-                    var kdropdownlist = $(this).data('kendoDropDownList');
-                    if (kdropdownlist) {
-                        kdropdownlist.enable(false);
-                    }
-                });
-            }
-
-            var datepicker = container.find('[data-role="datepicker"]');
-            if (datepicker.length > 0) {
-                var kdatepicker = datepicker.data('kendoDatePicker');
-                if (kdatepicker) {
-                    kdatepicker.enable(false);
-                }
-            }
-
-            // Special logic for hiding the actions column for grids
-            var grid = container.find('.k-grid');
-            if (grid.length > 0) {
-
-                grid.each(function() {
-                    var kgrid = $(this).data('kendoGrid');
-                    if (kgrid) {
-
-                        kgrid.unbind('edit');
-                        kgrid.bind('edit', function (e) {
-                            e.sender.closeCell();
-                        });
-
-                        // Remove the 'Action/Edit' column all together
-                        for (var i = 0; i < kgrid.columns.length; i++) {
-                            if (kgrid.columns[i].title == 'Action') {
-                                kgrid.hideColumn(i);
-                                break;
-                            } else if (kgrid.columns[i].template == 'Edit') {
-                                var domElements = $.parseHTML(kgrid.options.rowTemplate);
-                                if (domElements && domElements.length > 0) {
-                                    var elementObj = $(domElements);
-                                    elementObj.find('td:last').remove();
-                                    kgrid.options.rowTemplate = elementObj.prop('outerHTML');
-                                }
-
-                                kgrid.hideColumn(i);
-                                break;
-                            }
-                        }
-                    }
-                });
-            }
-
-            var multiselect = container.find('[data-role="multiselect"]');
-            if (multiselect.length > 0) {
-                var kmultiselect = multiselect.data('kendoMultiSelect');
-                if (kmultiselect) {
-                    kmultiselect.enable(false);
-                    multiselect.parent().find('.k-multiselect-wrap').addClass('deactivated-div');
-                }
-            }
-        };
-
         // Supplier Identification Methods
-        var initSupplierIdentification = function(errorCallback) {
+        var initSupplierIdentification = function(errorCallback, onDeactivateContentLoad) {
             onErrorCallback = errorCallback;
 
             // Set up observer to hide all save/cancel/add/delete buttons
@@ -1572,14 +1451,16 @@
                     deactivatedLabel.show();
                 }
 
-                var tabstrip = $('#SupplierTabstrip');
-                if (tabstrip.length > 0) {
-                    tabstrip.addClass('deactivated-tabstrip');
+                if (onDeactivateContentLoad) {
+                    var tabstrip = $('#SupplierTabstrip');
+                    if (tabstrip.length > 0) {
+                        tabstrip.addClass('deactivated-tabstrip');
 
-                    var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
-                    if (ktabstrip) {
-                        ktabstrip.bind('contentLoad', deactivateContentLoad);
-                        ktabstrip.trigger('contentLoad');
+                        var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
+                        if (ktabstrip) {
+                            ktabstrip.bind('contentLoad', onDeactivateContentLoad);
+                            ktabstrip.trigger('contentLoad');
+                        }
                     }
                 }
             }
