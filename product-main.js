@@ -690,6 +690,14 @@
                 BindingSaveCancel(pKey);
             });
 
+            $('#txtObtainmentNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+                BindingSaveCancel(pKey);
+            });
+
+            $('#txtXReferenceNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+                BindingSaveCancel(pKey);
+            });
+
             $("#searchSupplierIdBtn_" + pKey).on("click", function (e2) {
                 activeSupplier = "txtSupplierId_" + pKey;
                 activeSupplierIndex = pKey;
@@ -894,6 +902,14 @@
             BindingSaveCancel(pKey);
 
             $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function() {
+                BindingSaveCancel(pKey);
+            });
+
+            $('#txtObtainmentNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+                BindingSaveCancel(pKey);
+            });
+
+            $('#txtXReferenceNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
