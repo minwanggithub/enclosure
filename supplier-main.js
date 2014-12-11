@@ -211,7 +211,7 @@
 
                     var args = {
                          header: 'Confirm Save',
-                         message: 'You are going to add a duplicate supplier, do you wish to continue?'
+                         message: 'A duplicate supplier exists, do you wish to continue?'
                     };
                     DisplayConfirmationModal(args, function () {
                      
@@ -539,15 +539,14 @@
                 var supplierId = $("#SupplierId").val();
                 var supplierFacilityId = $("#SupplierFacilityId").val();
                 $('#DetailSupplier #gdFacilityAddress').data("kendoGrid").cancelChanges();
-
-                var urlSave = "../Company/FacilityAddress_Create2";
+                var urlSave = "../Company/FacilityAddress_Save";
                 var url = "../Company/ValidateFacilityAddress";
-                var data = { companyId: supplierId, facilityid: supplierFacilityId, add1: e.model.SupplierFacilityAddress1, add2: e.model.SupplierFacilityAddress2, city: e.model.SupplierFacilityCity, state: e.model.SupplierFacilityState, country: e.model.FacilityCountry, zip: e.model.SupplierFacilityPostalCode, type: e.model.SelectAddressType};
+                var data = { facilityAddressId: e.model.id, companyId: supplierId, facilityid: supplierFacilityId, add1: e.model.SupplierFacilityAddress1, add2: e.model.SupplierFacilityAddress2, city: e.model.SupplierFacilityCity, state: e.model.SupplierFacilityState, country: e.model.FacilityCountry, zip: e.model.SupplierFacilityPostalCode, type: e.model.SelectAddressType};
                 $.post(url, data, function(data1) {
                     if (data1 == "Duplicate") {
                         var args = {
                             header: 'Confirm Save',
-                            message: 'You are going to add a duplicate supplier, do you wish to continue?'
+                            message: 'A duplicate supplier exists, do you wish to continue?'
                         };
                         DisplayConfirmationModal(args, function () {
                             saveFacilityAddress(urlSave, data);
