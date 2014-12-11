@@ -531,10 +531,44 @@
             }
         };
 
+        
         var docGridSave_FacilityAddress = function (e) {
-            var val = $("#FacilityCountry").data().kendoDropDownList.value();
-            e.model.set("FacilityCountry", val);
+           
+                var val = $("#FacilityCountry").data().kendoDropDownList.value();
+                e.model.set("FacilityCountry", val);
+                var supplierId = $("#SupplierId").val();
+                var supplierFacilityId = $("#SupplierFacilityId").val();
+                $('#DetailSupplier #gdFacilityAddress').data("kendoGrid").cancelChanges();
+
+                var urlSave = "../Company/FacilityAddress_Create2";
+                var url = "../Company/ValidateFacilityAddress";
+                var data = { companyId: supplierId, facilityid: supplierFacilityId, add1: e.model.SupplierFacilityAddress1, add2: e.model.SupplierFacilityAddress2, city: e.model.SupplierFacilityCity, state: e.model.SupplierFacilityState, country: e.model.FacilityCountry, zip: e.model.SupplierFacilityPostalCode, type: e.model.SelectAddressType};
+                $.post(url, data, function(data1) {
+                    if (data1 == "Duplicate") {
+                        var args = {
+                            header: 'Confirm Save',
+                            message: 'You are going to add a duplicate supplier, do you wish to continue?'
+                        };
+                        DisplayConfirmationModal(args, function () {
+                            saveFacilityAddress(urlSave, data);
+                        });
+                    } else {
+                        saveFacilityAddress(urlSave, data);
+                    }
+                });
+
         };
+
+        function saveFacilityAddress(url, data) {
+
+            $.post(url, data, function (data2) {
+                if (data2 == "success") {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Address.");
+                    $('#DetailSupplier #gdFacilityAddress').data("kendoGrid").dataSource.read();
+                }
+            });
+        }
+
 
         var onGdFacilityAddressChange = function (e) {
             e.preventDefault();
