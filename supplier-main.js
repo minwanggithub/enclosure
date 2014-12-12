@@ -757,6 +757,69 @@
 
         };
 
+       var onGridEditChangePhone = function (e) {
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+
+            $(update).attr('title', 'Create');
+            $(cancel).attr('title', 'Cancel');
+
+            $(update).on("click", function () {
+                var validationUrl = "../company/ValidateFacilityPhone";
+                var saveUrl = "../company/SaveFacilityPhone";
+                var supplierId = $("#SupplierId").val();
+                var supplierFacilityId = $("#SupplierFacilityId").val();
+                var supplierFacilityPhoneId = e.model.SupplierFacilityPhoneId;
+                $('#DetailSupplier #gdFacilityPhone').data("kendoGrid").cancelChanges();
+                var data = {
+                    supplierFacilityPhoneId: supplierFacilityPhoneId, companyId: supplierId, facilityid: supplierFacilityId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.SupplierFacilityCityAreaCode,
+                    extension:e.model.SupplierFacilityExtension, localNo:e.model.SupplierFacilityLocalNumber
+                };
+                $.post(validationUrl, data, function (result) {
+                    if (result == "Duplicate") {
+                        var args = {
+                            header: 'Confirm Save',
+                            message: 'A duplicate supplier exists, do you wish to continue?'
+                        };
+                        DisplayConfirmationModal(args, function () {
+                            saveFacilityPhone(saveUrl, data);
+                        });
+                    }
+                    else
+                    {
+                       saveFacilityPhone(saveUrl, data);
+                    }
+                });
+                
+            });
+
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.SupplierNotesId > 0) {
+                $(title).html('Edit');
+            }
+            else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+                updateHtml = updateHtml.replace("Create", " ");
+                $(update).html(updateHtml);
+                var cancelHtml = $(cancel).html();
+                cancelHtml = cancelHtml.replace("Cancel", " ");
+                $(cancel).html(cancelHtml);
+            }
+
+        };
+
+        function saveFacilityPhone(url, data) {
+            $.post(url, data, function (data2) {
+                if (data2 == "success") {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Phone.");
+                    $('#DetailSupplier #gdFacilityPhone').data("kendoGrid").dataSource.read();
+                }
+            });
+        }
+
         var onGridEditChangeWebSite = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
@@ -2039,7 +2102,8 @@
             showMultiple: showMultiple,
             showMultipleWebSites: showMultipleWebSites,
             showMultipleFacilityEmails: showMultipleFacilityEmails,
-            showMultipleContactEmails: showMultipleContactEmails
+            showMultipleContactEmails: showMultipleContactEmails,
+            onGridEditChangePhone: onGridEditChangePhone
         };
     };
 
