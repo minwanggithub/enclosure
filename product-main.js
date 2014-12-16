@@ -320,22 +320,57 @@
                 }
 
                 if (data != '0') {
-                    var prdGrid = $("#gdSearchProduct").data("kendoGrid");
-                    var parentRowIndex = $("#txtProductId_" + activeSaveButton).val();
-                    var dataItem = prdGrid.dataSource.get(parentRowIndex);
+                    var productInfo = {
+                        ReferenceId: activeSaveButton,
+                        ProductName: $("#txtProductName_" +activeSaveButton).val(),
+                        SupplierId: selectedSuppilerId,
+                        SupplierName: selectedSuppilerName,
+                        SelectedStatusId: selectedStatusId
+                    };
 
-                    dataItem.set("ProductName", $("#txtProductName_" + activeSaveButton).val());
-                    dataItem.set("SupplierId", selectedSuppilerId);
-                    dataItem.set("SupplierName", selectedSuppilerName);
-                    dataItem.set("SelectedStatusId", selectedStatusId);
-
-                    var dataItemRow = prdGrid.table.find('tr[data-uid="' + dataItem.uid + '"]');
-                    prdGrid.expandRow(dataItemRow);
-
+                    setProductGridDataSourceItem(productInfo);
                 } else {
                     displayErrorMessage('Error occured while saving the product');
                 }
             });
+        }
+
+        // Method to set the datasource item based on the data passed through
+        function setProductGridDataSourceItem(productObj) {
+
+            var kgrid = $("#gdSearchProduct").data("kendoGrid");
+            if (kgrid) {
+                
+                var parentRowIndex = productObj.ReferenceId;
+                var dataItem = kgrid.dataSource.get(parentRowIndex);
+
+                // Check if something has changed
+                var dataChanged = false;
+                var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'CreatedDescription', 'UpdateDescription'];
+                for (var i = 0; i < fields.length; i++) {
+
+                    var dsItem = dataItem[fields[i]] || '';
+                    var productItem = productObj[fields[i]]|| '';
+                    if (dsItem != productItem) {
+                        dataChanged = true;
+                        break;
+                    }
+                }
+
+                if (dataChanged == true) {
+                    dataItem.set("ProductName", productObj.ProductName);
+                    dataItem.set("SupplierId", productObj.SupplierId);
+                    dataItem.set("SupplierName", productObj.SupplierName);
+                    dataItem.set("SelectedStatusId", productObj.SelectedStatusId);
+                    dataItem.set("CreatedDate", productObj.CreatedDate);
+                    dataItem.set("CreatedBy", productObj.CreatedBy);
+                    dataItem.set("LastUpdate", productObj.LastUpdate);
+                    dataItem.set("LastUpdateBy", productObj.LastUpdatedBy);
+
+                    var dataItemRow = kgrid.table.find('tr[data-uid="' +dataItem.uid + '"]');
+                    kgrid.expandRow(dataItemRow);
+                }
+            }
         }
 
         ////////////non publuc / public/////////////
@@ -607,15 +642,24 @@
 
         //--------------------start of _SearchProduct.cshtml-----------------------
         function TabReload(tabName, tab) {
-            var tsProdDetail = $(tabName).data("kendoTabStrip");
+            var tabstrip = $(tabName).data("kendoTabStrip");
+
+            // Ensure that the other tabs will be reloaded when they are selected
+            tabstrip.contentElements.each(function() {
+
+                var currentElement = $(this);
+                if (!currentElement.is('.k-state-active')) {
+                    currentElement.html("");
+                }
+            });          
 
             // Is the tab marked as the active tab?
-            var currentTab = $(tsProdDetail.items()[tab]);
+            var currentTab = $(tabstrip.items()[tab]);
             if (!currentTab.attr('id')) {
-                currentTab.attr('id', tsProdDetail._ariaId);
+                currentTab.attr('id', tabstrip._ariaId);
             }
 
-            tsProdDetail.reload(currentTab.context);
+            tabstrip.reload(currentTab.context);
         }
 
         ////////////non publuc / public/////////////
@@ -1080,6 +1124,7 @@
             refreshProductSearchResultGrid: refreshProductSearchResultGrid,
             RemovedProductDocument: RemovedProductDocument,
             setDeleteImageIcon: setDeleteImageIcon,
+            setProductGridDataSourceItem: setProductGridDataSourceItem,
             showSupplierPlugIn: showSupplierPlugIn,
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
