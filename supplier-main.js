@@ -996,7 +996,7 @@
                 $('#DetailSupplier #gdContactEmail').data("kendoGrid").cancelChanges();
 
                 var data = {
-                    supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.CompanyContactEmail
+                    supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.Email
                 };
                 $.post(validationUrl, data, function (result) {
                     if (result == "Duplicate") {
