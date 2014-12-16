@@ -745,6 +745,7 @@
         };
 
         var onGridEditChangeTitle = function (e) {
+          
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             
@@ -786,6 +787,7 @@
 
         };
 
+       //facility phone
        var onGridEditChangePhone = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
@@ -840,6 +842,7 @@
 
         };
        
+       //contact phone
        var onGridEditChangeContactPhone = function (e) {
            var update = $(e.container).parent().find(".k-grid-update");
            var cancel = $(e.container).parent().find(".k-grid-cancel");
@@ -911,8 +914,9 @@
             });
         }
         
+        //facility email
         var onGridEditChangeEmail = function (e) {
-            alert("onGridEditChangeEmail");
+         
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
 
@@ -965,11 +969,74 @@
         };
 
         function saveFacilityEmail(url, data) {
-            alert("saveFacilityEmail");
+         
             $.post(url, data, function (data2) {
                 if (data2 == "success") {
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Email.");
                     $('#DetailSupplier #gdFacilityEmail').data("kendoGrid").dataSource.read();
+                }
+            });
+        }
+
+        //contact email
+        var onGridEditChangeContactEmail = function (e) {
+            
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+
+            $(update).attr('title', 'Create');
+            $(cancel).attr('title', 'Cancel');
+
+            $(update).on("click", function () {
+                var validationUrl = "../company/ValidateContactEmail";
+                var saveUrl = "../company/SaveContactEmail";
+                var supplierId = $("#SupplierId").val();
+                var supplierContactId = $("#SupplierContactId").val();
+                var supplierContactEmailId = e.model.CompanyContactEmailId;
+                $('#DetailSupplier #gdContactEmail').data("kendoGrid").cancelChanges();
+
+                var data = {
+                    supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.CompanyContactEmail
+                };
+                $.post(validationUrl, data, function (result) {
+                    if (result == "Duplicate") {
+                        var args = {
+                            header: 'Confirm Save',
+                            message: 'A duplicate supplier exists, do you wish to continue?'
+                        };
+                        DisplayConfirmationModal(args, function () {
+                            saveContactEmail(saveUrl, data);
+                        });
+                    }
+                    else {
+                        saveContactEmail(saveUrl, data);
+                    }
+                });
+            });
+
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.SupplierNotesId > 0) {
+                $(title).html('Edit');
+            }
+            else {
+                $(title).html('Create');
+                var updateHtml = $(update).html();
+                updateHtml = updateHtml.replace("Update", "Create");
+                $(update).html(updateHtml);
+                updateHtml = updateHtml.replace("Create", " ");
+                $(update).html(updateHtml);
+                var cancelHtml = $(cancel).html();
+                cancelHtml = cancelHtml.replace("Cancel", " ");
+                $(cancel).html(cancelHtml);
+            }
+        };
+
+        function saveContactEmail(url, data) {
+            
+            $.post(url, data, function (data2) {
+                if (data2 == "success") {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Contact Email.");
+                    $('#DetailSupplier #gdContactEmail').data("kendoGrid").dataSource.read();
                 }
             });
         }
@@ -2260,6 +2327,7 @@
             onGridEditChangePhone: onGridEditChangePhone,
             onGridEditChangeEmail: onGridEditChangeEmail,
             onGridEditChangeContactPhone: onGridEditChangeContactPhone,
+            onGridEditChangeContactEmail: onGridEditChangeContactEmail
         };
     };
 
