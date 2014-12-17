@@ -319,14 +319,14 @@
             };
         };
 
-        var OnChangeCountry = function () {
+        var OnChangeCountry = function (e) {
             var ddlRegion = $("#ddlDocumentRegion").data("kendoDropDownList");
             if (e.item.index() != "0")
                 ddlRegion.value("");
         };
 
 
-        var OnChangeRegion = function () {
+        var OnChangeRegion = function (e) {
             var ddlCountry = $("#ddlDocumentCountry").data("kendoDropDownList");
             if (e.item.index() != "0")
                 ddlCountry.value("");
@@ -2039,18 +2039,22 @@
         });
 
         var showMultiple = function () {
+            $('#DetailSupplier #txtMultipleAliases').val("");
             DisplayModal("mdlMultipleAliases");
         }
 
-        var showMultipleWebSites = function() {
+        var showMultipleWebSites = function () {
+            $('#DetailSupplier #txtMultipleWebsites').val("");
             DisplayModal("mdlMultipleWebSites");
         }
 
-        var showMultipleFacilityEmails = function() {
+        var showMultipleFacilityEmails = function () {
+            $('#DetailSupplier #txtMultipleEmails').val("");
             DisplayModal("mdlMultipleFacilityEmails");
         }
 
         var showMultipleContactEmails = function () {
+            $('#DetailSupplier #txtMultipleEmails').val("");
             DisplayModal("mdlMultipleContactEmails");
         }
 
