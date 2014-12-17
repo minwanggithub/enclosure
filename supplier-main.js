@@ -2082,6 +2082,7 @@
                 onDisplayError('Emails are required.');
                 return;
             }
+            texts = [];
             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
@@ -2126,6 +2127,7 @@
                 onDisplayError('Emails are required.');
                 return;
             }
+            texts = [];
             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
@@ -2165,12 +2167,14 @@
         });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleAliases', function (e) {
+            
             var selAliaseType = $("#DetailSupplier #selAliasType").data("kendoDropDownList");
             if (selAliaseType.value() == "" || $('#DetailSupplier #txtMultipleAliases').val() == "") {
                 $('#mdlMultipleAliases').modal("toggle");
                 onDisplayError('Alias Type and Aliases are required.');
                 return;
             }
+            texts = [];
             var lines = $('#DetailSupplier #txtMultipleAliases').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
@@ -2179,6 +2183,7 @@
             }
            
             var data = {};
+            
             data['supplierId'] = $("#SupplierId").val();
             data['aliasTypeId'] = selAliaseType.value();
             data['aliasesText'] = texts;
