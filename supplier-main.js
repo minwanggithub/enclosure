@@ -2073,6 +2073,11 @@
         });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleContactEmails', function (e) {
+            if ($('#DetailSupplier #txtMultipleEmails').val() == "") {
+                $('#mdlMultipleContactEmails').modal("toggle");
+                onDisplayError('Emails are required.');
+                return;
+            }
             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
@@ -2112,6 +2117,11 @@
          });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleFacilityEmails', function (e) {
+            if ($('#DetailSupplier #txtMultipleEmails').val() == "") {
+                $('#mdlMultipleFacilityEmails').modal("toggle");
+                onDisplayError('Emails are required.');
+                return;
+            }
             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
@@ -2145,19 +2155,25 @@
             });
         });
 
-        $("#DetailSupplier").on("click", '#btnDiscarMultipleAliases', function () {
+        $("#DetailSupplier").on("click", '#btnDiscardMultipleAliases', function () {
             $('#DetailSupplier #txtMultipleAliases').val("");
             $('#mdlMultipleAliases').modal("toggle");
         });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleAliases', function (e) {
+            var selAliaseType = $("#DetailSupplier #selAliasType").data("kendoDropDownList");
+            if (selAliaseType.value() == "" || $('#DetailSupplier #txtMultipleAliases').val() == "") {
+                $('#mdlMultipleAliases').modal("toggle");
+                onDisplayError('Alias Type and Aliases are required.');
+                return;
+            }
             var lines = $('#DetailSupplier #txtMultipleAliases').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
                 if (lines[i].length > 0)
                     texts.push($.trim(lines[i]));
             }
-            var selAliaseType = $("#DetailSupplier #selAliasType").data("kendoDropDownList");
+           
             var data = {};
             data['supplierId'] = $("#SupplierId").val();
             data['aliasTypeId'] = selAliaseType.value();
@@ -2191,15 +2207,20 @@
             $('#mdlMultipleWebSites').modal("toggle");
         });
 
-
         $("#DetailSupplier").on("click", '#btnSaveMultipleWebSites', function (e) {
+            var selWebSiteType = $("#DetailSupplier #selWebSiteType").data("kendoDropDownList");
+            if (selWebSiteType.value() == "" || $('#DetailSupplier #txtMultipleWebsites').val() == "") {
+                $('#mdlMultipleWebSites').modal("toggle");
+                onDisplayError('Web Site Type and Web Sites are required.');
+                return;
+            }
             var lines = $('#DetailSupplier #txtMultipleWebsites').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
                 if (lines[i].length > 0)
                     texts.push($.trim(lines[i]));
             }
-            var selWebSiteType = $("#DetailSupplier #selWebSiteType").data("kendoDropDownList");
+            
             var data = {};
             data['supplierId'] = $("#SupplierId").val();
             data['websiteTypeId'] = selWebSiteType.value();
