@@ -21,6 +21,8 @@
 
         var onErrorCallback;
         var deactivateContent;
+        var initializeSearchHistoryCallback;
+        var addToSearchHistoryCallback;
 
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
@@ -193,6 +195,12 @@
                 deactivateContent(container);
             }
         }
+
+        // Product Search Methods
+        var intializeSearchHistoryControls = function (initializeSearchHistoryFunc, addToSearchHistoryFunc) {
+            initializeSearchHistoryCallback = initializeSearchHistoryFunc;
+            addToSearchHistoryCallback = addToSearchHistoryFunc;
+        };
 
         // Product Detail Methods
         var initializeProductDetailControls = function(errorCallback, deactivateContentFunc) {
@@ -473,6 +481,9 @@
             $("#btnCancelDocumentSearch").click(function (e) {
                 documentSearchDialog.data("kendoWindow").close();
             });
+
+            if (initializeSearchHistoryCallback)
+                initializeSearchHistoryCallback('gdSearchProduct', 'txtProductSearch', refreshProductSearchResultGrid);
         };
 
         var RemovedProductDocument = function (e) {
@@ -671,28 +682,12 @@
 
 
         var QueueQuery = function () {
-            var txtCntrlId = "#txtProductSearch";
-            if ($(txtCntrlId).val().length != 0) {
-                var searchQueue = $(".btn-group > ul.dropdown-menu");
-                if (searchQueue.length > 0) {
 
-                    searchQueue.prepend("<li><a href='#'><span class='hreflimit'>" + $(txtCntrlId).val() + "</span></a><span class='btn history-close'>×</span></li>");
+            if (!addToSearchHistoryCallback) return;
 
-                    if ($(".btn-group > ul.dropdown-menu li").length > 10) {
-                        $(".btn-group > ul.dropdown-menu > li:last-child").remove();
-                    }
-                    $(".btn-group > ul.dropdown-menu li a").click(function (e) {
-                        $(txtCntrlId).val($(this).text());
-                        refreshProductSearchResultGrid();
-                    });
-
-                    $(".btn.history-close").click(function (e) {
-                        //$(e).parent().find("li").remove();
-                        e.target.parentNode.outerHTML = "";
-                        e.stopPropagation();
-                    });
-                }
-            }
+            var searchField = $("#txtProductSearch");
+            if (searchField.length > 0)
+                addToSearchHistoryCallback('gdSearchProduct', searchField.val());
         };
 
 
@@ -1099,7 +1094,7 @@
                 }
             });
         };
-       
+
         return {
             AddDocumentListToProduct: AddDocumentListToProduct,
             BindingSaveCancel: BindingSaveCancel,
@@ -1109,6 +1104,7 @@
             getSelectDocID: getSelectDocID,
             getUrl: getUrl,
             initializeProductDetailControls: initializeProductDetailControls,
+            intializeSearchHistoryControls: intializeSearchHistoryControls,
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
             OngdProductDocumentSelectChange: OngdProductDocumentSelectChange,
             OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
