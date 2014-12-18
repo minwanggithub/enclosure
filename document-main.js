@@ -736,12 +736,13 @@
         var selectSupplier = function () {
             var grid = $("#gdSearchSupplier").data("kendoGrid");
             if (grid.dataSource.total() == 0) {
-                alert("No row selected");
+                onDisplayError("No row selected");
+                //alert("No row selected");
                 return;
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
-                alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             $("#" + activeSupplier).val(data.id + ", " + data.Name);
@@ -2027,7 +2028,8 @@
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
-                alert("No row selected");
+                //alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             //console.log("data.id + ", " + data.Name: " + data.id + ", " + data.Name);
@@ -2218,7 +2220,8 @@
                     });
                 }
                 if (selectedDataItem == null) {
-                    alert("No row selected");
+                    //alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
                 console.log("handleAddDocument adding to source grid with selectedDataItem: ", selectedDataItem);
@@ -2367,7 +2370,8 @@
                 }
                 var data = grid.dataItem(grid.select());
                 if (data == null) {
-                    alert("No row selected");
+                    //alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
                 //console.log("data.id + ", " + data.Name: " + data.id + ", " + data.Name);

@@ -394,12 +394,12 @@
                 var grid = $("#gdSearchSupplier").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
                     //$("#popupSupplierSearch").modal("hide");
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
                 var data = grid.dataItem(grid.select());
                 if (data == null) {
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
 
@@ -415,12 +415,12 @@
                     var grid = $("#gdSearchSupplier").data("kendoGrid");
                     if (grid.dataSource.total() == 0) {
                         //$("#popupSupplierSearch").modal("hide");
-                        alert("No row selected");
+                        onDisplayError("No row selected");
                         return;
                     }
                     var data = grid.dataItem(grid.select());
                     if (data == null) {
-                        alert("No row selected");
+                        onDisplayError("No row selected");
                         return;
                     }
                     $("#" + activeSupplier).val(data.id + ", " + data.Name);
@@ -446,13 +446,13 @@
             function addDocToProduct() {
                 var grid = $("#gdSearchDocument").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
 
                 var data = grid.dataItem(grid.select());
                 if (data == null) {
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
 
@@ -1143,12 +1143,12 @@
 
                 var grid = $("#gdSearchDocument").data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
                 var data = grid.dataItem(grid.select());
                 if (data == null) {
-                    alert("No row selected");
+                    onDisplayError("No row selected");
                     return;
                 }
 

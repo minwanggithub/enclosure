@@ -55,12 +55,12 @@
             var grid = $("#gdSearchSupplier").data("kendoGrid");
             if (grid.dataSource.total() == 0) {
                 //$("#popupSupplierSearch").modal("hide");
-                alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
-                alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             //$("#txtSearchSupplierId").val(data.id + "," + data.Name);
@@ -73,12 +73,12 @@
             var grid = $("#gdSearchSupplier").data("kendoGrid");
             if (grid.dataSource.total() == 0) {
             
-                alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
-                alert("No row selected");
+                onDisplayError("No row selected");
                 return;
             }
             
