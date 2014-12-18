@@ -2572,13 +2572,20 @@
         }
 
         $("#DocumentDetail").on("click", '#btnSaveMultipleNames', function (e) {
+            var selAliaseType = $("#DocumentDetail #selNameType").data("kendoDropDownList");
+            if (selAliaseType.value() == "" || $('#DocumentDetail #txtNamesNumbers').val() == "") {
+                $('#mdlMultipleNames').modal("toggle");
+                onDisplayError('Alias Type and Aliases are required.');
+                return;
+            }
+            texts = [];
             var lines = $('#DocumentDetail #txtNamesNumbers').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
                 if (lines[i].length > 0)
                     texts.push($.trim(lines[i]));
             }
-            var selAliaseType = $("#DocumentDetail #selNameType").data("kendoDropDownList");
+           
             var data = {};
             data['documentId'] = $("#DocumentId").val();
             data['revisionId'] = $("#RevisionId").val();
