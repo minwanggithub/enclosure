@@ -286,6 +286,7 @@
                         ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
                         ProductName: $("#txtProductName_" + activeSaveButton).val(),
                         SupplierId: selectedSuppilerId,
+                        SupplierName: selectedSuppilerName,
                         ObtainmentNote: $("#txtObtainmentNote_" + activeSaveButton).val(),
                         XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
                         SelectedStatusId: selectedStatusId,
@@ -295,20 +296,22 @@
 
             var url = "../ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
+
+                if (!data || data.ErrorMessage) {
+                    var errorMessage = data.ErrorMessage || 'Error occured while saving the product';
+                    onDisplayError(errorMessage);
+                    return;
+                } 
+
                 if (activeSaveButton == 0) {
 
-                    if (data.indexOf("Error") >= 0) {
-                        onDisplayError(data);
-                        return;
-                    }
-
-                    $("#txtProductId_" + activeSaveButton).val(data);
+                    $("#txtProductId_" + activeSaveButton).val(data.ReferenceId);
 
                     if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
                         $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
 
                         $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
-                            activeProduct = data;
+                            activeProduct = data.ReferenceId;
                             newProductActive = true;
 
                             documentSearchDialog.data("kendoWindow").center();
@@ -324,21 +327,9 @@
 
                     UnBindingSaveCancel(0);
                     deactivateLayout(activeSaveButton);
-                    return;
-                }
-
-                if (data != '0') {
-                    var productInfo = {
-                        ReferenceId: activeSaveButton,
-                        ProductName: $("#txtProductName_" +activeSaveButton).val(),
-                        SupplierId: selectedSuppilerId,
-                        SupplierName: selectedSuppilerName,
-                        SelectedStatusId: selectedStatusId
-                    };
-
-                    setProductGridDataSourceItem(productInfo);
+                    
                 } else {
-                    displayErrorMessage('Error occured while saving the product');
+                    setProductGridDataSourceItem(data);
                 }
             });
         }
@@ -354,7 +345,7 @@
 
                 // Check if something has changed
                 var dataChanged = false;
-                var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'CreatedDescription', 'UpdateDescription'];
+                var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'UpdateDescription'];
                 for (var i = 0; i < fields.length; i++) {
 
                     var dsItem = dataItem[fields[i]] || '';
@@ -370,10 +361,8 @@
                     dataItem.set("SupplierId", productObj.SupplierId);
                     dataItem.set("SupplierName", productObj.SupplierName);
                     dataItem.set("SelectedStatusId", productObj.SelectedStatusId);
-                    dataItem.set("CreatedDate", productObj.CreatedDate);
-                    dataItem.set("CreatedBy", productObj.CreatedBy);
                     dataItem.set("LastUpdate", productObj.LastUpdate);
-                    dataItem.set("LastUpdateBy", productObj.LastUpdatedBy);
+                    dataItem.set("LastUpdateBy", productObj.LastUpdateBy);
 
                     var dataItemRow = kgrid.table.find('tr[data-uid="' +dataItem.uid + '"]');
                     kgrid.expandRow(dataItemRow);
@@ -1094,7 +1083,7 @@
                 }
             });
         };
-
+       
         return {
             AddDocumentListToProduct: AddDocumentListToProduct,
             BindingSaveCancel: BindingSaveCancel,
