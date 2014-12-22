@@ -10,15 +10,17 @@
 
         //local funcs
         function GetCompany() {
-            if (IsNumeric($("#txtSearchSupplierId").val())) {
-                //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
-                var url = "../Company/LookUpSupplierOnKeyEnter";
-                var supplierInfo = $("#txtSearchSupplierId").val();
-                $.post(url, { supplierInfo: supplierInfo }, function (data) {
-                    $('#txtSearchSupplierId').val(data);
-                });
-            }
-            
+
+             if(IsNumeric($("#txtSearchSupplierId").val())) {
+            //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
+            var url = "../Company/LookUpSupplierOnKeyEnter";
+            var supplierInfo = $("#txtSearchSupplierId").val();
+                $.post(url, { supplierInfo: supplierInfo
+                }, function (data) {
+                $('#txtSearchSupplierId').val(data);
+            });
+        }
+
         }
 
         function DisableControls(disable, fromInput) {
@@ -863,11 +865,11 @@
                    supplierContactPhoneId: supplierContactPhoneId, companyId: supplierId, contactid: supplierContactId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.CityOrAreaCode,
                    extension: e.model.Extension, localNo: e.model.LocalNumber, countryId: e.model.CountryLkpId
                };
-               $.post(validationUrl, data, function (result) {
-                   if (result == "Duplicate") {
+               $.post(validationUrl, data, function (data1) {
+                   if (data1.indexOf("Duplicate") >=0) {
                        var args = {
                            header: 'Confirm Save',
-                           message: 'A duplicate supplier exists, do you wish to continue?'
+                           message: data1
                        };
                        DisplayConfirmationModal(args, function () {
                            saveContactPhone(saveUrl, data);
@@ -901,7 +903,7 @@
        function saveContactPhone(url, data) {
            $.post(url, data, function (data2) {
                if (data2 == "success") {
-                   $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Contact Phone.");
+                   $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                    $('#DetailSupplier #gdContactPhone').data("kendoGrid").dataSource.read();
                }
            });
