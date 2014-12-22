@@ -943,10 +943,12 @@
                 BindingSaveCancel(pKey);
             });
 
-            $('#txtSupplierId_' + pKey).keyup(function(e) {
+            $('#txtSupplierId_' + pKey).keyup(function (e) {
                 var code = (e.keyCode ? e.keyCode : e.which);
                 if (code == 13) { //Search only on enter
-                    DoLookUpSupplierOnKeyEnter('#txtSupplierId_' + pKey);
+                    if (IsNumeric($("#txtSupplierId_" + pKey).val()))
+                        DoLookUpSupplierOnKeyEnter('#txtSupplierId_' + pKey);
+
                 }
             });
 

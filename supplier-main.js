@@ -10,12 +10,15 @@
 
         //local funcs
         function GetCompany() {
-            //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
-            var url = "../Company/LookUpSupplierOnKeyEnter";
-            var supplierInfo = $("#txtSearchSupplierId").val();
-            $.post(url, { supplierInfo: supplierInfo }, function (data) {
-                $('#txtSearchSupplierId').val(data);
-            });
+            if (IsNumeric($("#txtSearchSupplierId").val())) {
+                //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
+                var url = "../Company/LookUpSupplierOnKeyEnter";
+                var supplierInfo = $("#txtSearchSupplierId").val();
+                $.post(url, { supplierInfo: supplierInfo }, function (data) {
+                    $('#txtSearchSupplierId').val(data);
+                });
+            }
+            
         }
 
         function DisableControls(disable, fromInput) {

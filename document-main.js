@@ -812,11 +812,13 @@
             $('#txtSearchSupplierId').keyup(function (e) {
                 var code = (e.keyCode ? e.keyCode : e.which);
                 if (code == 13) { //Search only on enter
-                    var url = "../Company/LookUpSupplierOnKeyEnter";
-                    var supplierInfo = $("#txtSearchSupplierId").val();
-                    $.post(url, { supplierInfo: supplierInfo }, function (data) {
-                        $('#txtSearchSupplierId').val(data);
-                    });
+                    if (IsNumeric($("#txtSearchSupplierId").val())) {
+                        var url = "../Company/LookUpSupplierOnKeyEnter";
+                        var supplierInfo = $("#txtSearchSupplierId").val();
+                        $.post(url, { supplierInfo: supplierInfo }, function(data) {
+                            $('#txtSearchSupplierId').val(data);
+                        });
+                    }
                 }
             });
 
