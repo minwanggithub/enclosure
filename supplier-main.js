@@ -902,7 +902,7 @@
 
        function saveContactPhone(url, data) {
            $.post(url, data, function (data2) {
-               if (data2 == "success") {
+              if (data2.indexOf("Saved") >=0) {
                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                    $('#DetailSupplier #gdContactPhone').data("kendoGrid").dataSource.read();
                }
@@ -1003,10 +1003,10 @@
                     supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.Email
                 };
                 $.post(validationUrl, data, function (result) {
-                    if (result == "Duplicate") {
+                    if (result.indexOf("Duplicate") >=0) {
                         var args = {
                             header: 'Confirm Save',
-                            message: 'A duplicate supplier exists, do you wish to continue?'
+                            message: result
                         };
                         DisplayConfirmationModal(args, function () {
                             saveContactEmail(saveUrl, data);
@@ -1039,7 +1039,7 @@
             
             $.post(url, data, function (data2) {
                 if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Contact Email.");
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                     $('#DetailSupplier #gdContactEmail').data("kendoGrid").dataSource.read();
                 }
             });
