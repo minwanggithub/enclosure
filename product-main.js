@@ -323,6 +323,8 @@
                         $("#searchDocumentBtn").click(function(e) {
                             GridDocumentSearchResult();
                         });
+
+                        $('#ddlProductStatus_' + activeSaveButton).data('kendoDropDownList').enable(true);
                     }
 
                     UnBindingSaveCancel(0);
