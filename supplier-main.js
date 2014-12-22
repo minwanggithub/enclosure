@@ -207,11 +207,11 @@
             var urlValidation = url.replace("SaveIdentification", "ValidateDuplicateIdentification");
 
             $.post(urlValidation, formData, function (data) {
-                if (data == "Duplicate") {
+                if (data.indexOf("Duplicate") >= 0) {
 
                     var args = {
                          header: 'Confirm Save',
-                         message: 'A duplicate supplier exists, do you wish to continue?'
+                         message: data
                     };
                     DisplayConfirmationModal(args, function () {
                      
@@ -240,7 +240,6 @@
                                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                                     }
                                 });
-
 
                      });
                 } else {
@@ -644,10 +643,10 @@
             var url = "../Company/ValidateContactAddress";
             var data = { contactAddressId: e.model.CompanyContactAddressId, companyId: supplierId, contactid: supplierContactId, add1: e.model.CompanyContactAddress1, add2: e.model.CompanyContactAddress2, city: e.model.CompanyContactCity, state: e.model.CompanyContactState, country: e.model.CompanyContactCountry, zip: e.model.CompanyContactPostalCode, type: e.model.SelectAddressType };
             $.post(url, data, function (data1) {
-                if (data1 == "Duplicate") {
+                if (data1.indexOf("Duplicate")>=0) {
                     var args = {
                         header: 'Confirm Save',
-                        message: 'A duplicate supplier exists, do you wish to continue?'
+                        message: data1
                     };
                     DisplayConfirmationModal(args, function () {
                         saveContactAddress(urlSave, data);
@@ -661,8 +660,8 @@
         function saveContactAddress(url, data) {
 
             $.post(url, data, function (data2) {
-                if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Contact Address.");
+                if (data2.indexOf("Saved")>=0) {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                     $('#DetailSupplier #gdContactAddress').data("kendoGrid").dataSource.read();
                 }
             });
