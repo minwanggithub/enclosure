@@ -547,31 +547,20 @@
                 var url = "../Company/ValidateFacilityAddress";
                 var data = { facilityAddressId: e.model.id, companyId: supplierId, facilityid: supplierFacilityId, add1: e.model.SupplierFacilityAddress1, add2: e.model.SupplierFacilityAddress2, city: e.model.SupplierFacilityCity, state: e.model.SupplierFacilityState, country: e.model.FacilityCountry, zip: e.model.SupplierFacilityPostalCode, type: e.model.SelectAddressType};
                 $.post(url, data, function(data1) {
-                    if (data1 == "Duplicate") {
+                    if (data1.indexOf("Duplicate") >=0) {
                         var args = {
                             header: 'Confirm Save',
-                            message: 'A duplicate supplier exists, do you wish to continue?'
+                            message: data1
                         };
                         DisplayConfirmationModal(args, function () {
-                            saveFacilityAddress(urlSave, data);
+                            saveSupplier(urlSave, data, $('#DetailSupplier #gdFacilityAddress'));
                         });
                     } else {
-                        saveFacilityAddress(urlSave, data);
+                        saveSupplier(urlSave, data, $('#DetailSupplier #gdFacilityAddress'));
                     }
                 });
 
         };
-
-        function saveFacilityAddress(url, data) {
-
-            $.post(url, data, function (data2) {
-                if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Address.");
-                    $('#DetailSupplier #gdFacilityAddress').data("kendoGrid").dataSource.read();
-                }
-            });
-        }
-
 
         var onGdFacilityAddressChange = function (e) {
             e.preventDefault();
@@ -654,24 +643,14 @@
                         message: data1
                     };
                     DisplayConfirmationModal(args, function () {
-                        saveContactAddress(urlSave, data);
+                        saveSupplier(urlSave, data, $('#DetailSupplier #gdContactAddress'));
                     });
                 } else {
-                    saveContactAddress(urlSave, data);
+                    saveSupplier(urlSave, data, $('#DetailSupplier #gdContactAddress'));
                 }
             });
         };
-
-        function saveContactAddress(url, data) {
-
-            $.post(url, data, function (data2) {
-                if (data2.indexOf("Saved")>=0) {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
-                    $('#DetailSupplier #gdContactAddress').data("kendoGrid").dataSource.read();
-                }
-            });
-        }
-
+      
         var EditSupplierNotes = function (e) {
 
             e.preventDefault();
@@ -806,9 +785,10 @@
                 var supplierFacilityId = $("#SupplierFacilityId").val();
                 var supplierFacilityPhoneId = e.model.SupplierFacilityPhoneId;
                 $('#DetailSupplier #gdFacilityPhone').data("kendoGrid").cancelChanges();
+               
                 var data = {
                     supplierFacilityPhoneId: supplierFacilityPhoneId, companyId: supplierId, facilityid: supplierFacilityId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.SupplierFacilityCityAreaCode,
-                    extension:e.model.SupplierFacilityExtension, localNo:e.model.SupplierFacilityLocalNumber
+                    extension: e.model.SupplierFacilityExtension, localNo: e.model.SupplierFacilityLocalNumber, countryId: e.model.CountryLkpId
                 };
                 $.post(validationUrl, data, function (result) {
                     if (result == "Duplicate") {
@@ -817,12 +797,12 @@
                             message: 'A duplicate supplier exists, do you wish to continue?'
                         };
                         DisplayConfirmationModal(args, function () {
-                            saveFacilityPhone(saveUrl, data);
+                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                         });
                     }
                     else
                     {
-                       saveFacilityPhone(saveUrl, data);
+                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                     }
                 });
                 
@@ -872,11 +852,11 @@
                            message: data1
                        };
                        DisplayConfirmationModal(args, function () {
-                           saveContactPhone(saveUrl, data);
+                           saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                        });
                    }
                    else {
-                       saveContactPhone(saveUrl, data);
+                       saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                    }
                });
 
@@ -899,25 +879,7 @@
            }
 
        };
-
-       function saveContactPhone(url, data) {
-           $.post(url, data, function (data2) {
-              if (data2.indexOf("Saved") >=0) {
-                   $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
-                   $('#DetailSupplier #gdContactPhone').data("kendoGrid").dataSource.read();
-               }
-           });
-       }
-
-        function saveFacilityPhone(url, data) {
-            $.post(url, data, function (data2) {
-                if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Phone.");
-                    $('#DetailSupplier #gdFacilityPhone').data("kendoGrid").dataSource.read();
-                }
-            });
-        }
-        
+      
         //facility email
         var onGridEditChangeEmail = function (e) {
          
@@ -939,18 +901,18 @@
                     supplierFacilityEmailId: supplierFacilityEmailId, companyId: supplierId, facilityid: supplierFacilityId, emailTxt: e.model.FacilityEmail
                 };
                 $.post(validationUrl, data, function (result) {
-                    if (result == "Duplicate") {
+                    if (result.indexOf("Duplicate") >= 0) {
                       var args = {
                           header : 'Confirm Save',
-                          message: 'A duplicate supplier exists, do you wish to continue?'
+                          message: result
                     };
                     DisplayConfirmationModal(args, function () {
-                      saveFacilityEmail(saveUrl, data);
+                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
                         });
                     }
                     else
                     {
-                       saveFacilityEmail(saveUrl, data);
+                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
                     }
                 });
             });
@@ -971,17 +933,7 @@
                 $(cancel).html(cancelHtml);
             }
         };
-
-        function saveFacilityEmail(url, data) {
-         
-            $.post(url, data, function (data2) {
-                if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Save Facility Email.");
-                    $('#DetailSupplier #gdFacilityEmail').data("kendoGrid").dataSource.read();
-                }
-            });
-        }
-
+    
         //contact email
         var onGridEditChangeContactEmail = function (e) {
             
@@ -1009,11 +961,11 @@
                             message: result
                         };
                         DisplayConfirmationModal(args, function () {
-                            saveContactEmail(saveUrl, data);
+                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
                         });
                     }
                     else {
-                        saveContactEmail(saveUrl, data);
+                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
                     }
                 });
             });
@@ -1035,17 +987,7 @@
             }
         };
 
-        function saveContactEmail(url, data) {
-            
-            $.post(url, data, function (data2) {
-                if (data2 == "success") {
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
-                    $('#DetailSupplier #gdContactEmail').data("kendoGrid").dataSource.read();
-                }
-            });
-        }
-
-        var onGridEditChangeWebSite = function (e) {
+       var onGridEditChangeWebSite = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
@@ -2075,25 +2017,35 @@
             });
         }
 
-        $("#DetailSupplier").on("click", '#btnDiscardMultipleContactEmails', function () {
-                    $('#DetailSupplier #txtMultipleEmails').val("");
-                    $('#mdlMultipleContactEmails').modal("toggle");
-        });
+        function saveSupplier(url, data, obj) {
 
-        $("#DetailSupplier").on("click", '#btnSaveMultipleContactEmails', function (e) {
-            if ($('#DetailSupplier #txtMultipleEmails').val() == "") {
-                $('#mdlMultipleContactEmails').modal("toggle");
-                onDisplayError('Emails are required.');
-                return;
-            }
-            texts = [];
-            var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
-            for (var i = 0; i < lines.length; i++) {
+            $.post(url, data, function (data2) {
+               if(data2.indexOf("Saved") >=0) {
+                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
+                    obj.data("kendoGrid").dataSource.read();
+                    }
+                    });
+           }
+
+           $("#DetailSupplier").on("click", '#btnDiscardMultipleContactEmails', function () {
+              $('#DetailSupplier #txtMultipleEmails').val("");
+              $('#mdlMultipleContactEmails').modal("toggle");
+           });
+
+           $("#DetailSupplier").on("click", '#btnSaveMultipleContactEmails', function (e) {
+              if ($('#DetailSupplier #txtMultipleEmails').val() == "") {
+                  $('#mdlMultipleContactEmails').modal("toggle");
+                  onDisplayError('Emails are required.');
+                  return;
+             }
+             texts = [];
+             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
+             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
                 if (lines[i].length > 0)
                     texts.push($.trim(lines[i]));
             }
-           var data = { };
+            var data = { };
             data['supplierContactId'] = $("#SupplierContactId").val();
             data['emailsText']= texts;
             e.preventDefault();
