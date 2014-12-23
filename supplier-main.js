@@ -755,19 +755,23 @@
             var title = $(e.container).parent().find(".k-window-title");
             if (e.model.SupplierNotesId > 0) {
                 $(title).html('Edit');
+                $(update).attr('title', 'Update');
+                $(cancel).attr('title', 'Cancel');
             }
             else {
                 $(title).html('Create');
-                var updateHtml = $(update).html();
-                updateHtml = updateHtml.replace("Update", "Create");
-                $(update).html(updateHtml);
-                updateHtml = updateHtml.replace("Create", " ");
-                $(update).html(updateHtml);
-                var cancelHtml = $(cancel).html();
-                cancelHtml = cancelHtml.replace("Cancel", " ");
-                $(cancel).html(cancelHtml);
+                $(update).attr('title', 'Create');
+                $(cancel).attr('title', 'Cancel');
             }
 
+            var updateHtml = $(update).html();
+            updateHtml = updateHtml.replace("Update", "Create");
+            $(update).html(updateHtml);
+            updateHtml = updateHtml.replace("Create", " ");
+            $(update).html(updateHtml);
+            var cancelHtml = $(cancel).html();
+            cancelHtml = cancelHtml.replace("Cancel", " ");
+            $(cancel).html(cancelHtml);
         };
 
        //facility phone

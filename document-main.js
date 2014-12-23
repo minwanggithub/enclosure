@@ -967,6 +967,49 @@
 
         var onDocumentNoteEdit = function (e) {
             // Convert the value in the last update field to something more readable
+
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
+
+            var title = $(e.container).parent().find(".k-window-title");
+            if (e.model.DocumentNoteId > 0) {
+                $(title).html('Edit');
+                $(update).attr('title', 'Update');
+                $(cancel).attr('title', 'Cancel');
+            }
+            else {
+                $(title).html('Create');
+                $(update).attr('title', 'Create');
+                $(cancel).attr('title', 'Cancel');
+            }
+
+            var updateHtml = $(update).html();
+            updateHtml = updateHtml.replace("Update", "Create");
+            $(update).html(updateHtml);
+            updateHtml = updateHtml.replace("Create", " ");
+            $(update).html(updateHtml);
+            var cancelHtml = $(cancel).html();
+            cancelHtml = cancelHtml.replace("Cancel", " ");
+            $(cancel).html(cancelHtml);
+
+
+            $(update).on("click", function () {
+                $("div.validation-summary-valid.validationSummary ul li").remove();
+
+                if ($("#Notes").data("kendoEditor").value().length == 0)
+                    $("div.validation-summary-valid.validationSummary ul").append("<li>Document - Notes is required</li>");
+                else
+                    $("div.validation-summary-valid.validationSummary ul li:contains('Document - Notes is required')").remove();
+
+
+                if ($("#NoteTypeId").data("kendoDropDownList").value() == "")
+                    $("div.validation-summary-valid.validationSummary ul").append("<li>Document - Type is required</li>");
+                else
+                    $("div.validation-summary-valid.validationSummary ul li:contains('Document - Type is required')").remove();
+
+                $("div.validation-summary-valid.validationSummary ul").append("<li style='display:none'>");
+            });
+
             var elem = $(e.container).find('#LastUpdate');
             if (elem) {
                 var datetext = elem.val();
