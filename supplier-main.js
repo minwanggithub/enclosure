@@ -270,7 +270,7 @@
                                         }
                                     }
 
-                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
                                 }
                             });
 
@@ -795,7 +795,8 @@
                     extension: e.model.SupplierFacilityExtension, localNo: e.model.SupplierFacilityLocalNumber, countryId: e.model.CountryLkpId
                 };
                 $.post(validationUrl, data, function (result) {
-                    if (result == "Duplicate") {
+
+                    if (result.indexOf("Duplicate") >= 0) {
                         var args = {
                             header: 'Confirm Save',
                             message: 'A duplicate supplier exists, do you wish to continue?'
