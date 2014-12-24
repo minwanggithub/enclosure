@@ -799,7 +799,7 @@
                     if (result.indexOf("Duplicate") >= 0) {
                         var args = {
                             header: 'Confirm Save',
-                            message: 'A duplicate supplier exists, do you wish to continue?'
+                            message: result
                         };
                         DisplayConfirmationModal(args, function () {
                             saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
