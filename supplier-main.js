@@ -211,6 +211,8 @@
             var url = form.attr("action");
             var urlValidation = url.replace("SaveIdentification", "ValidateDuplicateIdentification");
 
+            form.resetValidation();
+
             $.post(urlValidation, formData, function (data) {
                 if (data.indexOf("Duplicate") >= 0) {
 
