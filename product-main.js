@@ -23,6 +23,7 @@
         var deactivateContent;
         var initializeSearchHistoryCallback;
         var addToSearchHistoryCallback;
+        var notesModalSettings;
 
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
@@ -118,63 +119,6 @@
             }
         }
 
-        function displayStatusNoteConfirmation(args, yesFunc, noFunc) {
-
-            var modal = $('#statusNoteModal');
-            if (modal.length > 0) {
-                modal.find('#myModalLabel')
-                    .html(args.headerMessage)
-                    .end()
-                    .find('#myModalMessage')
-                    .html(args.displayMessage)
-                    .end()
-                    .find('#myModalNotes')
-                    .val('')
-                    .end()
-                    .find('#confirm-btn-yes')
-                    .text(args.headerMessage.indexOf('Deactivation') > -1 ? 'Deactivate' : 'Continue');
-
-                // Set up all click events
-                modal.off('click', '#confirm-btn-yes');
-                modal.on('click', '#confirm-btn-yes', function (e) {
-
-                    // Check if the notes field has the correct information
-                    var notesField = modal.find('#myModalNotes');
-                    if (notesField.length > 0) {
-
-                        if (notesField.val() && notesField.val().length > 0) {
-                            modal.modal('hide');
-                            if (yesFunc) {
-                                e['modalNotes'] = notesField.val();
-                                yesFunc(e);
-                            }
-                        } else {
-                            displayErrorMessage('Notes were not provided, enter notes to continue.');
-                        }
-                    }
-                });
-
-                if (noFunc) {
-                    modal.off('click', '#btn-no');
-                    modal.on('click', '#btn-no', noFunc);
-                }
-
-                modal.modal({
-                    backdrop: true,
-                    keyboard: true
-                }).css({
-                    width: 'auto',
-                    'max-width': '650px',
-                    'margin-left': function () {
-                        return -($(this).width() / 2); //auto size depending on the message
-                    },
-                    'margin-top': function () {
-                        return (document.documentElement.clientHeight / 2) - $(this).height() - 35;
-                    }
-                });
-            }
-        }
-
         function deactivateLayout(productId) {
             
             // Sanity check!
@@ -196,16 +140,19 @@
             }
         }
 
-        // Product Search Methods
+        // Initializing Methods
+        var initializeProductDetailControls = function(errorCallback, deactivateContentFunc) {
+            onErrorCallback = errorCallback;
+            deactivateContent = deactivateContentFunc;
+        };
+
         var intializeSearchHistoryControls = function (initializeSearchHistoryFunc, addToSearchHistoryFunc) {
             initializeSearchHistoryCallback = initializeSearchHistoryFunc;
             addToSearchHistoryCallback = addToSearchHistoryFunc;
         };
 
-        // Product Detail Methods
-        var initializeProductDetailControls = function(errorCallback, deactivateContentFunc) {
-            onErrorCallback = errorCallback;
-            deactivateContent = deactivateContentFunc;
+        var setNotesModalSettings = function(settings) {
+            notesModalSettings = settings;
         };
 
         // Product Status History Methods
@@ -217,6 +164,8 @@
             var selectedData = this.dataItem(selectedRow);
             if (selectedData != null) {
                 $('#StatusNotesText_' + productId).html(selectedData.Notes);
+            } else {
+                $('#StatusNotesText_' + productId).html('');
             }
         };
 
@@ -265,10 +214,13 @@
                     if(data.statusError == true) {
                         displayErrorMessage(data.displayMessage);
                     } else {
-                        displayStatusNoteConfirmation(data, function(e) {
-                            form.find('#hdnStatusNotes_' +activeSaveButton).val(e.modalNotes);
-                            saveProductInformation(activeSaveButton);
-                        });
+
+                        if (notesModalSettings) {
+                            notesModalSettings.displayStatusNoteConfirmation(data, function (e) {
+                                form.find('#hdnStatusNotes_' + activeSaveButton).val(e.modalNotes);
+                                saveProductInformation(activeSaveButton);
+                            });
+                        }
                     }
 
                 } else {
@@ -331,6 +283,9 @@
                     deactivateLayout(activeSaveButton);
                     
                 } else {
+                    $('#hdnStatusNotes_' +activeSaveButton).val('');
+
+                    reloadProductHistoryGrid(activeSaveButton);
                     setProductGridDataSourceItem(data);
                 }
             });
@@ -370,6 +325,11 @@
                     kgrid.expandRow(dataItemRow);
                 }
             }
+        }
+
+        function reloadProductHistoryGrid(productId) {
+            var grid = $('#grdProductStatusHistory_' + productId).data('kendoGrid');
+            if (grid) grid.dataSource.read();
         }
 
         ////////////non publuc / public/////////////
@@ -1113,6 +1073,7 @@
             refreshProductSearchResultGrid: refreshProductSearchResultGrid,
             RemovedProductDocument: RemovedProductDocument,
             setDeleteImageIcon: setDeleteImageIcon,
+            setNotesModalSettings: setNotesModalSettings,
             setProductGridDataSourceItem: setProductGridDataSourceItem,
             showSupplierPlugIn: showSupplierPlugIn,
             UnBindingSaveCancel: UnBindingSaveCancel,

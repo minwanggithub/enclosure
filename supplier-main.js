@@ -11,15 +11,15 @@
         //local funcs
         function GetCompany() {
 
-             if(IsNumeric($("#txtSearchSupplierId").val())) {
-            //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
-            var url = "../Company/LookUpSupplierOnKeyEnter";
-            var supplierInfo = $("#txtSearchSupplierId").val();
+            if(IsNumeric($("#txtSearchSupplierId").val())) {
+                //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company")';
+                var url = "../Company/LookUpSupplierOnKeyEnter";
+                var supplierInfo = $("#txtSearchSupplierId").val();
                 $.post(url, { supplierInfo: supplierInfo
                 }, function (data) {
-                $('#txtSearchSupplierId').val(data);
-            });
-        }
+                    $('#txtSearchSupplierId').val(data);
+                });
+            }
 
         }
 
@@ -103,16 +103,18 @@
                             if (data.statusError == true)
                                 displayErrorMessage(data.displayMessage);
                             else {
-                                displayStatusNoteConfirmation(data, function (eval) {
-                                    // Attach notes field information into form to be serialized
-                                    $("#FormIdentification").find('#StatusNotes').val(eval.modalNotes);
-                                    saveIdentificationInfo(true);
-                                });
+
+                                if (notesModalSettings) {
+                                    notesModalSettings.displayStatusNoteConfirmation(data, function (eval) {
+                                        // Attach notes field information into form to be serialized
+                                        $("#FormIdentification").find('#StatusNotes').val(eval.modalNotes);
+                                        saveIdentificationInfo(true);
+                                    });
+                                }
                             }
                         } else
                             saveIdentificationInfo();
                     });
-
                 }
             });
 
@@ -1822,6 +1824,8 @@
 
         // Helper Methods
         var onErrorCallback;
+        var notesModalSettings;
+
         function displayErrorMessage(errorMessage) {
             if (onErrorCallback) {
                 onErrorCallback(errorMessage);
@@ -1845,76 +1849,23 @@
                 }
 
                 if (onDeactivateContentLoad) {
-                var tabstrip = $('#SupplierTabstrip');
-                if (tabstrip.length > 0) {
-                    tabstrip.addClass('deactivated-tabstrip');
+                    var tabstrip = $('#SupplierTabstrip');
+                    if (tabstrip.length > 0) {
+                        tabstrip.addClass('deactivated-tabstrip');
 
-                    var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
-                    if (ktabstrip) {
-                            ktabstrip.bind('contentLoad', onDeactivateContentLoad);
-                        ktabstrip.trigger('contentLoad');
+                        var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
+                        if (ktabstrip) {
+                                ktabstrip.bind('contentLoad', onDeactivateContentLoad);
+                            ktabstrip.trigger('contentLoad');
+                        }
                     }
                 }
-            }
             }
         };
 
-        function displayStatusNoteConfirmation(args, yesFunc, noFunc) {
-
-            var modal = $('#statusNoteModal');
-            if (modal.length > 0) {
-                modal.find('#myModalLabel')
-                    .html(args.headerMessage)
-                    .end()
-                    .find('#myModalMessage')
-                    .html(args.displayMessage)
-                    .end()
-                    .find('#myModalNotes')
-                    .val('')
-                    .end()
-                    .find('#confirm-btn-yes')
-                    .text(args.headerMessage.indexOf('Deactivation') > -1 ? 'Deactivate' : 'Continue');
-
-                // Set up all click events
-                modal.off('click', '#confirm-btn-yes');
-                modal.on('click', '#confirm-btn-yes', function (e) {
-
-                    // Check if the notes field has the correct information
-                    var notesField = modal.find('#myModalNotes');
-                    if (notesField.length > 0) {
-
-                        if (notesField.val() && notesField.val().length > 0) {
-                            modal.modal('hide');
-                            if (yesFunc) {
-                                e['modalNotes'] = notesField.val();
-                                yesFunc(e);
-                            }
-                        } else {
-                            displayErrorMessage('Notes were not provided, enter notes to continue.');
-                        }
-                    }
-                });
-
-                if (noFunc) {
-                    modal.off('click', '#btn-no');
-                    modal.on('click', '#btn-no', noFunc);
-                }
-
-                modal.modal({
-                    backdrop: true,
-                    keyboard: true
-                }).css({
-                    width: 'auto',
-                    'max-width': '650px',
-                    'margin-left': function () {
-                        return -($(this).width() / 2); //auto size depending on the message
-                    },
-                    'margin-top': function () {
-                        return (document.documentElement.clientHeight / 2) - $(this).height() - 35;
-                    }
-                });
-            }
-        }
+        var setNotesModalSettings = function(settings) {
+            notesModalSettings = settings;
+        };
 
         // Supplier Status History Methods
         var clearSupplierStatusNote = function() {
@@ -2310,6 +2261,7 @@
             getSupplierCountryDropdownData: getSupplierCountryDropdownData,
 
             initSupplierIdentification: initSupplierIdentification,
+            setNotesModalSettings: setNotesModalSettings,
 
             clearSupplierStatusNote: clearSupplierStatusNote,
             onStatusChange: onStatusChange,
