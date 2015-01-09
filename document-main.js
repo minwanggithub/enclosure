@@ -736,12 +736,14 @@
         var selectSupplier = function () {
             var grid = $("#gdSearchSupplier").data("kendoGrid");
             if (grid.dataSource.total() == 0) {
+                hideSupplierPlugIn();
                 onDisplayError("No row selected");
                 //alert("No row selected");
                 return;
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
+                hideSupplierPlugIn();
                 onDisplayError("No row selected");
                 return;
             }
