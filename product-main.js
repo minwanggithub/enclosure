@@ -299,30 +299,32 @@
                 
                 var parentRowIndex = productObj.ReferenceId;
                 var dataItem = kgrid.dataSource.get(parentRowIndex);
+                if (dataItem) {
+                 
+                    // Check if something has changed
+                    var dataChanged = false;
+                    var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'UpdateDescription'];
+                    for (var i = 0; i < fields.length; i++) {
 
-                // Check if something has changed
-                var dataChanged = false;
-                var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'UpdateDescription'];
-                for (var i = 0; i < fields.length; i++) {
-
-                    var dsItem = dataItem[fields[i]] || '';
-                    var productItem = productObj[fields[i]]|| '';
-                    if (dsItem != productItem) {
-                        dataChanged = true;
-                        break;
+                        var dsItem = dataItem[fields[i]] || '';
+                        var productItem = productObj[fields[i]] || '';
+                        if (dsItem != productItem) {
+                            dataChanged = true;
+                            break;
+                        }
                     }
-                }
 
-                if (dataChanged == true) {
-                    dataItem.set("ProductName", productObj.ProductName);
-                    dataItem.set("SupplierId", productObj.SupplierId);
-                    dataItem.set("SupplierName", productObj.SupplierName);
-                    dataItem.set("SelectedStatusId", productObj.SelectedStatusId);
-                    dataItem.set("LastUpdate", productObj.LastUpdate);
-                    dataItem.set("LastUpdateBy", productObj.LastUpdateBy);
+                    if (dataChanged == true) {
+                        dataItem.set("ProductName", productObj.ProductName);
+                        dataItem.set("SupplierId", productObj.SupplierId);
+                        dataItem.set("SupplierName", productObj.SupplierName);
+                        dataItem.set("SelectedStatusId", productObj.SelectedStatusId);
+                        dataItem.set("LastUpdate", productObj.LastUpdate);
+                        dataItem.set("LastUpdateBy", productObj.LastUpdateBy);
 
-                    var dataItemRow = kgrid.table.find('tr[data-uid="' +dataItem.uid + '"]');
-                    kgrid.expandRow(dataItemRow);
+                        var dataItemRow = kgrid.table.find('tr[data-uid="' + dataItem.uid + '"]');
+                        kgrid.expandRow(dataItemRow);
+                    }
                 }
             }
         }
