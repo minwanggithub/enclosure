@@ -316,24 +316,24 @@
             var passingId = 0;
             //selectType = expandedItem;
             switch (expandedItem.NodeType) {
-                case 0:
-                    passingId = expandedItem.id;
-                    break;
-                case 1:
-                    passingId = expandedItem.ProductId;
-                    break;
-                case 2:
-                    passingId = expandedItem.ProductId;
-                    break;
-                case 3:
-                    passingId = expandedItem.DocumentId;
-                    break;
-                case 4:
-                    passingId = expandedItem.RevisionId;
-                    break;
-                default:
-                    passingId = expandedItem.id;
-                    break;
+            case 0:
+                passingId = expandedItem.id;
+                break;
+            case 1:
+                passingId = expandedItem.ProductId;
+                break;
+            case 2:
+                passingId = expandedItem.ProductId;
+                break;
+            case 3:
+                passingId = expandedItem.DocumentId;
+                break;
+            case 4:
+                passingId = expandedItem.RevisionId;
+                break;
+            default:
+                passingId = expandedItem.id;
+                break;
             }
 
             selectType = { "id": passingId, "ProductId": expandedItem.ProductId, "RevisionId": expandedItem.RevisionId, "NodeType": expandedItem.NodeType, "Name": expandedItem.Name, "hasChildren": expandedItem.hasChildren, "childrenList": expandedItem.childrenList, "LanguageId": expandedItem.LanguageId, "LatestRevisionOnly": expandedItem.LatestRevisionOnly, "IncludeDeletedDocument": expandedItem.IncludeDeletedDocument };
@@ -351,7 +351,7 @@
         };
 
         var onDataBound = function () {
-            
+
             var revisionNode = $(".CompliNodeTypeRevision");
             if (revisionNode.length > 0) {
                 revisionNode.mouseover(function (element) {
@@ -417,7 +417,7 @@
                 PhysicalStateId: $("#ddlDocumentPhysicalState").val()
             };
             var treeview = $(productTreeName).data("kendoTreeView");
-            
+
             var url = "ProductSearchResultRoute";
             var param = { searchText: JSON.stringify(queryText) };
             treeview.dataSource.transport.options.read.url = url;
@@ -487,7 +487,7 @@
 
             var treeView = $(productTreeName).data("kendoTreeView");
             var selectedNode = treeView.dataItem(treeView.select().parent());
-            $.ajax({
+                $.ajax({
 
                 url: "ObsoleteDocument",
                 type: 'POST',
@@ -538,21 +538,21 @@
                     onDisplayError(error);
                 }
             });
-            
+
             return true;
         };
 
         function updateKitAndGroup(parentDocumentId, containerTypeId, childDocumentIdSet, vKitGroupContainerId)
-        {
+            {
             var url = getUrl("Document", "Document/DocumentKitAndGroup_Update");
-           $.post(url, {
-               parentDocumentId: parentDocumentId,
-               containerTypeId: containerTypeId,
-               childDocumentIdSet: JSON.stringify(childDocumentIdSet),
-               kitGroupContainerId: vKitGroupContainerId
-           }, function (data) {
-               console.log("after posted in updateKitAndGroup, data: ", data);
-           });
+            $.post(url, {
+                parentDocumentId: parentDocumentId,
+                containerTypeId: containerTypeId,
+                childDocumentIdSet: JSON.stringify(childDocumentIdSet),
+                kitGroupContainerId: vKitGroupContainerId
+            }, function (data) {
+                console.log("after posted in updateKitAndGroup, data: ", data);
+            });
         }
 
         function insertKitAndGroup(parentDocumentId, containerTypeId, childDocumentIdSet) {
@@ -573,7 +573,7 @@
             var allData = dataSource.data();
             var query = new kendo.data.Query(allData);
             var filteredData = query.filter(filters).data;
-            
+
             var childDocumentIdSet = [];
             $.each(filteredData, function (index, item) {
                 console.log("item: ", item);
@@ -587,16 +587,15 @@
         }
 
         function getContainerTypeId()
-        {
+                {
             var containerOption = $("#ContainerTypeId").val();
-            if (containerOption == "2") 
-                return 2; 
-             else if (containerOption == "3") 
-               return 3; 
+            if (containerOption == "2")
+                return 2;
+            else if (containerOption == "3")
+                return 3;
             return containerOption;
         }
 
-      
 
         var saveDocumentDetail = function () {
             var form = $("#documentRevisionTab").updateValidation();
@@ -606,67 +605,118 @@
                 if (!checkAttachmentsBeforeSave())    //check all the attachment if form is valid before preceed
                     return;
 
-                var url = form.attr("action");
-                var formData = form.serialize();
-                var containerTypeId = getContainerTypeId();
-                $.post(url, formData, function(data) {
-                    if (data.DisplayMessage != "Error") {
-                        //special handling for group's element addition
-                        if ($("#DocumentCreationIntention").val() == "31") { //wip
-                            var parentDocumentId = $("#ParentDocumentId").val();
-                            insertKitAndGroup(parentDocumentId, 3, data.DocumentId);
-                            var parentRevisionId = $("#ParentRevisionId").val();
-                            loadDocumentDetail(parentDocumentId, parentRevisionId);
-                            return;
+                saveDocumentInformationInDatabase();
+
+                // TODO: Remove when all status history information backend is complete
+                //setTimeout(function() {
+
+                //    // Check if the error report popup is displayed and wait for the user to click ok to continue
+                //    var errorReportPopup = $('#errorReport');
+                //    if (errorReportPopup.length > 0 && errorReportPopup.is(':visible')) {
+                //        errorReportPopup.on('click', '.btn', function errorReportButtonClick (e) {
+                //            errorReportPopup.off('click', '.btn', errorReportButtonClick);
+                //            errorReportPopup.modal('hide');
+                //            documentStatusCheck();
+                //        });
+                //    } else {
+                //        documentStatusCheck();
+                //    }
+
+                //}, 1000);
+            }
+        };
+
+        function documentStatusCheck() {
+
+            var form = $("#documentRevisionTab").updateValidation();
+            var formData = form.serialize();
+
+            // First check if a status change needs to display a notes popup
+            var url = "../Document/GetStatusAction";
+            $.post(url, formData, function(data) {
+
+                if (data.displayMessage) {
+
+                    if(data.statusError == true)
+                        onDisplayError(data.displayMessage);
+                    else {
+                        if(notesModalSettings) {
+                            notesModalSettings.displayStatusNoteConfirmation(data, function (eval) {
+
+                                // Attach notes field information into form to be serialized
+                                $("#documentRevisionTab").find('#StatusNotes').val(eval.modalNotes);
+                                    saveDocumentInformationInDatabase();
+                            });
                         }
+                    }
+                } else
+                    saveDocumentInformationInDatabase();
+            });
+        }
 
-                        //the following line is faulty, but leave it as is since there would be some repurcussion if changed
-                        if (data.NewDocument) {
-                            if (containerTypeId == 2 || containerTypeId == 3) {
-                                console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
-                                var vKitGroupContainerId = $("#KitGroupContainerId").val();
-                                if (vKitGroupContainerId == undefined) {
-                                    if ($("input#DocumentID.doc-ref-id").val() == "0")
-                                        vKitGroupContainerId = 0;
-                                }
-                                console.log("kitGroupContainerId: ", vKitGroupContainerId);
-                                $("#ParentDocumentId").val(data.DocumentId);
+        function saveDocumentInformationInDatabase() {
 
-                                if (containerTypeId == 2 || (containerTypeId == 3 && isInEditingMode()))
-                                    dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
-                            }
-
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
-                            loadDocumentDetail(data.DocumentId, data.RevisionId);
-
-                            return;
-                        }
-                    } else {
-                        onDisplayError("No attachment has been provided, unable to save.");
+            var form = $("#documentRevisionTab");
+            var url = form.attr("action");
+            var formData = form.serialize();
+            var containerTypeId = getContainerTypeId();
+            $.post(url, formData, function(data) {
+                if (data.DisplayMessage != "Error") {
+                    //special handling for group's element addition
+                    if ($("#DocumentCreationIntention").val() == "31") { //wip
+                        var parentDocumentId = $("#ParentDocumentId").val();
+                        insertKitAndGroup(parentDocumentId, 3, data.DocumentId);
+                        var parentRevisionId = $("#ParentRevisionId").val();
+                        loadDocumentDetail(parentDocumentId, parentRevisionId);
                         return;
                     }
 
-                    // After the post is completed update document information in the markup
-                    var docNode = $("#Document-" + data.DocumentId);
-                    docNode.html(data.Title);
-                    docNode.attr('Title', data.HoverTitle);
-                    docNode.prev().attr('class', data.SpriteCssClass);
+                    //the following line is faulty, but leave it as is since there would be some repurcussion if changed
+                    if (data.NewDocument) {
+                        if (containerTypeId == 2 || containerTypeId == 3) {
+                            console.log("within lib saveDocumentDetail, to save with  containerTypeId", containerTypeId);
+                            var vKitGroupContainerId = $("#KitGroupContainerId").val();
+                            if (vKitGroupContainerId == undefined) {
+                                if ($("input#DocumentID.doc-ref-id").val() == "0")
+                                    vKitGroupContainerId = 0;
+                            }
+                            console.log("kitGroupContainerId: ", vKitGroupContainerId);
+                            $("#ParentDocumentId").val(data.DocumentId);
 
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
+                            if (containerTypeId == 2 || (containerTypeId == 3 && isInEditingMode()))
+                                dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
+                        }
 
-                    if (data.NewRevision == true) {
+                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
-                        docNode.hasChildren = true;
-                    }
 
-                    var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
-                    var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
-                    if (typeof(tvDataItem) != "undefined") {
-                        selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id; 
-                        repopulateTreeBranch(form, docNode);
+                        return;
                     }
-                });
-            }
+                } else {
+                    onDisplayError("No attachment has been provided, unable to save.");
+                    return;
+                }
+
+                // After the post is completed update document information in the markup
+                var docNode = $("#Document-" + data.DocumentId);
+                docNode.html(data.Title);
+                docNode.attr('Title', data.HoverTitle);
+                docNode.prev().attr('class', data.SpriteCssClass);
+
+                $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
+
+                if (data.NewRevision == true) {
+                    loadDocumentDetail(data.DocumentId, data.RevisionId);
+                    docNode.hasChildren = true;
+                }
+
+                var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
+                var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
+                if (typeof(tvDataItem) != "undefined") {
+                    selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
+                    repopulateTreeBranch(form, docNode);
+                }
+            });
         };
 
         var onDisplayError = function (errorMessage) {
@@ -2667,6 +2717,24 @@
         });
         //Expose to public
 
+        // ************************************ Document Status History Methods *************************************************
+        var notesModalSettings;
+        var setNotesModalSettings = function(settings) {
+            notesModalSettings = settings;
+        };
+
+        var clearSupplierStatusNote = function() {
+            $('#StatusNotesText').html("");
+        };
+
+        var onStatusChange = function (e) {
+            e.preventDefault();
+
+            var selectedRow = this.select();
+            var selectedData = this.dataItem(selectedRow);
+            $('#StatusNotesText').html(selectedData.Notes);
+        };
+
         return {
             loadSupplierPlugIn: loadSupplierPlugIn,
             showSupplierPlugIn: showSupplierPlugIn,
@@ -2730,8 +2798,12 @@
             initKitAndGroup: initKitAndGroup,
 
             showMultipleNames: showMultipleNames,
-            error_handler: error_handler
+            error_handler: error_handler,
             //------end of kit and group implementation------
+
+            clearSupplierStatusNote: clearSupplierStatusNote,
+            onStatusChange: onStatusChange,
+            setNotesModalSettings: setNotesModalSettings,
         };
     };
 
