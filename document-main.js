@@ -602,27 +602,27 @@
             var validForm = form.valid();
 
             if (validForm) {
-                if (!checkAttachmentsBeforeSave())    //check all the attachment if form is valid before preceed
+                if (!checkAttachmentsBeforeSave()) //check all the attachment if form is valid before preceed
                     return;
 
-                saveDocumentInformationInDatabase();
+                setTimeout(function() {
 
-                // TODO: Remove when all status history information backend is complete
-                //setTimeout(function() {
+                    // Check if the error report popup is displayed and wait for the user to click ok to continue
+                    var errorReportPopup = $('#errorReport');
+                    if (errorReportPopup.length > 0 && errorReportPopup.is(':visible')) {
+                        errorReportPopup.on('click', '.btn', function errorReportButtonClick(e) {
+                            errorReportPopup.off('click', '.btn', errorReportButtonClick);
+                            errorReportPopup.modal('hide');
+                            documentStatusCheck();
+                        });
+                    } else {
+                        documentStatusCheck();
+                    }
 
-                //    // Check if the error report popup is displayed and wait for the user to click ok to continue
-                //    var errorReportPopup = $('#errorReport');
-                //    if (errorReportPopup.length > 0 && errorReportPopup.is(':visible')) {
-                //        errorReportPopup.on('click', '.btn', function errorReportButtonClick (e) {
-                //            errorReportPopup.off('click', '.btn', errorReportButtonClick);
-                //            errorReportPopup.modal('hide');
-                //            documentStatusCheck();
-                //        });
-                //    } else {
-                //        documentStatusCheck();
-                //    }
+                }, 500);
 
-                //}, 1000);
+            } else {
+                onDisplayError('Saving the document could not be completed. Please review your changes and try again.');
             }
         };
 
@@ -644,7 +644,7 @@
                             notesModalSettings.displayStatusNoteConfirmation(data, function (eval) {
 
                                 // Attach notes field information into form to be serialized
-                                $("#documentRevisionTab").find('#StatusNotes').val(eval.modalNotes);
+                                $("#documentRevisionTab").find('#hdnStatusNotes').val(eval.modalNotes);
                                     saveDocumentInformationInDatabase();
                             });
                         }
@@ -716,6 +716,15 @@
                     selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
                     repopulateTreeBranch(form, docNode);
                 }
+
+                // Attempt to reload the status history grid
+                var kgrid = $('#gdSupplierStatusHistory').data('kendoGrid');
+                if (kgrid) {
+                    kgrid.dataSource.read();
+                    $('#StatusNotesText').html('');
+                }
+
+                $('#hdnStatusNotes').val('');
             });
         };
 
