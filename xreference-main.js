@@ -12,9 +12,6 @@
         var radioButtonSelected = "Group";
   
 
-        var loadSecurityAccess = function (jsonSecurity) {
-            var securityAccess = jQuery.parseJSON(jsonSecurity);
-        }
         // General indexation methods
         var loadRequestsPlugin = function () {
             initializeMultiSelectCheckboxes(xreferenceDetailObj);
@@ -684,37 +681,38 @@
                                 selectedRows.push(selectedRow.attr('data-uid'));
                         }
                     }
+
+                    itemsChecked = 0;
+                    $.each(kgrid._data, function () {
+                        if (this['IsSelected']) {
+                            selectedRequests.push(this["RequestWorkItemID"]);
+                            itemsChecked++;
+                        } else {
+                            var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                            if (index > -1)
+                                selectedRequests.splice(index, 1);
+                        }
+
+                        if (selectedRows.indexOf(this["uid"]) > -1)
+                            grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                        else
+                            grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                    });
+
+                    $("#numberOfItems").text("(" + itemsChecked + ")");
+                    $("#numberOfItems").val(itemsChecked);
+
+                    //highlight rows on current page
+                    //$.each(kgrid._data, function () {
+                    //    if (selectedRows.indexOf(this["uid"]) > -1) 
+                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                    //     else 
+                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                    //});
+
+                    e.stopImmediatePropagation();
                 }
-
-                itemsChecked = 0;
-                $.each(kgrid._data, function () {
-                    if(this['IsSelected']) {
-                        selectedRequests.push(this["RequestWorkItemID"]);
-                        itemsChecked++;
-                    } else {
-                        var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                        if (index > -1) 
-                            selectedRequests.splice(index, 1);
-                    }
-
-                    if (selectedRows.indexOf(this["uid"]) > -1)
-                        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                    else
-                        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
-                });
-
-                $("#numberOfItems").text("(" + itemsChecked + ")");
-                $("#numberOfItems").val(itemsChecked);
                 
-                //highlight rows on current page
-                //$.each(kgrid._data, function () {
-                //    if (selectedRows.indexOf(this["uid"]) > -1) 
-                //        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                //     else 
-                //        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
-                //});
-
-                e.stopImmediatePropagation();
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
@@ -757,6 +755,8 @@
                         return false;
                     }
                 }
+
+                return false;
             });
         }
 
@@ -843,7 +843,6 @@
 
 
         return {
-            loadSecurityAccess:loadSecurityAccess,
             loadRequestsPlugin: loadRequestsPlugin,
             loadMyRequestsPlugin: loadMyRequestsPlugin,
             loadRequests: loadRequests,
