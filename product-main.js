@@ -24,6 +24,7 @@
         var initializeSearchHistoryCallback;
         var addToSearchHistoryCallback;
         var notesModalSettings;
+        var updateStatusLayoutCallback;
 
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
@@ -155,6 +156,10 @@
             notesModalSettings = settings;
         };
 
+        var setUpdateStatusLayoutCallback = function (updateStatusLayoutFunc) {
+            updateStatusLayoutCallback = updateStatusLayoutFunc;
+        };
+
         // Product Status History Methods
         var onProductStatusGridChange = function () {
             var productId = this.wrapper.attr('id');
@@ -234,8 +239,10 @@
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" +activeSaveButton).val().indexOf(',') +1);
             var selectedStatusId = $("#ddlProductStatus_" + activeSaveButton).data('kendoDropDownList').value();
             var selectedPhysicalStateId = $("#ddlPhysicalState_" + activeSaveButton).data('kendoDropDownList').value();
+            var productId = $("#txtProductId_" + activeSaveButton).val();
+
             var queryText = {
-                        ReferenceId: $("#txtProductId_" + activeSaveButton).val(),
+                        ReferenceId: productId,
                         ProductName: $("#txtProductName_" + activeSaveButton).val(),
                         SupplierId: selectedSuppilerId,
                         SupplierName: selectedSuppilerName,
@@ -287,6 +294,10 @@
 
                     reloadProductHistoryGrid(activeSaveButton);
                     setProductGridDataSourceItem(data);
+                }
+
+                if (updateStatusLayoutCallback) {
+                    updateStatusLayoutCallback(productId, selectedStatusId);
                 }
             });
         }
@@ -1080,7 +1091,9 @@
             showSupplierPlugIn: showSupplierPlugIn,
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
-            onProductPhysicalStateChange: onProductPhysicalStateChange
+            onProductPhysicalStateChange: onProductPhysicalStateChange,
+
+            setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback
         };
     };
 
