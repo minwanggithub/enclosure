@@ -725,6 +725,13 @@
                 }
 
                 $('#hdnStatusNotes').val('');
+
+                if (documentStatusLayoutFunc) {
+                    var currentStatusId = '0';
+                    var statusDdl = $('#DocumentStatusId').data('kendoDropDownList');
+                    if (statusDdl) currentStatusId = statusDdl.value();
+                    documentStatusLayoutFunc(JSON.stringify(data.DocumentId), currentStatusId);
+                }
             });
         };
 
@@ -2728,6 +2735,12 @@
 
         // ************************************ Document Status History Methods *************************************************
         var notesModalSettings;
+        var documentStatusLayoutFunc;
+
+        var setDocumentStatusLayoutFunc = function(layoutFunc) {
+            documentStatusLayoutFunc = layoutFunc;
+        };
+
         var setNotesModalSettings = function(settings) {
             notesModalSettings = settings;
         };
@@ -2812,7 +2825,9 @@
 
             clearSupplierStatusNote: clearSupplierStatusNote,
             onStatusChange: onStatusChange,
+            setDocumentStatusLayoutFunc: setDocumentStatusLayoutFunc,
             setNotesModalSettings: setNotesModalSettings,
+            
         };
     };
 
