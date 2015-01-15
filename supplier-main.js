@@ -7,7 +7,7 @@
         //local var
         var obtainmentSettingId;
         var texts = [];
-
+        var regexExpressionEmail = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
         //local funcs
         function GetCompany() {
 
@@ -1879,71 +1879,64 @@
             var selectedData = this.dataItem(selectedRow);
             $('#StatusNotesText').html(selectedData.Notes);
         };
-       
-        $("#DetailSupplier").on("keyup", '#txtMultipleAliases', function (e) {
-            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
-            if (e.keyCode == 13) {
-                e.preventDefault();
-               var arr = $('#DetailSupplier #txtMultipleAliases').val().split("\n");
-                var arrDistinct = new Array();
-                $(arr).each(function (index, item) {
-                    if (item.length > 0) {
-                        if ($.inArray(item, arrDistinct) == -1)
-                            arrDistinct.push(item);
-                    }
-                    
-                });
-                $('#DetailSupplier #txtMultipleAliases').val("");
-                $(arrDistinct).each(function (index, item) {
-                        $('#DetailSupplier #txtMultipleAliases').val($('#DetailSupplier #txtMultipleAliases').val() + item + "\n");
-                });
-            }
+
+        $(document).on('paste', '#DetailSupplier #txtMultipleAliases', function () {
+            DoMultipleItems("#DetailSupplier #txtMultipleAliases", null);
         });
 
-        $("#DetailSupplier").on("keyup", '#txtMultipleWebsites', function (e) {
-            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
-            if (e.keyCode == 13) {
-                e.preventDefault();
-                var arr = $('#DetailSupplier #txtMultipleWebsites').val().split("\n");
-                var arrDistinct = new Array();
-                $(arr).each(function (index, item) {
-                    if (item.length > 0) {
-                        if ($.inArray(item, arrDistinct) == -1)
+        $(document).on('paste', '#DetailSupplier #txtMultipleWebsites', function () {
+            DoMultipleItems("#DetailSupplier #txtMultipleWebsites", null);
+        });
+
+        $(document).on('paste', '#DetailSupplier #txtMultipleEmails', function () {
+            DoMultipleItems("#DetailSupplier #txtMultipleEmails", regexExpressionEmail);
+        });
+
+        function DoMultipleItems(txtObj, regExpression) {
+            var arr = $(txtObj).val().split("\n");
+            var arrDistinct = new Array();
+            $(arr).each(function (index, item) {
+                if (item.length > 0) {
+                    if ($.inArray(item, arrDistinct) == -1) {
+                        if (regExpression!=null) {
+                            if (regExpression.test(item))
+                                arrDistinct.push(item);
+                        }else
                             arrDistinct.push(item);
                     }
+                }
+            });
+            $(txtObj).val("");
+            $(arrDistinct).each(function (index, item) {
+                $(txtObj).val($(txtObj).val() + item + "\n");
+            });
+        }
 
-                });
-                $('#DetailSupplier #txtMultipleWebsites').val("");
-                $(arrDistinct).each(function (index, item) {
-                    $('#DetailSupplier #txtMultipleWebsites').val($('#DetailSupplier #txtMultipleWebsites').val() + item + "\n");
-                });
+        $("#DetailSupplier").on("keyup", '#txtMultipleAliases', function (e) {
+            if (e.keyCode == 13 || (e.ctrlKey && e.keyCode==86)) {
+                e.preventDefault();
+                DoMultipleItems("#DetailSupplier #txtMultipleAliases",null);
+            }
+        });
+        
+        $("#DetailSupplier").on("keyup", '#txtMultipleWebsites', function (e) {
+            if (e.keyCode == 13 || (e.ctrlKey && e.keyCode == 86)) {
+                e.preventDefault();
+                DoMultipleItems("#DetailSupplier #txtMultipleWebsites",null);
             }
         });
 
         $("#DetailSupplier").on("keyup", '#txtMultipleEmails', function (e) {
-            //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
-            if(e.keyCode == 13) {
+            if (e.keyCode == 13 || (e.ctrlKey && e.keyCode == 86)) {
                 e.preventDefault();
-                var arr = $('#DetailSupplier #txtMultipleEmails').val().split("\n");
-                    var arrDistinct = new Array();
-                    $(arr).each(function (index, item) {
-                        if (item.length > 0) {
-                            if ($.inArray(item, arrDistinct) == -1) {
-                                if (/^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/.test(item)) {
-                                    arrDistinct.push(item);
-                                }
-                            }
-                        }
-                    });
-                    $('#DetailSupplier #txtMultipleEmails').val("");
-                    $(arrDistinct).each(function (index, item) {
-                        $('#DetailSupplier #txtMultipleEmails').val($('#DetailSupplier #txtMultipleEmails').val() + item + "\n");
-            });
+                DoMultipleItems("#DetailSupplier #txtMultipleEmails", regexExpressionEmail);
             }
         });
 
         var showMultiple = function () {
+            var selAliaseType = $("#DetailSupplier #selAliasType").data("kendoDropDownList");
             $('#DetailSupplier #txtMultipleAliases').val("");
+            selAliaseType.select(0);
             DisplayModal("mdlMultipleAliases");
         }
 

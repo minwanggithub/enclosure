@@ -2646,6 +2646,9 @@
         };
 
         var showMultipleNames = function () {
+            $('#DocumentDetail #txtNamesNumbers').val("");
+            var selAliaseType = $("#DocumentDetail #selNameType").data("kendoDropDownList");
+            selAliaseType.select(0);
             DisplayModal("mdlMultipleNames");
         }
 
@@ -2664,7 +2667,7 @@
 
         $("#DocumentDetail").on("keyup", '#txtNamesNumbers', function (e) {
             //CurrentContent = $('#DetailSupplier #txtMultipleAliases').val();
-            if (e.keyCode == 13) {
+            if (e.keyCode == 13 || (e.ctrlKey && e.keyCode == 86)) {
                 e.preventDefault();
                 var arr = $('#DocumentDetail #txtNamesNumbers').val().split("\n");
                 var arrDistinct = new Array();
