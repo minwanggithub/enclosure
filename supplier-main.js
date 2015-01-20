@@ -864,6 +864,9 @@
                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                        });
                    }
+                   else if (data1.indexOf("Error") >= 0) {
+                       alert(data1);
+                   }
                    else {
                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                    }
@@ -1969,6 +1972,7 @@
         }
 
         function saveSupplier(url, data, obj) {
+            if ((data.localNo == null) && (data.areaCode == null)) return;
 
             $.post(url, data, function (data2) {
                if(data2.indexOf("Saved") >=0) {
