@@ -414,8 +414,10 @@
                 SearchOption: $("input[name=radiogroupTitleSearchOption]:checked").val(),
                 LatestRevisionOnly: $("#chkLatestRevision:checked").length == 1,
                 IncludeDeletedDocument: $("#chkIncludeDeletedDocument:checked").length == 1,
-                PhysicalStateId: $("#ddlDocumentPhysicalState").val()
+                PhysicalStateId: $("#ddlDocumentPhysicalState").val(),
+                DocumentStatusId: $("#ddlDocumentStatus").val()
             };
+
             var treeview = $(productTreeName).data("kendoTreeView");
 
             var url = "ProductSearchResultRoute";
