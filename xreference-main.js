@@ -467,17 +467,22 @@
                 $("#txtFreeField_" + index).hide();
                     var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
                 //create dropdown in html form first and added to it's corresponding div
+                    var drpContains = $("#drpContains_" + index).data("kendoDropDownList");
+                    drpContains.select(1);
                     $("#dvDropDown_" + index).html(drpDownList);
                 //transform select to kendo dropdown
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
+                    
             }
 
                 if (ddlName == "drpFields") {
                     $("#txtFreeField_" + index).show();
                 $("#dvDropDown_" + index).css("display", "none");
                 }
+
+               
         }
         });
 
