@@ -235,6 +235,7 @@
         }
 
         function saveProductInformation(activeSaveButton) {
+          
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" +activeSaveButton).val().indexOf(',') +1);
             var selectedStatusId = $("#ddlProductStatus_" + activeSaveButton).data('kendoDropDownList').value();
@@ -260,8 +261,8 @@
                     var errorMessage = data.ErrorMessage || 'Error occured while saving the product';
                     onDisplayError(errorMessage);
                     return;
-                } 
-
+                }
+        
                 if (activeSaveButton == 0) {
 
                     $("#txtProductId_" + activeSaveButton).val(data.ReferenceId);
@@ -289,6 +290,12 @@
                     UnBindingSaveCancel(0);
                     deactivateLayout(activeSaveButton);
                     
+                    $('#txtProductSearch').val(data.ReferenceId);
+                    $("#divNewProductDetail").html("");
+                    $("#searchProductBtn").click();
+                    var searchObj = $('#gdSearchProduct');
+                    $("tr", searchObj).addClass('k-state-selected');
+
                 } else {
                     $('#hdnStatusNotes_' +activeSaveButton).val('');
 
