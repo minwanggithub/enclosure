@@ -235,11 +235,12 @@
         }
 
         function saveProductInformation(activeSaveButton) {
-          
+
             var selectedSuppilerId = $("#txtSupplierId_" + activeSaveButton).val().substring(0, $("#txtSupplierId_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $("#txtSupplierId_" + activeSaveButton).val().substring($("#txtSupplierId_" +activeSaveButton).val().indexOf(',') +1);
             var selectedStatusId = $("#ddlProductStatus_" + activeSaveButton).data('kendoDropDownList').value();
             var selectedPhysicalStateId = $("#ddlPhysicalState_" + activeSaveButton).data('kendoDropDownList').value();
+            var selectedPhysicalStateText = selectedPhysicalStateId ? $("#ddlPhysicalState_" + activeSaveButton).data('kendoDropDownList').text() : 'Unknown';
             var productId = $("#txtProductId_" + activeSaveButton).val();
 
             var queryText = {
@@ -251,7 +252,8 @@
                         XReferenceNote: $("#txtXReferenceNote_" +activeSaveButton).val(),
                         SelectedStatusId: selectedStatusId,
                         StatusNotes: $("#hdnStatusNotes_" + activeSaveButton).val(),
-                        SelectedPhysicalStateId: selectedPhysicalStateId
+                        SelectedPhysicalStateId: selectedPhysicalStateId,
+                        PhysicalStateText: selectedPhysicalStateText
                     };
 
             var url = "../ProductManager/SaveProduct";
@@ -311,7 +313,6 @@
 
         // Method to set the datasource item based on the data passed through
         function setProductGridDataSourceItem(productObj) {
-
             var kgrid = $("#gdSearchProduct").data("kendoGrid");
             if (kgrid) {
                 
@@ -321,7 +322,7 @@
                  
                     // Check if something has changed
                     var dataChanged = false;
-                    var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'UpdateDescription'];
+                    var fields = ['ProductName', 'SupplierId', 'SupplierName', 'SelectedStatusId', 'PhysicalStateText'];
                     for (var i = 0; i < fields.length; i++) {
 
                         var dsItem = dataItem[fields[i]] || '';
@@ -337,8 +338,7 @@
                         dataItem.set("SupplierId", productObj.SupplierId);
                         dataItem.set("SupplierName", productObj.SupplierName);
                         dataItem.set("SelectedStatusId", productObj.SelectedStatusId);
-                        dataItem.set("LastUpdate", productObj.LastUpdate);
-                        dataItem.set("LastUpdateBy", productObj.LastUpdateBy);
+                        dataItem.set("PhysicalStateText", productObj.PhysicalStateText);
 
                         var dataItemRow = kgrid.table.find('tr[data-uid="' + dataItem.uid + '"]');
                         kgrid.expandRow(dataItemRow);
