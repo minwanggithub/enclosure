@@ -1290,127 +1290,104 @@
         };
 
         var viewAndUpdateAttachments = function() {
-            console.log("viewAndUpdateAttachments hitting");
             var containerOption = $("#ContainerTypeId").val();
-            if (containerOption == "2") //k
-            {
+
+            var validContainers = [ "2", "4" ];
+            if(validContainers.indexOf(containerOption) > -1) 
                 launchKGPopup(containerOption);
-            } else if (containerOption == "3") //g
-            {
-                launchKGPopup(containerOption);
+        };
+
+        function setViewUpdateAttachmentText() {
+
+            var containerTypeText = $('#ContainerTypeId').val() ? $('#ContainerTypeId').data('kendoDropDownList').text() : '';
+            if (containerTypeText) {
+                containerTypeText = containerTypeText.toLowerCase();
+                containerTypeText = containerTypeText.charAt(0).toUpperCase() + containerTypeText.slice(1) + ' Components';
+            } else {
+                containerTypeText = 'Attachments';
             }
+            
+            $("#btnViewAndUpdateAttachments").html('<span class="k-icon k-add"></span>' + containerTypeText + ' (' +getAttachmentCounted($("#whichGridToAdd").val()) + ')');
+        }
+
+        function setContainerTypeLayout(containerTypeId, setPreviousContainerValue) {
+
+            // Start off by making the tab a blank slate
+            clearOutContentAndHide();
+            setLblRevisionFileInfoDetail();
+	        $("#dvDocSource, #dvImageQuality, #dvVersionNUmber, #gdAssocatedDocuments, #kgAttachment, #lblRevisionFileInfoDetail, #tabRevisionFileInfo").hide();
+	        $("#whichGridToAdd").val("");
+
+            // Add information based on the container type provided
+            switch(containerTypeId) {
+
+                // KIT
+		        case '2':
+			        $("#whichGridToAdd").val("gdKitSibling");
+			        $("#dvDocSource, #kgAttachment").show();
+		            setViewUpdateAttachmentText();
+			        break;
+
+                // GROUP
+                case '3':
+                    $("#whichGridToAdd").val("gdGroupSibling");
+                    $('#dvVersionNUmber').show();
+                    break;
+
+				// TOPIC
+                case '4':
+                    $('#kgAttachment').show();
+                    setViewUpdateAttachmentText();
+                    break;
+
+                // SINGLE
+                default:
+                    $("#lblRevisionFileInfoDetail").hide();
+                    $('#dvDocSource, #dvImageQuality, #dvVersionNUmber').show();
+                    break;
+            }
+
+            if(setPreviousContainerValue == true)
+                $("#previousContainerTypeId").val(containerTypeId);
         };
 
         var onContainerTypeIdChange = function(e) {
+
             var containerTypeId = $("#ContainerTypeId").val();
             var previousContainerTypeId = $("#previousContainerTypeId").val();
-            console.log("Within ContainerTypeId's change, previousContainerTypeId: ", previousContainerTypeId);
-            console.log("Within ContainerTypeId's change, current containerTypeId: ", containerTypeId);
-            if (containerTypeId == "1") {
-                //also need check if it is in display mode
-                if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0 && (previousContainerTypeId == "2" || previousContainerTypeId == "3")) {
-                    if (confirm("Are you sure to switch the current document to a single? If you proceed, then the previously added documents will be discarded")) {
-                        setLblRevisionFileInfoDetail();
-                        clearOutContentAndHide();
-                        $("#lblRevisionFileInfoDetail").hide();
-                    } else {
-                        console.log("reset back to the previous selection since user cancelled it");
-                        if ($(this).data("kendoDropDownList") != null) {
-                            $(this).data("kendoDropDownList").select(parseInt(previousContainerTypeId));
-                        } 
-                        return;
-                    }
+            var documentCount = $("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length;
+
+            // Is there a container type change which involves information already added by the user?
+            if (documentCount > 0) {
+
+                if (containerTypeId != previousContainerTypeId) { 
+
+                    var containerTypeText = $(e.target).data('kendoDropDownList').value() ? $(e.target).data('kendoDropDownList').text().toLowerCase(): 'unknown';
+                    var settings = {
+                        message: 'Are you sure to switch the current document to ' + containerTypeText + '? If you proceed, then the previously added documents will be discarded',
+                        header: 'Confirm Container Type Change'
+                    };
+
+                    DisplayConfirmationModal(settings,
+                        function() {
+                             setContainerTypeLayout(containerTypeId, true);
+                        },
+                        function() {
+                            $(e.target).data('kendoDropDownList').select(parseInt(previousContainerTypeId || '1'));
+                        });
                 }
-                $("#kgAttachment").hide();
-                $("#whichGridToAdd").val("");
-                $("#tabRevisionFileInfo").hide();
-                $("#gdAssocatedDocuments").hide();
-                $("#previousContainerTypeId").val(containerTypeId);
-                return;
-            }
 
-            //as long as it is not a new single doc creation, we wil let the lblRevisionFileInfoDetail show
-            if ($("input#DocumentID.doc-ref-id").val() != "0" || ($("input#DocumentID.doc-ref-id").val() != "0" && (containerTypeId == "2" && containerTypeId == "3"))) {
-                $("#lblRevisionFileInfoDetail").show();
-                $("#tabRevisionFileInfo").show();
-            }
-
-            if (!isInEditingMode()) {
-                if (containerTypeId == 3) {
-                    $("#kgAttachment").hide();
-                } else if (containerTypeId == 2) {
-                    $("#kgAttachment").show();
-                }
-                return;
-            }
-
-
-            if (previousContainerTypeId != undefined) {
-                if (containerTypeId == "2" && previousContainerTypeId == "3") {
-                    if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
-                        if (confirm("Are you sure to switch the current document from group to kit? If you proceed, then the previously added documents will be discarded")) {
-                            setLblRevisionFileInfoDetail();
-                            //$("#tabRevisionFileInfo").show();
-                            clearOutContentAndHide();
-                            $("#whichGridToAdd").val("gdKitSibling");
-                            //launchKGPopup(containerTypeId);
-                            $("#kgAttachment").show();
-                            $("#previousContainerTypeId").val(containerTypeId);
-                            return;
-                        } else {
-                            $("#tabRevisionFileInfo").hide();
-                            $(this).val(previousContainerTypeId);
-                            return;
-                        }
-                    }
-                } else if (containerTypeId == "3" && previousContainerTypeId == "2") {
-                    if ($("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length > 0) {
-                        if (confirm("Are you sure to switch the current document from kit to group? If you proceed, then the previously added documents will be discarded")) {
-                            clearOutContentAndHide();
-                            setLblRevisionFileInfoDetail();
-                            $("#tabRevisionFileInfo").hide();
-                            $("#whichGridToAdd").val("gdGroupSibling");
-                            $("#kgAttachment").hide();
-                            //launchKGPopup(containerTypeId);
-                            $("#previousContainerTypeId").val(containerTypeId);
-                            return;
-                        }else {
-                            //$("#tabRevisionFileInfo").show();
-                            $(this).val(previousContainerTypeId);
-                            return;
-                        }
-                    }
-                }
-            }
-            if (containerTypeId == 2) {
-                if (shouldPostToServer()) {
-                    setLblRevisionFileInfoDetail("Cover Sheet");
-                    $("#tabRevisionFileInfo").show();
-                } else {
-                    $("#tabRevisionFileInfo").hide();
-                }
-                $("#whichGridToAdd").val("gdKitSibling");
-            } else if (containerTypeId == 3) {
-                $("#whichGridToAdd").val("gdGroupSibling");
-                $("#tabRevisionFileInfo").hide();
-            }
-
-            //launchKGPopup(containerTypeId);
-            
-            //$("#kgAttachment").show();
-
-            $("#previousContainerTypeId").val(containerTypeId);
+            } else
+                setContainerTypeLayout(containerTypeId, true);
         };
     
 
         var onPopuClose = function(e) {
-            console.log("Within onPopuClose, e:", e);
             $("#divDocumentIdentification").show();
         };
 
         //mode: 2 for kit; and 3 for group
         var launchKGPopup = function (containerTypeId) {
-            console.log("hitting launchKGPopup with containerTypeId:", containerTypeId);
             var kitGroupClassificationSetBitValue = 0;
             var title = "Configuration";
             if (containerTypeId == "2") {
@@ -1419,6 +1396,9 @@
             } else if (containerTypeId == "3") {
                 kitGroupClassificationSetBitValue = 4;
                 title = "Group " + title;
+            } else if (containerTypeId == "4") {
+                kitGroupClassificationSetBitValue = 16;
+                title = "Topic " + title;
             }
 
             var d = $("<div id='kg_popup'></div>")
@@ -1450,8 +1430,6 @@
                 win.center();
                 win.open();
             });
-
-            console.log("exiting launchKGPopup");
         };
     
         function setLblRevisionFileInfoDetail(text){
@@ -1474,7 +1452,7 @@
             if(grid &&  grid.dataSource)
                 grid.dataSource.data([]);
 
-            $("#btnViewAndUpdateAttachments").html("Attachments()");
+            setViewUpdateAttachmentText();
         }
         //------end of doc id tab---
 
@@ -1556,11 +1534,9 @@
                 });
 
                 if (shouldPostToServer()) {
-                    console.log("to post to server after delete");
                     dispatch2(gridid, inferContainerTypeId(gridid));
                 }
             }
-            console.log("exiting onCustomCommand");
         };
 
         function hasGridContain2(grid, refid) {
@@ -1590,8 +1566,6 @@
         }
 
         var addToChildGrid = function(childGridId, selectedDataItem) {
-            console.log("addToChildGrid, childGridId:", childGridId);
-            console.log("addToChildGrid, selectedDataItem.ReferenceId:", selectedDataItem.ReferenceId);
             var child = $("#" + childGridId).data("kendoGrid");
             if (child == null) {
                 console.log("error: child is null!!");
@@ -1614,11 +1588,6 @@
                 RevisionDate: selectedDataItem.RevisionDate,
                 ConfirmationDate: selectedDataItem.RevisionDate,
             });
-
-            //console.log("within addToChildGrid, after addition, there are " + child.dataSource.data().length + " records");
-            //if (shouldPostToServer()) {
-            //    dispatch2(childGridId, inferContainerTypeId(childGridId));
-            //}
         };
 
         function dispatch2(id, containerTypeId) { //id is grid id
@@ -1780,21 +1749,6 @@
                 console.log("single or unknown container type");
                 $("#divBody").hide();
             }
-
-         
-            //console.log("KitGroupClassificationSetBitValue has value of " + sbv);
-            //if (sbv == "2") {
-            //    console.log("it is a kit parent");
-            //    doKitParent();
-            //    loadExistingChildren("gdKitSibling");
-            //} else if (sbv == "3") {
-            //    console.log("it is a group parent");
-            //    doGroupParent();
-            //    loadExistingChildren("gdGroupSibling");
-            //} else {
-            //    console.log("unknown container type");
-            //}
-
         };
 
 
@@ -2119,9 +2073,11 @@
         };
 
         var getAttachmentCounted = function(gridid) {
+            if (typeof gridid == 'undefined') return 0;
+
             console.log("hitting getAttachmentCounted, gridid: ", gridid);
             var grid = $("#" + gridid).data("kendoGrid");
-            return grid.dataSource.data().length;
+            return grid ? grid.dataSource.data().length : 0;
         };
 
         getHandle("#btnCancelDocumentSearch").click(function (e) {
@@ -2357,8 +2313,7 @@
 
             dlgDocumentSearch.data("kendoWindow").close();
 
-            //update the kgAttachment
-            $("#btnViewAndUpdateAttachments").html("Kit Components (" + getAttachmentCounted($("#whichGridToAdd").val()) + ")");
+            setViewUpdateAttachmentText();
             console.log("exiting handleAddDocument");
         };
 
@@ -2368,13 +2323,11 @@
 
             var url = getUrl("Operations", "Operations/Document/PlugInSupplierSearch");
             $.post(url, { supplierId: 0 }, function (data) {
-                //console.log("retrieved data for supplier plugin: ", data);
                 $("#supplierSearchWindow #dgSupplierPlugIn").html(data);
             });
 
             url = getUrl("Operations", "Operations/Document/SearchDocumentContent");
             $.post(url, { supplierId: 0 }, function (data) {
-                //console.log("retrieved data for search doc content: ", data);
                 $("#dgDocumentPlugIn").html(data);
             });
 
@@ -2382,9 +2335,6 @@
             $("#divParent").hide();
             $("#divKitSibling").hide();
             $("#divGroupSibling").hide();
-
-            //clearData();
-            //uncheckAndHideAll();
 
             //TODO: bring back group and childrens
             //bring back the kit component
@@ -2609,7 +2559,7 @@
                         if(popup)
                             popup.close();
                         grid.dataSource.data([]);
-                        $("#btnViewAndUpdateAttachments").html("Attachments()");
+                        setViewUpdateAttachmentText();
                     } else {
                         return;
                     }
@@ -2621,11 +2571,10 @@
                 grid.dataSource.data([]);
             });
 
-
-            console.log("set view doc in kit link");
-            $('#gdKitSibling').click(function (e) {
+            $('#gdKitSibling').dblclick(function (e) {
                 e.preventDefault();
 
+                debugger;
                 if ($("#canViewConstituentDocument").val() != "0") {
                     var grid = $("#gdKitSibling").data("kendoGrid");
                     var url = getUrl("Operations", "Operations/Document/LoadSingleDocument");
@@ -2642,9 +2591,6 @@
 
                 $("#canViewConstituentDocument").val("1");
             });
-
-
-            console.log("exing initKitAndGroup");
         };
 
         var showMultipleNames = function () {
@@ -2736,7 +2682,8 @@
                 }
             });
         });
-        //Expose to public
+        
+        // ************************************** Document Kits Groups Methods **************************************************
 
         // ************************************ Document Status History Methods *************************************************
         var notesModalSettings;
