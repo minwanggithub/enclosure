@@ -88,7 +88,7 @@
 
                 $(document).off('click', "#btnDissembleKit");
                 $(document).on('click', "#btnDissembleKit", function (e) {
-                    DisplayConfirmationModal({ message: 'Are you sure you want to disassemble this kit?', header: 'Confirm for disassembling kits' }, function () {
+                    DisplayConfirmationModal({ message: 'Are you sure you want to disassemble this kit?', header: 'Confirm for disassembling kit' }, function () {
                         disembleKitOrGroup(2);
                     });
                 });
@@ -100,9 +100,9 @@
 
                 $(document).off('click', "#btnDissembleKit");
                 $(document).on('click', "#btnDissembleKit", function (e) {
-                    if (confirm("Are you sure to destroy or dissemble this group?")) {
+                    DisplayConfirmationModal({ message: 'Are you sure to destroy or dissemble this group?', header: 'Confirm for disassembling group' }, function () {
                         disembleKitOrGroup(3);
-                    }
+                    });
                 });
 
             } else {
@@ -678,11 +678,6 @@
             return this;
         };
 
-        var reloadSelectedTreeNode = function () {
-            var treeView = $(productTreeName).data("kendoTreeView");
-            var selectedNode = treeView.select(); //Reselect current node    
-        };
-
         // ************************************** Document Identification Methods **************************************************
         function documentStatusCheck() {
 
@@ -721,6 +716,11 @@
             return containerOption;
         }
 
+        function getContainerTypeText() {
+            var containerTypeDdl = $('#ContainerTypeId').data('kendoDropDownList');
+            return containerTypeDdl && containerTypeDdl.value() ? containerTypeDdl.text().toLowerCase() : 'unknown';
+        }
+
         function saveDocumentInformationInDatabase() {
 
             var form = $("#documentRevisionTab");
@@ -729,6 +729,7 @@
             var containerTypeId = getContainerTypeId();
             $.post(url, formData, function (data) {
                 if (data.DisplayMessage != "Error") {
+
                     //special handling for group's element addition
                     if ($("#DocumentCreationIntention").val() == "31") { //wip
                         var parentDocumentId = $("#ParentDocumentId").val();
@@ -740,21 +741,20 @@
 
                     //the following line is faulty, but leave it as is since there would be some repurcussion if changed
                     if (data.NewDocument) {
-                        if (containerTypeId == 2 || containerTypeId == 3) {
+
+                        if ((containerTypeId || '1') != '1') {
                             var vKitGroupContainerId = $("#KitGroupContainerId").val();
                             if (vKitGroupContainerId == undefined) {
                                 if ($("input#DocumentID.doc-ref-id").val() == "0")
                                     vKitGroupContainerId = 0;
                             }
-                            $("#ParentDocumentId").val(data.DocumentId);
 
-                            if (containerTypeId == 2 || (containerTypeId == 3 && isInEditingMode()))
-                                dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
+                            $("#ParentDocumentId").val(data.DocumentId);
+                            dispatch("gdAssocatedDocuments", containerTypeId, data.DocumentId, vKitGroupContainerId);
                         }
 
                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
                         loadDocumentDetail(data.DocumentId, data.RevisionId);
-
                         return;
                     }
                 } else {
@@ -816,7 +816,7 @@
         var checkAttachmentsBeforeSave = function () {
             var containerOption = $("#ContainerTypeId").val();
 
-            //Always warn if there is no attachment for SINGLE
+                // SINGLE
             if (containerOption == "1") {
                 var currenRevId = $("#RevisionID").val();
                 var currenDocId = $("#DocumentID").val();
@@ -842,20 +842,23 @@
                         return true;
                     }
                 }
-            }
 
-            if (containerOption == "2") {
-                //if this is a new kit we will do the checking
+                // KIT
+            } else if (containerOption == "2") { 
                 if (!isInEditingMode()) {
                     var componentsCount = $("#gdAssocatedDocuments").data("kendoGrid").dataSource.data().length;
                     if (componentsCount <= 1) {
-                        DisplayConfirmationModal({ message: 'The kit has ' + componentsCount + ' component attached. Do you want to attach the components now?', header: 'Confirm attach components' }, function () {
-                            launchKGPopup(containerOption);
-                        });
-                        return false;
-                    };
+                        var settings = { message: 'The ' +getContainerTypeText() + ' has ' +componentsCount + ' component attached. Do you want to attach the components now?', header: 'Confirm attach components' };
+                        DisplayConfirmationModal(settings, function () { launchKGPopup(containerOption); });
+                            return false;
+                        };
                 }
+
+                // TOPIC
+            } else if (containerOption == 4) {
+                // TODO: Might need to do something here
             }
+
             return true;
         };
 
@@ -872,85 +875,90 @@
         };
 
         var customDeleteAttachment = function (infoId) {
-            var message = "Are you sure you want to delete this file?";
-            var cResult = confirm(message);
-            if (!cResult)
-                return;
 
-            var multiAttachment = $("#gdRevisionFileInfoDetail_" + $("#RevisionID").val()).data("kendoGrid").dataSource.data().length;
-            if (multiAttachment == 1) {
-                onDisplayError("Reminder:  the deleted item was the last attachment for this document.");
-            }
-            var url = getUrl("Operations", "Operations/Document/CustomDocumentFileDelete");
-            $.post(url, { infoId: infoId }, function (data) {
-                var currenRevId = $("#RevisionID").val();
-                var grid = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid");
-                grid.dataSource.read();
-                grid.dataSource.page(1);
+            var settings = {
+                message: 'Are you sure you want to delete this file?',
+                header: 'Delete Attachment Confirmation'
+            };
+
+            DisplayConfirmationModal(settings, function() {
+                var multiAttachment = $("#gdRevisionFileInfoDetail_" +$("#RevisionID").val()).data("kendoGrid").dataSource.data().length;
+                if (multiAttachment == 1) {
+                    onDisplayError("Reminder:  the deleted item was the last attachment for this document.");
+                }
+
+                var url = getUrl("Operations", "Operations/Document/CustomDocumentFileDelete");
+                $.post(url, { infoId : infoId },
+                    function (data) {
+                        var currenRevId = $("#RevisionID").val();
+                        var grid = $("#gdRevisionFileInfoDetail_" +currenRevId).data("kendoGrid");
+                        grid.dataSource.read();
+                        grid.dataSource.page(1);
+                });
             });
         };
 
         var deleteDocument = function () {
-            var strconfirm = confirm("Are you sure you want delete this document?");
-            if (strconfirm == false) {
-                return false;
-            }
 
-            var treeView = $(productTreeName).data("kendoTreeView");
-            var selectedNode = treeView.dataItem(treeView.select().parent());
-            $.ajax({
+            var settings = {
+                message : 'Are you sure you want delete this document?',
+                header: 'Confirm Document Deletion'
+            };
 
-                url: "ObsoleteDocument",
-                type: 'POST',
-                cache: false,
-                data: { documentId: selectedNode.DocumentId },
-                success: function (data) {
-                    if (data.Status == 0) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
-                        $('#eeeSideBar').hide();
+            DisplayConfirmationModal(settings, function() {
 
-                        if ($("#chkIncludeDeletedDocument:checked").length == 0) {
-                            clearDocumentDetail();
-                            var productObj = $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().parent().parent();
-                            var numOfLanguages = $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().parent().parent().find('.CompliNodeTypeLanguage').length
-                            if (numOfLanguages == 1) //a product has one language
-                            {
-                                if ($("#tvProductSearchResult_tv_active").parent().parent().siblings().length == 0) {
-                                    //remove a language and controls under it
-                                    $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().html("");
-                                } else //remove a document
-                                {
-                                    $("#tvProductSearchResult_tv_active").parent().parent().html("");
+                var treeView = $(productTreeName).data("kendoTreeView");
+                var selectedNode = treeView.dataItem(treeView.select().parent());
+                $.ajax({
 
+                    url: "ObsoleteDocument",
+                        type: 'POST',
+                        cache: false,
+                        data: { documentId: selectedNode.DocumentId },
+                        success: function (data) {
+                            if (data.Status == 0) {
+                                $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.DisplayMessage);
+                                $('#eeeSideBar').hide();
+
+                                if ($("#chkIncludeDeletedDocument:checked").length == 0) {
+                                    clearDocumentDetail();
+                                    var productObj = $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().parent().parent();
+                                    var numOfLanguages = $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().parent().parent().find('.CompliNodeTypeLanguage').length
+
+                                    //a product has one language
+                                    if (numOfLanguages == 1)
+                                    {
+                                        //remove a language and controls under it
+                                        if ($("#tvProductSearchResult_tv_active").parent().parent().siblings().length == 0) 
+                                            $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().html("");
+                                        else //remove a document
+                                            $("#tvProductSearchResult_tv_active").parent().parent().html("");
+
+                                        //remove product when no document under it
+                                        if ($('.CompliNodeTypeRevision', productObj).length == 0)
+                                            productObj.html("");
+
+                                    } else 
+                                    {
+                                        //remove a language and controls under it
+                                        if ($("#tvProductSearchResult_tv_active").parent().parent().siblings().length == 0)
+                                            $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().html("");
+                                        else //a language has multiple documents
+                                            $("#tvProductSearchResult_tv_active").parent().parent().html("");
+                                    }
                                 }
-
-                                //remove product when no document under it
-                                if ($('.CompliNodeTypeRevision', productObj).length == 0) {
-                                    productObj.html("");
-                                }
-                            } else //a product has multiple languages
-                            {
-                                //a language has one document
-                                if ($("#tvProductSearchResult_tv_active").parent().parent().siblings().length == 0) {
-                                    //remove a language and controls under it
-                                    $("#tvProductSearchResult_tv_active").parent().parent().parent().parent().html("");
-                                } else //a language has multiple documents
-                                {
-                                    $("#tvProductSearchResult_tv_active").parent().parent().html("");
-                                }
+                                else
+                                    $('#btnDocumentSave').parent().prepend('<span style="color: red; font-size: 20px;">Deleted document</span>');
                             }
-                        }
-                        else {
-                            $('#btnDocumentSave').parent().prepend('<span style="color: red; font-size: 20px;">Deleted document</span>');
-                        }
-                    }
-                },
-                error: function (xhr, textStatus, error) {
-                    onDisplayError(error);
-                }
-            });
+                        },
+                        error: function (xhr, textStatus, error) { onDisplayError(error); }
+                });
 
-            return true;
+                return true;
+
+            }, function() {
+                return false;
+            });
         };
 
         var loadDocumentDetail = function (documentId, revisionId) {
@@ -998,7 +1006,7 @@
 
                 if (containerTypeId != previousContainerTypeId) {
 
-                    var containerTypeText = $(e.target).data('kendoDropDownList').value() ? $(e.target).data('kendoDropDownList').text().toLowerCase() : 'unknown';
+                    var containerTypeText = getContainerTypeText();
                     var settings = {
                         message: 'Are you sure to switch the current document to ' + containerTypeText + '? If you proceed, then the previously added documents will be discarded',
                         header: 'Confirm Container Type Change'
@@ -1175,7 +1183,6 @@
 
         // ************************************** Document Kits Groups Methods **************************************************
         var dlgDocumentSearch = $("#documentSearchWindow_kg");
-        var listOfChildDocumentId = JSON.parse("[" + (($("#ListOfChildDocumentId").val() == undefined) ? "" : $("#ListOfChildDocumentId").val()) + "]");
         var prevRadioButtonState = [0, 0, 0, 0];
 
         function addToChildGrid(childGridId, selectedDataItem) {
@@ -1321,7 +1328,7 @@
 
             //prevent from deleting the last two components from an existing kit
             if (shouldPostToServer() && containerTypeId == 2 && childDocumentIdSet.length <= 1) {
-                var prompt = confirm("Error: the last two component of an existing kit can't be deleted");
+                onDisplayError("The last two component of an existing kit can't be deleted");
                 return;
             }
 
@@ -1338,101 +1345,71 @@
 
         function doBothChildren() {
             setKGTopLabel("Kit Compoent and Group Element");
-            $("#divBody").show();
-
-            $('input[name=kgClassifierKitParent]').prop('checked', false);
-            $('input[name=kgClassifierGroupParent]').prop('checked', false);
-            $('input[name=kgClassifierKitChildren]').prop('checked', true);
-            $('input[name=kgClassifierGroupChildren]').prop('checked', true);
+            
+            $('#rbtnGrpControlPanel').find('input').prop('checked', false);
+            $('input[name=kgClassifierKitChildren], input[name=kgClassifierGroupChildren]').prop('checked', true);
 
             $('#lblParent').html("Parents");
-            $('#divParent').show();
-
             $('#lblKitSibling').html("Kit Sibling");
-            $("#divKitSibling").show();
-
             $("#lblGroupSibling").html("Group Sibling");
-            $("#divGroupSibling").show();
 
             $("#divGroupParent").hide();
+            $('#divBody, #divParent, #divKitSibling').show();
+
             setPrevRadioButtonState(1, 3);
         }
 
         function doGroupChildren() {
             setKGTopLabel("Group Element");
-            $("#divBody").show();
+            $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierGroupChildren"])').prop('checked', false);
 
-            $('input[name=kgClassifierKitParent]').prop('checked', false);
-            $('input[name=kgClassifierGroupParent]').prop('checked', false);
-
-            $('#divParent').hide();
-
-            $("#divKitSibling").hide();
-
-            $("#divGroupParent").show();
-
-            $("#divGroupSibling").show();
             $('#lblGroupSibling').html("Other Sibling");
+            $('#divParent, #divKitSibling').hide();
+            $("#divBody, #divGroupParent, #divGroupSibling").show();
 
             setPrevRadioButtonState(3);
         }
 
         function doGroupParent() {
             setKGTopLabel("Group");
-            $("#divBody").show();
-
-            $('input[name=kgClassifierKitParent]').prop('checked', false);
-            $('input[name=kgClassifierKitChildren]').prop('checked', false);
-            $('input[name=kgClassifierGroupChildren]').prop('checked', false);
-
-            $('#divParent').hide();
-
-            $("#divGroupParent").hide();
-
-            $("#divKitSibling").hide();
-
+            $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierGroupParent"])').prop('checked', false);
+            $('#divParent, #divGroupParent, #divKitSibling').hide();
             $('#lblGroupSibling').html("Elements");
-            $("#divGroupSibling").show();
-
+            $("#divBody, #divGroupSibling").show();
+            
             setPrevRadioButtonState(2);
         }
 
         function doKitChildren() {
             setKGTopLabel("Kit Component");
-            $("#divBody").show();
-
-            $('input[name=kgClassifierKitParent]').prop('checked', false);
-            $('input[name=kgClassifierGroupParent]').prop('checked', false);
-
-            $("#divGroupParent").hide();
+            $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierKitChildren"])').prop('checked', false);
 
             $('#lblParent').html("Parent");
-            $('#divParent').show();
-
             $('#lblKitSibling').html("Sibling");
-            $("#divKitSibling").show();
+            $("#divGroupParent, #divGroupSibling").hide();
+            $('#divBody, #divParent, #divKitSibling').show();
 
-            $("#divGroupSibling").hide();
             setPrevRadioButtonState(1);
         }
 
         function doKitParent() {
             setKGTopLabel("Kit");
-            $("#divBody").show();
-
-            $('input[name=kgClassifierKitChildren]').prop('checked', false);
-            $('input[name=kgClassifierGroupParent]').prop('checked', false);
-            $('input[name=kgClassifierGroupChildren]').prop('checked', false);
-
-            $('#divParent').hide();
-
-            $("#divGroupParent").hide();
+            $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierKitParent"])').prop('checked', false);
+            $('#divParent, #divGroupParent, #divGroupSibling').hide();
+            $("#divBody, #divKitSibling").show();
 
             $('#lblKitSibling').html("Components");
-            $("#divKitSibling").show();
 
-            $("#divGroupSibling").hide();
             setPrevRadioButtonState(0);
+        }
+
+        function doTopicParent() {
+            setKGTopLabel("Topic");
+            $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierTopicChildren"])').prop('checked', false);
+            $("#divBody, #divTopicComponents").show();
+            $('#lblTopicParent').html("Components");
+
+            setPrevRadioButtonState(4);
         }
 
         function extractValue(entry) {
@@ -1564,7 +1541,7 @@
             // Start off by making the tab a blank slate
             clearOutContentAndHide();
             setLblRevisionFileInfoDetail();
-            $("#dvDocSource, #dvImageQuality, #dvVersionNUmber, #gdAssocatedDocuments, #kgAttachment, #lblRevisionFileInfoDetail, #tabRevisionFileInfo").hide();
+            $("#gdAssocatedDocuments, #kgAttachment, #lblRevisionFileInfoDetail, #tabRevisionFileInfo").hide();
             $("#whichGridToAdd").val("");
 
             // Add information based on the container type provided
@@ -1573,26 +1550,25 @@
                 // KIT
                 case '2':
                     $("#whichGridToAdd").val("gdKitSibling");
-                    $("#dvDocSource, #kgAttachment").show();
+                    $("#kgAttachment").show(); // MUST HIDE UNTIL SOFT LAUNCH
                     setViewUpdateAttachmentText();
                     break;
 
-                    // GROUP
+                // GROUP
                 case '3':
                     $("#whichGridToAdd").val("gdGroupSibling");
-                    $('#dvVersionNUmber').show();
                     break;
 
-                    // TOPIC
+                // TOPIC
                 case '4':
+                    $("#whichGridToAdd").val("gdTopicComponent");
                     $('#kgAttachment').show();
                     setViewUpdateAttachmentText();
                     break;
 
-                    // SINGLE
+                // SINGLE
                 default:
                     $("#lblRevisionFileInfoDetail").hide();
-                    $('#dvDocSource, #dvImageQuality, #dvVersionNUmber').show();
                     break;
             }
 
@@ -1653,6 +1629,7 @@
             $('input[name=kgClassifierGroupParent]').prop('checked', false);
             $('input[name=kgClassifierKitChildren]').prop('checked', false);
             $('input[name=kgClassifierGroupChildren]').prop('checked', false);
+            $('input[name=kgClassifierTopicChildren]').prop('checked', false);
             resetPrevRadioButtonState();
         }
 
@@ -1693,26 +1670,38 @@
         var fillUpKGContent = function() {
             var sbv = $("#KitGroupClassificationSetBitValue").val();
             var tid = $("#ContainerTypeId").val();
-
+            
+            // KIT PARENT
             if (sbv == "1") {
-                $("#divBody").show();
                 doKitParent();
                 $("#whichGridToAdd").val("gdKitSibling");
                 loadExistingChildren("gdKitSibling");
+
+            // KIT CHILDREN
             } else if (sbv == "2") {
-                $("#divBody").show();
                 doKitChildren();
+
+            // GROUP PARENT
             } else if (sbv == "4" || tid == 3) {
-                $("#divBody").show();
                 doGroupParent();
                 $("#whichGridToAdd").val("gdGroupSibling");
                 loadExistingChildren("gdGroupSibling");
+
+            // GROUP CHILDREN
             } else if (sbv == "8") {
                 doGroupChildren();
-                $("#divBody").show();
+
+            // BOTH KIT AND GROUP CHILDREN
             } else if (sbv == "10") {
-                $("#divBody").show();
                 doBothChildren();
+
+            // TOPIC PARENT
+            } else if (sbv == '16') {
+                doTopicParent();
+                $("#whichGridToAdd").val("gdTopicComponents");
+                loadExistingChildren("gdTopicComponents");
+
+            // SINGLE
             } else {
                 $("#divBody").hide();
             }
@@ -1816,9 +1805,7 @@
             });
 
 
-            $("#divParent").hide();
-            $("#divKitSibling").hide();
-            $("#divGroupSibling").hide();
+            $("#divParent, #divKitSibling, #divGroupSibling, #divTopicComponents").hide();
 
             //TODO: bring back group and childrens
                 //bring back the kit component
@@ -1942,6 +1929,17 @@
                 dlgDocumentSearch.data("kendoWindow").open();
             });
 
+            $('#btnAddTopicComponent').click(function (e) {
+                e.preventDefault();
+                $("#whichGridToAdd").val("gdTopicComponents");
+
+                getHandle("#documentModalPopup").show();
+                setupDropDowns();
+
+                dlgDocumentSearch.data("kendoWindow").center();
+                dlgDocumentSearch.data("kendoWindow").open();
+            });
+
             $('#btnContainerSave').click(function (e) {
                 e.preventDefault();
 
@@ -1988,20 +1986,24 @@
                 var grid = $("#" +$("#whichGridToAdd").val()).data("kendoGrid");
                 var popup = $("#kg_popup").data("kendoWindow");
                 if (grid && grid.dataSource && grid.dataSource.data().length > 0) {
-                    if (confirm("You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?")) {
+
+                    var settings = {
+                        message: 'You choose to discard the documents attached. However, the chosen container type requires attachments. Do you want to come back to revisit it later?',
+                        header: 'Confirm Attachment Discard'
+                    };
+
+                    DisplayConfirmationModal(settings, function() {
                         dlgDocumentSearch.data("kendoWindow").close();
-                        if(popup)
-                            popup.close();
+                        if (popup) popup.close();
                         grid.dataSource.data([]);
                         setViewUpdateAttachmentText();
-                    } else 
-                        return;
+                    });
+
+                } else {
+                    dlgDocumentSearch.data("kendoWindow").close();
+                    if (popup) popup.close();
+                    grid.dataSource.data([]);
                 }
-
-                dlgDocumentSearch.data("kendoWindow").close();
-                if (popup) popup.close();
-
-                grid.dataSource.data([]);
             });
 
             $('#gdKitSibling').dblclick(function (e) {
@@ -2030,13 +2032,12 @@
             } else if(containerTypeId == "3") {
                 kitGroupClassificationSetBitValue = 4;
                 title = "Group " +title;
-                } else if(containerTypeId == "4") {
+            } else if(containerTypeId == "4") {
                 kitGroupClassificationSetBitValue = 16;
                 title = "Topic " +title;
-                }
+            }
 
-            var d = $("<div id='kg_popup'></div>")
-                .appendTo('body');
+            var d = $("<div id='kg_popup'></div>").appendTo('body');
             var win = d.kendoWindow({
                             modal: true,
                             animation: false,
@@ -2068,22 +2069,30 @@
                 return;
             }
 
-            if (confirm("Are you sure you want to delete this record")) {
-                var gridid = e.delegateTarget.id;
-                var grid = $("#" + gridid).data("kendoGrid");
-                var referenceId = this.dataItem(this.select())["ReferenceId"];
-                var dataSource = grid.dataSource;
-                var raw = dataSource.data();
-                $.each(raw, function (index, elem) {
-                    if (elem != undefined && elem.ReferenceId != null && elem.ReferenceId == referenceId) {
-                        dataSource.remove(elem);
-                    }
-                });
+            var settings = {
+                message: 'Are you sure you want to delete this record',
+                header: 'Confirm Record Deletion'
+            };
+
+            DisplayConfirmationModal(settings, function() {
+                var kgrid = $(e.delegateTarget).data('kendoGrid');
+                if(kgrid) {
+                    var dataSource = kgrid.dataSource;
+                    var rowId = $(e.target).parents('tr').data('uid');
+
+                    var dataItem = dataSource ? dataSource.getByUid(rowId): null;
+                    if (dataItem) 
+                        dataSource.remove(dataItem);
+                }
 
                 if (shouldPostToServer()) {
-                    dispatch2(gridid, inferContainerTypeId(gridid));
+                    dispatch2(e.delegateTarget.id, inferContainerTypeId(e.delegateTarget.id));
                 }
-            }
+            });
+        };
+
+        var onKitGroupGridDataBound = function(e) {
+            e.sender.element.find('.k-grid-Remove span').addClass('k-icon k-delete');
         };
 
         var ongdWorkLoadItemChange = function (e) {
@@ -2124,47 +2133,6 @@
 
             return true;
         };
-
-        $('#btnContainerSave').click(function (e) {
-            var ad = $("#gdAssocatedDocuments");
-
-            //copy the cached document lists to divAssociatedDocuments
-            var parent = ad.data("kendoGrid");
-            if (parent == null)
-                return;
-
-            var child = $("#" + $("#whichGridToAdd").val()).data("kendoGrid");
-            
-            if (child) {
-                var dataSource = child.dataSource;
-                var filters = dataSource.filter();
-                var allData = dataSource.data();
-                var query = new kendo.data.Query(allData);
-                var filteredData = query.filter(filters).data;
-
-                $.each(filteredData, function (index, selectedDataItem) {    
-                    parent.dataSource.add({
-                        ReferenceId: selectedDataItem.ReferenceId,
-                        DocumentId: selectedDataItem.ReferenceId,
-                        RevisionTitle: selectedDataItem.RevisionTitle,
-                        SupplierName: selectedDataItem.SupplierName,
-                        ManufacturerName: selectedDataItem.SupplierName,
-                        LanguageDescription: selectedDataItem.LanguageDescription,
-                        DocumentTypeDescription: selectedDataItem.DocumentTypeDescription,
-                        RegionDescription: selectedDataItem.RegionDescription,
-                        RevisionDate: selectedDataItem.RevisionDate,
-                        ConfirmationDate: selectedDataItem.RevisionDate,
-                    });
-                });
-                
-                dataSource.filter({});
-                dataSource.data([]);
-            }
-
-            dlgDocumentSearch.data("kendoWindow").close();
-
-            $("#kg_popup").data("kendoWindow").close();
-        });
 
         $('input[name=kgClassifierGroupChildren]').click(function (e) {
             var idx = 3;
@@ -2427,6 +2395,7 @@
             onGdDocumentNoteDataBound: onGdDocumentNoteDataBound,
             ongdWorkLoadItemChange: ongdWorkLoadItemChange,
             onGridEditChangeTitle: onGridEditChangeTitle,
+            onKitGroupGridDataBound: onKitGroupGridDataBound,
             onIUserInfo: onIUserInfo,
             onJustifySpliter: onJustifySpliter,
             onRequestEnd: onRequestEnd,

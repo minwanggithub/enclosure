@@ -306,7 +306,6 @@
             }
 
         function saveSupplier(url, data, obj) {
-            debugger;
             $.post(url, data, function (data2) {
                 if (data2.indexOf("Saved") >= 0) {
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data2);
