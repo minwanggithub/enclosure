@@ -1,8 +1,9 @@
 ﻿; (function ($) {
     if ($.fn.complibXReference == null) {
         $.fn.complibXReference = {};
+        
     }
-    $.fn.complibXReference = function () {
+    $.fn.complibXReference = function() {
         var xreferenceDetailObj = $("#DetailXreference");
         var xreferenceSearchObj = $("#XReferenceGrid");
         var itemsChecked = 0;
@@ -10,7 +11,91 @@
         var selectedRequests = new Array();
         var selectedRows = new Array();
         var radioButtonSelected = "Group";
-  
+        var xreferenceObject = {
+            controls : {
+                grids: { GridRequests: "gdRequests", SearchSupplierNewGrid: "gdSearchSupplierNew"},
+                buttons: {
+                    CancelSupplierSearch: "btnCancelSupplierSearch",
+                    ObtainmentSideMenuButton: "btnObtainment",
+                    ResolveSideMenuButton: "btnResolve",
+                    CustomerActionSideMenuButton: "btnCustomerAction",
+                    PendingSideMenuButton: "btnPending",
+                    QCFailSideMenuButton: "btnQC",
+                    UnAssignFromButton: "btnUnAssignFrom",
+                    AssignToButton: "btnAssignTo",
+                    AssignMeButton: "btnAssignMe",
+                    UnAssignButton: "btnUnAssign",
+                    ClearRequestSearchButton: "clearRequestSearchBtn",
+                    SaveAssignButton: "btnSaveAssign",
+                    SearchSupplierButton: "searchSupplierIdBtn",
+                    SearchRequestsButton: "searchRequestBtn",
+                    SaveResolveButton: "btnSaveResolve",
+                    SaveObtainmentButton: "btnSaveObtainment",
+                    SaveCustomerActionButton: "btnSaveCustomerAction",
+                    SavePendingButton: "btnSavePending",
+                    SaveQCFailButton: "btnSaveQC",
+                    RemoveRequestsButton: "btnRemoveRequests"
+                },
+                textBoxes: {
+                    IndividualTextBox: "txtIndividual",
+                    NotesTextBox: "txtNotes",
+                    PendingNotesTextBox: "txtPendingNotes",
+                    FreeFieldTextBox: "txtFreeField",
+                    ProductIdTextBox: "txtProductId",
+                    NumberOfItemsTextBox: "numberOfItems",
+                    SearchSupplierIdTextBox: "txtSearchSupplierId"
+                },
+                dropdownlists: {
+                    GroupsDropDownList: "ddlGroups",
+                    CustomerActionDropDownList: "selCustomerAction",
+                    PendingDropDownList: "selPending",
+                    StateDropDownList: "ddlStatus",
+                    DaysDropDownList: "ddlDays",
+                    FieldsDropDownList: "drpFields",
+                    ContainsDropDownList: "drpContains",
+                    LanguageDropDownList: "drpLanguage",
+                    DocumentTypeDropDownList: "drpDocumentType",
+                    CountryDropDownList: "drpCountry",
+                    YesNoDropDownList : "selYesNo"
+                },
+                multiSelectLists: { CategoriesMultiSelect: "mltCategories" },
+                dateTime: {DateAssigned: "DateAssigned"},
+                labels:{NotesLabel:"lblNotes", PendingNotesLabel:"lblPendingNotes"},
+                sideMenus: { SideBarWorkLoad: "eeeSideBarWorkLoad" }
+            }
+        }
+        var criteriaCondition = { Contains: 0, ExactMatch: 1, StartsWith: 2, EndsWith: 3 };
+        var controllerCalls = {
+            GetGroupUsers: GetEnvironmentLocation() + "/Operations/Configuration/RequestManager/GetGroupUsers",
+            SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
+            SaveAssignedItems: GetEnvironmentLocation() + "/Operations/XReference/SaveAssignedItems",
+            SearchXReferenceContent: GetEnvironmentLocation() + "/Operations/XReference/SearchXReferenceContent",
+            SearchRequests: GetEnvironmentLocation() + "/Operations/XReference/SearchRequests",
+            ResolveRequests: GetEnvironmentLocation() + "/Operations/XReference/ResolveRequests",
+            SaveObtainment: GetEnvironmentLocation() + "/Operations/XReference/SaveObtainment",
+            SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
+            SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
+            RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory"
+        };
+        var actionModals = { Resolve: "mdlResolve", Obtainment: "mdlObtainment", Pending: "mdlPending", CustomerAction: "mdlCustomerAction", QCFail: "mdlQC", Assign: "mdlAssign", ViewHistory: "mdlViewHistory", Error: "errorReport" };
+        var messages = {
+            successMessages: { Saved: "Saved Successful" },
+            confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
+            errorMessages : {
+                SelectGroup: "Please select a group to assign request item(s)",
+                UserRequiredToAssign: "User required to assign selected request item(s)",
+                SelectFilter: "A filter must be selected to execute a search",
+                NoItemsSelected: "No items have been selected",
+                NoProductSelected: "No product has been selected",
+                NoSupplierSelected: "No supplier has been selected",
+                NoCustomerActionSelected: "No customer action has been specified",
+                NoPendingActionSelected: "No action has been specified",
+                NoRowSelected: "No row selected",
+                RequestsCouldNotBeSaved: "Requests could not be saved",
+                RequestsCouldNotBeAssigned: "Requests could not be assigned",
+                GeneralError: "Error Occurred"
+            }
+        };
 
         // General indexation methods
         var loadRequestsPlugin = function () {
@@ -27,15 +112,15 @@
 
         var onDisplayError = function (errorMessage) {
             var message = errorMessage;
-            $('#errorReport').find('.modal-body').html(message);
-            DisplayModal("errorReport");
+            $('#' + actionModals.Error).find('.modal-body').html(message);
+            DisplayModal(actionModals.Error);
         }
 
         //Foreign script from suppplier not being in this module
         var gdGroupsChange = function () {
             var selectedData = this.dataItem(this.select());
             var groupId = selectedData.GroupID;
-            var url = "../Configuration/RequestManager/GetGroupUsers";
+            var url = controllerCalls.GetGroupUsers;
             $.post(url, {
                 groupId: groupId
             }, function (result) {
@@ -44,27 +129,26 @@
 
         };
 
-        var loadRequests = function() {
-            var grid = $("#gdRequests").data("kendoGrid");
+        var loadRequests = function () {
+            var grid = $("#" + xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
-            //setTimeout(openDocWindowSearch(), 5000);
-            $("#txtIndividual").closest(".k-widget").hide();
-            $("#eeeSideBarWorkLoad").sidemenu();
-            $('#eeeSideBarWorkLoad').show();
+            $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+            $("#" + xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu();
+            $("#" + xreferenceObject.controls.sideMenus.SideBarWorkLoad).show();
             $("#atlwdg-trigger").css({ top: '100px' });
         };
        
         var loadSupplierPlugIn = function () {
-            $.post("../ObtainmentSettings/PlugInSupplierSearch", { supplierId: 0 }, function (data) {
+            $.post(controllerCalls.SupplierSearch, { supplierId: 0 }, function (data) {
                 $("#dgSupplierPlugIn").html(data);
             });
             var supplierSearchDialog = $("#supplierSearchWindow");
 
-            $("#btnCancelSupplierSearch").click(function () {
+            $("#" + xreferenceObject.controls.buttons.CancelSupplierSearch).click(function () {
                 supplierSearchDialog.data("kendoWindow").close();
                 DisableSideMenuItems();
-                EnableSideMenuItem("btnObtainment");
-                DisplayModal("mdlObtainment");
+                EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+                DisplayModal(actionModals.Obtainment);
             });
 
             $('#dgSupplierPlugIn').on('dblclick', 'table tr', function () {
@@ -80,26 +164,25 @@
        
         var hotKeyDisplay = function (btnObj, mdlObj) {
 
-            var xrefModals = ['mdlResolve', 'mdlObtainment', 'mdlPending', 'mdlCustomerAction', 'mdlQC'];
+            var xrefModals = [actionModals.Resolve, actionModals.Obtainment, actionModals.Pending, actionModals.CustomerAction, actionModals.QCFail];
             for (var i = 0; i < xrefModals.length; i++) {
                 if (mdlObj != xrefModals[i])
                     $("#" + xrefModals[i]).modal("hide");
             }
 
-            if (btnObj == "btnResolve") {
+            if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
                 $("#hdnDialogOpen").val("resolveOpen");
+
+
+            if (btnObj == xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+                $("#" + xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+
             }
 
-
-            if (btnObj == "btnCustomerAction") {
-                $("#lblNotes").css("display", "none");
-                $("#txtNotes").css("display", "none");
-
-            }
-
-            if (btnObj == "btnPending") {
-                $("#lblPendingNotes").css("display", "none");
-                $("#txtPendingNotes").css("display", "none");
+            if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             }
 
             DisableSideMenuItems();
@@ -109,18 +192,18 @@
 
         //Assgn and Unassign Request and saves them
         if ($("#hdnAccess").val() == "Admin") {
-            AssignUnassignRequest("btnUnAssignFrom", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false, "x u");
-            AssignUnassignRequest("btnAssignTo", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true, "x a");
+            AssignUnassignRequest(xreferenceObject.controls.buttons.UnAssignFromButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, false, "x u");
+            AssignUnassignRequest(xreferenceObject.controls.buttons.AssignToButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.AssignRequests, controllerCalls.SaveAssignedItems, true, "x a");
         } else {
-            AssignUnassignRequest("btnAssignMe", "gdRequests", "assign these request", "../XReference/SaveAssignedItems", true, "x a");
-            AssignUnassignRequest("btnUnAssign", "gdRequests", "unassign these request", "../XReference/SaveAssignedItems", false, "x u");
+            AssignUnassignRequest(xreferenceObject.controls.buttons.AssignMeButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.AssignRequests, controllerCalls.SaveAssignedItems, true, "x a");
+            AssignUnassignRequest(xreferenceObject.controls.buttons.UnAssignButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, false, "x u");
         }
         
         //Display Modals on Button Clicks
         EnableSideMenuItems();
 
-        xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function () {
-            var url = "../XReference/SearchXReferenceContent";
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
+            var url = controllerCalls.SearchXReferenceContent;
             $.post(url, function (data) {
                 $("#divSearchSection").html(data);
             });
@@ -129,41 +212,41 @@
         xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
             radioButtonSelected = $(this).val();
             if ($(this).val() == "Group") {
-                $("#ddlGroups").closest(".k-widget").show();
-                $("#txtIndividual").closest(".k-widget").hide();
-                $("#txtIndividual").data("kendoAutoComplete").value("");
+                $("#" + xreferenceObject.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").show();
+                $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+                $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete").value("");
             }
             else {
-                $("#txtIndividual").closest(".k-widget").show();
-                $("#ddlGroups").closest(".k-widget").hide();
+                $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").show();
+                $("#" + xreferenceObject.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").hide();
             }
         });
 
-        xreferenceDetailObj.on("click", "#btnAssignTo", function () {
-            DisplayModal("mdlAssign");
+        xreferenceDetailObj.on("click", "#" + xreferenceObject.controls.buttons.AssignToButton, function () {
+            DisplayModal(actionModals.Assign);
         });
         
-        xreferenceDetailObj.on("click", "#btnSaveAssign", function (e) {
+        xreferenceDetailObj.on("click", "#" + xreferenceObject.controls.buttons.SaveAssignButton, function (e) {
             e.preventDefault();
-            var userName = $("#txtIndividual").data("kendoAutoComplete");
+            var userName = $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete");
             var selectedValue;
             if (radioButtonSelected == "Group") {
-                var ddlGroups = $("#ddlGroups").data("kendoDropDownList");
+                var ddlGroups = $("#" + xreferenceObject.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
                 selectedValue = ddlGroups.text();
-            } else {
+            } else
                 selectedValue = userName.value();
-            }
 
-            if (selectedValue.length > 0) {
-                batchDeleteObjects('gdRequests', 'assign these request item(s)', '../XReference/SaveAssignedItems', null, true, selectedValue);
-            } else {
-                $('#mdlAssign').modal('hide');
+
+            if (selectedValue.length > 0)
+                batchDeleteObjects(xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.AssignRequests, controllerCalls.SaveAssignedItems, null, true, selectedValue);
+            else {
+                $('#' + actionModals.Assign).modal('hide');
                 var errorMessage;
 
                 if ($("input[name=GroupIndividual]:radio").val() == "Group")
-                    errorMessage = "Please select a group to assign request item(s)";
+                    errorMessage = messages.errorMessages.SelectGroup;
                 else
-                    errorMessage = "User required to assign selected request item(s)";
+                    errorMessage = messages.errorMessages.UserRequiredToAssign;
 
                 onDisplayError(errorMessage);
             }
@@ -171,50 +254,50 @@
         });
 
         //clears search results
-        xreferenceSearchObj.on("click", "#clearRequestSearchBtn", function () {
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
             xreferenceDetailObj.html("");
         });
         
         //Show Supplier
-        xreferenceSearchObj.on("click", "#searchSupplierIdBtn", function () {
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchSupplierButton, function () {
            // var activeSupplier = "txtSearchSupplierId";
             $("#supplierSearchWindow").data("kendoWindow").center();
             $("#supplierSearchWindow").data("kendoWindow").open();
-            HideModal("mdlObtainment");
+            HideModal(actionModals.Obtainment);
         });
 
         //Toggle Customer Action Option for Notes
-        xreferenceSearchObj.on("change", "#selCustomerAction", function () {
-            var selCustomerAction = $("#selCustomerAction").data("kendoDropDownList");
+        xreferenceSearchObj.on("change", "#" + xreferenceObject.controls.dropdownlists.CustomerActionDropDownList, function () {
+            var selCustomerAction = $("#" + xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
             if (selCustomerAction.text() == "Other") {
-                $("#lblNotes").css("display", "inline");
-                $("#txtNotes").css("display", "inline");
+                $("#" + xreferenceObject.controls.labels.NotesLabel).css("display", "inline");
+                $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "inline");
             } else {
-                $("#lblNotes").css("display", "none");
-                $("#txtNotes").css("display", "none");
+                $("#" + xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
             }
         });
 
         //Toggle Pending Option for Notes
-         xreferenceSearchObj.on("change", "#selPending", function() {
-        var selPending = $("#selPending").data("kendoDropDownList");
+        xreferenceSearchObj.on("change", "#" + xreferenceObject.controls.dropdownlists.PendingDropDownList, function () {
+            var selPending = $("#" + xreferenceObject.controls.dropdownlists.PendingDropDownList).data("kendoDropDownList");
             if(selPending.text() == "Other") {
-                $("#lblPendingNotes").css("display", "inline");
-                $("#txtPendingNotes").css("display", "inline");
+                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "inline");
+                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "inline");
             } else {
-                $("#lblPendingNotes").css("display", "none");
-                $("#txtPendingNotes").css("display", "none");
+                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             }
             });
 
         //Does search and displays search results 
-         xreferenceSearchObj.on("click", "#searchRequestBtn", function () {
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.SearchRequestsButton, function () {
             var numberOfRows = $('div #row').length;
             var initialRow = 0;
-            var mltCategories = $("#divSearchSection #mltCategories").data("kendoMultiSelect");
-            var dteDateAssigned = $("#divSearchSection #DateAssigned").data("kendoDatePicker");
-            var drpStatus = $("#divSearchSection #ddlStatus").data("kendoDropDownList");
-            var drpDays = $("#divSearchSection #ddlDays").data("kendoDropDownList");
+            var mltCategories = $("#divSearchSection #" + xreferenceObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
+            var dteDateAssigned = $("#divSearchSection #" + xreferenceObject.controls.dateTime.DateAssigned).data("kendoDatePicker");
+            var drpStatus = $("#divSearchSection #" + xreferenceObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList");
+            var drpDays = $("#divSearchSection #" + xreferenceObject.controls.dropdownlists.DaysDropDownList).data("kendoDropDownList");
 
             var strCategoryValue = mltCategories.value();
             var intCategoryValue = 0;
@@ -232,28 +315,28 @@
             //create filter array
             for (var indexRows = 0; indexRows < numberOfRows; indexRows++) {
                initialRow++;
-               var drpFields = $("div #row #middle #drpFields_" + initialRow).data("kendoDropDownList");
-               var drpCriteria = $("div #row #right #drpContains_" + initialRow).data("kendoDropDownList");
+               var drpFields = $("div #row #middle #" + xreferenceObject.controls.dropdownlists.FieldsDropDownList + "_" + initialRow).data("kendoDropDownList");
+               var drpCriteria = $("div #row #right #" + xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + initialRow).data("kendoDropDownList");
                var criteria = { };
                criteria.FieldName = drpFields.value();
                criteria.WhereOperator = drpCriteria.text();
                var valueAssigned;
-               if ($("div #row #right #txtFreeField_" + initialRow).is(":hidden")) {
+               if ($("div #row #right #" + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).is(":hidden")) {
                    if (drpFields.text() == "Language") {
-                       var drpLanguage = $("div #row #right #drpLanguage_" + initialRow).data("kendoDropDownList");
+                       var drpLanguage = $("div #row #right #" + xreferenceObject.controls.dropdownlists.LanguageDropDownList + "_" + initialRow).data("kendoDropDownList");
                        var language = drpLanguage.value();
                        criteria.SearchFor = language.replace("flag-", "");
                    }
 
 
                    if (drpFields.text() == "Document Type") {
-                       var drpDocType = $("div #row #right #drpDocumentType_" + initialRow).data("kendoDropDownList");
+                       var drpDocType = $("div #row #right #" + xreferenceObject.controls.dropdownlists.DocumentTypeDropDownList + "_" + initialRow).data("kendoDropDownList");
                        criteria.SearchFor = drpDocType.value();
                    }
 
 
                    if (drpFields.text() == "Country") {
-                       var drpCountry = $("div #row #right #drpCountry_" + initialRow).data("kendoDropDownList");
+                       var drpCountry = $("div #row #right  #" + xreferenceObject.controls.dropdownlists.CountryDropDownList + "_" + initialRow).data("kendoDropDownList");
                        criteria.SearchFor = drpCountry.value();
                    }
 
@@ -261,7 +344,7 @@
                     criteriaList.push(criteria);
 
                } else {
-                   valueAssigned = $("div #row #right #txtFreeField_" + initialRow).val();
+                   valueAssigned = $("div #row #" + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val();
                    criteria.SearchFor = valueAssigned;
 
                    if (valueAssigned.length > 0)
@@ -272,103 +355,100 @@
 
             if (dteDateAssigned.value() != null || drpStatus.value() != "" || drpDays.value() != "" || intCategoryValue > 0 || criteriaList.length > 0) {
                 //add filter array to requestSearchModel
-                $("#searchRequestBtn").attr("disabled", "disabled");
-                $("#clearRequestSearchBtn").attr("disabled", "disabled");
+                $("#" + xreferenceObject.controls.buttons.SearchRequestsButton).attr("disabled", "disabled");
+                $("#" + xreferenceObject.controls.buttons.ClearRequestSearchButton).attr("disabled", "disabled");
                 requestSearchModel.Criterias = criteriaList;
                 kendo.ui.progress(xreferenceDetailObj, true);
-                var url = "../XReference/SearchRequests";
+                var url = controllerCalls.SearchRequests;
                 $.post(url, {
                     searchCriteria: JSON.stringify(requestSearchModel)
                 }, function (data) {
                     xreferenceDetailObj.html(data);
                    
                 }).done(function () {
-                    $("#searchRequestBtn").removeAttr("disabled");
-                    $("#clearRequestSearchBtn").removeAttr("disabled");
+                    $("#" + xreferenceObject.controls.buttons.SearchRequestsButton).removeAttr("disabled");
+                    $("#" + xreferenceObject.controls.buttons.ClearRequestSearchButton).removeAttr("disabled");
                 });
-            } else {
-                onDisplayError("A filter must be selected to execute a search");
-            }
-
-           
-        });
+            } else
+                onDisplayError(messages.errorMessages.SelectFilter);
+         });
 
         //Save Request to be Resolved
-         xreferenceSearchObj.on("click", "#btnSaveResolve", function () {
-            if($("#numberOfItems").val().length == 0) {
-                 HideModal("mdlResolve");
-                 onDisplayError("No items have been selected to be resolved");
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.SaveResolveButton, function () {
+            if ($("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
+                 HideModal(actionModals.Resolve);
+                 onDisplayError(messages.errorMessages.NoItemsSelected);
              } else {
-                 if ($("#txtProductId").val().length > 0) {
+                if ($("#" + xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0) {
                      var data = { };
                      data['ids'] = selectedRequests;
-                     data['productId'] = $("#txtProductId").val();
-                     SaveRequest("../XReference/ResolveRequests", data, "mdlResolve");
+                     data['productId'] = $("#" + xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
+                     SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
                  } else {
-                     HideModal("mdlResolve");
-                     onDisplayError("No product has been selected");
+                     HideModal(actionModals.Resolve);
+                     onDisplayError(messages.errorMessages.NoProductSelected);
                  }
              }
          });
 
         //Save Request for Obtainment
-        xreferenceSearchObj.on("click", "#btnSaveObtainment", function () {
-            if ($("#numberOfItems").val().length == 0 || $("#numberOfItems").val() == "0" || $("#numberOfItems").val() == "") {
-                HideModal("mdlObtainment");
-                onDisplayError("No items have been selected to be sent to obtainment");
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
+            if ($("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0 || $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "0" || $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                HideModal(actionModals.Obtainment);
+                onDisplayError(messages.errorMessages.NoItemsSelected);
             } else {
-                if ($("#txtSearchSupplierId").val().length > 0) {
+                if ($("#" + xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
                     var data = {};
                     data['ids'] = selectedRequests;
-                    data['supplierId'] = Remove($("#txtSearchSupplierId").val(), $("#txtSearchSupplierId").val().indexOf(","));
-                    SaveRequest("../XReference/SaveObtainment", data, "mdlObtainment");
+                    data['supplierId'] = Remove($("#" + xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val(), $("#" + xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
+                    SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
                 } else {
-                    HideModal("mdlObtainment");
-                    onDisplayError("No supplier has been selected");
+                    HideModal(actionModals.Obtainment);
+                    onDisplayError(messages.errorMessages.NoSupplierSelected);
                 }
             }
 
         });
 
         //Save Request for Customer Action
-        xreferenceSearchObj.on("click", "#btnSaveCustomerAction", function () {
-            if($("#numberOfItems").val() == "") {
-                HideModal("mdlCustomerAction");
-                onDisplayError("No items have been selected for customer action");
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.SaveCustomerActionButton, function () {
+            if ($("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                HideModal(actionModals.CustomerAction);
+                onDisplayError(messages.errorMessages.NoItemsSelected);
             } else {
-                  var selCustomerAction = $("#selCustomerAction").data("kendoDropDownList");
-                if (selCustomerAction.text().length > 0 || $("#txtNotes").text().length > 0) {
+                  var selCustomerAction = $("#" + xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                if (selCustomerAction.text().length > 0 || $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
                     var data = { };
                     data['ids']= selectedRequests;
                     data['customerAction']= selCustomerAction.text();
-                    data['notes']= $("#txtNotes").text();
-                    SaveRequest("../XReference/SaveCustomerActionRequests", data, "mdlCustomerAction");
+                    data['notes'] = $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).text();
+                    SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
-                    HideModal("mdlCustomerAction");
-                    onDisplayError("No customer action has been specified");
+                    HideModal(actionModals.CustomerAction);
+                    onDisplayError(messages.errorMessages.NoCustomerActionSelected);
                 }
             }
 
         });
 
         //Save Request for Pending Action
-        xreferenceSearchObj.on("click", "#btnSavePending", function () {
-            if ($("#numberOfItems").val() == "") {
-                HideModal("mdlPending");
-                onDisplayError("No items have been selected for customer action");
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.SavePendingButton, function () {
+            if ($("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                HideModal(actionModals.Pending);
+                onDisplayError(messages.errorMessages.NoItemsSelected);
             } else {
-                var selPending = $("#selPending").data("kendoDropDownList");
-                var selYesNo = $("#selYesNo").data("kendoDropDownList");
-                if (selPending.text().length > 0 || $("#txtPendingNotes").text().length > 0) {
+                var selPending = $("#" + xreferenceObject.controls.dropdownlists.PendingDropDownList).data("kendoDropDownList");
+                var selYesNo = $("#" + xreferenceObject.controls.dropdownlists.YesNoDropDownList).data("kendoDropDownList");
+                if (selPending.text().length > 0 || $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).text().length > 0) {
                     var data = {};
                     data['ids'] = selectedRequests;
                     data['keepInWorkload'] = selYesNo.value();
                     data['pendingAction'] = selPending.text();
-                    data['notes'] = $("#txtPendingNotes").text();
-                    SaveRequest("../XReference/SavePendingRequests", data, "mdlPending");
+                    data['notes'] = $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).text();
+                    SaveRequest(controllerCalls.SavePendingRequests, data, actionModals.Pending);
                 } else {
-                    HideModal("mdlPending");
-                    onDisplayError("No action has been specified");
+                    HideModal(actionModals.Pending);
+                    onDisplayError(messages.errorMessages.NoPendingActionSelected);
                 }
             }
 
@@ -401,56 +481,56 @@
             if (e.altKey) {
                 switch (code) {
                     case 49: //Open Resolve Window alt+1
-                        HotKeyDisplayModal("btnResolve", "mdlResolve");
+                        HotKeyDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
                         return false;
                     case 50: //Open Obtainment Window alt+2
-                        HotKeyDisplayModal("btnObtainment", "mdlObtainment");
+                        HotKeyDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
                         return false;
                     case 51: //Open Pending Window alt+3
-                        HotKeyDisplayModal("btnPending", "mdlPending");
+                        HotKeyDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
                         return false;
                     case 52: //Open Customer Action Window alt+4
-                        HotKeyDisplayModal("btnCustomerAction", "mdlCustomerAction");
+                        HotKeyDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
                         return false;
                     case 53: //Open QC Window alt+5
-                        HotKeyDisplayModal("btnQC", "mdlQC");
+                        HotKeyDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
                         return false;
                     case 54: //Remove Request alt+5
-                        batchDeleteObjects("gdRequests", "unassign these request", "../XReference/SaveAssignedItems", null, false);
+                        batchDeleteObjects(xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, null, false);
                         return false;
                     case 114: //save Resolve alt+r
-                        $("#XReferenceGrid #btnSaveResolve").click();
+                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveResolveButton).click();
                         return false;
                     case 111: //save obtainment alt+o
-                        $("#XReferenceGrid #btnSaveObtainment").click();
+                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveObtainmentButton).click();
                         return false;
                     case 112: //save pending alt+p
-                        $("#XReferenceGrid #btnSavePending").click();
+                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SavePendingButton).click();
                         return false;
                     case 99: //save customer action alt+c
-                        $("#XReferenceGrid #btnSaveCustomerAction").click();
+                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveCustomerActionButton).click();
                         return false;
                     case 113: //save qc alt+q
-                        $("#XReferenceGrid #btnSaveQC").click();
+                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveQCFailButton).click();
                         return false;
                 }
             }
             return true;
         });
         
-        xreferenceSearchObj.on("click", "#btnRemoveRequests", function (e) {
+        xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.RemoveRequestsButton, function (e) {
                 e.preventDefault();
-                batchDeleteObjects("gdRequests", "unassign these request", "../XReference/SaveAssignedItems", null, false);
+                batchDeleteObjects(xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, null, false);
        });
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
-            var url = "../Xreference/RequestWorkLoadHistory";
+            var url = controllerCalls.RequestWorkLoadHistory;
             $.post(url, {requestWorkItemID: this.id}, function (result) {
                 $("#dvRequestItemHistory").html(result);
             }).done(function() {
-                DisplayModal("mdlViewHistory");
+                DisplayModal(actionModals.ViewHistory);
             });
 
         });
@@ -458,32 +538,33 @@
         //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
-        if(this.id.length > 0) {
-            var elementId = $(this).attr("id");
-            var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
+            var drpContains;
+            if(this.id.length > 0) {
+                var elementId = $(this).attr("id");
+                var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
+                drpContains = $("#" + xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + index).data("kendoDropDownList");
 
-            if ($(this).val() == "Language" || $(this).val() == "DocumentType" || $(this).val() == "Country") {
-                $("#txtFreeField_" + index).hide();
+                if ($(this).val() == "Language" || $(this).val() == "DocumentType" || $(this).val() == "Country") {
+                    $("#" + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
                     var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
-                //create dropdown in html form first and added to it's corresponding div
-                    var drpContains = $("#drpContains_" + index).data("kendoDropDownList");
-                    drpContains.select(1);
+                    //create dropdown in html form first and added to it's corresponding div
+                    drpContains.select(criteriaCondition.ExactMatch);
                     $("#dvDropDown_" + index).html(drpDownList);
-                //transform select to kendo dropdown
+                    //transform select to kendo dropdown
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
-                    
-            }
-
-                if (ddlName == "drpFields") {
-                    $("#txtFreeField_" + index).show();
-                $("#dvDropDown_" + index).css("display", "none");
                 }
+                if (ddlName == xreferenceObject.controls.dropdownlists.FieldsDropDownList) {
+                    $("#" + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
+                    $("#dvDropDown_" + index).css("display", "none");
+                    if(drpContains!=null)
+                        drpContains.select(criteriaCondition.StartsWith);
+                    } 
+                } else
+                      drpContains.select(criteriaCondition.ExactMatch);
 
-               
-        }
         });
 
         function Remove(str, startIndex) {
@@ -491,20 +572,20 @@
         }
 
         function obtainmentSelSupplier(supplierSearchDialog) {
-            var grid = $("#gdSearchSupplierNew").data("kendoGrid");
+            var grid = $("#" + xreferenceObject.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
             if (grid.dataSource.total() == 0) {
-                onDisplayError("No row selected");
+                onDisplayError(messages.errorMessages.NoRowSelected);
                 return;
             }
             var data = grid.dataItem(grid.select());
             if (data == null) {
-                onDisplayError("No row selected");
+                onDisplayError(messages.errorMessages.NoRowSelected);
                 return;
             }
-            $("#txtSearchSupplierId").val(data.id + "," + data.Name);
+            $("#" + xreferenceObject.controls.textBoxes.ProductIdTextBox).val(data.id + "," + data.Name);
 
             supplierSearchDialog.data("kendoWindow").close();
-            DisplayModal("mdlObtainment");
+            DisplayModal(actionModals.Obtainment);
         }
 
         function SaveRequest(strUrl, dataArray, modalId) {
@@ -518,23 +599,22 @@
                        kendo.ui.progress(xreferenceDetailObj, true);
                    },
                    error: function() {
-                       onDisplayError('Requests could not be saved');
+                       onDisplayError(messages.errorMessages.RequestsCouldNotBeSaved);
                    },
                    success: function(successData) {
                        if(successData.success == true) {
                             kendo.ui.progress(xreferenceDetailObj, false);
-                           var grid = $("#gdRequests").data("kendoGrid");
+                           var grid = $("#" + xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
                            grid.dataSource.read();
                          
                            HideModal(modalId);
                            onDisplayError(successData.message);
+                       } else
+                           onDisplayError(messages.errorMessages.RequestsCouldNotBeSaved);
 
-                       } else {
-                           onDisplayError('Requests could not be saved');
-                       }
                    },
                    done:function() {
-                       $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
+                       $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(messages.successMessages.Saved);
                    }
                });
             }
@@ -565,50 +645,49 @@
             $("#" + modalId).modal("toggle");
         }
     
-        xreferenceDetailObj.on('hide', '#mdlResolve', function () {
+        xreferenceDetailObj.on('hide', '#' + actionModals.Resolve, function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlObtainment', function () {
+        xreferenceDetailObj.on('hide', '#' + actionModals.Obtainment, function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlPending', function () {
+        xreferenceDetailObj.on('hide', '#' + actionModals.Pending, function () {
             EnableSideMenuItems();
         });
-        xreferenceDetailObj.on('hide', '#mdlCustomerAction', function () {
+        xreferenceDetailObj.on('hide', '#' + actionModals.CustomerAction, function () {
             EnableSideMenuItems();
         });
-
-        xreferenceDetailObj.on('hide', '#mdlQC', function () {
+        xreferenceDetailObj.on('hide', '#' + actionModals.QCFail, function () {
             EnableSideMenuItems();
         });
 
         function DisableSideMenuItems() {
-            $("#btnResolve").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnResolve");
-            $("#btnObtainment").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnObtainment");
-            $("#btnPending").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnPending");
-            $("#btnCustomerAction").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnCustomerAction");
-            $("#btnRemoveRequests").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnRemoveRequests");
-            $("#btnQC").attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#btnQC");
+            $("#" + xreferenceObject.controls.buttons.ResolveSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ResolveSideMenuButton);
+            $("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+            $("#" + xreferenceObject.controls.buttons.PendingSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.PendingSideMenuButton);
+            $("#" + xreferenceObject.controls.buttons.CustomerActionSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.CustomerActionSideMenuButton);
+            $("#" + xreferenceObject.controls.buttons.RemoveRequestsButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.RemoveRequestsButton);
+            $("#" + xreferenceObject.controls.buttons.QCFailSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.QCFailSideMenuButton);
         }
 
         function EnableSideMenuItems() {
-            $("#btnResolve").removeAttr("disabled");
-            $("#btnObtainment").removeAttr("disabled");
-            $("#btnPending").removeAttr("disabled");
-            $("#btnCustomerAction").removeAttr("disabled");
-            $("#btnRemoveRequests").removeAttr("disabled");
-            $("#btnQC").removeAttr("disabled");
-            ShowDisplayModal("btnResolve", "mdlResolve");
-            ShowDisplayModal("btnObtainment", "mdlObtainment");
-            ShowDisplayModal("btnPending", "mdlPending");
-            ShowDisplayModal("btnCustomerAction", "mdlCustomerAction");
-            ShowDisplayModal("btnQC", "mdlQC");
+            $("#" + xreferenceObject.controls.buttons.ResolveSideMenuButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.PendingSideMenuButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.CustomerActionSideMenuButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.RemoveRequestsButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.RemoveRequestsButton).removeAttr("disabled");
+            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
+            ShowDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
+            ShowDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
+            ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
+            ShowDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
         }
 
         function EnableSideMenuItem(btnObj) {
@@ -616,20 +695,17 @@
         }
 
         function HotKeyDisplayModal(btnObj, mdlObj) {
-            if (btnObj == "btnResolve") {
+            if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
                 $("#hdnDialogOpen").val("resolveOpen");
+
+            if (btnObj == xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+                $("#" + xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
             }
 
-
-            if (btnObj == "btnCustomerAction") {
-                $("#lblNotes").css("display", "none");
-                $("#txtNotes").css("display", "none");
-
-            }
-
-            if (btnObj == "btnPending") {
-                $("#lblPendingNotes").css("display", "none");
-                $("#txtPendingNotes").css("display", "none");
+            if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             }
          
             DisableSideMenuItems();
@@ -641,22 +717,19 @@
         function ShowDisplayModal(btnObj, mdlObj) {
             xreferenceSearchObj.on("click", "#" + btnObj, function (e) {
                 e.preventDefault();
-               
 
-                if (btnObj == "btnResolve") {
+                if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
                     $("#hdnDialogOpen").val("resolveOpen");
-                }
-                    
 
-                if (btnObj == "btnCustomerAction") {
-                    $("#lblNotes").css("display", "none");
-                    $("#txtNotes").css("display", "none");
-                    
+
+                if (btnObj == xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+                    $("#" + xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                    $("#" + xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
                 }
 
-                if(btnObj == "btnPending") {
-                    $("#lblPendingNotes").css("display", "none");
-                    $("#txtPendingNotes").css("display", "none");
+                if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                    $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                    $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
                 }
 
                 DisableSideMenuItems();
@@ -704,16 +777,8 @@
                             grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                     });
 
-                    $("#numberOfItems").text("(" + itemsChecked + ")");
-                    $("#numberOfItems").val(itemsChecked);
-
-                    //highlight rows on current page
-                    //$.each(kgrid._data, function () {
-                    //    if (selectedRows.indexOf(this["uid"]) > -1) 
-                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                    //     else 
-                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
-                    //});
+                    $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + itemsChecked + ")");
+                    $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val(itemsChecked);
 
                     e.stopImmediatePropagation();
                 }
@@ -744,8 +809,8 @@
                         });
 
                         kgrid.refresh();
-                        $("#numberOfItems").text("(" + itemsChecked + ")");
-                        $("#numberOfItems").val(itemsChecked);
+                        $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + itemsChecked + ")");
+                        $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val(itemsChecked);
                         // No items were found in the datasource, return from the function and cancel the current event
 
                         //highlight rows on current page
@@ -756,9 +821,8 @@
                                 grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                         });
 
-                    } else {
+                    } else
                         return false;
-                    }
                 }
 
                 return false;
@@ -766,24 +830,23 @@
         }
 
         function batchDeleteObjects(targetGrid, objName, url, data, isAssign, assignTo, completeCallback) {
-            if(!targetGrid || !objName || !url) {
+
+            if (!targetGrid || !objName || !url)
                 return false;
-            }
 
             var targetGridSelector = '#' + targetGrid;
             var grid = $(targetGridSelector).data("kendoGrid");
             if (grid && grid.dataSource._total > 0) {
                 var selectedIds = new Array();
                 $.each(grid.dataSource.data(), function () {
-                    if(this.IsSelected == true) {
+                    if(this.IsSelected == true)
                         selectedIds.push(this.id);
-                    }
                 });
 
                 if (selectedIds.length > 0) {
-                    if (!data) {
-                        data = { };
-                    }
+
+                    if (!data)
+                        data = {};
 
                     data['ids'] = selectedIds;
                     data["searchCriteria"] = $("#SearchCriteria").val();
@@ -791,7 +854,7 @@
 
                     if (typeof (assignTo) != "undefined") {
                         data["assignedTo"] = assignTo;
-                        $('#mdlAssign').modal('hide');
+                        $('#' + actionModals.Assign).modal('hide');
 
                         var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
                         DisplayConfirmationModal(args, function () {
@@ -804,7 +867,7 @@
                                     kendo.ui.progress(xreferenceDetailObj, true);
                                 },
                                 error: function () {
-                                    onDisplayError('Requests could not be assigned');
+                                    onDisplayError(messages.errorMessages.RequestsCouldNotBeAssigned);
                                 },
                                 success: function (successData) {
 
@@ -812,35 +875,29 @@
 
                                         // Uncheck the master select checkbox if checked
                                         var checkbox = $(grid.element).find('.chkMasterMultiSelect');
-                                        if (checkbox && checkbox.is(':checked')) {
+                                        if (checkbox && checkbox.is(':checked'))
                                             checkbox.attr('checked', false);
-                                        }
+
 
                                         grid = $(targetGridSelector).data("kendoGrid");
                                         grid.dataSource.read();
-
-
                                         // displayCreatedMessage('Items Assigned Successful');
-
-                                    } else {
-                                        onDisplayError("Error Occurred");
-                                    }
-
+                                    } else
+                                        onDisplayError(messages.errorMessages.GeneralError);
                                 },
                                 complete: function (compData) {
 
                                     kendo.ui.progress(xreferenceDetailObj, false);
-                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Items Saved Successful");
-                                    if (completeCallback) {
+                                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(messages.successMessages.Saved);
+                                    if (completeCallback)
                                         completeCallback(compData);
-                                    }
                                 }
                             });
                         });
                     }
                 } else {
-                    $('#mdlAssign').modal('hide');
-                    onDisplayError("No items have been selected");
+                    $('#' + actionModals.Assign).modal('hide');
+                    onDisplayError(messages.errorMessages.NoItemsSelected);
                 }
             }
             return false;
