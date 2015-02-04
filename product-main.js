@@ -699,7 +699,7 @@
                 }
             });
 
-            Mousetrap.bind('p r', function () { $("#btnRefreshProduct_" + pKey).click(); });
+        //    Mousetrap.bind('p r', function () { $("#btnRefreshProduct_" + pKey).click(); });
 
             $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
@@ -734,7 +734,7 @@
                 });
             });
 
-            Mousetrap.bind('p m', function () { $("#searchSupplierIdBtn_" + pKey).click(); });
+          //  Mousetrap.bind('p m', function () { $("#searchSupplierIdBtn_" + pKey).click(); });
 
             //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
@@ -775,7 +775,7 @@
 
             });
 
-            Mousetrap.bind('p d', function () { $("#btnAddDocToProduct_" + pKey).click(); });
+         //   Mousetrap.bind('p d', function () { $("#btnAddDocToProduct_" + pKey).click(); });
 
             $("#btnDeleteDocFromProduct_" + pKey).click(function(e3) {
                 
