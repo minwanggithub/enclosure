@@ -17,6 +17,7 @@
                 buttons: {
                     CancelSupplierSearch: "btnCancelSupplierSearch",
                     ObtainmentSideMenuButton: "btnObtainment",
+                    NotFoundSideMenuButton: "btnNotFound",
                     ResolveSideMenuButton: "btnResolve",
                     CustomerActionSideMenuButton: "btnCustomerAction",
                     PendingSideMenuButton: "btnPending",
@@ -73,6 +74,7 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/XReference/SearchRequests",
             ResolveRequests: GetEnvironmentLocation() + "/Operations/XReference/ResolveRequests",
             SaveObtainment: GetEnvironmentLocation() + "/Operations/XReference/SaveObtainment",
+            SaveNotFound: GetEnvironmentLocation() + "/Operations/XReference/SaveNotFound",
             SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
             SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
             RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory"
@@ -389,6 +391,20 @@
                      onDisplayError(messages.errorMessages.NoProductSelected);
                  }
              }
+        });
+
+        //Not Found
+         xreferenceSearchObj.on("click", "#" +xreferenceObject.controls.buttons.NotFoundSideMenuButton, function() {
+             if ($("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                 onDisplayError(messages.errorMessages.NoItemsSelected);
+             } else {
+                 var data = {};
+                 data['ids'] = selectedRequests;
+                 var args = { message: 'Are you sure you would like to proceed?', header: 'Save Not Found Items'};
+                 DisplayConfirmationModal(args, function () {
+                     SaveRequest(controllerCalls.SaveNotFound, data, null);
+                 });
+             }
          });
 
         //Save Request for Obtainment
@@ -474,49 +490,7 @@
         //    }
 
         //});
-
-        $(document).keypress(function(e) {
-            var code = e.keyCode || e.which;
-           
-            if (e.altKey) {
-                switch (code) {
-                    case 49: //Open Resolve Window alt+1
-                        HotKeyDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
-                        return false;
-                    case 50: //Open Obtainment Window alt+2
-                        HotKeyDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
-                        return false;
-                    case 51: //Open Pending Window alt+3
-                        HotKeyDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
-                        return false;
-                    case 52: //Open Customer Action Window alt+4
-                        HotKeyDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
-                        return false;
-                    case 53: //Open QC Window alt+5
-                        HotKeyDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
-                        return false;
-                    case 54: //Remove Request alt+5
-                        batchDeleteObjects(xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, null, false);
-                        return false;
-                    case 114: //save Resolve alt+r
-                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveResolveButton).click();
-                        return false;
-                    case 111: //save obtainment alt+o
-                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveObtainmentButton).click();
-                        return false;
-                    case 112: //save pending alt+p
-                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SavePendingButton).click();
-                        return false;
-                    case 99: //save customer action alt+c
-                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveCustomerActionButton).click();
-                        return false;
-                    case 113: //save qc alt+q
-                        $("#XReferenceGrid #" + xreferenceObject.controls.buttons.SaveQCFailButton).click();
-                        return false;
-                }
-            }
-            return true;
-        });
+        
         
         xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.RemoveRequestsButton, function (e) {
                 e.preventDefault();
@@ -606,8 +580,10 @@
                             kendo.ui.progress(xreferenceDetailObj, false);
                            var grid = $("#" + xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
                            grid.dataSource.read();
-                         
-                           HideModal(modalId);
+                             if (modalId != null) 
+                                 HideModal(modalId);
+                             
+
                            onDisplayError(successData.message);
                        } else
                            onDisplayError(messages.errorMessages.RequestsCouldNotBeSaved);
@@ -664,8 +640,10 @@
         function DisableSideMenuItems() {
             $("#" + xreferenceObject.controls.buttons.ResolveSideMenuButton).attr("disabled", "disabled");
             xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ResolveSideMenuButton);
-            $("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
-            xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+            //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
+            //xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+            $("#" + xreferenceObject.controls.buttons.NotFoundSideMenuButton).attr("disabled", "disabled");
+            xreferenceSearchObj.off("click", "#" +xreferenceObject.controls.buttons.NotFoundSideMenuButton);
             $("#" + xreferenceObject.controls.buttons.PendingSideMenuButton).attr("disabled", "disabled");
             xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.PendingSideMenuButton);
             $("#" + xreferenceObject.controls.buttons.CustomerActionSideMenuButton).attr("disabled", "disabled");
@@ -678,13 +656,15 @@
 
         function EnableSideMenuItems() {
             $("#" + xreferenceObject.controls.buttons.ResolveSideMenuButton).removeAttr("disabled");
-            $("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).removeAttr("disabled");
+            //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).removeAttr("disabled");
+            $("#" + xreferenceObject.controls.buttons.NotFoundSideMenuButton).removeAttr("disabled");
             $("#" + xreferenceObject.controls.buttons.PendingSideMenuButton).removeAttr("disabled");
             $("#" + xreferenceObject.controls.buttons.CustomerActionSideMenuButton).removeAttr("disabled");
             $("#" + xreferenceObject.controls.buttons.RemoveRequestsButton).removeAttr("disabled");
             $("#" + xreferenceObject.controls.buttons.RemoveRequestsButton).removeAttr("disabled");
             ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
-            ShowDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.NotFoundSideMenuButton, actionModals.Obtainment);
             ShowDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
             ShowDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
