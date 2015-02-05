@@ -735,7 +735,7 @@
         function saveDocumentInformationInDatabase() {
 
             var form = $("#documentRevisionTab");
-            var url = form.attr("action");
+            var url = form.attr("action"); 
             var formData = form.serialize();
             var containerTypeId = getContainerTypeId();
             $.post(url, formData, function (data) {
@@ -866,7 +866,7 @@
                 }
 
                 // TOPIC
-            } else if (containerOption == 4) {
+            } else if (containerOption == '4') {
                 // TODO: Might need to do something here
             }
 
@@ -1547,6 +1547,9 @@
                 return 2;
             else if (gridid.indexOf("Group") > 0)
                 return 3;
+            else if (gridid.indexOf('Topic') > 0)
+                return 4;
+
             return 1;
         }
 
