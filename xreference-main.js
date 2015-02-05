@@ -601,7 +601,7 @@
                 e.preventDefault();
                 batchDeleteObjects(gridObj, message, url, null, isAssigned);
             });
-            Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
+           // Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
         }
 
         function DisplayModal(modalId) {
