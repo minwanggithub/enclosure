@@ -2136,10 +2136,13 @@
                     var dataItem = dataSource ? dataSource.getByUid(rowId): null;
                     if (dataItem) 
                         dataSource.remove(dataItem);
-                }
 
-                if (shouldPostToServer()) {
-                    dispatch2(e.delegateTarget.id, inferContainerTypeId(e.delegateTarget.id));
+                    if (shouldPostToServer()) 
+                        dispatch2(e.delegateTarget.id, inferContainerTypeId(e.delegateTarget.id));
+
+                    // TOPIC: Business logic to display to the user when they remove the last component
+                    if(getContainerTypeId() == 4 && dataSource.data().length == 0)
+                        DisplayError("Warning: No more components are associated to the current topic");
                 }
             });
         };
