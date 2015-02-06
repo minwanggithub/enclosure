@@ -750,6 +750,11 @@
                         return;
                     }
 
+                    if (data.DisplayMessage.indexOf("Error") >= 0) {
+                        DisplayError(data.DisplayMessage);
+                        return;
+                    }
+
                     //the following line is faulty, but leave it as is since there would be some repurcussion if changed
                     if (data.NewDocument) {
 
