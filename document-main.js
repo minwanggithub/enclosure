@@ -55,11 +55,7 @@
 
         var isInEditingMode = function () {
             var docId = $("input#DocumentID.doc-ref-id").val();
-            var pid = $("#ParentDocumentId").val();
-            if (docId != undefined && docId && docId != "0" && pid == undefined) {
-                return true;
-            }
-            return false;
+            return ((docId || '0') != '0');
         };
 
         var onJustifySpliter = function (spliter) {
