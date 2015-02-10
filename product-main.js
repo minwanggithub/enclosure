@@ -29,7 +29,7 @@
         //--------------------start of ConfigProduct.cshtml-----------------------
         function AddDocumentListToProduct(doclists) {
             
-            var urlmultiple = "../ProductManager/AddDocumentListToProduct";
+            var urlmultiple = GetEnvironmentLocation() + "/Configuration/ProductManager/AddDocumentListToProduct";
 
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
               
@@ -48,7 +48,7 @@
                     if (newProductActive)
                         currentProductAttributes = "#txtProductAttributes_0";
 
-                    var url = "../ProductManager/GetProductPartNumberById";
+                    var url = GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById";
                     $.post(url, { productId: activeProduct }, function (partNumber) {
                         $(currentProductAttributes).val(partNumber);
                     });
@@ -66,18 +66,18 @@
         };
 
         function displaySingleDocument() {
-            var documentId = selectProductDocID;
-            var revisionId = selectProductRevisionID;
-            var currenturl = window.location.href;
-            var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-            var url = indexArea + "/Operations/Document/LoadSingleDocument?documentId=" + documentId + "&revisionId=" + revisionId;
+            //var documentId = selectProductDocID;
+            //var revisionId = selectProductRevisionID;
+            //var currenturl = window.location.href;
+            //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=" + documentId + "&revisionId=" + revisionId;
             window.open(url, "_blank");
         }
 
         function CreateNewDocument() {
-            var currenturl = window.location.href;
-            var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-            var url = indexArea + "/Operations/Document/LoadSingleDocument?documentId=0&revisionId=0";
+            //var currenturl = window.location.href;
+            //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=0&revisionId=0";
             window.open(url, "_blank");
         }
 
@@ -178,24 +178,24 @@
         //(SH) 5-7-2014
         var viewSingleSupplier = function (supplierId) {
             if (supplierId > 0) {
-                var currenturl = window.location.href;
-                var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-                var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                //var currenturl = window.location.href;
+                //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                var url = GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
                 window.open(url, "_blank");
             }
         }
 
-        function getUrl(area, controllerAndFunc) {
-            var currenturl = window.location.href;
-            var indexArea = currenturl.substring(0, currenturl.indexOf(area));
-            var url = indexArea + controllerAndFunc;
-            console.log("resulting url: ", url);
-            return url;
-        }
+        //function getUrl(area, controllerAndFunc) {
+        //    var currenturl = window.location.href;
+        //    var indexArea = currenturl.substring(0, currenturl.indexOf(area));
+        //    var url = indexArea + controllerAndFunc;
+        //    console.log("resulting url: ", url);
+        //    return url;
+        //}
 
         function clearMessage(activeSaveButton) {
-            $('#productErrorMessage').removeAttr("color");
-            $('#productErrorMessage').html("");
+            $('#productErrorMessage').removeAttr("color").html("");
+            //$('#productErrorMessage').html("");
             if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
                 $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
             }
@@ -211,7 +211,7 @@
             var formData = form.serialize();
             kendo.ui.progress(form, true);
 
-            var url = "../ProductManager/GetStatusAction";        
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/GetStatusAction";        
             $.post(url, formData, function (data) {
                 kendo.ui.progress(form, false);
 
@@ -231,6 +231,7 @@
                 } else {
                     saveProductInformation(activeSaveButton);
                 }
+                UnBindingSaveCancel(activeSaveButton);
             });
         }
 
@@ -256,7 +257,7 @@
                         PhysicalStateText: selectedPhysicalStateText
                     };
 
-            var url = "../ProductManager/SaveProduct";
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/SaveProduct";
             $.post(url, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
 
                 if (!data || data.ErrorMessage) {
@@ -475,7 +476,7 @@
             setTimeout(function () {
                 var currentProductAttributes = "#txtProductAttributes_" + activepid.value;
                 //var url = '@Url.Action("GetProductPartNumberById", "ProductManager")';
-                var url = "../ProductManager/GetProductPartNumberById";
+                var url = GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById";
                 $.post(url, { productId: pid }, function (partNumber) {
                     $(currentProductAttributes).val(partNumber);
                 });
@@ -505,7 +506,7 @@
             var doclists = [];
             doclists.push(dataItem.ReferenceId);
 
-            var url = "../ProductManager/DeleteProductDocument";
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
             $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function(data) {
 
                 if (data.indexOf("Successfully") < 0) {
@@ -537,7 +538,7 @@
                 return;
             }
 
-            var url = "../ProductManager/DeleteProductDocument";
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
             if (doclists.length > 0) {
                 $.post(url, {
                     productId: productId,
@@ -701,15 +702,15 @@
 
         //    Mousetrap.bind('p r', function () { $("#btnRefreshProduct_" + pKey).click(); });
 
-            $('#txtProductName_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+            $('#txtProductName_' + pKey + ',#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
-            $('#txtObtainmentNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+            $('#txtObtainmentNote_' + pKey + ',#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
-            $('#txtXReferenceNote_' + pKey + ',' + '#txtSupplierId_' + pKey).on('input', function () {
+            $('#txtXReferenceNote_' + pKey + ',#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
             });
 
@@ -718,8 +719,8 @@
                 activeSupplierIndex = pKey;
 
                 //BootStrap Dialog
-                supplierSearchDialog.data("kendoWindow").center();
-                supplierSearchDialog.data("kendoWindow").open();
+                supplierSearchDialog.data("kendoWindow").center().open();
+                //supplierSearchDialog.data("kendoWindow").open();
 
                 //No Access here for add new supplier
                 $("#addNewSupplierBtn").hide();
@@ -741,9 +742,9 @@
 
                 var supplierId = GetNewSupplierId(pKey);
                 if (supplierId > 0) {
-                    var currenturl = window.location.href;
-                    var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-                    var url = indexArea + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
+                    //var currenturl = window.location.href;
+                    //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
+                    var url = GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
                     window.open(url, "_blank");
                 }
             });
@@ -753,8 +754,8 @@
                 activeProduct = pKey;
                 newProductActive = false;
 
-                documentSearchDialog.data("kendoWindow").center();
-                documentSearchDialog.data("kendoWindow").open();
+                documentSearchDialog.data("kendoWindow").center().open();
+                //documentSearchDialog.data("kendoWindow").open();
 
                 $("#documentDisplayOptionDiv").hide();
                 $("#chkLatestRevision").attr("disabled", true);
@@ -837,8 +838,8 @@
             activeSupplier = currentSupplier;
             $("#addNewSupplierBtn").hide();
 
-            supplierSearchDialog.data("kendoWindow").center();
-            supplierSearchDialog.data("kendoWindow").open();
+            supplierSearchDialog.data("kendoWindow").center().open();
+            //supplierSearchDialog.data("kendoWindow").open();
         };
 
 
@@ -846,15 +847,13 @@
             var saveBtn = '#btnSaveProduct_' + activekey;
             var cancelBtn = "#btnCancelProductEdit_" + activekey;
 
-            if (!$(saveBtn).hasClass("k-state-disabled")) {
-                $(saveBtn).addClass("k-state-disabled");
-                $(saveBtn).unbind('click');
-            }
+            if (!$(saveBtn).hasClass("k-state-disabled")) 
+                $(saveBtn).addClass("k-state-disabled").unbind('click');
+                
+            
             if (activekey > 0) {
-                if (!$(cancelBtn).hasClass("k-state-disabled")) {
-                    $(cancelBtn).addClass("k-state-disabled");
-                    $(cancelBtn).unbind('click');
-                }
+                if (!$(cancelBtn).hasClass("k-state-disabled")) 
+                    $(cancelBtn).addClass("k-state-disabled").unbind('click');
             }
         };
 
@@ -863,8 +862,8 @@
             var cancelBtn = "#btnCancelProductEdit_" + activekey;
 
             if ($(saveBtn).hasClass("k-state-disabled")) {
-                $(saveBtn).removeClass("k-state-disabled");
-                $(saveBtn).unbind('click');
+                $(saveBtn).removeClass("k-state-disabled").unbind('click');
+
                 $(saveBtn).click(function (e) {
                     e.preventDefault();
                     saveBtnEvent(activekey);
@@ -872,8 +871,8 @@
             }
 
             if ($(cancelBtn).hasClass("k-state-disabled")) {
-                $(cancelBtn).removeClass("k-state-disabled");
-                $(cancelBtn).unbind('click');
+                $(cancelBtn).removeClass("k-state-disabled").unbind('click');
+                //$(cancelBtn).unbind('click');
 
                 if (activekey > 0) {
                     $(cancelBtn).click(function(e) {
@@ -943,12 +942,12 @@
                 activeSupplierIndex = pKey;
 
                 //$("#popupSupplierSearch").modal("show");
-                supplierSearchDialog.data("kendoWindow").center();
-                supplierSearchDialog.data("kendoWindow").open();
+                supplierSearchDialog.data("kendoWindow").center().open();
+                //supplierSearchDialog.data("kendoWindow");
 
                 //No Access here for add new supplier
-                $("#addNewSupplierBtn").addClass("k-state-disabled");
-                $("#addNewSupplierBtn").unbind('click');
+                $("#addNewSupplierBtn").addClass("k-state-disabled").unbind('click');
+                //$("#addNewSupplierBtn").unbind('click');
 
                 $("#clearSupplierBtn").click(function(e) {
                     //Remove search result
@@ -1080,7 +1079,7 @@
             displaySingleDocument: displaySingleDocument,
             documentQuery: documentQuery,
             getSelectDocID: getSelectDocID,
-            getUrl: getUrl,
+            //getUrl: getUrl,
             initializeProductDetailControls: initializeProductDetailControls,
             intializeSearchHistoryControls: intializeSearchHistoryControls,
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,

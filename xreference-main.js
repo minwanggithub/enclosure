@@ -135,9 +135,9 @@
             var grid = $("#" + xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
             $("#" + xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
-            $("#" + xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu();
-            $("#" + xreferenceObject.controls.sideMenus.SideBarWorkLoad).show();
+            $("#" + xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
             $("#atlwdg-trigger").css({ top: '100px' });
+            DisableSideMenuItems();
         };
        
         var loadSupplierPlugIn = function () {
@@ -149,7 +149,7 @@
             $("#" + xreferenceObject.controls.buttons.CancelSupplierSearch).click(function () {
                 supplierSearchDialog.data("kendoWindow").close();
                 DisableSideMenuItems();
-                EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+                //EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
                 DisplayModal(actionModals.Obtainment);
             });
 
@@ -201,8 +201,6 @@
             AssignUnassignRequest(xreferenceObject.controls.buttons.UnAssignButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, false, "x u");
         }
         
-        //Display Modals on Button Clicks
-        EnableSideMenuItems();
 
         xreferenceSearchObj.on("click", "#" + xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
             var url = controllerCalls.SearchXReferenceContent;
@@ -211,6 +209,7 @@
             });
         });
 
+   
         xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
             radioButtonSelected = $(this).val();
             if ($(this).val() == "Group") {
@@ -263,8 +262,8 @@
         //Show Supplier
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchSupplierButton, function () {
            // var activeSupplier = "txtSearchSupplierId";
-            $("#supplierSearchWindow").data("kendoWindow").center();
-            $("#supplierSearchWindow").data("kendoWindow").open();
+            $("#supplierSearchWindow").data("kendoWindow").center().open();
+            //$("#supplierSearchWindow").data("kendoWindow").open();
             HideModal(actionModals.Obtainment);
         });
 
@@ -718,6 +717,15 @@
 
             });
         }
+
+
+        xreferenceSearchObj.on("change", "#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox, function () {
+            if (itemsChecked > 0)
+                EnableSideMenuItems();
+            else
+                DisableSideMenuItems();
+        });
+       
        
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -753,23 +761,22 @@
 
                         if (selectedRows.indexOf(this["uid"]) > -1)
                             grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                        else
+                        else 
                             grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                     });
 
-                    $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + itemsChecked + ")");
-                    $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val(itemsChecked);
-
+                    UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
                 }
                 
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
-                selectedRequests = new Array();
-                itemsChecked = 0;
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
+                selectedRequests = new Array();
+                itemsChecked = 0;
+               
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
                     if (kgrid._data.length > 0) {
@@ -780,32 +787,26 @@
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                                if (index > -1) {
+                                if (index > -1) 
                                     selectedRequests.splice(index, 1);
-                                   // grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
-                                }
-                                    
                             }
                         });
-
                         kgrid.refresh();
-                        $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + itemsChecked + ")");
-                        $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val(itemsChecked);
-                        // No items were found in the datasource, return from the function and cancel the current event
-
-                        //highlight rows on current page
-                        $.each(kgrid._data, function () {
-                            if (this['IsSelected'])
-                                grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                        UpdateNumberOfItemsChecked(itemsChecked);
+                          
+                        $('tr', grid).each(function () {
+                            var tr = $(this);
+                            var cked = $('.chkMultiSelect', tr).is(':checked');
+                            if (cked) 
+                                tr.addClass('k-state-selected');
                              else 
-                                grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                                tr.removeClass('k-state-selected');
                         });
-
-                    } else
+                    } else {
                         return false;
+                    }
                 }
 
-                return false;
             });
         }
 
@@ -883,6 +884,9 @@
             return false;
         };
 
+        function UpdateNumberOfItemsChecked(numberOfItems) {
+            $("#" + xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+        }
 
         return {
             loadRequestsPlugin: loadRequestsPlugin,
