@@ -358,10 +358,14 @@
             //Can not be moved to partial view, or it cause clear and search again
             $("#clearProductBtn").click(function (e) {
 
-                if (parent.window.opener.document.getElementById("txtProductId") != null) {
-                    var txtName = parent.window.opener.document.getElementById("txtProductId");
-                    txtName.value = "";
-                } 
+                if (parent.window.opener != null) {
+                    if (parent.window.opener.document.getElementById("txtProductId") != null) {
+                        var txtName = parent.window.opener.document.getElementById("txtProductId");
+                        txtName.value = "";
+                    }
+                }
+
+                
                 //Remove search result
                 $('#txtProductSearch').val("");
                 var grid = $("#gdSearchProduct").data("kendoGrid");
