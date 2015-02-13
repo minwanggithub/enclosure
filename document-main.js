@@ -2165,8 +2165,8 @@
             ddlid = "ddlDocumentType";
             setupOneDropDown(url, ddlid);
 
-            url = getUrl("Operations", "Operations/Document/LoadDocumentRegion");
-            ddlid = "ddlDocumentRegion";
+            url = getUrl("Operations", "Operations/Document/LoadDocumentJurisdiction");
+            ddlid = "ddlDocumentJurisdiction";
             setupOneDropDown(url, ddlid);
 
             url = getUrl("Operations", "Operations/Document/LoadPhysicalStateOptions");
