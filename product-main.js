@@ -295,7 +295,7 @@
                     
                     $('#txtProductSearch').val(data.ReferenceId);
                     $("#divNewProductDetail").html("");
-                    $("#searchProductBtn").click();
+                    //$("#searchProductBtn").click();
                     var searchObj = $('#gdSearchProduct');
                     $("tr", searchObj).addClass('k-state-selected');
 
@@ -659,6 +659,7 @@
             var grid = $("#gdSearchProduct").data("kendoGrid");
             grid.dataSource.page(1);
             grid.dataSource.read();
+            QueueQuery();
         };
 
 
