@@ -137,6 +137,16 @@
             }
         };
 
+        function arrayContain(arry, txt) {
+            var i = arry.length;
+            while (i--) {
+                if (arry[i] == txt) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         var onFileSelect = function (e) {
 
             if ($("#IsNewRevision").val()=="True") {
@@ -151,9 +161,11 @@
             var copiedArray = uploadStake.slice(0);
 
             $.each(e.files, function (index, value) {
-                if (value.extension.toLowerCase() != ".pdf") {
+                var fileFormatArry = [".pdf", ".txt", ".doc", ".docx", ".xls", ".xlsx", ".tif"];
+                if (!arrayContain(fileFormatArry, value.extension.toLowerCase())) {
                     e.preventDefault();
-                    onDisplayError("Please upload only pdf files");
+                    onDisplayError("Error: Please upload PDF, TXT, DOC, DOCX, XLS, XLSX, or TIF files.");
+                    $('#fileUploadWindow').data("kendoWindow").close();
                     return false;
                 }
 
@@ -162,9 +174,9 @@
                 if ($.inArray(lowerCaseName, copiedArray) >= 0) {
                     e.preventDefault();
                     onDisplayError("You are attempting to uploading or have uploaded a file with the same file name. Please rename " + lowerCaseName + " to continue.");
+                    $('#fileUploadWindow').data("kendoWindow").close();
                     return false;
                 }
-
                 copiedArray.splice(0, 0, lowerCaseName);
             });
 
