@@ -272,11 +272,11 @@
         xreferenceSearchObj.on("change", xreferenceObject.controls.dropdownlists.PendingDropDownList, function () {
             var selPending = $(xreferenceObject.controls.dropdownlists.PendingDropDownList).data("kendoDropDownList");
             if(selPending.text() == "Other") {
-                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "inline");
-                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "inline");
+                $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "inline");
+                $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "inline");
             } else {
-                $("#" + xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-                $("#" + xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
+                $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             }
             });
 
