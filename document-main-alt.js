@@ -438,7 +438,7 @@
 
         /******************************** Document Methods ********************************/
         function checkDocumentDetailsDirtyStatus(container) {
-            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentDetailsSave, documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsSaveBtnClick);
+            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentDetailsSave, documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsSaveBtnClick, true);
         }
 
         function checkDocumentStatus(form, documentId) {
