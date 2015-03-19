@@ -8,7 +8,7 @@
         /******************************** Enclosure Variables ********************************/
         var documentAjaxSettings = {
             actions: {
-                CreateMultipleNameNumbers: "NamesNumbers_Multiple-Create",
+                CreateMultipleNameNumbers: "NamesNumbers_Multiple_Create",
                 DeleteDocumentFile: "DeleteDocumentFile",
                 GetStatusAction: "GetStatusAction",
                 LoadUnknownManufacturer: "LoadUnknownManufacturer",
@@ -39,25 +39,24 @@
 
         var documentElementSelectors = {
             buttons: {
-                DocumentDetailsCancel: "[id=btnDocumentCancel_]",
+                DocumentDetailsCancel: "[id^=btnDocumentCancel_]",
                 DocumentDetailsSave: "[id^=btnDocumentSave_]",
                 DocumentRevisionAddMultipleNameNumbers: ".rev-multinamenum-add",
                 DocumentRevisionAddNewRevision: "[id^=btnAddDocumentRevision_]",
                 DocumentRevisionDetailsAddAttachment: "[id^=addNewFilesBtn_]",
                 DocumentRevisionDetailsDeleteAttachment: ".revision-attachment-delete",
-                DocumentRevisionDetailsCancel: "[id^btnDocumentRevisionCancel_]",
+                DocumentRevisionDetailsCancel: "[id^=btnDocumentRevisionCancel_]",
                 DocumentRevisionDetailsManufacturerSearch: "[id^=revisionMfgIdBtn_]",
                 DocumentRevisionDetailsManufacturerView: "[id^=viewRevisionManufacturerIdBtn_]",
                 DocumentRevisionDetailsSave: "[id^=btnDocumentRevisionSave_]",
                 DocumentRevisionDetailsSetUnknownManufacturer: "[id^=btnSetUnknownMfg_]",
                 DocumentRevisionDetailsSupplierSearch: "[id^=revisionSupplierIdBtn_]",
-                DocumentRevisionDetailsSupplierView: "[id^iewRevisionSupplierIdBtn_]",
+                DocumentRevisionDetailsSupplierView: "[id^=viewRevisionSupplierIdBtn_]",
                 DocumentRevisionMultipleNameNumbersSave: "#btnSaveMultipleNames",
                 DocumentSearchAddNew: "#addNewDocumentBtn",
                 DocumentSearchClear: "#clearDocumentBtn",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchSupplierIdBtn",
-
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -106,8 +105,9 @@
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
+                DocumentLastUpdatePopOver: "[id^=doc-I-Info-]",
+                DocumentRevisionLastUpdatePopOver: "[id^=rev-I-Info-]",
                 DocumentSearchOptions: "input[name=radiogroupTitleSearchOption]",
-                LastUpdatePopOver: "[id^=doc-I-Info-]"
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -186,7 +186,7 @@
         }
 
         /******************************** Local Methods ********************************/
-        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc) {
+        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
 
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
@@ -205,10 +205,12 @@
                     saveBtn.removeClass(saveBtnRemoveClass);
                     saveBtn.addClass(saveBtnAddClass);
 
-                    var cancelBtnParts = $.parseHTML(cancelBtn.html());
-                    $(cancelBtnParts[0]).removeClass(cancelBtnRemoveClass).addClass(cancelBtnAddClass);
-                    cancelBtnParts[1] = cancelBtnText;
-                    cancelBtn.html(cancelBtnParts[0].outerHTML + cancelBtnParts[1]);
+                    if (changeCancelBtn == true) {
+                        var cancelBtnParts = $.parseHTML(cancelBtn.html());
+                        $(cancelBtnParts[0]).removeClass(cancelBtnRemoveClass).addClass(cancelBtnAddClass);
+                        cancelBtnParts[1] = cancelBtnText;
+                        cancelBtn.html(cancelBtnParts[0].outerHTML + cancelBtnParts[1]);
+                    }
                 }
             }
         }
@@ -293,6 +295,16 @@
             e.preventDefault();
         }
 
+        function onInputFieldChange(e) {
+            var element = $(e.currentTarget);
+            var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
+            var currentValue = element.is(':checkbox, :radio') ? element[0].checked : element.val();
+            if (defaultValue != currentValue)
+                element.attr('data-is-dirty', true);
+            else
+                element.removeAttr('data-is-dirty');
+        }
+
         function parseErrorMessage(data) {
 
             var errorMessage = '';
@@ -334,11 +346,15 @@
         }
 
         function onDocumentSearchAddNewBtnClick(e) {
+            e.preventDefault();
+
             var container = $(documentElementSelectors.containers.NewDocument);
             if (container.length > 0) container.show(500);
         }
 
-        function onDocumentSearchClearBtnClick() {
+        function onDocumentSearchClearBtnClick(e) {
+            e.preventDefault();
+
             $(documentElementSelectors.containers.DocumentSearch).find(documentElementSelectors.dropdownlists.DocumentSearchDropDownLists).each(function () {
                 var ddl = $(this).data("kendoDropDownList");
                 if (ddl != undefined) {
@@ -365,7 +381,9 @@
                 onKeyPressEnter(e, performDocumentSearch);
         }
 
-        function onDocumentSearchSearchBtnClick() {
+        function onDocumentSearchSearchBtnClick(e) {
+            e.preventDefault();
+
             performDocumentSearch();
         }
 
@@ -490,7 +508,7 @@
                     if (!errorMessage) {
                         displayCreatedMessage(documentMessages.success.DocumentSaved);
 
-                        var lastUpdatePopOver = form.find(documentElementSelectors.general.LastUpdatePopOver);
+                        var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentLastUpdatePopOver);
                         if (lastUpdatePopOver.length > 0) 
                             lastUpdatePopOver.data('popover').options.content = data.LastUpdatedDescription;
 
@@ -514,6 +532,8 @@
         }
 
         function onDocumentDetailsCancelBtnClick(e) {
+            e.preventDefault();
+
             var tabContainer = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentDetailsTab + '.k-tabstrip').data('kendoTabStrip');
             var documentDetailsForm = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentDetailsForm);
             if (tabContainer && documentDetailsForm.length > 0) {
@@ -536,18 +556,15 @@
         }
 
         function onDocumentDetailsFieldChange(e) {
-            var element = $(e.currentTarget);
-            var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
-            var currentValue = element.is(':checkbox, :radio') ? element[0].checked : element.val();
-            if (defaultValue != currentValue)
-                element.attr('data-is-dirty', true);
-            else
-                element.removeAttr('data-is-dirty');
+            onInputFieldChange(e);
 
+            var element = $(e.currentTarget);
             checkDocumentDetailsDirtyStatus(element.parents(documentElementSelectors.containers.DocumentDetailsForm + ":first"));
         }
 
         function onDocumentDetailsSaveBtnClick(e) {
+            e.preventDefault();
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var form = $(documentElementSelectors.containers.DocumentDetailsFormExact + documentId);
             if (form.length > 0) {
@@ -596,7 +613,8 @@
 
         /******************************** Revision Methods ********************************/
         function checkDocumentRevisionDirtyStatus(container) {
-            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick);
+            var isExistingRevision = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val() != "0";
+            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
 
         function setDocumentRevisionDetailsDefaultValues(container) {
@@ -626,7 +644,7 @@
                 var result = {
                     BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
                     DocumentId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val(),
-                    DocumentIdentification: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsDocumentIdentification).val(),
+                    DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
                     DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
                     DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
                     IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
@@ -660,6 +678,8 @@
         }
 
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
+            e.preventDefault();
+
             if (displayUploadModal) {
 
                 var container = $(this).parents(documentElementSelectors.containers.DocumentNewRevisionDetails + ":first");
@@ -695,6 +715,8 @@
         }
 
         function onDocumentNewRevisionDetailsCancelBtnClick(e) {
+            e.preventDefault();
+
             var container = $(e.currentTarget).parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails + ':first');
             if (container.length > 0) {
 
@@ -705,6 +727,7 @@
                     };
 
                     displayConfirmationModal(settings, function () {
+                        clearContainerDirtyFlags(container, checkDocumentRevisionDirtyStatus);
                         container.hide(500);
                     });
 
@@ -714,6 +737,7 @@
         }
 
         function onDocumentNewRevisionDetailsDeleteAttachmentBtnClick(e) {
+            e.preventDefault();
 
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
@@ -747,6 +771,8 @@
         }
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
+            e.preventDefault();
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
@@ -756,6 +782,8 @@
         }
 
         function onDocumentRevisionAddMultipleNameNumbersBtnClick(e) {
+            e.preventDefault();
+
             var container = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
             if (container.length == 0) return;
 
@@ -781,6 +809,7 @@
         }
 
         function onDocumentRevisionDetailsDeleteAttachmentBtnClick(e) {
+            e.preventDefault();
 
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
@@ -810,6 +839,8 @@
         }
 
         function onDocumentRevisionMultipleNameNumbersSaveBtnClick(e) {
+            e.preventDefault();
+
             var container = $(e.currentTarget).parents('.modal:first');
             var nameNumbers = container.find(documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers).val();
             var nameNumberType = container.find(documentElementSelectors.dropdownlists.DocumentRevisionMultipleNameNumbersType).val();
@@ -874,8 +905,9 @@
         }
 
         function onDocumentRevisionCompanySearchBtnClick(e) {
-            var buttonElement = $(e.currentTarget);
+            e.preventDefault();
 
+            var buttonElement = $(e.currentTarget);
             if (displaySupplierPopUp) {
                 displaySupplierPopUp(function (data) {
 
@@ -889,6 +921,8 @@
         }
 
         function onDocumentRevisionCompanyViewBtnClick(e) {
+            e.preventDefault();
+
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -903,6 +937,8 @@
         }
 
         function onDocumentRevisionDetailsAddAttachmentBtnClick(e) {
+            e.preventDefault();
+
             if (displayUploadModal) {
 
                 var container = $(this).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
@@ -967,6 +1003,8 @@
         }
 
         function onDocumentRevisionDetailsCancelBtnClick(e) {
+            e.preventDefault();
+
             var container = $(e.currentTarget).parents('ul' + documentElementSelectors.containers.DocumentRevisionDetails + ':first').data('kendoPanelBar');
             if (container) {
 
@@ -986,16 +1024,15 @@
         }
 
         function onDocumentRevisionFieldChange(e) {
-            var element = $(e.currentTarget);
-            if (element[0].defaultValue != element.val())
-                element.attr('data-is-dirty', true);
-            else
-                element.removeAttr('data-is-dirty');
+            onInputFieldChange(e);
 
+            var element = $(e.currentTarget);
             checkDocumentRevisionDirtyStatus(element.parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first"));
         }
 
         function onDocumentRevisionSaveBtnClick(e) {
+            e.preventDefault();
+
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
             var formData = getDocumentRevisionDetailsData(form);
             if (formData) {
@@ -1021,10 +1058,20 @@
                                             revisionGrid.expandRow(revisionGrid.wrapper.find('tr.k-master-row:first'));
                                             revisionGrid.dataSource.unbind("change", newRevisionRead);
                                         });
-
                                         revisionGrid.dataSource.read();
                                     }
                                 }
+
+                                var attachmentGrid = form.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+                                if (attachmentGrid && attachmentGrid.dataSource) {
+                                    attachmentGrid.dataSource.data([]);
+                                    attachmentGrid.dataSource.filter([]);
+                                }
+                                
+                            } else {
+                                var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentRevisionLastUpdatePopOver);
+                                if (lastUpdatePopOver.length > 0)
+                                    lastUpdatePopOver.data('popover').options.content = data.LastUpdatedDescription;
                             }
 
                         } else
@@ -1039,6 +1086,8 @@
         }
 
         function onDocumentRevisionSetUnknownCompanyBtnClick(e) {
+            e.preventDefault();
+
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -1113,7 +1162,7 @@
 
         var onDocumentRevisionNameNumberGridEdit = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
-            var cancel = $(e.container).parent().find(".k-cancel");
+            var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
         };
