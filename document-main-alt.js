@@ -427,6 +427,30 @@
 
         };
 
+        var documentQuery_kg = function (e) {
+            var queryText = {
+                ReferenceId: getHandle("#txtSearchDocumentId").val(),
+                DocumentTypeId: getHandle("#ddlDocumentType").val(),
+                DocumentLanguageId: getHandle("#ddlDocumentLanguage").val(),
+                DocumentRegionId: getHandle("#ddlDocumentRegion").val(),
+                ContainerTypeId: 1,
+                PartNumber: getHandle("#txtSearchPartNumber").val(),
+                UPC: getHandle("#txtSearchUPC").val(),
+                SupplierId: parseInt(getHandle("#txtSearchSupplierId").val()),
+                RevisionTitle: getHandle("#txtRevisionTitle").val(),
+                SearchOption: getHandle("input[name=radiogroupTitleSearchOption]:checked").val(),
+                LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1,
+                PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val()
+            };
+            return {
+                searchText: JSON.stringify(queryText)
+            };
+        };
+
+        var getHandle = function (id) {
+            return $("#gdSearchDocument").find(id);
+        };
+
         /******************************** New Document Methods ********************************/
         function onNewDocumentCancelBtnClick(e) {
 
@@ -1349,6 +1373,7 @@
 
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
+            documentQuery_kg: documentQuery_kg,
             initializeDocumentComponents: initializeDocumentComponents,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeRequestStart: onDocumentContainerClassificationTypeRequestStart,
