@@ -433,13 +433,14 @@
                 DocumentTypeId: getHandle("#ddlDocumentType").val(),
                 DocumentLanguageId: getHandle("#ddlDocumentLanguage").val(),
                 DocumentRegionId: getHandle("#ddlDocumentRegion").val(),
-                ContainerTypeId: 1,
+                ContainerTypeId: getHandle("#ddlDocumentContainer").val(),
                 PartNumber: getHandle("#txtSearchPartNumber").val(),
                 UPC: getHandle("#txtSearchUPC").val(),
                 SupplierId: parseInt(getHandle("#txtSearchSupplierId").val()),
                 RevisionTitle: getHandle("#txtRevisionTitle").val(),
                 SearchOption: getHandle("input[name=radiogroupTitleSearchOption]:checked").val(),
                 LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1,
+                IncludeDeletedDocument: getHandle("#chkIncludeDeletedDocument:checked").length == 1,
                 PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val()
             };
             return {
@@ -448,7 +449,7 @@
         };
 
         var getHandle = function (id) {
-            return $("#gdSearchDocument").find(id);
+            return $("#SearchPanel").find(id);
         };
 
         /******************************** New Document Methods ********************************/
