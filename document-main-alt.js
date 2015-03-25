@@ -13,7 +13,9 @@
                 GetStatusAction: "GetStatusAction",
                 LoadUnknownManufacturer: "LoadUnknownManufacturer",
                 LookUpSupplierOnKeyEnter: "LookUpSupplierOnKeyEnter",
+                RemoveDocumentContainerComponent: "RemoveDocumentContainerComponent",
                 RemoveRevisionAttachment: "RemoveAttachmentAlt",
+                SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
                 SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments"
             },
             contenttype: {
@@ -39,6 +41,8 @@
 
         var documentElementSelectors = {
             buttons: {
+                DocumentAddContainerComponents: "[id^=btnAddContainerComponent_]",
+                DocumentDeleteContainerComponent: ".document-container-delete",
                 DocumentDetailsCancel: "[id^=btnDocumentCancel_]",
                 DocumentDetailsSave: "[id^=btnDocumentSave_]",
                 DocumentRevisionAddMultipleNameNumbers: ".rev-multinamenum-add",
@@ -55,6 +59,8 @@
                 DocumentRevisionMultipleNameNumbersSave: "#btnSaveMultipleNames",
                 DocumentSearchAddNew: "#addNewDocumentBtn",
                 DocumentSearchClear: "#clearDocumentBtn",
+                DocumentSearchPopUpCancel: "#btnCancelDocumentSearch",
+                DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchSupplierIdBtn",
             },
@@ -70,6 +76,7 @@
                 CreatedMessage: "#CreatedMessage",
                 DocumentMain: "#DocumentMainContainer",
                 DocumentSearch: "#divSearchSection",
+                DocumentSearchPopUp: "#documentSearchWindow",
                 DocumentDetailsForm: "[id^=frmDocument_]",
                 DocumentDetailsFormExact: "#frmDocument_",
                 DocumentDetailsTab: "[id^=tbDocumentDetail_]",
@@ -116,6 +123,7 @@
                 DocumentRevisionAttachments: "[id^=gdRevisionFileInfoDetail_]",
                 DocumentRevisionNameNumbers: "#gdRevisionNameNumber_",
                 DocumentSearch: "#gdSearchDocument",
+                DocumentSearchPopUp: "#gdSearchDocumentPopUp",
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
             },
             hidden: {
@@ -151,6 +159,7 @@
                 CompanyViewError: "An error occurred displaying the selected company. Please review you selection and try again.",
                 ConfirmationDateFuture: "Invalid confirmation date, it can't be a future date.",
                 ConfirmationDateGreaterThanRevisionDate: "Invalid confirmation date, it must be greater than or equal to revision date.",
+                DocumentContainerComponentDelete: "An error occurred deleting the selected container component.",
                 DocumentRevisionAttachment: "An error occurred uploading the revision attachment(s). Please try again.",
                 DocumentRevisionAttachmentData: "An error occurred retrieving information to save the revision attachment. Please try again.",
                 DocumentRevisionAttachmentDelete: "An error occurred deleting the selected revision attachment.",
@@ -162,9 +171,12 @@
                 RevisionDateFuture: "Invalid revision date, it can't be a future date.",
                 Error: "Error",
                 SaveDocumentError: "Saving the document could not be completed. Please review your changes and try again.",
+                SaveDocumentContainerComponent: "Saving the document container component could not be complete. Please try again.",
                 SaveDocumentRevisionError: "Save the document revision could not be completed. Please review your changes and try again.",
             },
             modals: {
+                DocumentDeleteContainerComponentHeader: "Delete Container Component Confirmation",
+                DocumentDeleteContainerComponentMessage: "Are you sure you want to delete this container component?",
                 DocumentDiscardChangesHeader: "Discard Document Changes",
                 DocumentDiscardChangesMessage: "You are going to discard your document changes. Are you sure you would like to continue?",
                 DocumentRevisionDeleteAttachmentHeader: "Delete Attachment Confirmation",
@@ -254,18 +266,6 @@
                 alert(message);
         }
 
-        function extractCompanyId(value) {
-            if (value) {
-                var parts = value.split(',');
-                if (parts.length > 0) {
-                    var convertedValue = parseInt(parts[0]);
-                    return isNaN(convertedValue) ? null : convertedValue;
-                }
-            }
-
-            return null;
-        }
-
         function extractReferenceId(value) {
             if (value) {
                 var parts = value.split('_');
@@ -289,6 +289,21 @@
         function isContainerFieldsDirty(container) {
             var isDirty = container ? container.find(documentElementSelectors.general.DirtyFields).length > 0 : false;
             return isDirty;
+        }
+
+        function onCompanyIdFieldKeyUp(e) {
+            if (onKeyPressEnter) {
+                onKeyPressEnter(e, function () {
+                    var companyId = e.target.value;
+                    if (IsNumeric && IsNumeric(companyId)) {
+
+                        var url = generateActionUrl(documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.LookUpSupplierOnKeyEnter);
+                        $.post(url, { supplierInfo: companyId }, function (data) {
+                            $(e.target).val(data);
+                        });
+                    }
+                });
+            }
         }
 
         function onDisabledButtonClick(e) {
@@ -324,50 +339,69 @@
         }
 
         /******************************** Search Methods ********************************/
+        function clearDocumentSearchFields(container) {
+            if (container && container.length > 0) {
+                container.find(documentElementSelectors.dropdownlists.DocumentSearchDropDownLists).each(function () {
+                    var ddl = $(this).data("kendoDropDownList");
+                    if (ddl != undefined) {
+                        ddl.select(0);
+        }
+                });
+
+                container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked', false);
+                container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).prop('checked', true);
+                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
+            }
+        }
+
+        function getContainerSearchCriteria(container) {
+            if (container && container.length > 0) {
+                var result = {
+                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
+                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
+                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
+                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
+                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
+                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
+                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
+                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
+                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
+                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
+                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                    SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                };
+
+                return result;
+                    }
+
+            return null;
+            }
+
         function performDocumentSearch() {
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if (searchGrid && searchGrid.dataSource)
                 searchGrid.dataSource.read();
         }
 
-        function onCompanyIdFieldKeyUp(e) {
-            if (onKeyPressEnter) {
-                onKeyPressEnter(e, function () {
-                    var companyId = e.target.value;
-                    if (IsNumeric && IsNumeric(companyId)) {
-
-                        var url = generateActionUrl(documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.LookUpSupplierOnKeyEnter);
-                        $.post(url, { supplierInfo: companyId }, function (data) {
-                            $(e.target).val(data);
-                        });
-                    }
-                });
-            }
-        }
-
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
 
-            var container = $(documentElementSelectors.containers.NewDocument);
-            if (container.length > 0) container.show(500);
+            displayError('Development in progress');
+
+            //var container = $(documentElementSelectors.containers.NewDocument);
+            //if (container.length > 0) container.show(500);
         }
 
         function onDocumentSearchClearBtnClick(e) {
             e.preventDefault();
 
-            $(documentElementSelectors.containers.DocumentSearch).find(documentElementSelectors.dropdownlists.DocumentSearchDropDownLists).each(function () {
-                var ddl = $(this).data("kendoDropDownList");
-                if (ddl != undefined) {
-                    ddl.select(0);
-                }
-            });
-
-            $(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked', false);
-            $(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).prop('checked', true);
-            $(documentElementSelectors.textboxes.DocumentSearchDocumentId).val('');
-            $(documentElementSelectors.textboxes.DocumentSearchPartNumber).val('');
-            $(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
-            $(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
+            var container = $(documentElementSelectors.containers.DocumentSearch);
+            clearDocumentSearchFields(container);
 
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if (searchGrid && searchGrid.dataSource) {
@@ -388,68 +422,84 @@
         }
 
         var getDocumentSearchCriteria = function (e) {
-            var result = {
-                ContainerTypeId: $(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                DocumentLanguageId: $(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                DocumentRegionId: $(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                DocumentStatusId: $(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                DocumentTypeId: $(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                IncludeDeletedDocument: $(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                LatestRevisionOnly: $(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                PartNumber: $(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                PhysicalStateId: $(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                ReferenceId: $(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                RevisionTitle: $(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                SearchOption: $(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
-                SupplierId: extractCompanyId($(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()),
-                UPC: $(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+            var container = $(documentElementSelectors.containers.DocumentSearch);
+            return getContainerSearchCriteria(container);
             };
 
-            return result;
+        var onDocumentMainPanelActivate = function () {
+            this.element.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchAddNewBtnClick);
+            this.element.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchClearBtnClick);
+            this.element.on('click', documentElementSelectors.buttons.DocumentSearchSearch, onDocumentSearchSearchBtnClick);
+
+            this.element.on('keyup', documentElementSelectors.textboxes.DocumentSearchDocumentId, onDocumentSearchFieldKeyUp);
+            this.element.on('keyup', documentElementSelectors.textboxes.DocumentSearchPartNumber, onDocumentSearchFieldKeyUp);
+            this.element.on('keyup', documentElementSelectors.textboxes.DocumentSearchRevisionTitle, onDocumentSearchFieldKeyUp);
+            this.element.on('keyup', documentElementSelectors.textboxes.DocumentSearchSupplierId, onCompanyIdFieldKeyUp);
+            this.element.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchFieldKeyUp);
+
+            $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
-        var panelbarActivatedAlt = function () {
-            var documentSearchContainer = $(documentElementSelectors.containers.DocumentSearch);
-            if (documentSearchContainer.length == 0) return;
-
-            documentSearchContainer.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchAddNewBtnClick);
-            documentSearchContainer.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchClearBtnClick);
-            documentSearchContainer.on('click', documentElementSelectors.buttons.DocumentSearchSearch, onDocumentSearchSearchBtnClick);
-
-            documentSearchContainer.on('keyup', documentElementSelectors.textboxes.DocumentSearchDocumentId, onDocumentSearchFieldKeyUp);
-            documentSearchContainer.on('keyup', documentElementSelectors.textboxes.DocumentSearchPartNumber, onDocumentSearchFieldKeyUp);
-            documentSearchContainer.on('keyup', documentElementSelectors.textboxes.DocumentSearchRevisionTitle, onDocumentSearchFieldKeyUp);
-            documentSearchContainer.on('keyup', documentElementSelectors.textboxes.DocumentSearchSupplierId, onCompanyIdFieldKeyUp);
-            documentSearchContainer.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchFieldKeyUp);
+        var onDocumentMainPanelActivateReadOnly = function () {
+            // TODO: Add code to modify the UI to be read only
+            $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
-        var readonlyPanelbarActivatedAlt = function () {
+        /******************************** Search Methods (Pop-Up) ********************************/
+        function performDocumentSearchPopUp() {
+            var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
+            var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
+            if (grid && grid.dataSource)
+                grid.dataSource.read();
+        }
 
+        function onDocumentSearchPopUpAddNewDocumentBtnClick(e) {
+            // TODO: Add way to add new document
+            displayError('Will be completed when add new document page is completed');
+        }
+
+        function onDocumentSearchPopUpClearBtnClick(e) {
+            e.preventDefault();
+
+            var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
+            clearDocumentSearchFields(container);
+
+            var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
+            if (grid && grid.dataSource) {
+                grid.dataSource.data([]);
+                grid.dataSource.filter([]);
+            }
+        }
+
+        function onDocumentSearchPopUpFieldKeyUp(e) {
+            if (onKeyPressEnter)
+                onKeyPressEnter(e, performDocumentSearchPopUp);
+        }
+
+        function onDocumentSearchPopUpSearchBtnClick(e) {
+            e.preventDefault();
+            performDocumentSearchPopUp();
+        }
+
+        var getDocumentSearchPopUpCriteria = function() {
+            var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
+            return getContainerSearchCriteria(container);
         };
 
-        var documentQuery_kg = function (e) {
-            var queryText = {
-                ReferenceId: getHandle("#txtSearchDocumentId").val(),
-                DocumentTypeId: getHandle("#ddlDocumentType").val(),
-                DocumentLanguageId: getHandle("#ddlDocumentLanguage").val(),
-                DocumentRegionId: getHandle("#ddlDocumentRegion").val(),
-                ContainerTypeId: getHandle("#ddlDocumentContainer").val(),
-                PartNumber: getHandle("#txtSearchPartNumber").val(),
-                UPC: getHandle("#txtSearchUPC").val(),
-                SupplierId: parseInt(getHandle("#txtSearchSupplierId").val()),
-                RevisionTitle: getHandle("#txtRevisionTitle").val(),
-                SearchOption: getHandle("input[name=radiogroupTitleSearchOption]:checked").val(),
-                LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1,
-                IncludeDeletedDocument: getHandle("#chkIncludeDeletedDocument:checked").length == 1,
-                PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val()
-            };
-            return {
-                searchText: JSON.stringify(queryText)
-            };
-        };
+        var initializeDocumentSearchPopup = function () {
+            var documentSearchPopUp = $(documentElementSelectors.containers.DocumentSearchPopUp);
+            if (documentSearchPopUp.length == 0) return;
 
-        var getHandle = function (id) {
-            return $("#SearchPanel").find(id);
+            // Populate plugin section
+            documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchPopUpAddNewDocumentBtnClick);
+            documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchPopUpClearBtnClick);
+            documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearch, onDocumentSearchPopUpSearchBtnClick);
+
+            documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchDocumentId, onDocumentSearchPopUpFieldKeyUp);
+            documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchPartNumber, onDocumentSearchPopUpFieldKeyUp);
+            documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchRevisionTitle, onDocumentSearchPopUpFieldKeyUp);
+            documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchSupplierId, onCompanyIdFieldKeyUp);
+            documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchPopUpFieldKeyUp);
         };
 
         /******************************** New Document Methods ********************************/
@@ -626,6 +676,10 @@
             container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId, onCompanyIdFieldKeyUp);
             container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId, onCompanyIdFieldKeyUp);
 
+            // Containers
+            container.on('click', documentElementSelectors.buttons.DocumentAddContainerComponents, onDocumentAddContainerComponentsBtnClick);
+            container.on('click', documentElementSelectors.buttons.DocumentDeleteContainerComponent, onDocumentDeleteContainerComponentBtnClick);
+
             // Multiple name numbers
             container = $(documentElementSelectors.containers.DocumentRevisionMultipleNameNumbers);
             if (container.length > 0) {
@@ -674,13 +728,18 @@
                     DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
                     IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
                     IsGoodImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).is(":checked"),
-                    ManufacturerId: extractCompanyId(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val()),
+                    ManufacturerId: null,
                     RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
                     RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
-                    SupplierId: extractCompanyId(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val()),
+                    SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
                 };
+
+                if (extractCompanyIdFromTemplate) {
+                    result.ManufacturerId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val());
+                    result.SupplierId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val());
+                }
 
                 return result;
             }
@@ -953,7 +1012,7 @@
             if (!siblingField) return;
 
             var companyFieldValue = buttonElement.siblings(siblingField + ":first").val();
-            var companyId = extractCompanyId(companyFieldValue);
+            var companyId = extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(companyFieldValue) : null;
             if (companyId && generateLocationUrl) {
                 var url = generateLocationUrl("Operations/Company/LoadSingleSupplier?supplierId=" + companyId);
                 window.open(url, "_blank");
@@ -1322,14 +1381,101 @@
             return null;
         }
 
-        var onDocumentContainerClassificationTypeChange = function (e) {
-            var documentId = extractReferenceId(this.element.attr('id'));
+        function onDocumentAddContainerComponentsBtnClick(e) {
+            e.preventDefault();
+            var currentDocumentId = extractReferenceId(this.getAttribute('id'));
+            
+            if (displayDocumentPopUp) {
+                displayDocumentPopUp(function (data) {
+                    var ddl = $(documentElementSelectors.dropdownlists.DocumentContainerClassificationType + currentDocumentId).data('kendoDropDownList');
+                    var classificationTypeId = ddl ? ddl.value() : "";
+                    var classificationTypeText = ddl ? ddl.text() : "";
+
+                    var model = {
+                        ChildDocumentId: classificationTypeText.indexOf("Parents") >= 0 ? currentDocumentId : data.ReferenceId,
+                        ClassificationTypeId: classificationTypeId,
+                        ParentDocumentId: classificationTypeText.indexOf("Parents") >= 0 ? data.ReferenceId : currentDocumentId,
+                    };
+
+                    var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentContainerComponent);
+                    $.ajax({
+                        data: model,
+                        type: 'POST',
+                        url: url,
+                        success: function(result) {
+
+                            var errorMessage = parseErrorMessage(result);
+                            if (errorMessage)
+                                displayError(errorMessage);
+                            else {
+                                refreshDocumentContainersGrid(ddl.element.attr('id'));
+                            }
+
+                        }, error: function(result) {
+                            displayError(documentMessages.errors.SaveDocumentContainerComponent);
+                        }
+                    });
+                });
+            }
+        }
+
+        function onDocumentDeleteContainerComponentBtnClick(e) {
+            var currentRow = $(this).parents('tr[role="row"]');
+            var grid = $(this).parents('.k-grid:first').data('kendoGrid');
+            var dataItem = grid ? grid.dataItem(currentRow) : null;
+            if (dataItem) {
+
+                var settings = {
+                    header: documentMessages.modals.DocumentDeleteContainerComponentHeader,
+                    message: documentMessages.modals.DocumentDeleteContainerComponentMessage,
+                };
+
+                displayConfirmationModal(settings, function() {
+
+                    var data = {
+                        ChildDocumentId: dataItem.ChildDocumentId,
+                        ContainerTypeId: dataItem.ContainerTypeId,
+                        KitGroupContainerId: dataItem.KitGroupContainerId,
+                        ParentDocumentId: dataItem.ParentDocumentId,
+                    };
+
+                    var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveDocumentContainerComponent);
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: data,
+                        success: function (result) {
+                            var errorMessage = parseErrorMessage(result);
+                            if (errorMessage)
+                                displayError(errorMessage);
+                            else
+                                refreshDocumentContainersGrid(grid.element.attr('id'));
+                        },
+                        error: function (result) {
+                            displayError(documentMessages.errors.DocumentContainerComponentDelete);
+                        }
+                    });
+
+                });
+            }
+        }
+
+        function refreshDocumentContainersGrid(documentHtmlId) {
+            var documentId = extractReferenceId(documentHtmlId);
             if (documentId) {
                 var componentGrid = $(documentElementSelectors.grids.DocumentContainerComponents + documentId).data('kendoGrid');
                 if (componentGrid) {
                     componentGrid.dataSource.read();
                 }
             }
+        }
+
+        var onDocumentContainerClassificationTypeChange = function (e) {
+            refreshDocumentContainersGrid(this.element.attr('id'));
+        };
+
+        var onDocumentContainerClassificationTypeDataBound = function (e) {
+            refreshDocumentContainersGrid(this.element.attr('id'));
         };
 
         var onDocumentContainerClassificationTypeRequestStart = function (e) {
@@ -1374,12 +1520,16 @@
 
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
-            documentQuery_kg: documentQuery_kg,
+            getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             initializeDocumentComponents: initializeDocumentComponents,
+            initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
+            onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
             onDocumentContainerClassificationTypeRequestStart: onDocumentContainerClassificationTypeRequestStart,
             onDocumentContainerComponentDataBound: onDocumentContainerComponentDataBound,
             onDocumentContainerComponentsRequestStart: onDocumentContainerComponentsRequestStart,
+            onDocumentMainPanelActivate: onDocumentMainPanelActivate,
+            onDocumentMainPanelActivateReadOnly: onDocumentMainPanelActivateReadOnly,
             onDocumentNoteChange: onDocumentNoteChange,
             onDocumentNoteDataBound: onDocumentNoteDataBound,
             onDocumentNoteEdit: onDocumentNoteEdit,
@@ -1390,8 +1540,6 @@
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
-            panelbarActivatedAlt: panelbarActivatedAlt,
-            readonlyPanelbarActivatedAlt: readonlyPanelbarActivatedAlt,
         };
     };
 
