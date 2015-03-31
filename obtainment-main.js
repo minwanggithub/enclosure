@@ -81,7 +81,6 @@
 
 
 
-
         //Does search and displays search results 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
             var obtainmentWorkLoadSearchResultModel = {};
@@ -100,9 +99,7 @@
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
 
-                //obtainmentWorkLoadSearchResultModel.Criterias = criteriaList;
                 kendo.ui.progress(obtainmentDetailObj, true);
-                //var url = controllerCalls.SearchRequests;
                 $.ajax({
                     url: controllerCalls.SearchRequests,
                     type: 'POST',
