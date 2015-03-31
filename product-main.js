@@ -34,9 +34,9 @@
             $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
               
                 var flag = data.substring(5, 6);
+                documentSearchDialog.data("kendoWindow").close();
 
-                if (flag == '0') {
-                    documentSearchDialog.data("kendoWindow").close();
+                if (flag == '0') {                  
 
                     var curGdProductDoc = $("#gdProductDocuments_" + activeProduct).data("kendoGrid");
                     if (newProductActive)
@@ -53,14 +53,18 @@
                         $(currentProductAttributes).val(partNumber);
                     });
 
-                } else if (flag == '2') {
-                    $("#documentSearchWindow").data("kendoWindow").close();
+                } else if (flag == '2') {                    
                     onDisplayError('Document(s) already exist in this product. Cannot attach document(s).');
                 }
-                else if (flag == '3') {
-                    $("#documentSearchWindow").data("kendoWindow").close();
+                else if (flag == '3') {                    
                     var index = data.indexOf('msg:');
                     onDisplayError(data.substring(index + 4));
+                }
+                else if (flag == '4') {                    
+                    onDisplayError("Documents and product should have the same manufacturer.");
+                }
+                else if (flag == '5') {                    
+                    onDisplayError("Only one combination of language/Jurisdiction for a document type by product.");
                 }
             });
         };
