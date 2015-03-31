@@ -15,7 +15,8 @@
                 grids: { GridRequests: "#gdRequests" },
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
-                    SearchRequestsButton: "#searchRequestBtn"
+                    SearchRequestsButton: "#searchRequestBtn",
+                    SaveSearchSettings: "#saveSearchSettingsBtn"
                 },
                 textBoxes: {
                 },
@@ -26,7 +27,8 @@
         }
         
         var controllerCalls = {
-            SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests"
+            SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
+            SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings"
         };
        var messages = {
             successMessages: { Saved: "Saved Successful" },
@@ -48,6 +50,31 @@
            grid.dataSource.read();
        };
 
+        obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SaveSearchSettings, function() {
+            var obtainmentWorkLoadSearchResultModel = {};
+            var drpGroups = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
+            obtainmentWorkLoadSearchResultModel.GroupID = drpGroups.value() == "" ? 0 : drpGroups.value();
+            //if (drpGroups.value() != "") {
+               
+            //} else
+            //    $(this).displayError(messages.errorMessages.SelectFilter);
+            DisableEnableButtons(false);
+            $.ajax({
+                url: controllerCalls.SaveSearchSettings,
+                type: 'POST',
+                cache: false,
+                data: { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
+                success: function (successData) {
+                    if (successData.success == true) {
+                        DisableEnableButtons(true);
+                        $(this).savedSuccessFully(messages.successMessages.Saved);
+                    }
+                },
+                error: function (xhr, textStatus, error) {
+                    $(this).displayError(error);
+                }
+            });
+        });
 
         //Does search and displays search results 
        obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
@@ -104,8 +131,7 @@
 
           
            if (drpGroups.value() != "" || criteriaList.length > 0) {
-               $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(false);
-               $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
+               DisableEnableButtons(false);
                //obtainmentWorkLoadSearchResultModel.Criterias = criteriaList;
                kendo.ui.progress(obtainmentDetailObj, true);
                //var url = controllerCalls.SearchRequests;
@@ -116,18 +142,24 @@
                    data: { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
                    success: function (data) {
                        obtainmentDetailObj.html(data);
-                       $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(true);
-                       $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
+                       DisableEnableButtons(true);
                    },
                    error: function (xhr, textStatus, error) {
                        $(this).displayError(error);
+                   },
+                   done: function () {
+                       $(this).savedSuccessFully(messages.successMessages.Saved);
                    }
                });
            } else
                $(this).displayError(messages.errorMessages.SelectFilter);
        });
 
-
+        function DisableEnableButtons(enable) {
+            $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(enable);
+            $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(enable);
+            $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
+        }
 
        return {
            loadRequests: loadRequests
