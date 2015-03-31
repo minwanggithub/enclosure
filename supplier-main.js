@@ -865,12 +865,35 @@
                 var supplierId = $("#SupplierId").val();
                 var supplierFacilityId = $("#SupplierFacilityId").val();
                 var supplierFacilityPhoneId = e.model.SupplierFacilityPhoneId;
+                var validationMessage = "";
                 $('#DetailSupplier #gdFacilityPhone').data("kendoGrid").cancelChanges();
                
                 var data = {
                     supplierFacilityPhoneId: supplierFacilityPhoneId, companyId: supplierId, facilityid: supplierFacilityId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.SupplierFacilityCityAreaCode,
                     extension: e.model.SupplierFacilityExtension, localNo: e.model.SupplierFacilityLocalNumber, countryId: e.model.CountryLkpId
                 };
+
+                //validation to check before saving
+                if (data.countryId != null && data.phoneType != null) {
+                    if (isNaN(data.areaCode) || data.areaCode == null)
+                        validationMessage = "Area Code must be numeric";
+
+                    if (isNaN(data.localNo) || data.localNo == null || (data.localNo % 1) > 0) {
+                        if (validationMessage.length > 0)
+                            validationMessage += "<br />";
+
+                        validationMessage += "Local Number must be numeric";
+                    }
+
+                    if (validationMessage.length > 0) {
+                        onDisplayError(validationMessage);
+                        return;
+                    }
+                } else {
+                    onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                    return;
+                }
+
                 $.post(validationUrl, data, function (result) {
 
                     if (result.indexOf("Duplicate") >= 0) {
@@ -905,11 +928,35 @@
                var supplierId = $("#SupplierId").val();
                var supplierContactId = $("#SupplierContactId").val();
                var supplierContactPhoneId = e.model.CompanyContactPhoneId;
+               var validationMessage = "";
                $('#DetailSupplier #gdContactPhone').data("kendoGrid").cancelChanges();
                var data = {
                    supplierContactPhoneId: supplierContactPhoneId, companyId: supplierId, contactid: supplierContactId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.CityOrAreaCode,
                    extension: e.model.Extension, localNo: e.model.LocalNumber, countryId: e.model.CountryLkpId
                };
+
+               
+               //validation to check before saving
+               if (data.countryId != null && data.phoneType != null) {
+                   if (isNaN(data.areaCode) || data.areaCode == null)
+                       validationMessage = "Area Code must be numeric";
+
+                   if (isNaN(data.localNo) || data.localNo == null || (data.localNo % 1) > 0) {
+                       if (validationMessage.length > 0)
+                           validationMessage += "<br />";
+
+                       validationMessage += "Local Number must be numeric";
+                   }
+
+                   if (validationMessage.length > 0) {
+                       onDisplayError(validationMessage);
+                       return;
+                   }
+               } else {
+                   onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                   return;
+               }
+
                $.post(validationUrl, data, function (data1) {
                    if (data1.indexOf("Duplicate") >=0) {
                        var args = {
