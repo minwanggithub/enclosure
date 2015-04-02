@@ -56,7 +56,13 @@
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SaveSearchSettings, function () {
             var obtainmentWorkLoadSearchResultModel = {};
             var drpGroups = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
+            var drpLanguage = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
+            var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
+
             obtainmentWorkLoadSearchResultModel.GroupID = drpGroups.value() == "" ? 0 : drpGroups.value();
+            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();            
+            obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
+
             //if (drpGroups.value() != "") {
 
             //} else
