@@ -12,7 +12,7 @@
         //var radioButtonSelected = "Group";
         var obtainmentObject = {
             controls: {
-                grids: { GridRequests: "#gdRequests" },
+                grids: { GridRequests: "#gdRequests", GridSupplierNotes: "#gdSupplierNotes" },
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
                     SearchRequestsButton: "#searchRequestBtn",
@@ -52,6 +52,10 @@
             grid.dataSource.read();
         };
 
+        var loadSupplierNotes = function() {
+            var grid = $(obtainmentObject.controls.grids.GridSupplierNotes).data("kendoGrid");
+            grid.dataSource.read();
+        }
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SaveSearchSettings, function () {
             var obtainmentWorkLoadSearchResultModel = {};
@@ -133,7 +137,9 @@
 
 
         return {
-            loadRequests: loadRequests
+            loadRequests: loadRequests,
+            loadSupplierNotes: loadSupplierNotes
+
         };
     };
 })(jQuery);
