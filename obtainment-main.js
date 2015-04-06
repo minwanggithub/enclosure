@@ -23,7 +23,8 @@
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
                     PrefLangDropDownList: "#ddlDocumentLanguage",
-                    DocumentTypeDropDownList: "#ddlDocumentType"
+                    DocumentTypeDropDownList: "#ddlDocumentType",
+                    LockTypeDropDownList: "#ddlLockType",
                 }
             }
         }
@@ -98,13 +99,15 @@
             var drpGroups = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
+            var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
 
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.GroupID = drpGroups.value() == "" ? 0 : drpGroups.value();
             obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
-            obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
+            obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
+            obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
 
-            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.GroupID + obtainmentWorkLoadSearchResultModel.DocumentLanguageId + obtainmentWorkLoadSearchResultModel.DocumentTypeId;
+            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.GroupID + obtainmentWorkLoadSearchResultModel.DocumentLanguageId + obtainmentWorkLoadSearchResultModel.DocumentTypeId + obtainmentWorkLoadSearchResultModel.RequestLock + obtainmentWorkLoadSearchResultModel.LockTypeId;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
@@ -133,13 +136,16 @@
             $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(enable);
             $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(enable);
             $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
-        }
+        };
 
+        function RenderSwitch() {
+            $("[name='" + obtainmentObject.controls.checkSwitch.RequestLocked + "']").bootstrapSwitch();
+        };
 
         return {
             loadRequests: loadRequests,
-            loadSupplierNotes: loadSupplierNotes
-
+            loadSupplierNotes: loadSupplierNotes,
+            RenderSwitch: RenderSwitch
         };
     };
 })(jQuery);
