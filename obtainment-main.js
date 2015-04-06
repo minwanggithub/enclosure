@@ -107,7 +107,7 @@
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
 
-            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.GroupID + obtainmentWorkLoadSearchResultModel.DocumentLanguageId + obtainmentWorkLoadSearchResultModel.DocumentTypeId + obtainmentWorkLoadSearchResultModel.RequestLock + obtainmentWorkLoadSearchResultModel.LockTypeId;
+            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.GroupID + obtainmentWorkLoadSearchResultModel.DocumentLanguageId + obtainmentWorkLoadSearchResultModel.DocumentTypeId + obtainmentWorkLoadSearchResultModel.LockTypeId;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
