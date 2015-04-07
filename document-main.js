@@ -910,6 +910,70 @@
             });
         };
 
+        var displayOriginalAndPublishedAttachments = function (data) {
+
+            // if the file extension is "pdf" always show the published version.
+            // if the published version was not generated, show the original version.
+
+            // file extension
+            var fileExt = (data.OriginalFileName + "").split(".");
+            fileExt = fileExt[fileExt.length - 1].toLowerCase();
+
+            var html = "";
+
+            if (fileExt == "pdf") {
+
+                // link to PDF file
+                var pdfFileELink = "onClickReviewViewImage(\"" + (data.PublishedDocumentElink || data.DocumentElink) + "\");";
+                html = "<a title='Double click to view revision " + data.RevisionId + "' onclick='" + pdfFileELink + "'><span class='k-sprite doc-pdf' style='cursor:pointer;'></span></a>";
+
+            } else {
+                
+                // original document
+                var uploadedDocLink = "onClickReviewViewImage(\"" + data.DocumentElink + "\");";
+                
+                // sprite translation table 
+                // supported types - TXT,DOC,DOCX,XLS,XLSX,TIF
+
+                var xrefDocTypeToCss = new Array();
+
+                xrefDocTypeToCss["doc"] = "doc-document";
+                xrefDocTypeToCss["docx"] = "doc-document";
+                xrefDocTypeToCss["xls"] = "doc-spreadsheet";
+                xrefDocTypeToCss["xlsx"] = "doc-spreadsheet";
+                xrefDocTypeToCss["tif"] = "doc-image";
+                xrefDocTypeToCss["tiff"] = "doc-image";
+
+                var uploadedDocSpriteCss = xrefDocTypeToCss[fileExt];
+
+                // if found, we have a supported file type
+                if (uploadedDocSpriteCss != null) {
+                    
+                    // link to PDF file
+                    var originalFileELink = "onClickReviewViewImage(\"" + (data.DocumentElink) + "\");";
+                    html = "<a title='Double click to view revision " + data.RevisionId + "' onclick='" + originalFileELink + "'><span class='k-sprite " +
+                        uploadedDocSpriteCss + "' style='cursor:pointer;'></span></a>";
+
+                    // if the PDF version has been published, show the links
+                    if (data.PublishedDocumentElink != null) {
+
+                        // link to published PDF file   
+                        var publishedDocumentELink = "onClickReviewViewImage(\"" + data.PublishedDocumentElink + "\");";
+
+                        // append link to published document
+                        html += "<span style='padding-left:20px;'>&nbsp</span><a title='Double click to view revision " + data.RevisionId + "' onclick='"
+                                + publishedDocumentELink + "'><span class='k-sprite doc-pdf' style='cursor:pointer;'></span></a>";
+
+                    }
+
+                }
+
+            }
+
+            return html;
+
+        };
+
         var deleteDocument = function () {
 
             var settings = {
