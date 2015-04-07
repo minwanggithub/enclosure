@@ -51,8 +51,11 @@
                 removeArgs = parentArgsCallback();
 
             removeArgs = removeArgs || {};
-            removeArgs['fileNames'] = uploadStake.map(function (value) {
-                return value.filename;
+            removeArgs['files'] = uploadStake.map(function (value) {
+                return {
+                    FileName: value.filename,
+                    PhysicalPath: value.physicalPath
+                };
             });
 
             $.post('../Document/RemoveAttachmentAlt', removeArgs, closeFileUploadModal);
@@ -181,7 +184,7 @@
 
             var lowerCaseFile = e.response[0].FileName.toLowerCase();
             if (e.operation == 'upload') {
-                uploadStake.splice(0, 0, { filename: lowerCaseFile, elink: e.response[0].DocumentElink });
+                uploadStake.splice(0, 0, { filename: lowerCaseFile, elink: e.response[0].DocumentElink, physicalPath: e.response[0].PhysicalPath });
             } else {
                 uploadStake = $.grep(uploadStake, function (value) {
                     return value.filename != lowerCaseFile;

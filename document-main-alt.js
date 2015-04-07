@@ -16,7 +16,8 @@
                 RemoveDocumentContainerComponent: "RemoveDocumentContainerComponent",
                 RemoveRevisionAttachment: "RemoveAttachmentAlt",
                 SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
-                SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments"
+                SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments",
+                UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -45,6 +46,8 @@
                 DocumentDeleteContainerComponent: ".document-container-delete",
                 DocumentDetailsCancel: "[id^=btnDocumentCancel_]",
                 DocumentDetailsSave: "[id^=btnDocumentSave_]",
+                DocumentNewDocumentCancel: "#btnNewDocumentCancel",
+                DocumentNewDocumentSave: "#btnNewDocumentSave",
                 DocumentRevisionAddMultipleNameNumbers: ".rev-multinamenum-add",
                 DocumentRevisionAddNewRevision: "[id^=btnAddDocumentRevision_]",
                 DocumentRevisionDetailsAddAttachment: "[id^=addNewFilesBtn_]",
@@ -87,7 +90,8 @@
                 DocumentRevisionDetails: "[id^=pnlRevisionDetail_]",
                 DocumentRevisionMultipleNameNumbers: "#mdlMultipleNames",
                 DocumentStatusHistory: "#StatusNotesText_",
-                NewDocument: "#pnlNewDocument"
+                NewDocument: "#pnlNewDocument",
+                NewDocumentForm: "#frmNewDocument"
             },
             datepickers: {
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
@@ -168,17 +172,22 @@
                 DocumentRevisionKitAttachments: "A kit can only have on cover sheet, please move the existing on first.",
                 DocumentRevisionMultipleNameNumbers: "An error occurred saving the revision's name number values.",
                 DocumentRevisionMultipleNameNumbersRequiredInformation: "Alias Type and Aliases are required.",
-                RevisionDateFuture: "Invalid revision date, it can't be a future date.",
                 Error: "Error",
+                RevisionDateFuture: "Invalid revision date, it can't be a future date.",
                 SaveDocumentError: "Saving the document could not be completed. Please review your changes and try again.",
                 SaveDocumentContainerComponent: "Saving the document container component could not be complete. Please try again.",
                 SaveDocumentRevisionError: "Save the document revision could not be completed. Please review your changes and try again.",
-            },
+                SaveNewDocumentAttachmentError: "New documents cannot be created without an attachment. Add an attachment and please try again.",
+                SaveNewDocumentError: "Save the new document could not be completed. Please review you changes and try again.",
+                SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again."
+    },
             modals: {
                 DocumentDeleteContainerComponentHeader: "Delete Container Component Confirmation",
                 DocumentDeleteContainerComponentMessage: "Are you sure you want to delete this container component?",
                 DocumentDiscardChangesHeader: "Discard Document Changes",
                 DocumentDiscardChangesMessage: "You are going to discard your document changes. Are you sure you would like to continue?",
+                DocumentNewDocumentDiscardChangesHeader: "Discard New Document Changes",
+                DocumentNewDocumentDiscardChangesMessage: "You are going to discard your document changes. Are you sure you would like to continue?",
                 DocumentRevisionDeleteAttachmentHeader: "Delete Attachment Confirmation",
                 DocumentRevisionDeleteAttachmentMessage: "Are you sure you want to delete this file?",
                 DocumentRevisionDiscardChangesHeader: "Discard Revision Changes",
@@ -189,13 +198,16 @@
                 DocumentRevisionMultipleNameNumbersSaved: "Items Saved Successful",
                 DocumentRevisionSaved: "Revision Saved",
                 DocumentSaved: "Document Saved",
+            },
+            warnings: {
+                DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document."
             }
         };
 
         var keyCodeValues = {
             Enter: 13,
             V: 86
-        }
+        };
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
@@ -227,16 +239,14 @@
             }
         }
 
-        function clearContainerDirtyFlags(container, changeLayoutFunc) {
+        function clearContainerDirtyFlags(container, setValueFunc, changeLayoutFunc) {
             if (container) {
+                
                 container.find('input[data-is-dirty=true]').each(function () {
-                    var element = this;
-                    if (element.getAttribute('type') == 'checkbox' || element.getAttribute('type') == 'radio')
-                        element.defaultChecked = element.checked;
-                    else
-                        element.defaultValue = element.value;
+                    var field = this;
+                    if (setValueFunc) setValueFunc(field);
 
-                    element.removeAttribute('data-is-dirty');
+                    field.removeAttribute('data-is-dirty');
                 });
 
                 if (changeLayoutFunc) changeLayoutFunc(container);
@@ -313,7 +323,16 @@
         function onInputFieldChange(e) {
             var element = $(e.currentTarget);
             var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
-            var currentValue = element.is(':checkbox, :radio') ? element[0].checked : element.val();
+
+            var currentValue = null;
+            if (element.is(':checkbox, :radio')) {
+                currentValue = element[0].checked;
+            } else if (element.data('kendoDropDownList')) {
+                var ddl = element.data('kendoDropDownList');
+                currentValue = ddl.value() && ddl.value().length > 0 ? ddl.value() : "0";
+            } else
+                currentValue = element.val();
+
             if (defaultValue != currentValue)
                 element.attr('data-is-dirty', true);
             else
@@ -336,6 +355,45 @@
             }
 
             return errorMessage;
+        }
+
+        function revertContainerFieldValues(container, changeLayoutFunc) {
+            clearContainerDirtyFlags(container, revertFieldValue, changeLayoutFunc);
+        }
+        
+        function revertFieldValue(field) {
+            if (field.getAttribute('type') == 'checkbox') 
+                field.checked = field.defaultChecked;
+            else if (field.getAttribute('type') == 'radio') {
+                $(field).parents('form').find('input[name="' + field.getAttribute('name') + '"]').each(function (index, data) {
+                    data.checked = data.defaultChecked;
+                });
+
+            } else if (field.getAttribute('data-role') == 'dropdownlist') {
+                var ddl = $(field).data('kendoDropDownList');
+                if (ddl) {
+                    
+                    var fieldDefault = field.defaultValue.length == 0 ? "0" : field.defaultValue;
+                    ddl.select(function (dataItem) {
+                        var dvalue = dataItem.Value.length == 0 ? "0" : dataItem.Value;
+                        return dvalue == fieldDefault;
+                    });
+
+                    ddl.trigger("change");
+                }
+            } else 
+                field.value = field.defaultValue;
+        }
+
+        function setContainerFieldDefaultValues(container, changeLayoutFunc) {
+            clearContainerDirtyFlags(container, setFieldDefaultValue, changeLayoutFunc);
+        }
+        
+        function setFieldDefaultValue(field) {
+            if (field.getAttribute('type') == 'checkbox' || field.getAttribute('type') == 'radio')
+                field.defaultChecked = field.checked;
+            else
+                field.defaultValue = field.value;
         }
 
         /******************************** Search Methods ********************************/
@@ -391,10 +449,8 @@
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
 
-            displayError('Development in progress');
-
-            //var container = $(documentElementSelectors.containers.NewDocument);
-            //if (container.length > 0) container.show(500);
+            var container = $(documentElementSelectors.containers.NewDocument);
+            if (container.length > 0) container.show(500);
         }
 
         function onDocumentSearchClearBtnClick(e) {
@@ -503,12 +559,177 @@
         };
 
         /******************************** New Document Methods ********************************/
-        function onNewDocumentCancelBtnClick(e) {
+        var onNewDocumentPanelActivate = function (e) {
+            $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentCancelBtnClick);
+            $(documentElementSelectors.buttons.DocumentNewDocumentSave).on("click", onDisabledButtonClick);
 
+            $(documentElementSelectors.containers.NewDocument).on('change', 'input', onNewDocumentFieldChange);
+            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onNewDocumentAddAttachmentBtnClick);
+            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
+        };
+
+        function checkNewDocumentDirtyStatus() {
+            var container = $(documentElementSelectors.containers.NewDocument);
+            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentNewDocumentSave, documentElementSelectors.buttons.DocumentNewDocumentCancel, onNewDocumentSaveBtnClick);
+        }
+
+        function getNewDocumentData() {
+            var container = $(documentElementSelectors.containers.NewDocument);
+            if (container.length > 0) {
+                var result = {
+                    BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
+                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val(),
+                    DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
+                    DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
+                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsDocumentType).val(),
+                    DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
+                    IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
+                    IsGoodImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).is(":checked"),
+                    IsMsdsNotRequired: container.find(documentElementSelectors.checkboxes.DocumentDetailsIsMsdsNotRequired).is(":checked"),
+                    IsObsolete: container.find(documentElementSelectors.checkboxes.DocumentDetailsIsObsolete).is(":checked"),
+                    IsPublic: container.find(documentElementSelectors.checkboxes.DocumentDetailsIsPublic).is(":checked"),
+                    LanguageId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsLanguage).val(),
+                    ManufacturerId: null,
+                    RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
+                    RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
+                    SupplierId: null,
+                    VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+                };
+                
+                if (extractCompanyIdFromTemplate) {
+                    result.ManufacturerId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val());
+                    result.SupplierId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val());
+                }
+                
+                return result;
+            }
+
+            return null;
+        }
+
+        function hideNewDocumentPanel() {
+            var container = $(documentElementSelectors.containers.NewDocument);
+            if (container.length > 0) container.hide(500);
+        }
+
+        function saveNewDocumentRevisionToDatabase() {
+
+            var form = $(documentElementSelectors.containers.NewDocumentForm);
+            var formData = {
+                model: getNewDocumentData(),
+                attachments: getDocumentRevisionAttachments(form)
+            };
+
+            if (formData.model) {
+
+                if (formData.attachments.length == 0) {
+                    displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
+                    return false;
+                }
+
+                var url = form.attr('action');
+
+                $.ajax({
+                    url: url,
+                    data: formData,
+                    type: "POST",
+                    success: function(data) {
+                        var errorMessage = parseErrorMessage(data);
+                        if (!errorMessage) {
+                            displayCreatedMessage(documentMessages.success.DocumentSaved);
+                            revertContainerFieldValues(form, checkNewDocumentDirtyStatus);
+                            clearDocumentRevisionAttachments(form);
+                            hideNewDocumentPanel();
+
+                        } else
+                            displayError(errorMessage);
+                    },
+                    error: function(data) {
+                        displayError(documentMessages.errors.SaveNewDocumentError);
+                    }
+                });
+
+            } else
+                displayError(documentMessages.errors.SaveNewDocumentError);
+        }
+
+        function onNewDocumentAddAttachmentBtnClick(e) {
+            e.preventDefault();
+
+            if (displayUploadModal) {
+                var documentId = 0;
+                var revisionId = 0;
+
+                displayUploadModal(function () {
+                    return { documentId: documentId, revisionId: revisionId };
+                }, function (data) {
+                    var container = $(documentElementSelectors.containers.NewDocument);
+                    var attachmentGrid = (container.length > 0) ? container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid') : null;
+                    if (attachmentGrid) {
+                        for (var i = 0; i < data.length; i++) {
+                            attachmentGrid.dataSource.add({
+                                DocumentInfoId: 0,
+                                DocumentId: documentId,
+                                RevisionId: revisionId,
+                                DocumentInfoDescription: '',
+                                DocumentElink: data[i].elink,
+                                FileName: data[i].filename,
+                                PhysicalPath: data[i].physicalPath
+                            });
+                        }
+                    }
+
+                }, false);
+                
+            } else
+                displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
+        }
+
+        function onNewDocumentCancelBtnClick(e) {
+            e.preventDefault();
+
+            var container = $(documentElementSelectors.containers.NewDocument);
+            if (isContainerFieldsDirty(container) == true) {
+
+                var settings = {
+                    message: documentMessages.modals.DocumentNewDocumentDiscardChangesMessage,
+                    header: documentMessages.modals.DocumentNewDocumentDiscardChangesHeader,
+                };
+
+                displayConfirmationModal(settings, function () {
+                    revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
+
+                    var formData = {
+                        files: getDocumentRevisionAttachments(container),
+                        documentId: 0,
+                        revisionId: 0
+                    };
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
+                        data: formData,
+                        beforeSend: function(data) {
+                            clearDocumentRevisionAttachments(container);
+                        }
+                    });
+
+                    hideNewDocumentPanel();
+                });
+
+            } else {
+                hideNewDocumentPanel();
+            }
+        }
+
+        function onNewDocumentFieldChange(e) {
+            onInputFieldChange(e);
+            checkNewDocumentDirtyStatus();
         }
 
         function onNewDocumentSaveBtnClick(e) {
-
+            saveNewDocumentRevisionToDatabase();
         }
 
         /******************************** Document Methods ********************************/
@@ -563,7 +784,7 @@
                     IsMsdsNotRequired: form.find(documentElementSelectors.checkboxes.DocumentDetailsIsMsdsNotRequired).is(":checked"),
                     IsObsolete: form.find(documentElementSelectors.checkboxes.DocumentDetailsIsObsolete).is(":checked"),
                     IsPublic: form.find(documentElementSelectors.checkboxes.DocumentDetailsIsPublic).is(":checked"),
-                    StateNotes: form.find(documentElementSelectors.hidden.DocumentDetailsStatusNotes).val(),
+                    StatusNotes: form.find(documentElementSelectors.hidden.DocumentDetailsStatusNotes).val(),
                 };
 
                 return result;
@@ -598,7 +819,7 @@
                         }
 
                         form.find(documentElementSelectors.hidden.DocumentDetailsStatusNotes).val('');
-                        clearContainerDirtyFlags(form, checkDocumentDetailsDirtyStatus);
+                        setContainerFieldDefaultValues(form, checkDocumentDetailsDirtyStatus);
 
                     } else
                         displayError(errorMessage);
@@ -686,8 +907,6 @@
                 container.on('click', documentElementSelectors.buttons.DocumentRevisionMultipleNameNumbersSave, onDocumentRevisionMultipleNameNumbersSaveBtnClick);
                 container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers, onDocumentRevisionMultipleNameNumbersKeyUp);
             }
-
-            // Add new document
         };
 
         /******************************** Revision Methods ********************************/
@@ -696,20 +915,42 @@
             changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
 
-        function setDocumentRevisionDetailsDefaultValues(container) {
+        function clearDocumentRevisionAttachments(container) {
+            if (container) {
+                var grid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+                if (grid && grid.dataSource) {
+                    grid.dataSource.data([]);
+                    grid.dataSource.filter([]);
+                }
+            }
+        }
 
-            if (container && container.length > 0) {
-                container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
-                container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsDocumentVersion).val('');
-                container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
-                container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val('');
-                container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).prop("checked", false);
-                container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).prop("checked", false);
-                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val('');
-                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val('');
-                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val('');
-                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val('');
-                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val('');
+        function getCompanyTextFieldSibling(buttonElement) {
+            if (buttonElement) {
+                var siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId;
+                if (buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerSearch) ||
+                    buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerView) ||
+                    buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer))
+                    siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId;
+
+                return siblingSelector;
+            }
+
+            return null;
+        }
+
+        function getDocumentRevisionAttachments(container) {
+            var grid = container && container.length > 0 ? container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid') : null;
+            if (grid && grid.dataSource) {
+
+                var items = [];
+                var gridData = grid.dataSource.data();
+                for (var i = 0; i < gridData.length; i++) {
+                    items.push({ DocumentId: gridData[i].DocumentId, RevisionId: gridData[i].RevisionId, PhysicalPath: gridData[i].PhysicalPath });
+
+                }
+
+                return items;
             }
         }
 
@@ -747,20 +988,6 @@
             return null;
         }
 
-        function getCompanyTextFieldSibling(buttonElement) {
-            if (buttonElement) {
-                var siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId;
-                if (buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerSearch) ||
-                    buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerView) ||
-                    buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer))
-                    siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId;
-
-                return siblingSelector;
-            }
-
-            return null;
-        }
-
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
             e.preventDefault();
 
@@ -784,7 +1011,8 @@
                                     RevisionId: revisionId,
                                     DocumentInfoDescription: '',
                                     DocumentElink: data[i].elink,
-                                    FileName: data[i].filename
+                                    FileName: data[i].filename,
+                                    PhysicalPath: data[i].physicalPath
                                 });
                             }
                         }
@@ -811,7 +1039,7 @@
                     };
 
                     displayConfirmationModal(settings, function () {
-                        clearContainerDirtyFlags(container, checkDocumentRevisionDirtyStatus);
+                        revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);
                         container.hide(500);
                     });
 
@@ -837,12 +1065,16 @@
                         type: "POST",
                         url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
                         data: {
-                            filenames: [dataItem.FileName],
+                            files: [{ FileName: dataItem.FileName, PhysicalPath: dataItem.PhysicalPath }],
                             documentId: dataItem.DocumentId,
-                            revisionId: dataItem.RevisionId
+                            revisionId: dataItem.RevisionId,
                         },
-                        success: function () {
-                            attachmentGrid.dataSource.remove(dataItem);
+                        success: function (data) {
+                            var errorMessage = parseErrorMessage(data);
+                            if (errorMessage)
+                                displayError(errorMessage);
+                            else
+                                attachmentGrid.dataSource.remove(dataItem);
                         },
                         error: function () {
                             displayError(documentMessages.errors.DocumentRevisionAttachmentDelete);
@@ -913,8 +1145,20 @@
                             if (errorMessage)
                                 displayError(errorMessage);
                             else {
+
+                                attachmentGrid.bind("dataBound", function attachmentWarning() {
+                                    debugger;
+                                    attachmentGrid.unbind("dataBound", attachmentWarning);
+                                    
+                                    var currentGrid = this;
+                                    if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
+                                        displayError(documentMessages.warnings.DocumentRevisionAttachments);
+                                    
+                                });
+
                                 attachmentGrid.dataSource.read();
                             }
+                                
                         }
                     });
                 });
@@ -1027,6 +1271,9 @@
 
                 var container = $(this).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
                 if (container.length > 0) {
+
+                    debugger;
+
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
                     var revisionId = extractReferenceId(this.getAttribute('id'));
 
@@ -1043,12 +1290,11 @@
                                 deferred.reject();
 
                             } else {
-
                                 $.ajax({
                                     type: "POST",
                                     url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentRevisionAttachments),
                                     data: {
-                                        filenames: data.map(function (item) { return item.filename; }),
+                                        files: data.map(function (item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; } ),
                                         documentId: documentId,
                                         revisionId: revisionId,
                                         isNewRevision: false
@@ -1116,10 +1362,20 @@
 
         function onDocumentRevisionSaveBtnClick(e) {
             e.preventDefault();
-
+            
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
-            var formData = getDocumentRevisionDetailsData(form);
-            if (formData) {
+            var formData = {
+                model: getDocumentRevisionDetailsData(form),
+                attachments: getDocumentRevisionAttachments(form)
+            };
+
+            if (formData.model) {
+            
+                if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
+                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
+                    return false;
+                }
+
                 var url = form.attr("action");
                 $.ajax({
                     url: url,
@@ -1129,15 +1385,14 @@
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
                             displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
-                            clearContainerDirtyFlags(form, checkDocumentRevisionDirtyStatus);
+                            setContainerFieldDefaultValues(form, checkDocumentRevisionDirtyStatus);
 
-                            if (formData.RevisionId == 0) {
+                            if (formData.model.RevisionId == 0) {
                                 form.parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails).hide(500);
                                 var revisionTab = form.parents(documentElementSelectors.containers.DocumentDetailsTab + ':first');
                                 if (revisionTab.length > 0) {
                                     var revisionGrid = revisionTab.find(documentElementSelectors.grids.DocumentRevision).data('kendoGrid');
                                     if (revisionGrid) {
-
                                         revisionGrid.dataSource.bind("change", function newRevisionRead() {
                                             revisionGrid.expandRow(revisionGrid.wrapper.find('tr.k-master-row:first'));
                                             revisionGrid.dataSource.unbind("change", newRevisionRead);
@@ -1146,11 +1401,7 @@
                                     }
                                 }
 
-                                var attachmentGrid = form.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
-                                if (attachmentGrid && attachmentGrid.dataSource) {
-                                    attachmentGrid.dataSource.data([]);
-                                    attachmentGrid.dataSource.filter([]);
-                                }
+                                clearDocumentRevisionAttachments(form);
                                 
                             } else {
                                 var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentRevisionLastUpdatePopOver);
@@ -1183,13 +1434,31 @@
                 cache: false,
                 success: function (data) {
                     if (data != '') {
-                        buttonElement.siblings(siblingField + ":first").val(data);
+                        var supplierField = buttonElement.siblings(siblingField + ":first");
+                        supplierField.val(data).trigger('change');
                     }
                 },
                 error: function (xhr, textStatus, error) {
                     displayError(error);
                 }
             });
+        }
+
+        function setDocumentRevisionDetailsDefaultValues(container) {
+
+            if (container && container.length > 0) {
+                container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
+                container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsDocumentVersion).val('');
+                container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
+                container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val('');
+                container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).prop("checked", false);
+                container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).prop("checked", false);
+                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val('');
+                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val('');
+                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val('');
+                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val('');
+                container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val('');
+            }
         }
 
         var onDocumentRevisionAttachmentSave = function (e) {
@@ -1201,10 +1470,11 @@
                     DocumentInfoDescription: e.model.DocumentInfoDescription,
                     DocumentInfoId: e.model.DocumentInfoId,
                     FileName: e.model.FileName,
+                    PhysicalPath: e.model.PhysicalPath,
                     RevisionId: e.model.RevisionId,
                 };
 
-                var url = "../Document/UpdateDocumentInfoDescriptionAlt";
+                var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription);
                 $.ajax({
                     type: "POST",
                     url: url,
@@ -1275,8 +1545,10 @@
                 var parentContainer = $(e.sender.element).parents("form");
                 if (parentContainer.length > 0) {
                     var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
-                    if (kDatePicker)
+                    if (kDatePicker) {
                         kDatePicker.value(sDateEntered);
+                        kDatePicker.element.trigger("change");
+                    }
                 }
             }
         };
@@ -1514,6 +1786,7 @@
         };
 
         var onDocumentStatusHistoryDataBound = function (e) {
+            debugger;
             var documentId = extractReferenceId(this.element.attr('id'));
             displayDocumentStatusNote(documentId, '');
         };
@@ -1540,6 +1813,7 @@
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
+            onNewDocumentPanelActivate: onNewDocumentPanelActivate,
         };
     };
 
