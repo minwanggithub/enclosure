@@ -32,6 +32,7 @@
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings"
+
         };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
