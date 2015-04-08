@@ -8,11 +8,13 @@
         /******************************** Enclosure Variables ********************************/
         var documentAjaxSettings = {
             actions: {
+                AddNewDocument: "AddNewDocument",
                 CreateMultipleNameNumbers: "NamesNumbers_Multiple_Create",
                 DeleteDocumentFile: "DeleteDocumentFile",
                 GetStatusAction: "GetStatusAction",
                 LoadUnknownManufacturer: "LoadUnknownManufacturer",
                 LookUpSupplierOnKeyEnter: "LookUpSupplierOnKeyEnter",
+                OpenWindowVariable: "OpenWindowVariable",
                 RemoveDocumentContainerComponent: "RemoveDocumentContainerComponent",
                 RemoveRevisionAttachment: "RemoveAttachmentAlt",
                 SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
@@ -24,8 +26,12 @@
             },
             controllers: {
                 Company: "Company",
-                Document: "Document"
+                Document: "Document",
+                Home: "Home"
             },
+            directory: {
+                Operations: "Operations"
+            }
         };
 
         var documentElements = {
@@ -91,7 +97,8 @@
                 DocumentRevisionMultipleNameNumbers: "#mdlMultipleNames",
                 DocumentStatusHistory: "#StatusNotesText_",
                 NewDocument: "#pnlNewDocument",
-                NewDocumentForm: "#frmNewDocument"
+                NewDocumentForm: "#frmNewDocument",
+                NewDocumentPopUp: ".add-new-document-popup"
             },
             datepickers: {
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
@@ -160,6 +167,7 @@
 
         var documentMessages = {
             errors: {
+                AddNewDocumentPopup: "An error occured displaying the add new document screen. Please container you adminstrator.",
                 CompanyViewError: "An error occurred displaying the selected company. Please review you selection and try again.",
                 ConfirmationDateFuture: "Invalid confirmation date, it can't be a future date.",
                 ConfirmationDateGreaterThanRevisionDate: "Invalid confirmation date, it must be greater than or equal to revision date.",
@@ -462,7 +470,6 @@
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if (searchGrid && searchGrid.dataSource) {
                 searchGrid.dataSource.data([]);
-                searchGrid.dataSource.filter([]);
             }
         }
 
@@ -502,6 +509,46 @@
         };
 
         /******************************** Search Methods (Pop-Up) ********************************/
+        function displayAddNewDocumentPopUp() {
+            if (generateLocationUrl) {
+                var url = documentAjaxSettings.controllers.Home + '/' + documentAjaxSettings.actions.OpenWindowVariable;
+                var locationUrl = generateLocationUrl(url);
+                var data = { key: 'newDocOpened', value: true };
+                $.ajax({
+                    type: "POST",
+                    url: locationUrl,
+                    data: data,
+                    success: function () {
+
+                        var requestWindowHeight = 1024;
+                        var requestWindowWidth = 1280;
+
+                        var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
+                        requestUrl = generateLocationUrl(requestUrl);
+
+                        var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
+                        requestWindow.onload = function() {
+                            var doc = this.document;
+                            $(doc.body).find("#mainMenu").hide();
+                        }
+
+                        window.onbeforeunload = function(evt) {
+                            if (typeof evt == "undefined")
+                                evt = window.event;
+
+                            if (evt)
+                                requestWindow.close();
+                        }
+                    },
+                    error: function () {
+                        displayError(documentMessages.errors.AddNewDocumentPopUp);
+                    }
+                });
+
+            } else
+                displayError(documentMessages.errors.AddNewDocumentPopUp);
+        }
+
         function performDocumentSearchPopUp() {
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
@@ -510,8 +557,7 @@
         }
 
         function onDocumentSearchPopUpAddNewDocumentBtnClick(e) {
-            // TODO: Add way to add new document
-            displayError('Will be completed when add new document page is completed');
+            displayAddNewDocumentPopUp();
         }
 
         function onDocumentSearchPopUpClearBtnClick(e) {
@@ -523,7 +569,6 @@
             var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
             if (grid && grid.dataSource) {
                 grid.dataSource.data([]);
-                grid.dataSource.filter([]);
             }
         }
 
@@ -559,18 +604,50 @@
         };
 
         /******************************** New Document Methods ********************************/
-        var onNewDocumentPanelActivate = function (e) {
-            $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentCancelBtnClick);
-            $(documentElementSelectors.buttons.DocumentNewDocumentSave).on("click", onDisabledButtonClick);
+        function cancelNewDocumentForm(callbackFunc, clearFields, clearAttachments) {
+            
+            var container = $(documentElementSelectors.containers.NewDocument);
+            if (isContainerFieldsDirty(container) == true) {
 
-            $(documentElementSelectors.containers.NewDocument).on('change', 'input', onNewDocumentFieldChange);
-            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onNewDocumentAddAttachmentBtnClick);
-            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
-        };
+                var settings = {
+                    message: documentMessages.modals.DocumentNewDocumentDiscardChangesMessage,
+                    header: documentMessages.modals.DocumentNewDocumentDiscardChangesHeader,
+                };
+
+                displayConfirmationModal(settings, function () {
+
+                    if(clearFields == true)
+                        revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
+
+                    var formData = {
+                        files: getDocumentRevisionAttachments(container),
+                        documentId: 0,
+                        revisionId: 0
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
+                        data: formData,
+                        beforeSend: function (data) {
+                            if(clearAttachments == true)
+                                clearDocumentRevisionAttachments(container);
+                        }
+                    });
+
+                    if (callbackFunc) callbackFunc();
+                });
+
+            } else {
+                if (callbackFunc) callbackFunc();
+            }
+        }
 
         function checkNewDocumentDirtyStatus() {
             var container = $(documentElementSelectors.containers.NewDocument);
-            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentNewDocumentSave, documentElementSelectors.buttons.DocumentNewDocumentCancel, onNewDocumentSaveBtnClick);
+            var addNewDocumentPopUp = $(documentElementSelectors.containers.NewDocument).parents(documentElementSelectors.containers.NewDocumentPopUp);
+            var saveBtnFunc = (addNewDocumentPopUp.length > 0) ? onNewDocumentPopUpSaveBtnClick : onNewDocumentSaveBtnClick;
+            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentNewDocumentSave, documentElementSelectors.buttons.DocumentNewDocumentCancel, saveBtnFunc);
         }
 
         function getNewDocumentData() {
@@ -608,12 +685,16 @@
             return null;
         }
 
-        function hideNewDocumentPanel() {
+        function closeNewDocument() {
             var container = $(documentElementSelectors.containers.NewDocument);
             if (container.length > 0) container.hide(500);
         }
 
-        function saveNewDocumentRevisionToDatabase() {
+        function closeNewDocumentPopUp() {
+            this.window.close();
+        }
+
+        function saveNewDocumentRevisionToDatabase(callbackFunc, clearFields, clearAttachments) {
 
             var form = $(documentElementSelectors.containers.NewDocumentForm);
             var formData = {
@@ -637,10 +718,14 @@
                     success: function(data) {
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
-                            displayCreatedMessage(documentMessages.success.DocumentSaved);
-                            revertContainerFieldValues(form, checkNewDocumentDirtyStatus);
-                            clearDocumentRevisionAttachments(form);
-                            hideNewDocumentPanel();
+
+                            if (clearFields == true)
+                                revertContainerFieldValues(form, checkNewDocumentDirtyStatus);
+
+                            if (clearAttachments == true)
+                                clearDocumentRevisionAttachments(form);
+
+                            if (callbackFunc) callbackFunc(data.DocumentId);
 
                         } else
                             displayError(errorMessage);
@@ -652,6 +737,43 @@
 
             } else
                 displayError(documentMessages.errors.SaveNewDocumentError);
+        }
+
+        function saveNewDocument(documentId) {
+            displayCreatedMessage(documentMessages.success.DocumentSaved);
+
+            var container = $(documentElementSelectors.containers.DocumentSearch);
+            if (container.length > 0) {
+                clearDocumentSearchFields(container);
+                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+
+                var grid = $(documentElementSelectors.containers.DocumentMain).find(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
+                if (grid) {
+                    grid.bind("dataBound", function addNewDocumentDataBound() {
+                        var documentRow = grid.wrapper.find('tr.k-master-row:first');
+                        grid.select(documentRow);
+                        grid.expandRow(documentRow);
+                        grid.unbind("dataBound", addNewDocumentDataBound);
+                    });
+
+                    grid.dataSource.read();
+                }
+            }
+
+            closeNewDocument();
+        }
+
+        function saveNewDocumentPopUp(documentId) {
+            if (window.opener) {
+                var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                if (parentSearchWindow.length > 0) {
+                    clearDocumentSearchFields(parentSearchWindow);
+                    parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                    parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                }
+            }
+
+            closeNewDocumentPopUp();
         }
 
         function onNewDocumentAddAttachmentBtnClick(e) {
@@ -688,39 +810,7 @@
 
         function onNewDocumentCancelBtnClick(e) {
             e.preventDefault();
-
-            var container = $(documentElementSelectors.containers.NewDocument);
-            if (isContainerFieldsDirty(container) == true) {
-
-                var settings = {
-                    message: documentMessages.modals.DocumentNewDocumentDiscardChangesMessage,
-                    header: documentMessages.modals.DocumentNewDocumentDiscardChangesHeader,
-                };
-
-                displayConfirmationModal(settings, function () {
-                    revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
-
-                    var formData = {
-                        files: getDocumentRevisionAttachments(container),
-                        documentId: 0,
-                        revisionId: 0
-                    };
-                    
-                    $.ajax({
-                        type: 'POST',
-                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
-                        data: formData,
-                        beforeSend: function(data) {
-                            clearDocumentRevisionAttachments(container);
-                        }
-                    });
-
-                    hideNewDocumentPanel();
-                });
-
-            } else {
-                hideNewDocumentPanel();
-            }
+            cancelNewDocumentForm(closeNewDocument, true, true);
         }
 
         function onNewDocumentFieldChange(e) {
@@ -728,9 +818,38 @@
             checkNewDocumentDirtyStatus();
         }
 
-        function onNewDocumentSaveBtnClick(e) {
-            saveNewDocumentRevisionToDatabase();
+        function onNewDocumentPopUpCancelBtnClick(e) {
+            e.preventDefault();
+            cancelNewDocumentForm(closeNewDocumentPopUp);
         }
+
+        function onNewDocumentPopUpSaveBtnClick(e) {
+            e.preventDefault();
+            saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
+        }
+
+        function onNewDocumentSaveBtnClick(e) {
+            e.preventDefault();
+            saveNewDocumentRevisionToDatabase(saveNewDocument, true, true);
+        }
+
+        var onNewDocumentPanelActivate = function (e) {
+
+            $(documentElementSelectors.buttons.DocumentNewDocumentSave).on("click", onDisabledButtonClick);
+
+            $(documentElementSelectors.containers.NewDocument).on('change', 'input', onNewDocumentFieldChange);
+            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onNewDocumentAddAttachmentBtnClick);
+            $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
+
+            // If we are within the popup window display the panel
+            var addNewDocumentPopUp = $(documentElementSelectors.containers.NewDocument).parents(documentElementSelectors.containers.NewDocumentPopUp);
+            if (addNewDocumentPopUp.length > 0) {
+                $(documentElementSelectors.containers.NewDocument).show(500);
+                $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentPopUpCancelBtnClick);
+            } else {
+                $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentCancelBtnClick);
+            }
+        };
 
         /******************************** Document Methods ********************************/
         function checkDocumentDetailsDirtyStatus(container) {
@@ -920,7 +1039,6 @@
                 var grid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
                 if (grid && grid.dataSource) {
                     grid.dataSource.data([]);
-                    grid.dataSource.filter([]);
                 }
             }
         }
@@ -1147,7 +1265,6 @@
                             else {
 
                                 attachmentGrid.bind("dataBound", function attachmentWarning() {
-                                    debugger;
                                     attachmentGrid.unbind("dataBound", attachmentWarning);
                                     
                                     var currentGrid = this;
@@ -1271,9 +1388,6 @@
 
                 var container = $(this).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
                 if (container.length > 0) {
-
-                    debugger;
-
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
                     var revisionId = extractReferenceId(this.getAttribute('id'));
 
@@ -1786,7 +1900,6 @@
         };
 
         var onDocumentStatusHistoryDataBound = function (e) {
-            debugger;
             var documentId = extractReferenceId(this.element.attr('id'));
             displayDocumentStatusNote(documentId, '');
         };
