@@ -360,7 +360,7 @@
                     $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
                 });
             } else
-                $(this).displayError(errorMessages.SelectFilter);
+                $(this).displayError(messages.errorMessages.SelectFilter);
          });
 
         //Save Request to be Resolved
