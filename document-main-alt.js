@@ -110,6 +110,7 @@
                 DocumentDetailsContainerType: "[id^=ContainerTypeId_]",
                 DocumentDetailsDocumentType: "[id^=DocumentTypeId_]",
                 DocumentDetailsLanguage: "[id^=DocumentLanguageId_]",
+                DocumentDetailsJurisdiction: "[id^=DocumentJurisdictionId_]",
                 DocumentDetailsStatus: "[id^=DocumentStatusId_]",
                 DocumentRevisionDetailsDocumentSource: "[id^=DocumentSourceId_]",
                 DocumentRevisionMultipleNameNumbersType: "#selNameType",
@@ -656,6 +657,7 @@
                 var result = {
                     BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
                     ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val(),
+                    JurisdictionId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsJurisdiction).val(),
                     DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
                     DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
                     DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentDetailsDocumentType).val(),
@@ -898,6 +900,7 @@
                     ContainerTypeId: form.find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val(),
                     DocumentId: form.find(documentElementSelectors.textboxes.DocumentDetailsDocumentId).val(),
                     DocumentLanguageId: form.find(documentElementSelectors.dropdownlists.DocumentDetailsLanguage).val(),
+                    DocumentJurisdictionId: form.find(documentElementSelectors.dropdownlists.DocumentDetailsJurisdiction).val(),
                     DocumentStatusId: form.find(documentElementSelectors.dropdownlists.DocumentDetailsStatus).val(),
                     DocumentTypeId: form.find(documentElementSelectors.dropdownlists.DocumentDetailsDocumentType).val(),
                     IsMsdsNotRequired: form.find(documentElementSelectors.checkboxes.DocumentDetailsIsMsdsNotRequired).is(":checked"),
@@ -979,7 +982,7 @@
 
         function onDocumentDetailsSaveBtnClick(e) {
             e.preventDefault();
-
+            
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var form = $(documentElementSelectors.containers.DocumentDetailsFormExact + documentId);
             if (form.length > 0) {
