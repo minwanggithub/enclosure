@@ -478,11 +478,11 @@
                 ddlRegion.value("");
         };
 
-        var OnChangeRegion = function (e) {
-            var ddlCountry = $("#ddlDocumentCountry").data("kendoDropDownList");
-            if (e.item.index() != "0")
-                ddlCountry.value("");
-        };
+        //var OnChangeRegion = function (e) {
+        //    var ddlCountry = $("#ddlDocumentCountry").data("kendoDropDownList");
+        //    if (e.item.index() != "0")
+        //        ddlCountry.value("");
+        //};
 
         var gdGdWebSiteChange = function () {
             var grid = $("#gdWebSite").data("kendoGrid");
@@ -1679,7 +1679,7 @@
                     ParentSupplier: $("#txtSearchSupplierId").val(),
                     SelectedDocTypeID: $("#ddlDocumentType").val(),
                     SelectedLanguageID: $("#ddlDocumentLanguage").val(),
-                    SelectedCountrieID: $("#ddlDocumentCountry").val(),
+                    //SelectedCountrieID: $("#ddlDocumentCountry").val(),
                     SelectedRegionID: $("#ddlDocumentRegion").val(),
                     DoNotObtain: $("#ObtainmentSettingDoNotObtain").is(':checked'),
                     DoNotObtainID: $("#ddlDoNotObtainNotes").val(),
@@ -2078,7 +2078,6 @@
 
             onGetObtainmentSettingId: onGetObtainmentSettingId,
             OnChangeCountry: OnChangeCountry,
-            OnChangeRegion: OnChangeRegion,
 
             gdGdWebSiteChange: gdGdWebSiteChange,
             gdGdDomainChange: gdGdDomainChange,
