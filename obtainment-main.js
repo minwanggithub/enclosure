@@ -25,6 +25,8 @@
                     PrefLangDropDownList: "#ddlDocumentLanguage",
                     DocumentTypeDropDownList: "#ddlDocumentType",
                     LockTypeDropDownList: "#ddlLockType",
+                    OSAssignedToId: "#ddlAssignedToId"
+
                 }
             }
         }
@@ -101,14 +103,20 @@
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
             var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
+            var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
 
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
+            obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
 
-            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID + obtainmentWorkLoadSearchResultModel.DocumentLanguageId + obtainmentWorkLoadSearchResultModel.DocumentTypeId + obtainmentWorkLoadSearchResultModel.LockTypeId;
+            obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
+                + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
+                + obtainmentWorkLoadSearchResultModel.DocumentTypeId
+                + obtainmentWorkLoadSearchResultModel.LockTypeId
+                + obtainmentWorkLoadSearchResultModel.AssignedToId;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
