@@ -78,8 +78,8 @@
                 DocumentDetailsIsObsolete: "[id^=IsObsolete_]",
                 DocumentDetailsIsPublic: "[id^=IsPublic_]",
                 DocumentRevisionDetailsBestImageAvailable: "[id^=BestImageAvailable_]",
-                DocumentSearchIncludeDeleted: "#chkIncludeDeletedDocument",
-                DocumentSearchLatestRevision: "#chkLatestRevision",
+                DocumentSearchIncludeDeleted: "[id^=chkIncludeDeletedDocument]",
+                DocumentSearchLatestRevision: "[id^=chkLatestRevision]",
             },
             containers: {
                 CreatedMessage: "#CreatedMessage",
@@ -113,13 +113,13 @@
                 DocumentDetailsStatus: "[id^=DocumentStatusId_]",
                 DocumentRevisionDetailsDocumentSource: "[id^=DocumentSourceId_]",
                 DocumentRevisionMultipleNameNumbersType: "#selNameType",
-                DocumentSearchContainerType: "#ddlDocumentContainer",
-                DocumentSearchDocumentType: "#ddlDocumentType",
+                DocumentSearchContainerType: "[id^=ddlDocumentContainer]",
+                DocumentSearchDocumentType: "[id^=ddlDocumentType]",
                 DocumentSearchDropDownLists: "[data-role=dropdownlist]",
-                DocumentSearchLanguage: "#ddlDocumentLanguage",
-                DocumentSearchPhysicalState: "#ddlDocumentPhysicalState",
-                DocumentSearchRegion: "#ddlDocumentRegion",
-                DocumentSearchStatus: "#DocumentStatusId"
+                DocumentSearchLanguage: "[id^=ddlDocumentLanguage]",
+                DocumentSearchPhysicalState: "[id^=ddlDocumentPhysicalState]",
+                DocumentSearchRegion: "[id^=ddlDocumentRegion]",
+                DocumentSearchStatus: "[id^=DocumentStatusId]"
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
@@ -157,11 +157,11 @@
                 DocumentRevisionDetailsRevisionTitle: "[id^=RevisionTitle_]",
                 DocumentRevisionDetailsSupplierId: "[id^=txtSupplierId_]",
                 DocumentRevisionMultipleNameNumbers: "#txtNamesNumbers",
-                DocumentSearchDocumentId: "#txtSearchDocumentId",
-                DocumentSearchPartNumber: "#txtSearchPartNumber",
-                DocumentSearchRevisionTitle: "#txtRevisionTitle",
-                DocumentSearchSupplierId: "#txtSearchSupplierId",
-                DocumentSearchUPC: "#txtSearchUPC",
+                DocumentSearchDocumentId: "[id^=txtSearchDocumentId]",
+                DocumentSearchPartNumber: "[id^=txtSearchPartNumber]",
+                DocumentSearchRevisionTitle: "[id^=txtRevisionTitle]",
+                DocumentSearchSupplierId: "[id^=txtSearchSupplierId]",
+                DocumentSearchUPC: "[id^=txtSearchUPC]",
             }
         };
 
@@ -1359,7 +1359,7 @@
                     var siblingSelector = getCompanyTextFieldSibling(buttonElement);
                     if (siblingSelector) {
                         var companyInfo = getCompanyTemplate ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
-                        buttonElement.siblings(siblingSelector + ":first").val(companyInfo);
+                        buttonElement.siblings(siblingSelector + ":first").val(companyInfo).trigger('change');
                     }
                 });
             }
