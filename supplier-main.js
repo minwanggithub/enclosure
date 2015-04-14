@@ -1701,7 +1701,8 @@
                     PauseNotificatioDate: $("#ObtainmentSettingPauseNotificationDP").val(),
                     PauseNotificationNote: $("#PauseNotificationNote").val(),
                     ObtainmentStartActionID: $("#ddlObtainmentStartAction").val(),
-                    RenewalStartActionID: $("#ddlRenewalStartAction").val()
+                    RenewalStartActionID: $("#ddlRenewalStartAction").val(),
+                    SpecialAssignedTo: $("#OSSpecialAssignment").val(),
                 };
 
 
