@@ -100,7 +100,7 @@
                 ReferenceId: $("#txtSearchDocumentId").val(),
                 DocumentTypeId: $("#ddlDocumentType").val(),
                 DocumentLanguageId: $("#ddlDocumentLanguage").val(),
-                DocumentRegionId: $("#ddlDocumentRegion").val(),
+                DocumentRegionId: $("#ddlDocumentJurisdiction").val(),                
                 PartNumber: $("#txtSearchPartNumber").val(),
                 UPC: $("#txtSearchUPC").val(),
                 SupplierId: parseInt($("#txtSearchSupplierId").val()),
