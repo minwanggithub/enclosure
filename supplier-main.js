@@ -1531,6 +1531,20 @@
                 GetCompany();
                 DisableControls(true, true);
             }
+
+            $("#OSSpecialAssignment").val("");
+            $("#OSSpecialAssignment").kendoAutoComplete({
+                minlength: 2, dataTextField: "Text", filter: "contains",
+                dataSource: new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: "../ObtainmentSettings/GetObtainmentGroupUser",
+                            type: "GET"
+                        }
+                    }
+                }),
+            });
+
         };
 
         var fnbtnAddContact = function (e) {
