@@ -1532,7 +1532,6 @@
                 DisableControls(true, true);
             }
 
-            $("#OSSpecialAssignment").val("");
             $("#OSSpecialAssignment").kendoAutoComplete({
                 minlength: 2, dataTextField: "Text", filter: "contains",
                 dataSource: new kendo.data.DataSource({

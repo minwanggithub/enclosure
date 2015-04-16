@@ -151,10 +151,14 @@
             $("[name='" + obtainmentObject.controls.checkSwitch.RequestLocked + "']").bootstrapSwitch();
         };
 
+        var onAssignedToChange = function (e) {
+        };
+
         return {
             loadRequests: loadRequests,
             loadSupplierNotes: loadSupplierNotes,
-            RenderSwitch: RenderSwitch
+            RenderSwitch: RenderSwitch,
+            onAssignedToChange: onAssignedToChange
         };
     };
 })(jQuery);
