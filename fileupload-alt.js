@@ -160,10 +160,11 @@
         var onFileUploadSelect = function (e) {
             var copiedArray = uploadStake.slice(0);
             $.each(e.files, function (index, value) {
+
                 if (value.extension.toLowerCase() != ".pdf") {
-                    e.preventDefault();
-                    displayError("Please upload only pdf files");
-                    return false;
+                //    e.preventDefault();
+                  //  displayError("Please upload only pdf files");
+                    //return false;
                 }
 
                 // Check if we already have a file uploaded with that given name
