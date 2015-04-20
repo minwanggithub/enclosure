@@ -1638,8 +1638,6 @@
                     custom: "Do Not Obtain Notes is required",
                     custom2: "Pause Notification Date is required",
                     custom3: "Pause Notification Date should be in the future",
-                    custom4: "Document Types is required",
-                    custom5: "Language is required"
                 },
                 rules: {
                     custom: function (input) {
@@ -1667,18 +1665,6 @@
                                 return false;
                             }
                         }
-                        return true;
-                    },
-                    custom4: function (input) {
-                        if (input.is("[name=ddlDocumentType]"))
-                            return input.val() !== "";
-
-                        return true;
-                    },
-                    custom5: function (input) {
-                        if (input.is("[name=ddlDocumentLanguage]"))
-                            return input.val() !== "";
-
                         return true;
                     }
                 }
