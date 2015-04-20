@@ -66,10 +66,12 @@
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLanguage = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
+            var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
 
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();            
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
+            obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0: drpNextStep.value();
 
             //if (drpGroups.value() != "") {
 
@@ -112,14 +114,14 @@
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();            
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
-            obtainmentWorkLoadSearchResultModel.NextStep = drpNextStep.value() == "" ? 0 : drpNextStep.value();
+            obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
                 + obtainmentWorkLoadSearchResultModel.LockTypeId
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
-                + obtainmentWorkLoadSearchResultModel.NextStep;
+                + obtainmentWorkLoadSearchResultModel.NextStepId;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
