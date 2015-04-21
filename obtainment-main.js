@@ -35,8 +35,9 @@
                     DocumentTypeDropDownList: "#ddlDocumentType",
                     LockTypeDropDownList: "#ddlLockType",
                     OSAssignedToId: "#ddlAssignedToId",
-                    NextSteps: "#ddlNextStep",
-                    Actions: "#ddlAction"
+                    NextStepDropDownList: "#ddlNextStep",
+                    ActionsDropDownList: "#ddlAction",
+                    NextStepsDropDownList: "#ddlNextSteps"
 
                 }
             }
@@ -115,7 +116,7 @@
         });
 
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
-            var ddlActions = $(obtainmentObject.controls.dropdownlists.Actions).data("kendoDropDownList");
+            var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -140,8 +141,8 @@
         //Save Request to be Resolved
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
             debugger;
-            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextSteps).data("kendoDropDownList");
-            var ddlActions = $(obtainmentObject.controls.dropdownlists.Actions).data("kendoDropDownList");
+            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList).data("kendoDropDownList");
+            var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
             var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate).data("kendoDatePicker");
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(actionModals.FollowUp).toggleModal();
@@ -171,7 +172,7 @@
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
             var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
             var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
-            var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextSteps).data("kendoDropDownList");
+            var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
 
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
