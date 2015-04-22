@@ -43,6 +43,7 @@
             }
         }
         var actionModals = { FollowUp: "#mdlFollowUp", ViewHistory: "#mdlViewHistory" };
+        var kendoWindows = { ViewHistory: "#supplierSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
@@ -227,44 +228,29 @@
        
         //Display Modal Pop Up for History of Requests
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
-           e.preventDefault();
-            $.ajax({
-                url: controllerCalls.ObtainmentWorkItemLoadHistory,
-                type: 'POST',
-                cache: false,
-                data: { obtainmentWorkID: this.id, supplierId:null },
-                success: function (result) {
-                    $("#dvRequestItemHistory").html(result);
-                    $(actionModals.ViewHistory).displayModal();
-                   
-                },
-                error:function() {
-                    $(this).displayError(messages.errorMessages.GeneralError);
-                }
-            });
-
-            });
-
-        $(actionModals.ViewHistory).on('shown.bs.modal', function() {
-            $(document).off('focusin.modal');
+            e.preventDefault();
+            ShowHistory(this.id,null);
+        });
+       
+        obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
+             e.preventDefault();
+             ShowHistory(null, this.id);
         });
 
-        obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
-            e.preventDefault();
+        function ShowHistory(obtainmentWorkId, supplierId) {
             $.ajax({
             url: controllerCalls.ObtainmentWorkItemLoadHistory,
-                type: 'POST',
-                cache: false,
-            data: { obtainmentWorkID: null, supplierId:this.id  },
-                success: function (result) {
+            type: 'POST',
+            cache: false,
+            data: { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId},
+            success: function (result) {
                     $("#dvRequestItemHistory").html(result);
-                    $(actionModals.ViewHistory).displayModal();
-            },
-            error: function() {
-                    $(this).displayError(messages.errorMessages.GeneralError);
-            }
-            });
-        });
+                    $(kendoWindows.ViewHistory).data("kendoWindow").center().open();
+                    $("div.k-widget.k-window").css("top", "20px");
+                    },
+            error: function() { $(this).displayError(messages.errorMessages.GeneralError);}
+           });
+        }
 
         function ShowActionModals(mdlObj) {
             $(mdlObj).displayModal();
