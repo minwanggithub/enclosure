@@ -47,7 +47,7 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveFollowUpRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
-            ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistory"
+            ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent"
 
         };
         var messages = {
@@ -218,7 +218,7 @@
                 url: controllerCalls.ObtainmentWorkItemLoadHistory,
                 type: 'POST',
                 cache: false,
-                data: { obtainmentWorkID: this.id },
+                data: { obtainmentWorkID: this.id, supplierId:null },
                 success: function (result) {
                     $("#dvRequestItemHistory").html(result);
                     $(actionModals.ViewHistory).displayModal();
@@ -230,6 +230,23 @@
 
         });
 
+        obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
+            debugger;
+            e.preventDefault();
+            $.ajax({
+            url: controllerCalls.ObtainmentWorkItemLoadHistory,
+                type: 'POST',
+                cache: false,
+            data: { obtainmentWorkID: null, supplierId:this.id  },
+                success: function (result) {
+                    $("#dvRequestItemHistory").html(result);
+                    $(actionModals.ViewHistory).displayModal();
+            },
+            error: function() {
+                    $(this).displayError(messages.errorMessages.GeneralError);
+            }
+            });
+        });
 
         function ShowActionModals(mdlObj) {
             $(mdlObj).displayModal();
