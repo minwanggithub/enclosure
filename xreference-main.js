@@ -562,19 +562,23 @@
                    error: function() {
                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                    },
-                   success: function(successData) {
-                       if(successData.success == true) {
-                            kendo.ui.progress(xreferenceDetailObj, false);
-                           var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
-                           grid.dataSource.read();
-                           if (modalId != null)
-                               $(modalId).hideModal();
-                       } else
-                           $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                   success: function (successData) {
+                       if (modalId != null)
+                           $(modalId).hideModal();
 
+                       if (successData.success == true) {
+                           $(this).savedSuccessFully(messages.successMessages.Saved);
+                       } else {
+                           if (successData.message)
+                               $(this).displayError(successData.message);
+                           else
+                               $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                       }
                    },
                    done:function() {
-                       $(this).savedSuccessFully(messages.successMessages.Saved);
+                       kendo.ui.progress(xreferenceDetailObj, false);
+                       var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+                       grid.dataSource.read();
                    }
                });
             }
