@@ -138,9 +138,8 @@
             $(actionModals.FollowUp).toggleModal();
         });
 
-        //Save Request to be Resolved
+        
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
-            debugger;
             var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList).data("kendoDropDownList");
             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
             var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate).data("kendoDatePicker");
@@ -210,6 +209,21 @@
             else
                 $(this).displayError(messages.errorMessages.SelectFilter);
         });
+
+        obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.ClearRequestSearchButton, function () {
+            var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
+            var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
+            var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
+            var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
+            var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
+            var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
+            drpTeams.select(0);
+            drpLang.select(0);
+            drpDocType.select(0);
+            drpLockType.select(0);
+            drpAssignedToType.select(0);
+            drpNextStep.select(0);
+       });
        
         //Display Modal Pop Up for History of Requests
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
@@ -222,16 +236,20 @@
                 success: function (result) {
                     $("#dvRequestItemHistory").html(result);
                     $(actionModals.ViewHistory).displayModal();
+                   
                 },
                 error:function() {
                     $(this).displayError(messages.errorMessages.GeneralError);
                 }
             });
 
+            });
+
+        $(actionModals.ViewHistory).on('shown.bs.modal', function() {
+            $(document).off('focusin.modal');
         });
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
-            debugger;
             e.preventDefault();
             $.ajax({
             url: controllerCalls.ObtainmentWorkItemLoadHistory,
