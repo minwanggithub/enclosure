@@ -574,13 +574,12 @@
                            else
                                $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                        }
-                   },
-                   done:function() {
-                       kendo.ui.progress(xreferenceDetailObj, false);
-                       var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
-                       grid.dataSource.read();
                    }
                });
+
+               kendo.ui.progress(xreferenceDetailObj, false);
+               var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+               grid.dataSource.read();
             }
         }
 
