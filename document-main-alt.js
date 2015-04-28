@@ -780,6 +780,10 @@
 
         function onNewDocumentAddAttachmentBtnClick(e) {
             e.preventDefault();
+            
+            if ($(e.currentTarget).hasClass('k-state-disabled')) {
+                return false;
+            }
 
             if (displayUploadModal) {
                 var documentId = 0;
@@ -811,6 +815,7 @@
         }
 
         function onNewDocumentCancelBtnClick(e) {
+            
             e.preventDefault();
             cancelNewDocumentForm(closeNewDocument, true, true);
         }
@@ -1110,7 +1115,11 @@
         }
 
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
-            e.preventDefault();
+            e.preventDefault();                      
+
+            if ($(e.currentTarget).hasClass('k-state-disabled')) {
+                return false;
+            }
 
             if (displayUploadModal) {
 
@@ -1149,7 +1158,7 @@
 
         function onDocumentNewRevisionDetailsCancelBtnClick(e) {
             e.preventDefault();
-
+           
             var container = $(e.currentTarget).parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails + ':first');
             if (container.length > 0) {
 
@@ -1171,7 +1180,7 @@
 
         function onDocumentNewRevisionDetailsDeleteAttachmentBtnClick(e) {
             e.preventDefault();
-
+          
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
                 header: documentMessages.modals.DocumentRevisionDeleteAttachmentHeader
@@ -1194,8 +1203,13 @@
                             var errorMessage = parseErrorMessage(data);
                             if (errorMessage)
                                 displayError(errorMessage);
-                            else
+                            else {
                                 attachmentGrid.dataSource.remove(dataItem);
+                                //only one attachment allowed for the Single container. After remove this file, should allow add file.                             
+                                if (dataItem.DocumentId == 0) {
+                                    $('#addNewFilesBtn_New').removeClass('k-state-disabled');
+                                }                              
+                            }
                         },
                         error: function () {
                             displayError(documentMessages.errors.DocumentRevisionAttachmentDelete);
@@ -1209,7 +1223,7 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-
+            
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
@@ -1246,14 +1260,16 @@
         }
 
         function onDocumentRevisionDetailsDeleteAttachmentBtnClick(e) {
-            e.preventDefault();
-
+            
+            e.preventDefault();            
+            
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
                 header: documentMessages.modals.DocumentRevisionDeleteAttachmentHeader
             };
+            var attachmentGridParent = $(this).parents(documentElementSelectors.grids.DocumentRevisionAttachments);
+            var attachmentGrid = attachmentGridParent.data('kendoGrid');
 
-            var attachmentGrid = $(this).parents(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
             var dataItem = attachmentGrid ? attachmentGrid.dataItem(attachmentGrid.select()) : null;
             if (dataItem) {
                 displayConfirmationModal(settings, function () {
@@ -1269,13 +1285,18 @@
 
                                 attachmentGrid.bind("dataBound", function attachmentWarning() {
                                     attachmentGrid.unbind("dataBound", attachmentWarning);
-                                    
+                                 
                                     var currentGrid = this;
                                     if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
+                                    {                                       
                                         displayError(documentMessages.warnings.DocumentRevisionAttachments);
-                                    
-                                });
+                                    }
+                                 
+                                    if (currentGrid.dataSource.data().length == 0) {
+                                        $('[id*=addNewFilesBtn]', attachmentGridParent).removeClass('k-state-disabled');
+                                    }
 
+                                });
                                 attachmentGrid.dataSource.read();
                             }
                                 
@@ -1385,7 +1406,12 @@
         }
 
         function onDocumentRevisionDetailsAddAttachmentBtnClick(e) {
+            
             e.preventDefault();
+           
+            if ($(e.currentTarget).hasClass('k-state-disabled')) {
+                return false;
+            }                       
 
             if (displayUploadModal) {
 
@@ -1432,6 +1458,8 @@
 
                                             displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsSaved);
                                             deferred.resolve();
+                                           
+                                            $(e.currentTarget).addClass('k-state-disabled');                                                                                    
                                         }
                                     }
                                 });
@@ -1579,7 +1607,7 @@
         }
 
         var onDocumentRevisionAttachmentSave = function (e) {
-
+            
             // When revision id is 0 the controller is not hit, we force this action to occur here
             if (e.model.RevisionId == 0) {
                 var attachment = {
@@ -1605,7 +1633,7 @@
                     }
                 });
             }
-        };
+        };       
 
         var onDocumentRevisionConfirmationDateChange = function (e) {
             if (this.value() == null || this.value().length <= 0)
@@ -1922,7 +1950,7 @@
             onDocumentNoteChange: onDocumentNoteChange,
             onDocumentNoteDataBound: onDocumentNoteDataBound,
             onDocumentNoteEdit: onDocumentNoteEdit,
-            onDocumentRevisionAttachmentSave: onDocumentRevisionAttachmentSave,
+            onDocumentRevisionAttachmentSave: onDocumentRevisionAttachmentSave,            
             onDocumentRevisionConfirmationDateChange: onDocumentRevisionConfirmationDateChange,
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,

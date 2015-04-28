@@ -33,19 +33,20 @@
 
         // ***************************************** UI Methods ******************************************************
         function closeFileUploadModal() {
+         
             parentCallback = null;
             uploadError = false;
             uploadStake = [];
 
             resetFileUploadLayout();
-
+           
             $('#fileUploadWindow').find('.k-reset li').remove();
             $('#fileUploadWindow').find('.k-upload-status').remove();
             $('#fileUploadWindow').data('kendoWindow').close();
         }
 
         function clearAttachmentSessionCache() {
-
+          
             var removeArgs = null;
             if (parentArgsCallback)
                 removeArgs = parentArgsCallback();
@@ -58,17 +59,25 @@
                 };
             });
 
-            $.post('../Document/RemoveAttachmentAlt', removeArgs, closeFileUploadModal);
+            $.post('../Document/RemoveAttachmentAlt', removeArgs, closeFileUploadModal);            
         }
 
         function clearConfirmFileUploadCache() {
+           
             if (clearAttachmentCacheOnConfirm == true)
                 clearAttachmentSessionCache();
             else
-                closeFileUploadModal();
+                closeFileUploadModal();                
+
+            $('[id*=addNewFilesBtn_]').each(function (index) {
+                 if ($(this).closest('div.k-grid').data('kendoGrid').dataSource.total() >= 1) {
+                     $(this).addClass('k-state-disabled');                     
+                 }                
+             });
         }
 
         function confirmFileUploadWindowClose() {
+            
             if (uploadStake.length > 0) {
                 var settings = { message: 'You have attachments ready to be linked to a revision. Are you sure you would like to cancel?', header: 'Confirm Attachment Upload Cancel' };
                 displayConfirmation(settings, clearAttachmentSessionCache);
@@ -85,6 +94,7 @@
         }
 
         function resetFileUploadLayout() {
+
             $("body").css("cursor", "default");
 
             $('#fileUploadWindow').find("input").toggleClass("file-upload-disable").removeAttr("disabled").end()
@@ -97,14 +107,16 @@
             confirmFileUploadWindowClose();
         }
 
-        function onAttachmentConfirmBtnClick(e) {
+        function  onAttachmentConfirmBtnClick(e) {
+
             e.preventDefault();
             disableFileUploadLayout();
 
             if (parentCallback) {
                 var promise = parentCallback(uploadStake);
-                if (promise && promise.done)
+                if (promise && promise.done) {
                     promise.done(clearConfirmFileUploadCache).always(resetFileUploadLayout);
+                }
                 else
                     clearConfirmFileUploadCache();
 
@@ -115,57 +127,62 @@
         }
 
         var displayFileUploadModal = function (uploadArgsFunc, callbackFunc, confirmClearAttachmentCache) {
-            clearAttachmentCacheOnConfirm = confirmClearAttachmentCache == false ? confirmClearAttachmentCache : true;
+            clearAttachmentCacheOnConfirm = confirmClearAttachmentCache == false ? confirmClearAttachmentCache: true;
             parentArgsCallback = uploadArgsFunc;
             parentCallback = callbackFunc;
 
             uploadError = false;
-            uploadStake = [];
+            uploadStake =[];
 
             if (KendoPopUpAjustExecute)
                 KendoPopUpAjustExecute($('#fileUploadWindow'));
             else {
                 $('#fileUploadWindow').data('kendoWindow').center();
                 $('#fileUploadWindow').data('kendoWindow').open();
-            }
+    }
         };
 
         var initializeAttachmentPopUp = function () {
+
             var window = $('#fileUploadWindow');
             window.on('click', '#uploadFilesConfirmSelect', onAttachmentConfirmBtnClick);
             window.on('click', '#uploadFilesCancelSelect', onAttachmentCancelBtnClick);
         };
 
         var onFileUploadWindowClose = function (e) {
+
             if (e.userTriggered == true) {
                 e.preventDefault();
                 confirmFileUploadWindowClose();
-            }
-        };
+    }
+    };
 
         // ***************************************** File Loading Methods ******************************************************
         var onFileUploadError = function (e) {
+          
             if (uploadError != true) {
                 uploadError = true;
                 displayError('An error occurred uploading the file(s) specified.');
-            }
+    }
         };
 
         var onFileUploadRemove = function (e) {
+           
             if (parentArgsCallback) {
                 e.data = parentArgsCallback(e);
-            }
+    }
         };
 
         var onFileUploadSelect = function (e) {
+
             var copiedArray = uploadStake.slice(0);
             $.each(e.files, function (index, value) {
 
                 if (value.extension.toLowerCase() != ".pdf") {
-                //    e.preventDefault();
-                  //  displayError("Please upload only pdf files");
+                    //    e.preventDefault();
+                    //  displayError("Please upload only pdf files");
                     //return false;
-                }
+            }
 
                 // Check if we already have a file uploaded with that given name
                 var lowerCaseName = value.name.toLowerCase();
@@ -173,41 +190,50 @@
                     e.preventDefault();
                     displayError("You are attempting to upload or have uploaded a file with the same file name. Please rename " + lowerCaseName + " to continue.");
                     return false;
-                }
+            }
 
                 copiedArray.splice(0, 0, lowerCaseName);
-            });
+    });
         };
 
         var onFileUploadSuccess = function (e) {
             //http://stackoverflow.com/questions/9614681/kendo-ui-file-upload-plugin-remove-button-customization
             //e.operation = remove or upload
-
+         
             var lowerCaseFile = e.response[0].FileName.toLowerCase();
             if (e.operation == 'upload') {
-                uploadStake.splice(0, 0, { filename: lowerCaseFile, elink: e.response[0].DocumentElink, physicalPath: e.response[0].PhysicalPath });
+                uploadStake.splice(0, 0, { filename: lowerCaseFile, elink: e.response[0].DocumentElink, physicalPath: e.response[0].PhysicalPath
+            });
             } else {
                 uploadStake = $.grep(uploadStake, function (value) {
                     return value.filename != lowerCaseFile;
-                });
-            }
+            });
+           }
+
+           if (uploadStake.length >= 1) {
+                $('#files').attr('disabled', 'disabled');
+           }
+           else {
+                $('#files').removeAttr("disabled");
+           }
         };
 
         var onFileUploadUpload = function (e) {
+       
             if (parentArgsCallback) {
                 e.data = parentArgsCallback(e);
-            }
+    }
         };
 
         return {
-            displayFileUploadModal: displayFileUploadModal,
-            initializeAttachmentPopUp: initializeAttachmentPopUp,
-            onFileUploadError: onFileUploadError,
-            onFileUploadRemove: onFileUploadRemove,
-            onFileUploadSelect: onFileUploadSelect,
-            onFileUploadSuccess: onFileUploadSuccess,
-            onFileUploadUpload: onFileUploadUpload,
-            onFileUploadWindowClose: onFileUploadWindowClose
+        displayFileUploadModal: displayFileUploadModal,
+        initializeAttachmentPopUp: initializeAttachmentPopUp,
+        onFileUploadError: onFileUploadError,
+        onFileUploadRemove: onFileUploadRemove,
+        onFileUploadSelect: onFileUploadSelect,
+        onFileUploadSuccess: onFileUploadSuccess,
+        onFileUploadUpload: onFileUploadUpload,
+        onFileUploadWindowClose: onFileUploadWindowClose
         };
     };
 
