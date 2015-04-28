@@ -42,7 +42,7 @@
                 }
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", ViewHistory: "#mdlViewHistory" };
+        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", ViewHistory: "#mdlViewHistory" };
         var kendoWindows = { ViewHistory: "#supplierSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
@@ -51,6 +51,8 @@
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent"
 
         };
+        var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
+        var obtainmentActions = { Empty: "",ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
@@ -121,21 +123,23 @@
         });
 
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
-            var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
+            ShowActionModals();
 
-            if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
-                $(this).displayError(messages.errorMessages.NoItemsSelected);
-                return;
-            }
+            //var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
-            if (ddlActions.value() == "") {
-                $(this).displayError(messages.errorMessages.NoActionSelected);
-                return;
-            }
+            //if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
+            //    $(this).displayError(messages.errorMessages.NoItemsSelected);
+            //    return;
+            //}
 
-            if (ddlActions.value() == "1050")
-                ShowActionModals(actionModals.FollowUp);
+            //if (ddlActions.value() == obtainmentActions.Empty) {
+            //    $(this).displayError(messages.errorMessages.NoActionSelected);
+            //    return;
+            //}
 
+            //if (ddlActions.value() == obtainmentActions.SetFollowUp)
+            //    ShowActionModals(actionModals.FollowUp);
+            //    SetNextStep(nextStepsValues.FirstPhoneCall);
 
         });
 
@@ -256,8 +260,55 @@
            });
         }
 
-        function ShowActionModals(mdlObj) {
-            $(mdlObj).displayModal();
+        function SetNextStep(nextStepValue) {
+            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList).data("kendoDropDownList");
+            ddlNextSteps.value(nextStepValue);
+            }
+
+        function ShowActionModals() {
+             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
+
+            if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+                return;
+                }
+
+            if (ddlActions.value() == obtainmentActions.Empty) {
+                $(this).displayError(messages.errorMessages.NoActionSelected);
+                return;
+            }
+
+            
+            switch (ddlActions.value()) {
+                case obtainmentActions.SetFollowUp:
+                    SetNextStep(nextStepsValues.FirstPhoneCall);
+                    $(actionModals.FollowUp).displayModal();
+                    break;
+                case obtainmentActions.LogPhoneCall:
+                    SetNextStep(nextStepsValues.FirstPhoneCall);
+                    $(actionModals.LogPhoneCall).displayModal();
+                    break;
+                case obtainmentActions.LogWebSearch:
+                    SetNextStep(nextStepsValues.WebSearch);
+                    //$(actionModals.FollowUp).displayModal();
+                    break;
+                case obtainmentActions.SendEmail:
+                    SetNextStep(nextStepsValues.FirstAutomatedEmail);
+                    //$(actionModals.FollowUp).displayModal();
+                    break;
+                case obtainmentActions.FlagDiscontinued:
+                    SetNextStep(nextStepsValues.Completed);
+                    //$(actionModals.FollowUp).displayModal();
+                    break;
+                case obtainmentActions.FlagNotRequired:
+                    SetNextStep(nextStepsValues.Completed);
+                    //$(actionModals.FollowUp).displayModal();
+                    break;
+                case obtainmentActions.ConfirmAsCurrent:
+                    SetNextStep(nextStepsValues.Completed);
+                    //$(actionModals.FollowUp).displayModal();
+                    break;
+            }
         }
 
         function DisableEnableButtons(enable) {
