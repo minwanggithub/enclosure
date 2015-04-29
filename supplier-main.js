@@ -1685,7 +1685,7 @@
                     PauseNotification: $("#ObtainmentSettingPauseNotification").is(':checked'),
                     PauseNotificatioDate: $("#ObtainmentSettingPauseNotificationDP").val(),
                     PauseNotificationNote: $("#PauseNotificationNote").val(),
-                    ObtainmentStartActionID: $("#ddlObtainmentStartAction").val(),
+                    ObtainmentStartStepLkpID: $("#ddlObtainmentStartAction").val(),
                     RenewalStartActionID: $("#ddlRenewalStartAction").val(),
                     SpecialAssignedTo: $("#OSSpecialAssignment").val(),
                 };
