@@ -199,23 +199,32 @@
         var onFileUploadSuccess = function (e) {
             //http://stackoverflow.com/questions/9614681/kendo-ui-file-upload-plugin-remove-button-customization
             //e.operation = remove or upload
-         
-            var lowerCaseFile = e.response[0].FileName.toLowerCase();
+          
+            var lowerCaseFile="";
+            if (e.response[0] == undefined && uploadStake != null) {
+                lowerCaseFile = uploadStake[0].filename;
+            }
+            else {
+                lowerCaseFile = e.response[0].FileName.toLowerCase();
+            }
+
             if (e.operation == 'upload') {
-                uploadStake.splice(0, 0, { filename: lowerCaseFile, elink: e.response[0].DocumentElink, physicalPath: e.response[0].PhysicalPath
-            });
+                uploadStake.splice(0, 0, {
+                        filename: lowerCaseFile, elink: e.response[0].DocumentElink, physicalPath: e.response[0].PhysicalPath
+                });
             } else {
                 uploadStake = $.grep(uploadStake, function (value) {
                     return value.filename != lowerCaseFile;
-            });
-           }
-
-           if (uploadStake.length >= 1) {
+                });
+            }
+       
+            if (uploadStake.length >= 1) {
                 $('#files').attr('disabled', 'disabled');
-           }
-           else {
+                }
+            else {
                 $('#files').removeAttr("disabled");
-           }
+                }
+
         };
 
         var onFileUploadUpload = function (e) {
