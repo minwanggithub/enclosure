@@ -40,7 +40,8 @@
                     OSAssignedToId: "#ddlAssignedToId",
                     NextStepDropDownList: "#ddlNextStep",
                     ActionsDropDownList: "#ddlAction",
-                    NextStepsDropDownList: "#ddlNextSteps"
+                    NextStepsDropDownList: "#ddlNextSteps",
+                    InternalNotes:"#ddlInternalNotes"
 
                 },
                 labels:{ContactName:"#lblContactName"},
@@ -97,7 +98,8 @@
         var obtainmentActionLogPhoneCallModel = {
             LiveCall: false,
             CompanyContactId: null,
-            CompanyContactPhoneId: null
+            CompanyContactPhoneId: null,
+            InternalNotesLkpId:null
         };
 
         var loadRequestsPlugin = function() {
@@ -433,6 +435,7 @@
                             obtainmentActionLogPhoneCallModel.LiveCall = $(obtainmentObject.controls.checkBox.LiveCall).val();
                             obtainmentActionLogPhoneCallModel.CompanyContactId = selectedPhoneItem.CompanyContactId;
                             obtainmentActionLogPhoneCallModel.CompanyContactPhoneId = selectedPhoneItem.CompanyContactPhoneId;
+                            obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val()!=""?$(obtainmentObject.controls.dropdownlists.InternalNotes).val():null;
                             obtainmentMultipleWorkItemActionModel.ObtianActionLogPhoneCallModel = obtainmentActionLogPhoneCallModel;
                         } else {
                             $(modalId).toggleModal();
