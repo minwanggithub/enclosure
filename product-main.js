@@ -299,9 +299,18 @@
                     
                     $('#txtProductSearch').val(data.ReferenceId);
                     $("#divNewProductDetail").html("");
-                    //$("#searchProductBtn").click();
-                    var searchObj = $('#gdSearchProduct');
-                    $("tr", searchObj).addClass('k-state-selected');
+
+                    var grid = $('#gdSearchProduct').data('kendoGrid');
+                    if (grid) {
+                        grid.bind("dataBound", function addNewProductDataBound() {
+                            var productRow = grid.wrapper.find('tr.k-master-row:first');
+                            grid.select(productRow);
+                            grid.expandRow(productRow);
+                            grid.unbind("dataBound", addNewProductDataBound);
+                        });
+
+                        grid.dataSource.read();
+                    }
 
                 } else {
                     $('#hdnStatusNotes_' +activeSaveButton).val('');
