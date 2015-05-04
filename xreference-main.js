@@ -73,7 +73,7 @@
             SearchXReferenceContent: GetEnvironmentLocation() + "/Operations/XReference/SearchXReferenceContent",
             SearchRequests: GetEnvironmentLocation() + "/Operations/XReference/SearchRequests",
             ResolveRequests: GetEnvironmentLocation() + "/Operations/XReference/ResolveRequests",
-            SaveObtainment: GetEnvironmentLocation() + "/Operations/XReference/SaveObtainment",
+            SaveObtainment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainment",
             SaveNotFound: GetEnvironmentLocation() + "/Operations/XReference/SaveNotFound",
             SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
             SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
@@ -396,7 +396,8 @@
          });
 
         //Save Request for Obtainment
-        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
+         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
+             
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0 || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "0" || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
                 $(actionModals.Obtainment).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
