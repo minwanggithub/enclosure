@@ -24,7 +24,9 @@
                     FollowUpSaveButton: "#btnSaveFollowUp",
                     FollowUpCancelButton: "#btnCancelFollowUp",
                     LogPhoneCallSaveButton: "#btnSavePhoneCall",
-                    LogPhoneCallCancelButton: "#btnCancelPhoneCall"
+                    LogPhoneCallCancelButton: "#btnCancelPhoneCall",
+                    SendEmailButton: "#btnSendEmail",
+                    SendEmailCancelButton: "#btnCancelSendEmail"
                 },
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
@@ -48,7 +50,7 @@
                 checkBox:{LiveCall:"#chkLiveCall"}
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", ViewHistory: "#mdlViewHistory" };
+        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", ViewHistory: "#mdlViewHistory" };
         var kendoWindows = { ViewHistory: "#supplierSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
@@ -133,20 +135,16 @@
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             
             DisableEnableButtons(false);
-            $.ajax({
-                url: controllerCalls.SaveSearchSettings,
-                type: 'POST',
-                cache: false,
-                data: { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
-                success: function (successData) {
+            
+            $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
+                function (successData) {
                     if (successData.success == true) {
                         DisableEnableButtons(true);
                         $(this).savedSuccessFully(messages.successMessages.Saved);
                     }
                 },
-                error: function (xhr, textStatus, error) {
+                function (error) {
                     $(this).displayError(error);
-                }
             });
         });
 
@@ -192,19 +190,14 @@
                 DisableEnableButtons(false);
 
                 kendo.ui.progress(obtainmentDetailObj, true);
-                $.ajax({
-                    url: controllerCalls.SearchRequests,
-                    type: 'POST',
-                    cache: false,
-                    data: { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
-                    success: function (data) {
+                $(this).ajaxCall(controllerCalls.SearchRequests, {searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
+                    function(data) {
                         obtainmentDetailObj.html(data);
                         DisableEnableButtons(true);
                     },
-                    error: function () {
+                    function() {
                         $(this).displayError(messages.errorMessages.GeneralError);
-                    }
-                });
+                    });
             }
             else
                 $(this).displayError(messages.errorMessages.SelectFilter);
@@ -221,6 +214,10 @@
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallCancelButton, function () {
             $(actionModals.LogPhoneCall).toggleModal();
         });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailCancelButton, function () {
+            $(actionModals.SendEmail).toggleModal();
+        });
         
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
@@ -228,6 +225,10 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailButton, function () {
+            SendEmail();
         });
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
@@ -240,19 +241,20 @@
              ShowHistory(null, this.id);
         });
 
+        function SendEmail() {
+            alert("sending email");
+        }
+
         function ShowHistory(obtainmentWorkId, supplierId) {
-            $.ajax({
-            url: controllerCalls.ObtainmentWorkItemLoadHistory,
-            type: 'POST',
-            cache: false,
-            data: { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId},
-            success: function (result) {
-                    $("#dvRequestItemHistory").html(result);
-                    $(kendoWindows.ViewHistory).data("kendoWindow").center().open();
-                    $("div.k-widget.k-window").css("top", "20px");
-                    },
-            error: function() { $(this).displayError(messages.errorMessages.GeneralError);}
-           });
+            $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId },
+               function (data) {
+                   $("#dvRequestItemHistory").html(data);
+                   $(kendoWindows.ViewHistory).data("kendoWindow").center().open();
+                   $("div.k-widget.k-window").css("top", "20px");
+               },
+               function () {
+                   $(this).displayError(messages.errorMessages.GeneralError);
+               });
         }
 
         function SetNextStep(nextStepValue, actionName) {
@@ -299,8 +301,8 @@
                     //$(actionModals.FollowUp).displayModal();
                     break;
                 case obtainmentActions.SendEmail:
-                    SetNextStep(nextStepsValues.FirstAutomatedEmail);
-                    //$(actionModals.FollowUp).displayModal();
+                    SetNextStep(nextStepsValues.FirstAutomatedEmail,"SendEmail");
+                    $(actionModals.SendEmail).displayModal();
                     break;
                 case obtainmentActions.FlagDiscontinued:
                     SetNextStep(nextStepsValues.Completed);
@@ -446,6 +448,24 @@
                    
                     
                     if (selectedRequests.length > 0) {
+                        //$(this).ajaxCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel),
+                        // function (successData) {
+                        //     if (successData.success == true) {
+                        //         kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
+                        //         var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+                        //         grid.dataSource.read();
+                        //         if (modalId != null)
+                        //             $(modalId).hideModal();
+                        //         $(this).savedSuccessFully(messages.successMessages.Saved);
+                        //     } else
+                        //         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                        // },
+                        // function () {
+                        //     $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                        // });
+
+
+
                         $.ajax({
                             url: strUrl,
                             data: JSON.stringify(obtainmentMultipleWorkItemActionModel),
