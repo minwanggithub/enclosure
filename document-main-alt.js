@@ -316,10 +316,13 @@
                     var companyId = e.target.value;
                     if (IsNumeric && IsNumeric(companyId)) {
 
-                        var url = generateActionUrl(documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.LookUpSupplierOnKeyEnter);
-                        $.post(url, { supplierInfo: companyId }, function (data) {
-                            $(e.target).val(data);
-                        });
+                        if (generateLocationUrl) {
+                            var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Company + "/" + documentAjaxSettings.actions.LookUpSupplierOnKeyEnter;
+                            requestUrl = generateLocationUrl(requestUrl);
+                            $.post(requestUrl, { supplierInfo: companyId }, function (data) {
+                                $(e.target).val(data);
+                            });
+                        }
                     }
                 });
             }
@@ -412,7 +415,7 @@
                     var ddl = $(this).data("kendoDropDownList");
                     if (ddl != undefined) {
                         ddl.select(0);
-        }
+                    }
                 });
 
                 container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked', false);
@@ -421,6 +424,7 @@
                 container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val('');
             }
         }
 
@@ -451,8 +455,10 @@
 
         function performDocumentSearch() {
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
-            if (searchGrid && searchGrid.dataSource)
+            if (searchGrid && searchGrid.dataSource) {
+                searchGrid.dataSource.page(1);
                 searchGrid.dataSource.read();
+            }
         }
 
         function onDocumentSearchAddNewBtnClick(e) {
@@ -553,8 +559,10 @@
         function performDocumentSearchPopUp() {
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
-            if (grid && grid.dataSource)
+            if (grid && grid.dataSource) {
+                grid.dataSource.page(1);
                 grid.dataSource.read();
+            }
         }
 
         function onDocumentSearchPopUpAddNewDocumentBtnClick(e) {
@@ -769,7 +777,7 @@
             if (window.opener) {
                 var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
                 if (parentSearchWindow.length > 0) {
-                    clearDocumentSearchFields(parentSearchWindow);
+                    parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
                     parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
                     parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
                 }

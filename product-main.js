@@ -11,12 +11,6 @@
         var activeSupplierIndex;
         var activeProduct;
         var newProductActive = false;
-        //var documentMain = false;
-        var selectDocID = undefined;
-        var selectProductDocID = undefined;
-        var selectProductRevisionID = 0;
-
-        var documentSearchDialog = $("#documentSearchWindow");
         var supplierSearchDialog = $("#supplierSearchWindow");
 
         var onErrorCallback;
@@ -25,94 +19,6 @@
         var addToSearchHistoryCallback;
         var notesModalSettings;
         var updateStatusLayoutCallback;
-
-        //--------------------start of ConfigProduct.cshtml-----------------------
-        function AddDocumentListToProduct(doclists) {
-            
-            var urlmultiple = GetEnvironmentLocation() + "/Configuration/ProductManager/AddDocumentListToProduct";
-
-            $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
-              
-                var flag = data.substring(5, 6);
-                documentSearchDialog.data("kendoWindow").close();
-
-                if (flag == '0') {                  
-
-                    var curGdProductDoc = $("#gdProductDocuments_" + activeProduct).data("kendoGrid");
-                    if (newProductActive)
-                        curGdProductDoc = $("#gdProductDocuments_0").data("kendoGrid");
-                    curGdProductDoc.dataSource.page(1);
-                    curGdProductDoc.dataSource.read();
-
-                    var currentProductAttributes = "#txtProductAttributes_" + activeProduct;
-                    if (newProductActive)
-                        currentProductAttributes = "#txtProductAttributes_0";
-
-                    var url = GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById";
-                    $.post(url, { productId: activeProduct }, function (partNumber) {
-                        $(currentProductAttributes).val(partNumber);
-                    });
-
-                } else if (flag == '2') {                    
-                    onDisplayError('Document(s) already exist in this product. Cannot attach document(s).');
-                }
-                else if (flag == '3') {                    
-                    var index = data.indexOf('msg:');
-                    onDisplayError(data.substring(index + 4));
-                }
-                else if (flag == '4') {                    
-                    onDisplayError("Documents and product should have the same manufacturer.");
-                }
-                else if (flag == '5') {                    
-                    onDisplayError("Only one combination of language/Jurisdiction for a document type by product.");
-                }
-            });
-        };
-
-        function displaySingleDocument() {
-            //var documentId = selectProductDocID;
-            //var revisionId = selectProductRevisionID;
-            //var currenturl = window.location.href;
-            //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=" + documentId + "&revisionId=" + revisionId;
-            window.open(url, "_blank");
-        }
-
-        function CreateNewDocument() {
-            //var currenturl = window.location.href;
-            //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
-            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=0&revisionId=0";
-            window.open(url, "_blank");
-        }
-
-        function GridDocumentSearchResult() {
-            var grid = $("#gdSearchDocument").data("kendoGrid");
-            grid.dataSource.page(1);
-            grid.dataSource.read();
-        };
-
-        var documentQuery = function(e) {
-            //alert($("#radiogroupTitleSearchOption:checked").val());  unlikely
-
-            //var params = $("input[name=radiogroupTitleSearchOption]:checked").val();
-            //alert(params);
-            var queryText = {
-                ReferenceId: $("#txtSearchDocumentId").val(),
-                DocumentTypeId: $("#ddlDocumentType").val(),
-                DocumentLanguageId: $("#ddlDocumentLanguage").val(),
-                DocumentRegionId: $("#ddlDocumentJurisdiction").val(),                
-                PartNumber: $("#txtSearchPartNumber").val(),
-                UPC: $("#txtSearchUPC").val(),
-                SupplierId: parseInt($("#txtSearchSupplierId").val()),
-                RevisionTitle: $("#txtRevisionTitle").val(),
-                SearchOption: $("input[name=radiogroupTitleSearchOption]:checked").val(),
-                ContainerTypeId: $("#ddlDocumentContainer").val(),
-                LatestRevisionOnly: $("#chkLatestRevision:checked").length == 1
-            };
-            return {
-                searchText: JSON.stringify(queryText)
-            };
-        };
 
         // Helper Methods
         function displayErrorMessage(errorMessage) {
@@ -164,6 +70,142 @@
             updateStatusLayoutCallback = updateStatusLayoutFunc;
         };
 
+        // Document Methods
+        function addDocumentListToProduct(doclists) {
+            var urlmultiple = GetEnvironmentLocation() + "/Configuration/ProductManager/AddDocumentListToProduct";
+            $.post(urlmultiple, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
+
+                var flag = data.substring(5, 6);
+                if (flag == '0') {
+
+                    var gridId = (newProductActive) ? "#gdProductDocuments_0" : "#gdProductDocuments_" + activeProduct;
+                    var curGdProductDoc = $(gridId).data("kendoGrid");
+                    if (curGdProductDoc) {
+                        curGdProductDoc.dataSource.page(1);
+                        curGdProductDoc.dataSource.read();
+                    }
+
+                    var currentProductAttributes = (newProductActive) ? "#txtProductAttributes_0" : "#txtProductAttributes_" + activeProduct;
+                    var url = GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById";
+                    $.post(url, { productId: activeProduct }, function (partNumber) {
+                        $(currentProductAttributes).val(partNumber);
+                    });
+
+                } else if (flag == '2') {
+                    onDisplayError('Document(s) already exist in this product. Cannot attach document(s).');
+                }
+                else if (flag == '3') {
+                    var index = data.indexOf('msg:');
+                    onDisplayError(data.substring(index + 4));
+                }
+                else if (flag == '4') {
+                    onDisplayError("Documents and product should have the same manufacturer.");
+                }
+                else if (flag == '5') {
+                    onDisplayError("Only one combination of language/Jurisdiction for a document type by product.");
+                }
+            });
+        };
+
+        function displaySingleDocument(documentObj) {
+            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID;
+            window.open(url, "_blank");
+        }
+
+        var DeleteDoc = function (e) {
+            e.preventDefault();
+
+            var strconfirm = confirm("Are you sure you want to remove this document from product?");
+            if (strconfirm == false) {
+                return;
+            }
+
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            dataItem.IsSelected = true;
+            var targetId = e.delegateTarget.id;
+            var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
+            activeProduct = pid;
+            var doclists = [];
+            doclists.push(dataItem.ReferenceId);
+
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
+            $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function (data) {
+
+                if (data.indexOf("Successfully") < 0) {
+                    onDisplayError(data);
+                    return;
+                }
+
+                var index = data.indexOf("from product");
+                var prodid = data.substring(index + 13, data.length);
+
+                var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
+                grid1.dataSource.page(1);
+                grid1.dataSource.read();
+
+                var tabId = "#" + prodid + "_tbProductDetail";
+                TabReload(tabId, 0);
+            });
+        };
+
+        var DeleteSelectedDocFromProd = function (productId, doclists) {
+
+            if (doclists.length <= 0) {
+                onDisplayError("Please select document(s) to delete.");
+                return;
+            }
+
+            var strconfirm = confirm("Are you sure you want to delete these document(s)?");
+            if (strconfirm == false) {
+                return;
+            }
+
+            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
+            if (doclists.length > 0) {
+                $.post(url, {
+                    productId: productId,
+                    documentList: JSON.stringify(doclists)
+                }, function (data) {
+
+                    if (data.indexOf("Successfully") < 0) {
+                        onDisplayError(data);
+                        return false;
+                    }
+
+                    //delete a row from the grid after successfully delete document
+                    var index2 = data.indexOf("from product");
+                    var prodid = data.substring(index2 + 13, data.length);
+                    var grid = $('#gdProductDocuments_' + prodid);
+
+                    $(".chkMasterMultiSelect", grid).removeAttr("checked");
+
+                    var gridId = 'gdProductDocuments_' + prodid;
+
+                    var singleProdObj = selectedProdIdObj[gridId];
+
+                    //uncheck checkboxes
+                    var gData = grid.data("kendoGrid").dataSource.data();
+                    var totalNumber = gData.length;
+
+                    if (totalNumber > 0) {
+                        $.each(gData, function () {
+                            for (var i = 0; i < singleProdObj.length; i++) {
+                                if (this.ReferenceId == singleProdObj[i]) {
+                                    singleProdObj.splice(i, 1);
+                                }
+                            }
+                        });
+                    }
+
+                    var grid1 = $('#gdProductDocuments_' + productId).data("kendoGrid");
+                    activeProduct = productId;
+                    grid1.dataSource.read();
+                    grid1.dataSource.page(1);
+                });
+            }
+
+        };
+
         // Product Status History Methods
         var onProductStatusGridChange = function () {
             var productId = this.wrapper.attr('id');
@@ -178,30 +220,13 @@
             }
         };
 
-        //(SH) 4-16-2014
-        //(SH) 5-7-2014
+        // Supplier Methods
         var viewSingleSupplier = function (supplierId) {
             if (supplierId > 0) {
                 //var currenturl = window.location.href;
                 //var indexArea = currenturl.substring(0, currenturl.indexOf('Configuration/ProductManager'));
                 var url = GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?supplierId=" + supplierId;
                 window.open(url, "_blank");
-            }
-        }
-
-        //function getUrl(area, controllerAndFunc) {
-        //    var currenturl = window.location.href;
-        //    var indexArea = currenturl.substring(0, currenturl.indexOf(area));
-        //    var url = indexArea + controllerAndFunc;
-        //    console.log("resulting url: ", url);
-        //    return url;
-        //}
-
-        function clearMessage(activeSaveButton) {
-            $('#productErrorMessage').removeAttr("color").html("");
-            //$('#productErrorMessage').html("");
-            if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
-                $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
             }
         }
 
@@ -276,22 +301,21 @@
 
                     if ($("#btnAddDocToProduct_" + activeSaveButton).hasClass("k-state-disabled")) {
                         $("#btnAddDocToProduct_" + activeSaveButton).removeClass("k-state-disabled");
-
-                        $("#btnAddDocToProduct_" + activeSaveButton).click(function(e) {
-                            activeProduct = data.ReferenceId;
+                        $("#btnAddDocToProduct_" + activeSaveButton).click(function (e) {
                             newProductActive = true;
+                            activeProduct = data.ReferenceId;
+                            $('#ddlProductStatus_' + activeSaveButton).data('kendoDropDownList').enable(true);
 
-                            documentSearchDialog.data("kendoWindow").center();
-                            documentSearchDialog.data("kendoWindow").open();
-                            $("#addNewDocumentBtn").hide();
-                            $("#documentDisplayOptionDiv").hide();
+                            if (displayDocumentPopUp) {
+                                displayDocumentPopUp(function (data) {
+                                    debugger;
+
+                                    var doclists = [];
+                                    doclists.push(data.ReferenceId);
+                                    addDocumentListToProduct(doclists);
+                                });
+                            }
                         });
-
-                        $("#searchDocumentBtn").click(function(e) {
-                            GridDocumentSearchResult();
-                        });
-
-                        $('#ddlProductStatus_' + activeSaveButton).data('kendoDropDownList').enable(true);
                     }
 
                     UnBindingSaveCancel(0);
@@ -436,46 +460,6 @@
                 supplierSearchDialog.data("kendoWindow").close();
             });
 
-            $("#searchDocumentIdSelect").click(function (e) {
-                addDocToProduct();
-            });
-
-            $("#btnAddDocumentFromProduct").click(function (e) {
-                //alert("Under construction");
-                CreateNewDocument();
-            });
-            
-            function addDocToProduct() {
-                var grid = $("#gdSearchDocument").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    onDisplayError("No row selected");
-                    return;
-                }
-
-                var data = grid.dataItem(grid.select());
-                if (data == null) {
-                    onDisplayError("No row selected");
-                    return;
-                }
-
-
-                if (grid.select().length >= 1) {
-                    var rows = grid.select();
-                    var doclists = [];
-                    rows.each(
-                        function (index, row) {
-                            var selectedItem = grid.dataItem(row);
-                            doclists.push(selectedItem.ReferenceId);
-                        }
-                    );
-                    AddDocumentListToProduct(doclists);
-                }
-            }
-
-            $("#btnCancelDocumentSearch").click(function (e) {
-                documentSearchDialog.data("kendoWindow").close();
-            });
-
             if (initializeSearchHistoryCallback)
                 initializeSearchHistoryCallback('gdSearchProduct', 'txtProductSearch', refreshProductSearchResultGrid);
         };
@@ -507,122 +491,10 @@
                 return { productInfo: $("#txtProductId_" + activeProduct).val() };
         };
 
-        var DeleteDoc = function(e) {
-            e.preventDefault();
-
-            var strconfirm = confirm("Are you sure you want to remove this document from product?");
-            if (strconfirm == false) {
-                return;
-            }
-
-            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-            dataItem.IsSelected = true;
-            var targetId = e.delegateTarget.id;
-            var pid = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
-            activeProduct = pid;
-            var doclists = [];
-            doclists.push(dataItem.ReferenceId);
-
-            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
-            $.post(url, { productId: pid, documentList: JSON.stringify(doclists) }, function(data) {
-
-                if (data.indexOf("Successfully") < 0) {
-                    onDisplayError(data);
-                    return;
-                }
-
-                var index = data.indexOf("from product");
-                var prodid = data.substring(index + 13, data.length);
-
-                var grid1 = $('#gdProductDocuments_' + prodid).data("kendoGrid");
-                grid1.dataSource.page(1);
-                grid1.dataSource.read();
-
-                var tabId = "#" + prodid + "_tbProductDetail";
-                TabReload(tabId, 0);
-            });
-        };
-
-        var DeleteSelectedDocFromProd = function (productId, doclists) {
-
-            if (doclists.length <= 0) {
-                onDisplayError("Please select document(s) to delete.");
-                return;
-            }
-
-            var strconfirm = confirm("Are you sure you want to delete these document(s)?");
-            if (strconfirm == false) {
-                return;
-            }
-
-            var url = GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument";
-            if (doclists.length > 0) {
-                $.post(url, {
-                    productId: productId,
-                    documentList: JSON.stringify(doclists) 
-                }, function (data) {
-                   
-                    if (data.indexOf("Successfully") < 0) {
-                      onDisplayError(data);
-                      return false;
-                   }
-
-                   //delete a row from the grid after successfully delete document
-                   var index2 = data.indexOf("from product");
-                   var prodid = data.substring(index2 + 13, data.length);
-                   var grid = $('#gdProductDocuments_' + prodid);
-
-                   $(".chkMasterMultiSelect", grid).removeAttr("checked");
-                   
-                   var gridId = 'gdProductDocuments_' + prodid;
-
-                   var singleProdObj = selectedProdIdObj[gridId];
-                
-                    //uncheck checkboxes
-                    var gData = grid.data("kendoGrid").dataSource.data();
-                    var totalNumber = gData.length;
-                    
-                    if (totalNumber > 0) {
-                        $.each(gData, function () {
-                            for (var i = 0; i < singleProdObj.length; i++) {
-                                if ( this.ReferenceId == singleProdObj[i]) {
-                                    singleProdObj.splice(i, 1);
-                                }
-                            }
-                        });
-                    }
-                 
-                    var grid1 = $('#gdProductDocuments_' + productId).data("kendoGrid");
-                    activeProduct = productId;
-                    grid1.dataSource.read();
-                    grid1.dataSource.page(1);
-                });
-            } 
-
-    };
-
         var panelbar_collapse = function() {
         };
 
         var panelbar_expand = function () {
-        };
-
-        var OngdSearchDocumentChange = function () {
-            var model = this.dataItem(this.select());
-            selectDocID = model.ReferenceId; //gets the value of the field DocumentID and save as global
-
-        };
-
-        var OngdProductDocumentSelectChange = function () {
-            var model = this.dataItem(this.select());
-            selectProductDocID = model.ReferenceId; //gets the value of the field DocumentID and save as global
-
-        };
-
-        var OngdProductRevisionSelectChange = function () {
-            var model = this.dataItem(this.select());
-            selectProductDocID = model.DocumentId;
-            selectProductRevisionID = model.RevisionId;
         };
 
         var onProductStatusChange = function() {
@@ -635,13 +507,6 @@
             var elemId = this.element.attr('id');
             elemId = elemId.replace('ddlPhysicalState_', '');
             BindingSaveCancel(elemId);
-        };
-
-        //--------------------end of ConfigProduct.cshtml-----------------------
-
-
-        var getSelectDocID = function () {
-            return selectDocID;
         };
 
 
@@ -675,7 +540,6 @@
             QueueQuery();
         };
 
-
         var QueueQuery = function () {
 
             if (!addToSearchHistoryCallback) return;
@@ -684,8 +548,6 @@
             if (searchField.length > 0)
                 addToSearchHistoryCallback('gdSearchProduct', searchField.val());
         };
-
-
 
         var LoadProductMatchDetailsCompleted = function (e) {
             var pKey = e.item.id.substring(0, e.item.id.indexOf('_tbProductDetail'));
@@ -717,8 +579,6 @@
                     TabReload(tabId, 0);
                 }
             });
-
-        //    Mousetrap.bind('p r', function () { $("#btnRefreshProduct_" + pKey).click(); });
 
             $('#txtProductName_' + pKey + ',#txtSupplierId_' + pKey).on('input', function () {
                 BindingSaveCancel(pKey);
@@ -753,8 +613,6 @@
                 });
             });
 
-          //  Mousetrap.bind('p m', function () { $("#searchSupplierIdBtn_" + pKey).click(); });
-
             //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function (e2) {
 
@@ -772,14 +630,6 @@
                 activeProduct = pKey;
                 newProductActive = false;
 
-                documentSearchDialog.data("kendoWindow").center().open();
-                //documentSearchDialog.data("kendoWindow").open();
-
-                $("#documentDisplayOptionDiv").hide();
-                $("#chkLatestRevision").attr("disabled", true);
-                $("#chkIncludeDeletedDocument").hide();
-                $('#lblIncludeDeletedDocument').hide();
-
                 //Hook up the txtSearchSupplierId key events on document screen plugIn
                 $('#txtSearchSupplierId').keyup(function (event) {
                     var code = (event.keyCode ? event.keyCode : event.which);
@@ -792,9 +642,14 @@
                     prodlib.showSupplierPlugIn("txtSearchSupplierId");
                 });
 
+                if (displayDocumentPopUp) {
+                    displayDocumentPopUp(function (data) {
+                        var doclists = [];
+                        doclists.push(data.ReferenceId);
+                        addDocumentListToProduct(doclists);
+                    });
+                }
             });
-
-         //   Mousetrap.bind('p d', function () { $("#btnAddDocToProduct_" + pKey).click(); });
 
             $("#btnDeleteDocFromProduct_" + pKey).click(function(e3) {
                 
@@ -813,38 +668,6 @@
                 } else {
                     alert('Please select document(s) to delete.');
                 }
-            });
-
-           
-            $("#addNewDocumentBtn").hide();
-
-            $("#clearDocumentBtn").click(function (e4) {
-                $("[name^='ddlDocument']").each(function (index) {
-                    var ddl = $(this).data("kendoDropDownList");
-                    ddl.select(0);
-                });
-
-                $('#txtSearchDocumentId').val("");
-                $('#txtSearchPartNumber').val("");
-                $('#txtSearchSupplierId').val("");
-                $('#txtSearchUPC').val("");
-                $('#txtRevisionTitle').val("");
-
-                //Remove document search grid result
-                var grid = $("#gdSearchDocument").data("kendoGrid");
-
-                if (grid.dataSource.total() != 0) {
-                    grid.dataSource.filter([]);
-                    grid.dataSource.data([]);
-                }
-
-                //JQuery 1.6 above
-                var defaultSearchOption = 0;
-                $("input[name=radiogroupTitleSearchOption][value=" + defaultSearchOption + "]").prop('checked', true);
-            });
-
-            $("#searchDocumentBtn").click(function (e5) {
-                GridDocumentSearchResult();
             });
 
             // Deactivate the layout if the status is set to deactivated
@@ -902,17 +725,10 @@
         };
         //--------------------end of _SearchProduct.cshtml-----------------------
 
-
-
-        //--------------------start of AgentManager.cshtml-----------------------
-
-        //--------------------end AgentManager.cshtml-----------------------
-
-
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
         var setDeleteImageIcon = function (e) {
-            $(".k-grid-Remove").html("<span class='k-icon k-delete'></span>")
+            $(".k-grid-Remove").html("<span class='k-icon k-delete'></span>");
         }
 
         var pnlNewProduct_Activated = function(event) {
@@ -1033,7 +849,6 @@
                 e.stopImmediatePropagation();
             });
           
-
             productObj.on("click", ".chkMasterMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -1091,19 +906,12 @@
         };
        
         return {
-            AddDocumentListToProduct: AddDocumentListToProduct,
             BindingSaveCancel: BindingSaveCancel,
             DeleteDoc: DeleteDoc,
             displaySingleDocument: displaySingleDocument,
-            documentQuery: documentQuery,
-            getSelectDocID: getSelectDocID,
-            //getUrl: getUrl,
             initializeProductDetailControls: initializeProductDetailControls,
             intializeSearchHistoryControls: intializeSearchHistoryControls,
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
-            OngdProductDocumentSelectChange: OngdProductDocumentSelectChange,
-            OngdProductRevisionSelectChange: OngdProductRevisionSelectChange,
-            OngdSearchDocumentChange: OngdSearchDocumentChange,
             onProductStatusChange: onProductStatusChange,
             onProductStatusGridChange: onProductStatusGridChange,
             panelbar_activated: panelbar_activated,
@@ -1129,37 +937,6 @@
     //Initialize
     $(function() {
         menuHelper.turnMenuActive($("#menuOperations"));
-
-        $('#gdSearchDocument').on('dblclick', 'table tr', function (e) {
-            e.preventDefault();
-
-            if (prodlib != undefined) {
-
-                var grid = $("#gdSearchDocument").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    onDisplayError("No row selected");
-                    return;
-                }
-                var data = grid.dataItem(grid.select());
-                if (data == null) {
-                    onDisplayError("No row selected");
-                    return;
-                }
-
-                if (grid.select().length >= 1) {
-                    var rows = grid.select();
-                    var doclists = [];
-                    rows.each(
-                        function(index, row) {
-                            var selectedItem = grid.dataItem(row);
-                            doclists.push(selectedItem.ReferenceId);
-                        }
-                    );
-
-                    prodlib.AddDocumentListToProduct(doclists, e);
-                }
-            }
-        });
     });
 
 })(jQuery);
