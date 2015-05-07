@@ -448,51 +448,21 @@
                    
                     
                     if (selectedRequests.length > 0) {
-                        //$(this).ajaxCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel),
-                        // function (successData) {
-                        //     if (successData.success == true) {
-                        //         kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
-                        //         var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
-                        //         grid.dataSource.read();
-                        //         if (modalId != null)
-                        //             $(modalId).hideModal();
-                        //         $(this).savedSuccessFully(messages.successMessages.Saved);
-                        //     } else
-                        //         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                        // },
-                        // function () {
-                        //     $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                        // });
-
-
-
-                        $.ajax({
-                            url: strUrl,
-                            data: JSON.stringify(obtainmentMultipleWorkItemActionModel),
-                            type: "POST",
-                            contentType: 'application/json; charset=utf-8',
-                            beforeSend: function () {
-                                kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
-                            },
-                            error: function () {
-                                $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                            },
-                            success: function (successData) {
-                                if (successData.success == true) {
-                                    kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
-                                    var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
-                                    grid.dataSource.read();
-                                    if (modalId != null)
-                                        $(modalId).hideModal();
-                                    $(this).savedSuccessFully(messages.successMessages.Saved);
-                                } else
-                                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-
-                            },
-                            done: function () {
-                                $(this).savedSuccessFully(messages.successMessages.Saved);
-                            }
-                        });
+                        $(this).ajaxCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel),
+                         function (successData) {
+                             if (successData.success == true) {
+                                 kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
+                                 var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+                                 grid.dataSource.read();
+                                 if (modalId != null)
+                                     $(modalId).hideModal();
+                                 $(this).savedSuccessFully(messages.successMessages.Saved);
+                             } else
+                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                         },
+                         function () {
+                             $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                         });
                     }
                 } else {
                     $(modalId).toggleModal();
