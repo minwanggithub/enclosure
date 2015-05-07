@@ -136,14 +136,13 @@
             
             DisableEnableButtons(false);
             
-            $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
-                function (successData) {
+            $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
+               .success(function (successData) {
                     if (successData.success == true) {
                         DisableEnableButtons(true);
                         $(this).savedSuccessFully(messages.successMessages.Saved);
                     }
-                },
-                function (error) {
+                }).error(function (error) {
                     $(this).displayError(error);
             });
         });
@@ -190,11 +189,11 @@
                 DisableEnableButtons(false);
 
                 kendo.ui.progress(obtainmentDetailObj, true);
-                $(this).ajaxCall(controllerCalls.SearchRequests, {searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) },
-                    function(data) {
+                $(this).ajaxCall(controllerCalls.SearchRequests, {searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
+                    .success(function(data) {
                         obtainmentDetailObj.html(data);
                         DisableEnableButtons(true);
-                    },
+                    }).error(
                     function() {
                         $(this).displayError(messages.errorMessages.GeneralError);
                     });
@@ -246,13 +245,12 @@
         }
 
         function ShowHistory(obtainmentWorkId, supplierId) {
-            $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId },
-               function (data) {
+            $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId })
+               .success(function(data) {
                    $("#dvRequestItemHistory").html(data);
                    $(kendoWindows.ViewHistory).data("kendoWindow").center().open();
                    $("div.k-widget.k-window").css("top", "20px");
-               },
-               function () {
+               }).error(function () {
                    $(this).displayError(messages.errorMessages.GeneralError);
                });
         }
@@ -448,8 +446,8 @@
                    
                     
                     if (selectedRequests.length > 0) {
-                        $(this).ajaxCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel),
-                         function (successData) {
+                        $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
+                         .success(function (successData) {
                              if (successData.success == true) {
                                  kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
                                  var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
@@ -459,8 +457,7 @@
                                  $(this).savedSuccessFully(messages.successMessages.Saved);
                              } else
                                  $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                         },
-                         function () {
+                         }).error(function () {
                              $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                          });
                     }
