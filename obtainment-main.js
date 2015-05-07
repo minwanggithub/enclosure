@@ -14,7 +14,10 @@
 
         var obtainmentObject = {
             controls: {
-                grids: { GridRequests: "#gdRequests", GridSupplierNotes: "#gdSupplierNotes", GridDetailRequests: "#gdDetailRequests", GridContactPhone: "#gdContactPhoneObtainment", GridSupplier:"#DetailSupplier #gdSupplierContacts"
+                grids: {
+                    GridRequests: "#gdRequests", GridSupplierNotes: "#gdSupplierNotes", GridDetailRequests: "#gdDetailRequests",
+                    GridContactPhone: "#gdContactPhoneObtainment", GridSupplier: "#DetailSupplier #gdSupplierContacts",
+                    GridContactEmail: "#DetailSupplier #gdContactEmail"
             },
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
@@ -30,7 +33,10 @@
                 },
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
-                    ObtainmentActionNotes: "#txtObtainmentActionNotes"
+                    ObtainmentActionNotes: "#txtObtainmentActionNotes",
+                    ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
+                    ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
+                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",
 
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
@@ -56,7 +62,8 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
-            ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent"
+            ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
+            SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
 
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
@@ -75,7 +82,8 @@
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 NoContactSelcted: "No contact has been selected from Contact Information",
                 NoPhoneSelected : "No conatact phone has been selected",
-                GeneralError: "Error Occurred"
+                GeneralError: "Error Occurred",
+                EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-"
             }
         };
 
@@ -94,7 +102,8 @@
             NextObtainmentStepLkpID: null,
             Notes: null,
             NextObtainmentStepDueDate: null,
-            ObtainmentActionLogPhoneCallModel: null
+            ObtainmentActionLogPhoneCallModel: null,
+            ObtainmentActionSendEmailModel: null
         };
 
         var obtainmentActionLogPhoneCallModel = {
@@ -102,6 +111,13 @@
             CompanyContactId: null,
             CompanyContactPhoneId: null,
             InternalNotesLkpId:null
+        };
+
+        var obtainmentActionSendEmailModel = {
+            Recepients:null,
+            Cc:null,
+            Subject:null,
+            Body:null
         };
 
         var loadRequestsPlugin = function() {
@@ -202,6 +218,8 @@
                 $(this).displayError(messages.errorMessages.SelectFilter);
         });
 
+
+     
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
             ShowActionModals();
         });
@@ -227,7 +245,7 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailButton, function () {
-            SendEmail();
+            SendEmailAndSaveObtainmentNextStep(controllerCalls.SendEmail, actionModals.SendEmail);
         });
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
@@ -240,10 +258,6 @@
              ShowHistory(null, this.id);
         });
 
-        function SendEmail() {
-            alert("sending email");
-        }
-
         function ShowHistory(obtainmentWorkId, supplierId) {
             $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId })
                .success(function(data) {
@@ -253,6 +267,20 @@
                }).error(function () {
                    $(this).displayError(messages.errorMessages.GeneralError);
                });
+        }
+
+        function SetNextStepForSendEmail(nextStepValue, actionName, contacts) {
+
+            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+            ddlNextSteps.value(nextStepValue);
+
+            var emailIds = []; 
+            //for (var i = 0; contacts != null && i < contacts.length; i++) {
+              //  emailIds.push(contacts[i].Email);
+            //}
+
+            $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val(/*emailIds.join(";")*/ contacts.Email);
+
         }
 
         function SetNextStep(nextStepValue, actionName) {
@@ -273,12 +301,13 @@
                 return;
             }
 
-            
             switch (ddlActions.value()) {
+
                 case obtainmentActions.SetFollowUp:
                     SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp");
                     $(actionModals.FollowUp).displayModal();
                     break;
+
                 case obtainmentActions.LogPhoneCall:
                     var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
                     var selectedItem = contactgrid.dataItem(contactgrid.select());
@@ -294,22 +323,41 @@
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
 
                     break;
+
                 case obtainmentActions.LogWebSearch:
                     SetNextStep(nextStepsValues.WebSearch);
                     //$(actionModals.FollowUp).displayModal();
                     break;
+
                 case obtainmentActions.SendEmail:
-                    SetNextStep(nextStepsValues.FirstAutomatedEmail,"SendEmail");
-                    $(actionModals.SendEmail).displayModal();
+
+                    // ---- ARINDAM
+
+                    // at least one contact must be selected.
+                    var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
+                    var selectedItems = contactsGrid.dataItem(contactsGrid.select());
+                    console.log(selectedItems);
+                    if (selectedItems != null) {
+
+                        SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+                        $(actionModals.SendEmail).displayModal();
+
+                    } else {
+                        $(this).displayError(messages.errorMessages.NoContactSelcted);
+                    }
+
                     break;
+
                 case obtainmentActions.FlagDiscontinued:
                     SetNextStep(nextStepsValues.Completed);
                     //$(actionModals.FollowUp).displayModal();
                     break;
+
                 case obtainmentActions.FlagNotRequired:
                     SetNextStep(nextStepsValues.Completed);
                     //$(actionModals.FollowUp).displayModal();
                     break;
+
                 case obtainmentActions.ConfirmAsCurrent:
                     SetNextStep(nextStepsValues.Completed);
                     //$(actionModals.FollowUp).displayModal();
@@ -412,6 +460,80 @@
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
             $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+        }
+
+
+        function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
+
+            // determine that there is at least one email to address, a subject and a email body
+
+            var valid = true;
+
+
+            // contact mandatory
+            if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
+                $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
+                $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
+
+                $(modalId).toggleModal();
+                $(this).displayError(messages.errorMessages.EmailPartsMissing);
+                valid = false;
+
+            }
+
+            if (valid) {
+
+                var actionName = "SendEmail";
+                var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+                console.log("DDLNS:" + obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName);
+                var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
+                var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
+
+                if (ddlNextSteps.value() != "") {
+
+                    // common
+                    obtainmentMultipleWorkItemActionModel.ObtainmentWorkItemIDs = selectedRequests;
+                    obtainmentMultipleWorkItemActionModel.ObtainmentActionLkpID = ddlActions.value();
+                    obtainmentMultipleWorkItemActionModel.NextObtainmentStepLkpID = ddlNextSteps.value();
+                    obtainmentMultipleWorkItemActionModel.NextObtainmentStepDueDate = dteDateAssigned.value();
+
+                    // send email specific
+                    obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val();
+                    obtainmentActionSendEmailModel.Cc = null;
+                    obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
+                    obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+                    obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
+                    
+                    $.ajax({
+                        url: strUrl,
+                        data: JSON.stringify(obtainmentMultipleWorkItemActionModel),
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        beforeSend: function() {
+                            kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
+                        },
+                        error: function() {
+                            $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                        },
+                        success: function(successData) {
+                            if (successData.success == true) {
+                                kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
+                                var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+                                grid.dataSource.read();
+                                if (modalId != null)
+                                    $(modalId).hideModal();
+                                $(this).savedSuccessFully(messages.successMessages.Saved);
+                            } else
+                                $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+
+                        },
+                        done: function() {
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                        }
+                    });
+                }
+
+            }
         }
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
