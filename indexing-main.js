@@ -152,21 +152,16 @@
                 $(indexingObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
                 indexingSearchModel.Criterias = criteriaList;
                 kendo.ui.progress(indexingDetailObj, true);
-                //var url = controllerCalls.SearchRequests;
-                $.ajax({
-                    url: controllerCalls.SearchRequests,
-                    type: 'POST',
-                    cache: false,
-                    data: { searchCriteria: JSON.stringify(indexingSearchModel) },
-                    success: function(data) {
+
+                $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(indexingSearchModel) }).
+                    success(function(data) {
                         indexingDetailObj.html(data);
                         $(indexingObject.controls.buttons.SearchRequestsButton).enableControl(true);
                         $(indexingObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
-                    },
-                    error: function (xhr, textStatus, error) {
+                    })
+                    .error(function(xhr, textStatus, error) {
                         $(this).displayError(error);
-                    }
-            });
+                    });
             } else
                 $(this).displayError(messages.errorMessages.SelectFilter);
         });
@@ -353,21 +348,9 @@
                         $(actionModals.Assign).hideModal();
                         var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
                         DisplayConfirmationModal(args, function () {
-                            $.ajax({
-                                url: url,
-                                data: JSON.stringify(data),
-                                type: "POST",
-                                contentType: 'application/json; charset=utf-8',
-                                beforeSend: function () {
-                                    kendo.ui.progress(indexingDetailObj, true);
-                                },
-                                error: function () {
-                                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned);
-                                },
-                                success: function (successData) {
-
+                            $(this).ajaxJSONCall(url, JSON.stringify(data))
+                                .success(function(successData) {
                                     if (successData.success == true) {
-
                                         // Uncheck the master select checkbox if checked
                                         var checkbox = $(grid.element).find('.chkMasterMultiSelect');
                                         if (checkbox && checkbox.is(':checked'))
@@ -377,13 +360,15 @@
                                         $(this).savedSuccessFully(messages.successMessages.Saved);
                                     } else
                                         $(this).displayError(messages.errorMessages.GeneralError);
-                                },
-                                complete: function (compData) {
+                                })
+                                .error(function() {
+                                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned);
+                                })
+                                .complete(function(compData) {
                                     kendo.ui.progress(indexingDetailObj, false);
                                     if (completeCallback)
                                         completeCallback(compData);
-                                }
-                            });
+                                });
                         });
                 } 
             }
