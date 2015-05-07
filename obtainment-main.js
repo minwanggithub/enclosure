@@ -315,7 +315,7 @@
                         var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         phoneContactGrid.dataSource.read();
                         phoneContactGrid.refresh();
-                        SetNextStep(nextStepsValues.FirstPhoneCall, "PhoneCall");
+                        SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall");
                         $(actionModals.LogPhoneCall).displayModal();
                         $(obtainmentObject.controls.labels.ContactName).text(selectedItem.SupplierContactName);
                     }
