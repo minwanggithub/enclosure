@@ -350,15 +350,14 @@
                 requestSearchModel.Criterias = criteriaList;
                 kendo.ui.progress(xreferenceDetailObj, true);
                 var url = controllerCalls.SearchRequests;
-                $.post(url, {
-                    searchCriteria: JSON.stringify(requestSearchModel)
-                }, function (data) {
-                    xreferenceDetailObj.html(data);
-                   
-                }).done(function () {
-                    $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(true);
-                    $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
-                });
+
+                $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(requestSearchModel) })
+                    .success(function(data) {
+                        xreferenceDetailObj.html(data);
+                    }).done(function() {
+                        $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(true);
+                        $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
+                    });
             } else
                 $(this).displayError(messages.errorMessages.SelectFilter);
          });
@@ -489,13 +488,12 @@
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
-            var url = controllerCalls.RequestWorkLoadHistory;
-            $.post(url, {requestWorkItemID: this.id}, function (result) {
-                $("#dvRequestItemHistory").html(result);
-            }).done(function() {
-                $(actionModals.ViewHistory).displayModal();
-            });
-
+            $(this).ajaxCall(controllerCalls.RequestWorkLoadHistory, { requestWorkItemID: this.id })
+                   .success(function (result) {
+                       $("#dvRequestItemHistory").html(result);
+                   }).done(function () {
+                       $(actionModals.ViewHistory).displayModal();
+                   });
         });
 
         //changes the controls on the criteria from dropdowns to text inputs depending on selection
@@ -551,33 +549,25 @@
         }
 
         function SaveRequest(strUrl, dataArray, modalId) {
-            if(selectedRequests.length > 0) {
-               $.ajax({
-                   url: strUrl,
-                   data: JSON.stringify(dataArray),
-                   type: "POST",
-                   contentType: 'application/json; charset=utf-8',
-                   beforeSend: function() {
-                       kendo.ui.progress(xreferenceDetailObj, true);
-                   },
-                   error: function() {
-                       $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                   },
-                   success: function (successData) {
-                       if (modalId != null)
-                           $(modalId).hideModal();
+            if (selectedRequests.length > 0) {
+                kendo.ui.progress(xreferenceDetailObj, true);
+                $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
+                    .success(function(successData) {
+                        if (modalId != null)
+                            $(modalId).hideModal();
 
-                       if (successData.success == true) {
-                           $(this).savedSuccessFully(messages.successMessages.Saved);
-                       } else {
-                           if (successData.message)
-                               $(this).displayError(successData.message);
-                           else
-                               $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                       }
-                   }
-               });
-
+                        if (successData.success == true) {
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                        } else {
+                            if (successData.message)
+                                $(this).displayError(successData.message);
+                            else
+                                $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                        }
+                    })
+                    .error(function() {
+                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                    });
                kendo.ui.progress(xreferenceDetailObj, false);
                var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
                grid.dataSource.read();
@@ -821,21 +811,10 @@
 
                         var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
                         DisplayConfirmationModal(args, function () {
-                            $.ajax({
-                                url: url,
-                                data: JSON.stringify(data),
-                                type: "POST",
-                                contentType: 'application/json; charset=utf-8',
-                                beforeSend: function () {
-                                    kendo.ui.progress(xreferenceDetailObj, true);
-                                },
-                                error: function () {
-                                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned);
-                                },
-                                success: function (successData) {
 
+                            $(this).ajaxJSONCall(url, JSON.stringify(data))
+                                .success(function(successData) {
                                     if (successData.success == true) {
-
                                         // Uncheck the master select checkbox if checked
                                         var checkbox = $(grid.element).find('.chkMasterMultiSelect');
                                         if (checkbox && checkbox.is(':checked'))
@@ -844,18 +823,17 @@
 
                                         grid = $(targetGridSelector).data("kendoGrid");
                                         grid.dataSource.read();
-                                        // displayCreatedMessage('Items Assigned Successful');
                                     } else
                                         $(this).displayError(messages.errorMessages.GeneralError);
-                                },
-                                complete: function (compData) {
+                                })
+                                .error(function() {$(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned);})
+                                .complete(function(compData) {
 
                                     kendo.ui.progress(xreferenceDetailObj, false);
                                     $(this).savedSuccessFully(messages.successMessages.Saved);
                                     if (completeCallback)
                                         completeCallback(compData);
-                                }
-                            });
+                                });
                         });
                     }
                 
