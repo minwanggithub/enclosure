@@ -298,9 +298,8 @@
         }
 
         function generateActionUrl(controller, action) {
-            if (controller && action) {
+            if (controller && action)
                 return "../" + controller + "/" + action;
-            }
 
             return null;
         }
@@ -337,9 +336,9 @@
             var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
 
             var currentValue = null;
-            if (element.is(':checkbox, :radio')) {
+            if (element.is(':checkbox, :radio'))
                 currentValue = element[0].checked;
-            } else if (element.data('kendoDropDownList')) {
+            else if (element.data('kendoDropDownList')) {
                 var ddl = element.data('kendoDropDownList');
                 currentValue = ddl.value() && ddl.value().length > 0 ? ddl.value() : "0";
             } else
@@ -491,7 +490,7 @@
             performDocumentSearch();
         }
 
-        var getDocumentSearchCriteria = function (e) {
+        var getDocumentSearchCriteria = function () {
             var container = $(documentElementSelectors.containers.DocumentSearch);
             return getContainerSearchCriteria(container);
             };
@@ -521,12 +520,9 @@
                 var url = documentAjaxSettings.controllers.Home + '/' + documentAjaxSettings.actions.OpenWindowVariable;
                 var locationUrl = generateLocationUrl(url);
                 var data = { key: 'newDocOpened', value: true };
-                $.ajax({
-                    type: "POST",
-                    url: locationUrl,
-                    data: data,
-                    success: function () {
 
+                $(this).ajaxCall(locationUrl, data)
+                    .success(function () {
                         var requestWindowHeight = 1024;
                         var requestWindowWidth = 1280;
 
@@ -534,24 +530,21 @@
                         requestUrl = generateLocationUrl(requestUrl);
 
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
-                        requestWindow.onload = function() {
+                        requestWindow.onload = function () {
                             var doc = this.document;
                             $(doc.body).find("#mainMenu").hide();
                         }
 
-                        window.onbeforeunload = function(evt) {
+                        window.onbeforeunload = function (evt) {
                             if (typeof evt == "undefined")
                                 evt = window.event;
 
                             if (evt)
                                 requestWindow.close();
                         }
-                    },
-                    error: function () {
-                        displayError(documentMessages.errors.AddNewDocumentPopUp);
-                    }
-                });
-
+                    })
+                    .error(function () {displayError(documentMessages.errors.AddNewDocumentPopUp);});
+                
             } else
                 displayError(documentMessages.errors.AddNewDocumentPopUp);
         }
@@ -565,7 +558,7 @@
             }
         }
 
-        function onDocumentSearchPopUpAddNewDocumentBtnClick(e) {
+        function onDocumentSearchPopUpAddNewDocumentBtnClick() {
             displayAddNewDocumentPopUp();
         }
 
@@ -638,7 +631,7 @@
                         type: 'POST',
                         url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
                         data: formData,
-                        beforeSend: function (data) {
+                        beforeSend: function () {
                             if(clearAttachments == true)
                                 clearDocumentRevisionAttachments(container);
                         }
@@ -721,11 +714,8 @@
 
                 var url = form.attr('action');
 
-                $.ajax({
-                    url: url,
-                    data: formData,
-                    type: "POST",
-                    success: function(data) {
+                $(this).ajaxCall(url, formData)
+                    .success(function(data) {
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
 
@@ -739,12 +729,8 @@
 
                         } else
                             displayError(errorMessage);
-                    },
-                    error: function(data) {
-                        displayError(documentMessages.errors.SaveNewDocumentError);
-                    }
-                });
-
+                    })
+                    .error(function() {displayError(documentMessages.errors.SaveNewDocumentError);});
             } else
                 displayError(documentMessages.errors.SaveNewDocumentError);
         }
@@ -848,7 +834,7 @@
             saveNewDocumentRevisionToDatabase(saveNewDocument, true, true);
         }
 
-        var onNewDocumentPanelActivate = function (e) {
+        var onNewDocumentPanelActivate = function () {
 
             $(documentElementSelectors.buttons.DocumentNewDocumentSave).on("click", onDisabledButtonClick);
 
@@ -1199,15 +1185,12 @@
             if (dataItem) {
 
                 displayConfirmationModal(settings, function () {
-                    $.ajax({
-                        type: "POST",
-                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
-                        data: {
+                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment), {
                             files: [{ FileName: dataItem.FileName, PhysicalPath: dataItem.PhysicalPath }],
                             documentId: dataItem.DocumentId,
                             revisionId: dataItem.RevisionId,
-                        },
-                        success: function (data) {
+                        })
+                        .success(function (data) {
                             var errorMessage = parseErrorMessage(data);
                             if (errorMessage)
                                 displayError(errorMessage);
@@ -1216,15 +1199,13 @@
                                 //only one attachment allowed for the Single container. After remove this file, should allow add file.                             
                                 if (dataItem.DocumentId == 0) {
                                     $('#addNewFilesBtn_New').removeClass('k-state-disabled');
-                                }                              
+                                }
                             }
-                        },
-                        error: function () {
+                        })
+                        .error(function () {
                             displayError(documentMessages.errors.DocumentRevisionAttachmentDelete);
-                        }
-                    });
+                        });
                 });
-
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentDelete);
         }
@@ -1281,11 +1262,9 @@
             var dataItem = attachmentGrid ? attachmentGrid.dataItem(attachmentGrid.select()) : null;
             if (dataItem) {
                 displayConfirmationModal(settings, function () {
-                    $.ajax({
-                        type: "POST",
-                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.DeleteDocumentFile),
-                        data: { DocumentInfoId: dataItem.DocumentInfoId },
-                        success: function (data) {
+
+                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.DeleteDocumentFile), { DocumentInfoId: dataItem.DocumentInfoId })
+                        .success(function(data) {
                             var errorMessage = parseErrorMessage(data);
                             if (errorMessage)
                                 displayError(errorMessage);
@@ -1293,23 +1272,18 @@
 
                                 attachmentGrid.bind("dataBound", function attachmentWarning() {
                                     attachmentGrid.unbind("dataBound", attachmentWarning);
-                                 
-                                    var currentGrid = this;
-                                    if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
-                                    {                                       
-                                        displayError(documentMessages.warnings.DocumentRevisionAttachments);
-                                    }
-                                 
-                                    if (currentGrid.dataSource.data().length == 0) {
-                                        $('[id*=addNewFilesBtn]', attachmentGridParent).removeClass('k-state-disabled');
-                                    }
 
+                                    var currentGrid = this;
+
+                                    if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
+                                        displayError(documentMessages.warnings.DocumentRevisionAttachments);
+
+                                    if (currentGrid.dataSource.data().length == 0)
+                                        $('[id*=addNewFilesBtn]', attachmentGridParent).removeClass('k-state-disabled');
                                 });
                                 attachmentGrid.dataSource.read();
                             }
-                                
-                        }
-                    });
+                        });
                 });
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentDelete);
@@ -1330,9 +1304,8 @@
 
             var texts = [];
             var lines = nameNumbers.split(/\n/);
-            for (var i = 0; i < lines.length; i++) {
+            for (var i = 0; i < lines.length; i++)
                 if (lines[i].length > 0) texts.push($.trim(lines[i]));
-            }
 
             var data = {};
             data['documentId'] = container.find(documentElementSelectors.hidden.DocumentRevisionNameNumberDocument).val();
@@ -1340,15 +1313,8 @@
             data['aliasTypeId'] = nameNumberType;
             data['aliasesText'] = texts;
 
-            $.ajax({
-                url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.CreateMultipleNameNumbers),
-                data: JSON.stringify(data),
-                type: "POST",
-                contentType: documentAjaxSettings.contenttype.Json,
-                error: function () {
-                    displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers);
-                },
-                success: function (successData) {
+            $(this).ajaxJSONCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.CreateMultipleNameNumbers), JSON.stringify(data))
+                .success(function (successData) {
                     if (successData.success == true) {
                         container.modal('hide');
                         var nameNumberGrid = $(documentElementSelectors.grids.DocumentRevisionNameNumbers + data.revisionId).data("kendoGrid");
@@ -1356,11 +1322,9 @@
 
                     } else
                         displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers);
-                },
-                complete: function (compData) {
-                    displayCreatedMessage(documentMessages.success.DocumentRevisionMultipleNameNumbersSaved);
-                }
-            });
+                })
+                .error(function () {displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers);})
+                .complete(function () {displayCreatedMessage(documentMessages.success.DocumentRevisionMultipleNameNumbersSaved);});
         }
 
         function onDocumentRevisionMultipleNameNumbersKeyUp(e) {
@@ -1441,21 +1405,13 @@
                                 deferred.reject();
 
                             } else {
-                                $.ajax({
-                                    type: "POST",
-                                    url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentRevisionAttachments),
-                                    data: {
-                                        files: data.map(function (item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; } ),
+                                $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentRevisionAttachments), {
+                                        files: data.map(function(item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; }),
                                         documentId: documentId,
                                         revisionId: revisionId,
                                         isNewRevision: false
-                                    },
-                                    error: function () {
-                                        displayError(documentMessages.errors.DocumentRevisionAttachment);
-                                        deferred.reject();
-                                    },
-                                    success: function (result) {
-
+                                    })
+                                    .success(function (result) {
                                         if (result.message == "Error" || result.success == false) {
                                             displayError(documentMessages.errors.DocumentRevisionAttachment);
                                             deferred.reject();
@@ -1466,11 +1422,44 @@
 
                                             displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsSaved);
                                             deferred.resolve();
-                                           
-                                            $(e.currentTarget).addClass('k-state-disabled');                                                                                    
+
+                                            $(e.currentTarget).addClass('k-state-disabled');
                                         }
-                                    }
-                                });
+                                    })
+                                    .error(function () {
+                                        displayError(documentMessages.errors.DocumentRevisionAttachment);
+                                        deferred.reject();
+                                    });
+                                //$.ajax({
+                                //    type: "POST",
+                                //    url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentRevisionAttachments),
+                                //    data: {
+                                //        files: data.map(function (item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; } ),
+                                //        documentId: documentId,
+                                //        revisionId: revisionId,
+                                //        isNewRevision: false
+                                //    },
+                                //    error: function () {
+                                //        displayError(documentMessages.errors.DocumentRevisionAttachment);
+                                //        deferred.reject();
+                                //    },
+                                //    success: function (result) {
+
+                                //        if (result.message == "Error" || result.success == false) {
+                                //            displayError(documentMessages.errors.DocumentRevisionAttachment);
+                                //            deferred.reject();
+                                //        } else {
+                                //            var attachmentGrid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+                                //            if (attachmentGrid)
+                                //                attachmentGrid.dataSource.read();
+
+                                //            displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsSaved);
+                                //            deferred.resolve();
+                                           
+                                //            $(e.currentTarget).addClass('k-state-disabled');                                                                                    
+                                //        }
+                                //    }
+                                //});
                             }
 
                         }, 750);
@@ -1530,11 +1519,8 @@
                 }
 
                 var url = form.attr("action");
-                $.ajax({
-                    url: url,
-                    data: formData,
-                    type: "POST",
-                    success: function (data) {
+                $(this).ajaxCall(url, formData)
+                    .success(function (data) {
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
                             displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
@@ -1553,9 +1539,8 @@
                                         revisionGrid.dataSource.read();
                                     }
                                 }
-
                                 clearDocumentRevisionAttachments(form);
-                                
+
                             } else {
                                 var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentRevisionLastUpdatePopOver);
                                 if (lastUpdatePopOver.length > 0)
@@ -1564,11 +1549,8 @@
 
                         } else
                             displayError(errorMessage);
-                    },
-                    error: function (data) {
-                        displayError(documentMessages.errors.SaveDocumentRevisionError);
-                    }
-                });
+                    })
+                    .error(function() { displayError(documentMessages.errors.SaveDocumentRevisionError); });
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
@@ -1581,20 +1563,14 @@
             if (!siblingField) return;
 
             var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.LoadUnknownManufacturer);
-            $.ajax({
-                url: url,
-                type: 'POST',
-                cache: false,
-                success: function (data) {
+            $(this).ajaxCall(url)
+                .success(function (data) {
                     if (data != '') {
                         var supplierField = buttonElement.siblings(siblingField + ":first");
                         supplierField.val(data).trigger('change');
                     }
-                },
-                error: function (xhr, textStatus, error) {
-                    displayError(error);
-                }
-            });
+                })
+                .error(function(xhr, textStatus, error) { displayError(error); });
         }
 
         function setDocumentRevisionDetailsDefaultValues(container) {
@@ -1615,7 +1591,6 @@
         }
 
         var onDocumentRevisionAttachmentSave = function (e) {
-            
             // When revision id is 0 the controller is not hit, we force this action to occur here
             if (e.model.RevisionId == 0) {
                 var attachment = {
@@ -1627,19 +1602,12 @@
                     RevisionId: e.model.RevisionId,
                 };
 
-                var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription);
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: attachment,
-                    error: function () {
-                        displayError(documentMessages.errors.DocumentRevisionAttachmentDescriptionUpdate);
-                    },
-                    success: function (data) {
+                $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription),attachment)
+                    .success(function (data) {
                         var errorMessage = parseErrorMessage(data);
                         if (errorMessage) displayError(errorMessage);
-                    }
-                });
+                    })
+                    .error(function () {displayError(documentMessages.errors.DocumentRevisionAttachmentDescriptionUpdate);});
             }
         };       
 
@@ -1714,7 +1682,7 @@
             }
         }
 
-        function onDocumentNoteEditSave(e) {
+        function onDocumentNoteEditSave() {
 
             var validationSummary = $('div.validation-summary-valid.validationSummary ul');
             if (validationSummary.length == 0) return;
@@ -1749,14 +1717,14 @@
             }
         }
 
-        var onDocumentNoteChange = function (e) {
+        var onDocumentNoteChange = function () {
             var documentId = extractReferenceId(this.element.attr('id'));
             var dataItem = this.dataItem(this.select());
             var text = dataItem ? dataItem.Notes : '';
             displayDocumentNote(documentId, text);
         };
 
-        var onDocumentNoteDataBound = function (e) {
+        var onDocumentNoteDataBound = function () {
             var documentId = extractReferenceId(this.element.attr('id'));
             displayDocumentNote(documentId, '');
         };
@@ -1821,30 +1789,21 @@
                         ClassificationTypeId: classificationTypeId,
                         ParentDocumentId: classificationTypeText.indexOf("Parents") >= 0 ? data.ReferenceId : currentDocumentId,
                     };
-
-                    var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentContainerComponent);
-                    $.ajax({
-                        data: model,
-                        type: 'POST',
-                        url: url,
-                        success: function(result) {
-
+                    
+                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentContainerComponent), model)
+                        .success(function (result) {
                             var errorMessage = parseErrorMessage(result);
                             if (errorMessage)
                                 displayError(errorMessage);
-                            else {
+                            else
                                 refreshDocumentContainersGrid(ddl.element.attr('id'));
-                            }
-
-                        }, error: function(result) {
-                            displayError(documentMessages.errors.SaveDocumentContainerComponent);
-                        }
-                    });
+                        })
+                        .error(function () {displayError(documentMessages.errors.SaveDocumentContainerComponent);});
                 });
             }
         }
 
-        function onDocumentDeleteContainerComponentBtnClick(e) {
+        function onDocumentDeleteContainerComponentBtnClick() {
             var currentRow = $(this).parents('tr[role="row"]');
             var grid = $(this).parents('.k-grid:first').data('kendoGrid');
             var dataItem = grid ? grid.dataItem(currentRow) : null;
@@ -1864,23 +1823,15 @@
                         ParentDocumentId: dataItem.ParentDocumentId,
                     };
 
-                    var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveDocumentContainerComponent);
-                    $.ajax({
-                        url: url,
-                        type: "POST",
-                        data: data,
-                        success: function (result) {
+                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveDocumentContainerComponent),data)
+                        .success(function (result) {
                             var errorMessage = parseErrorMessage(result);
                             if (errorMessage)
                                 displayError(errorMessage);
                             else
                                 refreshDocumentContainersGrid(grid.element.attr('id'));
-                        },
-                        error: function (result) {
-                            displayError(documentMessages.errors.DocumentContainerComponentDelete);
-                        }
-                    });
-
+                        })
+                        .error(function () {displayError(documentMessages.errors.DocumentContainerComponentDelete);});
                 });
             }
         }
@@ -1895,15 +1846,15 @@
             }
         }
 
-        var onDocumentContainerClassificationTypeChange = function (e) {
+        var onDocumentContainerClassificationTypeChange = function () {
             refreshDocumentContainersGrid(this.element.attr('id'));
         };
 
-        var onDocumentContainerClassificationTypeDataBound = function (e) {
+        var onDocumentContainerClassificationTypeDataBound = function () {
             refreshDocumentContainersGrid(this.element.attr('id'));
         };
 
-        var onDocumentContainerClassificationTypeRequestStart = function (e) {
+        var onDocumentContainerClassificationTypeRequestStart = function () {
             if (e.type == 'read') {
                 var documentId = extractDocumentIdFromRequestUrl(this.transport.options.read.url);
                 var containerType = $(documentElementSelectors.containers.DocumentDetailsFormExact + documentId).find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val();
@@ -1911,7 +1862,7 @@
             }
         };
 
-        var onDocumentContainerComponentDataBound = function (e) {
+        var onDocumentContainerComponentDataBound = function () {
             // TODO: Method kept for the meantime since I forgot what was here to begin with
         };
 
@@ -1931,14 +1882,14 @@
             }
         }
 
-        var onDocumentStatusHistoryChange = function (e) {
+        var onDocumentStatusHistoryChange = function () {
             var documentId = extractReferenceId(this.element.attr('id'));
             var dataItem = this.dataItem(this.select());
             var text = dataItem ? dataItem.Notes : '';
             displayDocumentStatusNote(documentId, text);
         };
 
-        var onDocumentStatusHistoryDataBound = function (e) {
+        var onDocumentStatusHistoryDataBound = function () {
             var documentId = extractReferenceId(this.element.attr('id'));
             displayDocumentStatusNote(documentId, '');
         };
