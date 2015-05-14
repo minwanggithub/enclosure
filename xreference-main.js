@@ -349,8 +349,6 @@
                 $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
                 requestSearchModel.Criterias = criteriaList;
                 kendo.ui.progress(xreferenceDetailObj, true);
-                var url = controllerCalls.SearchRequests;
-
                 $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(requestSearchModel) })
                     .success(function(data) {
                         xreferenceDetailObj.html(data);
@@ -768,11 +766,9 @@
                              else 
                                 tr.removeClass('k-state-selected');
                         });
-                    } else {
+                    } else
                         return false;
-                    }
                 }
-
             });
         }
 
