@@ -29,15 +29,20 @@
                     LogPhoneCallSaveButton: "#btnSavePhoneCall",
                     LogPhoneCallCancelButton: "#btnCancelPhoneCall",
                     SendEmailButton: "#btnSendEmail",
-                    SendEmailCancelButton: "#btnCancelSendEmail"
+                    SendEmailCancelButton: "#btnCancelSendEmail",
+                    FlagDiscontinuedSaveButton: "#btnSaveFlagDiscontinued",
+                    FlagDiscontinuedCancelButton: "#btnCancelFlagDiscontinued",
+                    NotRequiredSaveButton: "#btnSaveNotRequired",
+                    NotRequiredCancelButton: "#btnCancelNotRequired",
+                    CloseRequestSaveButton: "#btnSaveCloseRequest",
+                    CloseRequestCancelButton: "#btnCancelCloseRequest"
                 },
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
-                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",
-
+                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
                 dropdownlists: {
@@ -49,14 +54,15 @@
                     NextStepDropDownList: "#ddlNextStep",
                     ActionsDropDownList: "#ddlAction",
                     NextStepsDropDownList: "#ddlNextSteps",
-                    InternalNotes:"#ddlInternalNotes"
-
+                    InternalNotes : "#ddlInternalNotes",
+                    CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
+                    CloseRequestReasonCode: "#ddlReasonCode"
                 },
                 labels:{ContactName:"#lblContactName"},
                 checkBox:{LiveCall:"#chkLiveCall"}
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", ViewHistory: "#mdlViewHistory" };
+        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued:"#mdlFlagDiscontinued", NotRequired:"#mdlNotRequired", CloseRequest:"#mdlCloseRequest", ViewHistory: "#mdlViewHistory" };
         var kendoWindows = { ViewHistory: "#supplierSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
@@ -103,7 +109,8 @@
             Notes: null,
             NextObtainmentStepDueDate: null,
             ObtainmentActionLogPhoneCallModel: null,
-            ObtainmentActionSendEmailModel: null
+            ObtainmentActionSendEmailModel: null,
+            ObtainmentActionCloseRequest: null
         };
 
         var obtainmentActionLogPhoneCallModel = {
@@ -111,6 +118,11 @@
             CompanyContactId: null,
             CompanyContactPhoneId: null,
             InternalNotesLkpId:null
+        };
+
+        var obtainmentActionCloseRequest = {
+            ReasonCodeId: null,
+            CustomerActionsId: null
         };
 
         var obtainmentActionSendEmailModel = {
@@ -224,6 +236,7 @@
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
             ShowActionModals();
         });
+        
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpCancelButton, function () {
             $(actionModals.FollowUp).toggleModal();
@@ -236,6 +249,18 @@
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailCancelButton, function () {
             $(actionModals.SendEmail).toggleModal();
         });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedCancelButton, function () {
+            $(actionModals.FlagDiscontinued).toggleModal();
+            });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredCancelButton, function () {
+            $(actionModals.NotRequired).toggleModal();
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestCancelButton, function () {
+            $(actionModals.CloseRequest).toggleModal();
+        });
         
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
@@ -243,10 +268,23 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
+       });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
+            debugger;
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailButton, function () {
             SendEmailAndSaveObtainmentNextStep(controllerCalls.SendEmail, actionModals.SendEmail);
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "NotRequired", actionModals.NotRequired);
         });
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
@@ -287,7 +325,7 @@
         function SetNextStep(nextStepValue, actionName) {
             var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList+actionName).data("kendoDropDownList");
             ddlNextSteps.value(nextStepValue);
-            }
+        }
 
         function ShowActionModals() {
              var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
@@ -295,7 +333,7 @@
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
                 return;
-                }
+             }
 
             if (ddlActions.value() == obtainmentActions.Empty) {
                 $(this).displayError(messages.errorMessages.NoActionSelected);
@@ -322,7 +360,6 @@
                     }
                     else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
-
                     break;
 
                 case obtainmentActions.LogWebSearch:
@@ -339,29 +376,25 @@
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
                     console.log(selectedItems);
                     if (selectedItems != null) {
-
                         SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
                         $(actionModals.SendEmail).displayModal();
-
-                    } else {
+                    } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
-                    }
-
                     break;
 
                 case obtainmentActions.FlagDiscontinued:
-                    SetNextStep(nextStepsValues.Completed);
-                    //$(actionModals.FollowUp).displayModal();
+                    SetNextStep(nextStepsValues.Completed,"FlagDiscontinued");
+                    $(actionModals.FlagDiscontinued).displayModal();
                     break;
 
                 case obtainmentActions.FlagNotRequired:
-                    SetNextStep(nextStepsValues.Completed);
-                    //$(actionModals.FollowUp).displayModal();
+                    SetNextStep(nextStepsValues.Completed,"NotRequired");
+                    $(actionModals.NotRequired).displayModal();
                     break;
 
                 case obtainmentActions.ConfirmAsCurrent:
-                    SetNextStep(nextStepsValues.Completed);
-                    //$(actionModals.FollowUp).displayModal();
+                    SetNextStep(nextStepsValues.Completed, "CloseRequest");
+                    $(actionModals.CloseRequest).displayModal();
                     break;
             }
         }
@@ -371,10 +404,6 @@
             $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(enable);
             $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
         };
-
-        //function RenderSwitch() {
-        //    $("[name='" + obtainmentObject.controls.checkSwitch.RequestLocked + "']").bootstrapSwitch();
-        //};
 
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -541,7 +570,7 @@
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
-            } else {
+                } else {
                 var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
@@ -554,20 +583,19 @@
                     if (actionName == "PhoneCall") {
                         var contactPhonegrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         var selectedPhoneItem = contactPhonegrid.dataItem(contactPhonegrid.select());
-                        if (selectedPhoneItem != null) {
-                            obtainmentActionLogPhoneCallModel.LiveCall = $(obtainmentObject.controls.checkBox.LiveCall).val();
-                            obtainmentActionLogPhoneCallModel.CompanyContactId = selectedPhoneItem.CompanyContactId;
-                            obtainmentActionLogPhoneCallModel.CompanyContactPhoneId = selectedPhoneItem.CompanyContactPhoneId;
-                            obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val()!=""?$(obtainmentObject.controls.dropdownlists.InternalNotes).val():null;
-                            obtainmentMultipleWorkItemActionModel.ObtianActionLogPhoneCallModel = obtainmentActionLogPhoneCallModel;
-                        } else {
+                        if (selectedPhoneItem != null)
+                            obtainmentMultipleWorkItemActionModel.ObtianActionLogPhoneCallModel = FillPhoneCall(selectedPhoneItem);
+                        else {
                             $(modalId).toggleModal();
                             $(this).displayError(messages.errorMessages.NoPhoneSelected);
                             return;
                         }
                     }
-                   
-                    
+
+                    if (actionName == "CloseRequest")
+                        obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest();
+
+
                     if (selectedRequests.length > 0) {
                         $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
                          .success(function (successData) {
@@ -591,12 +619,26 @@
             }
         }
 
+        function FillCloseRequest() {
+            var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
+            obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.value();
+            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() !=""?$(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val(): null;
+            obtainmentMultipleWorkItemActionModel.Notes = "Customer Action:" +ddlCustomerActions.text() + "\n" + "Reason Code:" +obtainmentActionCloseRequest.ReasonCode + "\n" + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotes + "CloseRequest").val();
+            return obtainmentActionCloseRequest;
+        }
+
+        function FillPhoneCall(selectedPhoneItem) {
+            obtainmentActionLogPhoneCallModel.LiveCall = $(obtainmentObject.controls.checkBox.LiveCall).val();
+            obtainmentActionLogPhoneCallModel.CompanyContactId = selectedPhoneItem.CompanyContactId;
+            obtainmentActionLogPhoneCallModel.CompanyContactPhoneId = selectedPhoneItem.CompanyContactPhoneId;
+            obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val()!=""?$(obtainmentObject.controls.dropdownlists.InternalNotes).val():null;
+            return obtainmentActionLogPhoneCallModel;
+        }
+
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
-            loadSupplierNotes: loadSupplierNotes,
-            //RenderSwitch: RenderSwitch,
-            //onAssignedToChange: onAssignedToChange
+            loadSupplierNotes: loadSupplierNotes
         };
     };
 })(jQuery);
