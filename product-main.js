@@ -506,14 +506,8 @@
         ////////////non publuc / public/////////////
         var refreshProductSearchResultGrid = function () {
             var grid = $(productObject.controls.grids.GridSearchProduct).data("kendoGrid");
-            if (grid.dataSource.view().length == 0)
-                grid.dataSource.page(1);
-            else {
-                grid.dataSource.filter([]);
-                grid.dataSource.data([]);
-                grid.dataSource.page(1);
-            }
-                
+            grid.dataSource.page(1);
+            grid.dataSource.read();
             QueueQuery();
         };
 
@@ -553,7 +547,7 @@
                     TabReload(tabId, 0);
             });
 
-            BindInputs(pkey);
+            BindInputs(pKey);
 
            
             $(productObject.controls.buttons.SearchSupplierId + "_" + pKey).on("click", function () {
