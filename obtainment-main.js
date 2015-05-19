@@ -42,7 +42,8 @@
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
-                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"
+                    NoticeNumber: "#txtNoticeNum",
+                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",                    
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
                 dropdownlists: {
@@ -58,7 +59,9 @@
                     CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
                     CloseRequestReasonCode: "#ddlReasonCode"
                 },
-                labels:{ContactName:"#lblContactName"},
+                labels: {
+                    ContactName: "#lblContactName",                  
+                },
                 checkBox:{LiveCall:"#chkLiveCall"}
             }
         }
@@ -70,7 +73,7 @@
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
-
+            GenerateNoticeNum: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GenerateNoticeNum",
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
         var obtainmentActions = { Empty: "",ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
@@ -89,7 +92,8 @@
                 NoContactSelcted: "No contact has been selected from Contact Information",
                 NoPhoneSelected : "No conatact phone has been selected",
                 GeneralError: "Error Occurred",
-                EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-"
+                EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-",
+                CannotGenerateNoticeNumber: "Cannot generate notice number"
             }
         };
 
@@ -191,7 +195,7 @@
         });
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
-            debugger;
+         
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
@@ -270,8 +274,7 @@
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
        });
 
-        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
-            debugger;
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {            
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
         });
 
@@ -328,6 +331,7 @@
         }
 
         function ShowActionModals() {
+           
              var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
@@ -369,17 +373,28 @@
 
                 case obtainmentActions.SendEmail:
 
-                    // ---- ARINDAM
-
+                    // ---- ARINDAM                    
                     // at least one contact must be selected.
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                    console.log(selectedItems);
+                    
                     if (selectedItems != null) {
-                        SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
-                        $(actionModals.SendEmail).displayModal();
+                        var strUrl = controllerCalls.GenerateNoticeNum;
+                        $(this).ajaxCall(strUrl)
+                            .success(function (data) {
+                                if (data != '') {                                 
+                                    SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+                                    $(actionModals.SendEmail).displayModal();
+                                    $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
+                                }
+                            })
+                            .error(function () {
+                                $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                            });
+                      
                     } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
+
                     break;
 
                 case obtainmentActions.FlagDiscontinued:
@@ -503,6 +518,7 @@
             // contact mandatory
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
+                $(obtainmentObject.controls.textBoxes.NoticeNumber).val().length <= 15 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
 
                 $(modalId).toggleModal();
@@ -530,7 +546,7 @@
                     // send email specific
                     obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val();
                     obtainmentActionSendEmailModel.Cc = null;
-                    obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
+                    obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.NoticeNumber).val() + " " + $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
                     obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
                     
