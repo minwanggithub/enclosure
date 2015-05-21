@@ -43,7 +43,7 @@
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
                     NoticeNumber: "#txtNoticeNum",
-                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",                    
+                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"                    
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
                 dropdownlists: {
@@ -59,9 +59,7 @@
                     CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
                     CloseRequestReasonCode: "#ddlReasonCode"
                 },
-                labels: {
-                    ContactName: "#lblContactName",                  
-                },
+                labels: {ContactName: "#lblContactName"},
                 checkBox:{LiveCall:"#chkLiveCall"}
             }
         }
@@ -325,9 +323,12 @@
 
         }
 
-        function SetNextStep(nextStepValue, actionName) {
-            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList+actionName).data("kendoDropDownList");
+        function SetNextStep(nextStepValue, actionName,enable) {
+            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+            var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
             ddlNextSteps.value(nextStepValue);
+            ddlNextSteps.enable(enable);
+            dteDateAssigned.enable(enable);
         }
 
         function ShowActionModals() {
@@ -347,7 +348,7 @@
             switch (ddlActions.value()) {
 
                 case obtainmentActions.SetFollowUp:
-                    SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp");
+                    SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp", true);
                     $(actionModals.FollowUp).displayModal();
                     break;
 
@@ -358,7 +359,7 @@
                         var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         phoneContactGrid.dataSource.read();
                         phoneContactGrid.refresh();
-                        SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall");
+                        SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
                         $(actionModals.LogPhoneCall).displayModal();
                         $(obtainmentObject.controls.labels.ContactName).text(selectedItem.SupplierContactName);
                     }
@@ -367,7 +368,7 @@
                     break;
 
                 case obtainmentActions.LogWebSearch:
-                    SetNextStep(nextStepsValues.WebSearch);
+                    SetNextStep(nextStepsValues.WebSearch,"", true);
                     //$(actionModals.FollowUp).displayModal();
                     break;
 
@@ -398,17 +399,17 @@
                     break;
 
                 case obtainmentActions.FlagDiscontinued:
-                    SetNextStep(nextStepsValues.Completed,"FlagDiscontinued");
+                    SetNextStep(nextStepsValues.Completed, "FlagDiscontinued", false);
                     $(actionModals.FlagDiscontinued).displayModal();
                     break;
 
                 case obtainmentActions.FlagNotRequired:
-                    SetNextStep(nextStepsValues.Completed,"NotRequired");
+                    SetNextStep(nextStepsValues.Completed, "NotRequired", false);
                     $(actionModals.NotRequired).displayModal();
                     break;
 
                 case obtainmentActions.ConfirmAsCurrent:
-                    SetNextStep(nextStepsValues.Completed, "CloseRequest");
+                    SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
                     $(actionModals.CloseRequest).displayModal();
                     break;
             }
