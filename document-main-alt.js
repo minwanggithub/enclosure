@@ -67,6 +67,7 @@
                 DocumentRevisionDetailsSupplierView: "[id^=viewRevisionSupplierIdBtn_]",
                 DocumentRevisionMultipleNameNumbersSave: "#btnSaveMultipleNames",
                 DocumentSearchAddNew: "#addNewDocumentBtn",
+                DocumentRevisionNewFile: "[id^=addNewFilesBtn_New]",
                 DocumentSearchClear: "#clearDocumentBtn",
                 DocumentSearchPopUpCancel: "#btnCancelDocumentSearch",
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
@@ -1041,6 +1042,7 @@
                 var grid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
                 if (grid && grid.dataSource) {
                     grid.dataSource.data([]);
+                    container.find(documentElementSelectors.buttons.DocumentRevisionNewFile).removeClass('k-state-disabled');
                 }
             }
         }
@@ -1574,7 +1576,6 @@
         }
 
         function setDocumentRevisionDetailsDefaultValues(container) {
-
             if (container && container.length > 0) {
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsDocumentVersion).val('');
@@ -1587,6 +1588,7 @@
                 container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val('');
                 container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val('');
                 container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val('');
+                container.find(documentElementSelectors.buttons.DocumentRevisionNewFile).removeClass('k-state-disabled');
             }
         }
 
