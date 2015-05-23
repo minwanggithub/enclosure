@@ -4,15 +4,17 @@
 
     }
     $.fn.complibObtainmentResponse = function () {
-        ////var obtainmentResponseObj = $("#DetailObtianment");
+        var responseSearchObj = $("#ReponseDetail");
+        var inboundResponseSearchSection = $("#InboundResponseSearchSection");
+        var responseDetailGridSection = $("#ReponseDetail");
 
-        var obtainmentObject = {
+        var UIObject = {
             controls: {
                 grids: {
                 },
                 buttons: {
-                    ClearRequestSearchButton: "#clearResponseSearchBtn",
-                    SearchRequestsButton: "#searchResponseBtn",
+                    ClearResponseSearchButton: "#clearResponseSearchBtn",
+                    SearchResponseButton: "#searchResponseBtn",
                 },
                 textBoxes: {
                     NoticeNumber: "#txtNoticeNumber",
@@ -21,32 +23,49 @@
             }
         }
 
-        //obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
-        //    var noticId = $("#divSearchSection " + obtainmentObject.controls.textBoxes.NoticeNumber).val();
-        //    var supplierName = $("#divSearchSection " + obtainmentObject.controls.textBoxes.SupplierName).val();
+        var controllerCalls = {
+            SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
+        };
 
-        //    //create requestSearchModel to be passed to the controller
-        //    //obtainmentWorkLoadSearchResultModel.NoticeNumber = "" ? 0 : drpTeams.value();
-        //    //obtainmentWorkLoadSearchResultModel.SupplierId = drpLang.value() == "" ? 0 : drpLang.value();
+        inboundResponseSearchSection.on("click", UIObject.controls.buttons.SearchResponseButton, function () {
+            var noticId = $("#divSearchSection " + UIObject.controls.textBoxes.NoticeNumber).val();
+            var supplierName = $("#divSearchSection " + UIObject.controls.textBoxes.SupplierName).val();
 
-        //    //obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.NoticeNumber + obtainmentWorkLoadSearchResultModel.SupplierId;
+            //create requestSearchModel to be passed to the controller
+            //obtainmentWorkLoadSearchResultModel.NoticeNumber = "" ? 0 : drpTeams.value();
+            //obtainmentWorkLoadSearchResultModel.SupplierId = drpLang.value() == "" ? 0 : drpLang.value();
 
-        //    //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
-        //    //    DisableEnableButtons(false);
+            //ObtainmentResponseSearchModel.HasValue = noticId.NoticeNumber == "" || supplierName == "";
+            var ObtainmentResponseSearchModel = {};
+            ObtainmentResponseSearchModel.HasValue = 2;
 
-        //    //    kendo.ui.progress(obtainmentDetailObj, true);
-        //    //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-        //    //        .success(function (data) {
-        //    //            obtainmentDetailObj.html(data);
-        //    //            DisableEnableButtons(true);
-        //    //        }).error(
-        //    //        function () {
-        //    //            $(this).displayError(messages.errorMessages.GeneralError);
-        //    //        });
-        //    //}
-        //    //else
-        //    //    $(this).displayError(messages.errorMessages.SelectFilter);
-        //});
+    
+            //Always do the search regardless of values
+            $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
+                   .success(function (data) {
+                       responseDetailGridSection.html(data);
+                       //DisableEnableButtons(true);
+                   }).error(
+                   function () {
+                       $(this).displayError(messages.errorMessages.GeneralError);
+                   });
+
+            //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
+            ////    DisableEnableButtons(false);
+
+            ////    kendo.ui.progress(obtainmentDetailObj, true);
+            //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
+            //        .success(function (data) {
+            //            obtainmentDetailObj.html(data);
+            //            DisableEnableButtons(true);
+            //        }).error(
+            //        function () {
+            //            $(this).displayError(messages.errorMessages.GeneralError);
+            //        });
+            //}
+            //else
+            //    $(this).displayError(messages.errorMessages.SelectFilter);
+        });
 
 
         return {
