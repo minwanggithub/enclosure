@@ -11,6 +11,7 @@
         var UIObject = {
             controls: {
                 grids: {
+                    InboundResponse: function () { return $("#gdInboundResponse").data("kendoGrid") }
                 },
                 buttons: {
                     ClearResponseSearchButton: "#clearResponseSearchBtn",
@@ -67,9 +68,19 @@
             //    $(this).displayError(messages.errorMessages.SelectFilter);
         });
 
+        function PanelLoadCompleted(e) {
+            $(e.item).find("a.k-link").remove();
+            var selector = "#" + e.item.id;
+            $(selector).parent().find("li").remove();
+        }
+
+        function InboundResponseSearch() {
+            UIObject.controls.grids.InboundResponse().dataSource.read();
+        }
 
         return {
-
+            PanelLoadCompleted: PanelLoadCompleted,
+            InboundResponseSearch: InboundResponseSearch
         };
     };
 })(jQuery);
