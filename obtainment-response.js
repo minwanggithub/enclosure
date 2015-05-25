@@ -1,8 +1,8 @@
 ﻿; (function ($) {
     if ($.fn.complibObtainmentResponse == null) {
         $.fn.complibObtainmentResponse = {};
-
     }
+
     $.fn.complibObtainmentResponse = function () {
         var responseSearchObj = $("#ReponseDetail");
         var inboundResponseSearchSection = $("#InboundResponseSearchSection");
@@ -24,52 +24,97 @@
             }
         }
 
+        var Initialize = function () {
+            InitializeSearch();
+        };
+
+        var SearchBind = function () {
+            var viewModel = kendo.observable({
+                NoticeNumber: "Ref25",
+                SupplierNameAndId: "1,Unknown",
+
+                SearchClick: function (e) {
+                    e.preventDefault();
+                    var ObtainmentResponseSearchModel = {};
+                    ObtainmentResponseSearchModel.HasValue = 2;
+
+                    kendo.ui.progress(responseDetailGridSection, true);
+                    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
+                           .success(function (data) {
+                               responseDetailGridSection.html(data);
+                               //DisableEnableButtons(true);
+                           }).error(
+                           function () {
+                               $(this).displayError(messages.errorMessages.GeneralError);
+                                });
+
+                },
+
+                ClearClick: function (e) {
+                    e.preventDefault();
+                    this.set("NoticeNumber", "");
+                    this.set("SupplierNameAndId", "");
+                }
+            });
+
+            kendo.bind($("#divObtainmentResponseSearchSection"), viewModel);
+        };
+
+     
+        function InitializeSearch() {
+            UIObject.controls.grids.InboundResponse().dataSource.read();
+        };
+
         var controllerCalls = {
             SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
         };
 
-        inboundResponseSearchSection.on("click", UIObject.controls.buttons.SearchResponseButton, function () {
-            var noticId = $("#divSearchSection " + UIObject.controls.textBoxes.NoticeNumber).val();
-            var supplierName = $("#divSearchSection " + UIObject.controls.textBoxes.SupplierName).val();
+        //inboundResponseSearchSection.on("click", UIObject.controls.buttons.SearchResponseButton, function () {
+        //    var noticId = $("#divSearchSection " + UIObject.controls.textBoxes.NoticeNumber).val();
+        //    var supplierName = $("#divSearchSection " + UIObject.controls.textBoxes.SupplierName).val();
 
-            //create requestSearchModel to be passed to the controller
-            //obtainmentWorkLoadSearchResultModel.NoticeNumber = "" ? 0 : drpTeams.value();
-            //obtainmentWorkLoadSearchResultModel.SupplierId = drpLang.value() == "" ? 0 : drpLang.value();
+        //    //create requestSearchModel to be passed to the controller
+        //    //obtainmentWorkLoadSearchResultModel.NoticeNumber = "" ? 0 : drpTeams.value();
+        //    //obtainmentWorkLoadSearchResultModel.SupplierId = drpLang.value() == "" ? 0 : drpLang.value();
 
-            //ObtainmentResponseSearchModel.HasValue = noticId.NoticeNumber == "" || supplierName == "";
-            var ObtainmentResponseSearchModel = {};
-            ObtainmentResponseSearchModel.HasValue = 2;
+        //    //ObtainmentResponseSearchModel.HasValue = noticId.NoticeNumber == "" || supplierName == "";
+        //    var ObtainmentResponseSearchModel = {};
+        //    ObtainmentResponseSearchModel.HasValue = 2;
 
     
-            //Always do the search regardless of values
-            $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
-                   .success(function (data) {
-                       responseDetailGridSection.html(data);
-                       //DisableEnableButtons(true);
-                   }).error(
-                   function () {
-                       $(this).displayError(messages.errorMessages.GeneralError);
-                   });
+        //    //Always do the search regardless of values
+        //    kendo.ui.progress(responseDetailGridSection, true);
+        //    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
+        //           .success(function (data) {
+        //               responseDetailGridSection.html(data);
+        //               //DisableEnableButtons(true);
+        //           }).error(
+        //           function () {
+        //               $(this).displayError(messages.errorMessages.GeneralError);
+        //           });
 
-            //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
-            ////    DisableEnableButtons(false);
+        //    //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
+        //    ////    DisableEnableButtons(false);
 
-            ////    kendo.ui.progress(obtainmentDetailObj, true);
-            //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-            //        .success(function (data) {
-            //            obtainmentDetailObj.html(data);
-            //            DisableEnableButtons(true);
-            //        }).error(
-            //        function () {
-            //            $(this).displayError(messages.errorMessages.GeneralError);
-            //        });
-            //}
-            //else
-            //    $(this).displayError(messages.errorMessages.SelectFilter);
-        });
+        //    ////    kendo.ui.progress(obtainmentDetailObj, true);
+        //    //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
+        //    //        .success(function (data) {
+        //    //            obtainmentDetailObj.html(data);
+        //    //            DisableEnableButtons(true);
+        //    //        }).error(
+        //    //        function () {
+        //    //            $(this).displayError(messages.errorMessages.GeneralError);
+        //    //        });
+        //    //}
+        //    //else
+        //    //    $(this).displayError(messages.errorMessages.SelectFilter);
+        //});
+
+
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
-            InboundResponseSearch: function () { UIObject.controls.grids.InboundResponse().dataSource.read(); }
+            Initialize: Initialize,
+            SearchBind: SearchBind
         };
     };
 })(jQuery);
