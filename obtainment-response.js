@@ -16,12 +16,16 @@
                     SearchSupplier: function () { return $("#gdSearchSupplier").data("kendoGrid") },
                 },              
                 textBoxes: {
-                    NoticeNumber: function () { return $("#NoticeNumber") },
-                    SupplierNameAndId: function () { return $("#SupplierNameAndId") }
-                }
+                    NoticeNumberObj: function () { return $("#NoticeNumber") },
+                    NoticeNumberObjField: "NoticeNumber",
+                    SupplierNameAndIdObj: function () { return $("#SupplierNameAndId") },
+                    SupplierNameAndIdObjField: "SupplierNameAndId",
+                    SupplierIdObjField: "SupplierId",
+                },                
             },
             popWindow : {
-                supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") }
+                supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") },
+                supplierPlugIn: function () { return $("#dgSupplierPlugIn") },         
             },
 
             controllerCalls: {
@@ -32,8 +36,10 @@
             },
             warnings: {
                 NoRowSelected: "No row selected, please try again."
-            }
-
+            },
+            errorMessage: {
+                GeneralError: "Error Occurred on server call."
+            },
         }
 
         var Initialize = function () {
@@ -56,15 +62,15 @@
                                //DisableEnableButtons(true);
                            }).error(
                            function () {
-                               $(this).displayError(messages.errorMessages.GeneralError);
+                               $(this).displayError(UIObject.errorMessage.GeneralError);
                                 });
 
                 },
 
                 ClearClick: function (e) {
                     e.preventDefault();
-                    this.set("NoticeNumber", "");
-                    this.set("SupplierNameAndId", "");
+                    this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
+                    this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                 },
 
                 CloseSupplierClick: function (e) {
@@ -87,30 +93,10 @@
                         return;
                     }
 
-                    viewModel.set("SupplierNameAndId", item.CompanyId + ", " + item.Name)
-                    viewModel.set("SupplierId", item.CompanyId)
+                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, item.CompanyId + ", " + item.Name)
+                    viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, item.CompanyId)
                     UIObject.popWindow.supplierSearchDialog().center().close();
                 },
-
-                
-                //SelectSupplier : function () {
-                //    var grid = $("#gdSearchSupplier").data("kendoGrid");
-                //    if (grid.dataSource.total() == 0) {
-                //        hideSupplierPlugIn();
-                //        onDisplayError("No row selected");
-                //        return;
-                //    }
-                //    var data = grid.dataItem(grid.select());
-                //    if (data == null) {
-                //        hideSupplierPlugIn();
-                //        onDisplayError("No row selected");
-                //        return;
-                //    }
-        
-                //    $("#txtSupplierId").val(data.id + ", " + data.Name);
-                //    hideSupplierPlugIn();
-                //},
-
 
                 onSearchSupplierClick: function (e) {
                     e.preventDefault();
@@ -119,7 +105,7 @@
 
                 onViewSupplierClick: function (e) {
                     e.preventDefault();
-                    var supplierId = viewModel.get("SupplierId");
+                    var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField);
 
                     if (supplierId > 0)
                         window.open(UIObject.controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
@@ -129,16 +115,14 @@
             kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
             kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
 
-
-            UIObject.controls.textBoxes.SupplierNameAndId().keyup(function (e1) {
+            UIObject.controls.textBoxes.SupplierNameAndIdObj().keyup(function (e1) {
                 var code = (e1.keyCode ? e1.keyCode : e1.which);
                 if (code == 13) //Search only on enter
-                    viewModel.set("SupplierId", viewModel.get("SupplierNameAndId"));
-                    $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get("SupplierNameAndId") }, function (data) {
-                         viewModel.set("SupplierNameAndId", data);
+                    viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
+                $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
+                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
                     });
             });
-
         };
      
         function InitializeSearch() {
@@ -147,7 +131,7 @@
 
         var loadSupplierPlugIn = function () {
             $.post(UIObject.controllerCalls.LoadSupplierPlugIn, { supplierId: 0 }, function (data) {
-                $("#dgSupplierPlugIn").html(data);
+                UIObject.popWindow.supplierPlugIn().html(data);
             });
         };
 
