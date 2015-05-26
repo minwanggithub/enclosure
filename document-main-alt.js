@@ -1856,7 +1856,7 @@
             refreshDocumentContainersGrid(this.element.attr('id'));
         };
 
-        var onDocumentContainerClassificationTypeRequestStart = function () {
+        var onDocumentContainerClassificationTypeRequestStart = function (e) {
             if (e.type == 'read') {
                 var documentId = extractDocumentIdFromRequestUrl(this.transport.options.read.url);
                 var containerType = $(documentElementSelectors.containers.DocumentDetailsFormExact + documentId).find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val();
