@@ -31,15 +31,15 @@
         var SearchBind = function () {
             var viewModel = kendo.observable({
                 NoticeNumber: "Ref25",
-                SupplierNameAndId: "1,Unknown",
+                SupplierNameAndId: "61514,Unknown Manufacturer / Manufacturier Inconnu",
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    var ObtainmentResponseSearchModel = {};
-                    ObtainmentResponseSearchModel.HasValue = 2;
-
+                    //$.post(url, { searchCriteria: searchCriteriaData }, function (data) {
+                    //    $('#page-wrapper').html(data);
+                    //});
                     kendo.ui.progress(responseDetailGridSection, true);
-                    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
+                    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
                                responseDetailGridSection.html(data);
                                //DisableEnableButtons(true);
@@ -54,7 +54,21 @@
                     e.preventDefault();
                     this.set("NoticeNumber", "");
                     this.set("SupplierNameAndId", "");
+                },
+
+                onSearchSupplierClick: function (e) {
+                    e.preventDefault();
+                    alert("supplier search clicked");
+                },
+
+                onViewSupplierClick: function (e) {
+                    e.preventDefault();
+                    alert("supplier view clicked");
                 }
+            });
+
+            viewModel.bind('change', function (e) {
+                console.log(e.field + ' changed to ' + this[e.field]);
             });
 
             kendo.bind($("#divObtainmentResponseSearchSection"), viewModel);
