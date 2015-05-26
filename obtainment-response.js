@@ -4,23 +4,28 @@
     }
 
     $.fn.complibObtainmentResponse = function () {
-        var responseSearchObj = $("#ReponseDetail");
-        var inboundResponseSearchSection = $("#InboundResponseSearchSection");
-        var responseDetailGridSection = $("#ReponseDetail");
-
         var UIObject = {
+            sections: {
+                inboundResponseSearchSection: function () { return $("#divObtainmentResponseSearchSection") },
+                responseDetailGridSection: function () { return $("#ReponseDetail") },
+            },
             controls: {
                 grids: {
                     InboundResponse: function () { return $("#gdInboundResponse").data("kendoGrid") }
                 },
-                buttons: {
-                    ClearResponseSearchButton: "#clearResponseSearchBtn",
-                    SearchResponseButton: "#searchResponseBtn",
-                },
+                //buttons: {
+                //    ClearResponseSearchButton: "#clearResponseSearchBtn",
+                //    SearchResponseButton: "#searchResponseBtn",
+                //},
                 textBoxes: {
-                    NoticeNumber: "#txtNoticeNumber",
-                    SupplierName: "#txtSupplierName"
+                    NoticeNumber: function () { return $("#NoticeNumber") },
+                    SupplierNameAndId: function () { return $("#SupplierNameAndId") }
                 }
+            },
+            controllerCalls: {
+                SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
+                SearchSupplierInfo: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
+                LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
             }
         }
 
@@ -30,18 +35,17 @@
 
         var SearchBind = function () {
             var viewModel = kendo.observable({
-                NoticeNumber: "Ref25",
-                SupplierNameAndId: "61514,Unknown Manufacturer / Manufacturier Inconnu",
+                NoticeNumber: "",
+                SupplierNameAndId: "", 
+                SupplierId: 0,
+                SupplierName: "",
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    //$.post(url, { searchCriteria: searchCriteriaData }, function (data) {
-                    //    $('#page-wrapper').html(data);
-                    //});
-                    kendo.ui.progress(responseDetailGridSection, true);
-                    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
+                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
+                    $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
-                               responseDetailGridSection.html(data);
+                               UIObject.sections.responseDetailGridSection().html(data);
                                //DisableEnableButtons(true);
                            }).error(
                            function () {
@@ -63,67 +67,29 @@
 
                 onViewSupplierClick: function (e) {
                     e.preventDefault();
-                    alert("supplier view clicked");
+                    var supplierId = viewModel.get("SupplierId");
+
+                    if (supplierId > 0)
+                        window.open(UIObject.controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
                 }
             });
 
-            viewModel.bind('change', function (e) {
-                console.log(e.field + ' changed to ' + this[e.field]);
+            kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
+
+            UIObject.controls.textBoxes.SupplierNameAndId().keyup(function (e1) {
+                var code = (e1.keyCode ? e1.keyCode : e1.which);
+                if (code == 13) //Search only on enter
+                    viewModel.set("SupplierId", viewModel.get("SupplierNameAndId"));
+                    $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get("SupplierNameAndId") }, function (data) {
+                         viewModel.set("SupplierNameAndId", data);
+                    });
             });
 
-            kendo.bind($("#divObtainmentResponseSearchSection"), viewModel);
         };
-
      
         function InitializeSearch() {
             UIObject.controls.grids.InboundResponse().dataSource.read();
         };
-
-        var controllerCalls = {
-            SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
-        };
-
-        //inboundResponseSearchSection.on("click", UIObject.controls.buttons.SearchResponseButton, function () {
-        //    var noticId = $("#divSearchSection " + UIObject.controls.textBoxes.NoticeNumber).val();
-        //    var supplierName = $("#divSearchSection " + UIObject.controls.textBoxes.SupplierName).val();
-
-        //    //create requestSearchModel to be passed to the controller
-        //    //obtainmentWorkLoadSearchResultModel.NoticeNumber = "" ? 0 : drpTeams.value();
-        //    //obtainmentWorkLoadSearchResultModel.SupplierId = drpLang.value() == "" ? 0 : drpLang.value();
-
-        //    //ObtainmentResponseSearchModel.HasValue = noticId.NoticeNumber == "" || supplierName == "";
-        //    var ObtainmentResponseSearchModel = {};
-        //    ObtainmentResponseSearchModel.HasValue = 2;
-
-    
-        //    //Always do the search regardless of values
-        //    kendo.ui.progress(responseDetailGridSection, true);
-        //    $(this).ajaxCall(controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(ObtainmentResponseSearchModel) })
-        //           .success(function (data) {
-        //               responseDetailGridSection.html(data);
-        //               //DisableEnableButtons(true);
-        //           }).error(
-        //           function () {
-        //               $(this).displayError(messages.errorMessages.GeneralError);
-        //           });
-
-        //    //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
-        //    ////    DisableEnableButtons(false);
-
-        //    ////    kendo.ui.progress(obtainmentDetailObj, true);
-        //    //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-        //    //        .success(function (data) {
-        //    //            obtainmentDetailObj.html(data);
-        //    //            DisableEnableButtons(true);
-        //    //        }).error(
-        //    //        function () {
-        //    //            $(this).displayError(messages.errorMessages.GeneralError);
-        //    //        });
-        //    //}
-        //    //else
-        //    //    $(this).displayError(messages.errorMessages.SelectFilter);
-        //});
-
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
