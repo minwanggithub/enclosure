@@ -35,7 +35,8 @@
                 LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
             },
             warnings: {
-                NoRowSelected: "No row selected, please try again."
+                NoRowSelected: "No row selected, please try again.",
+                NoSearchCriteria: "No search criteria entered."
             },
             errorMessage: {
                 GeneralError: "Error Occurred on server call."
@@ -55,7 +56,13 @@
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
+                    //if (this.NoSearchCriteria())
+                    //{
+                    //    $(this).displayError(UIObject.warnings.NoSearchCriteria);
+                    //    return;
+                    //}
+
+                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
                                UIObject.sections.responseDetailGridSection().html(data);
@@ -76,6 +83,11 @@
                 CloseSupplierClick: function (e) {
                     e.preventDefault();
                     UIObject.popWindow.supplierSearchDialog().center().close();
+                },
+
+                NoSearchCriteria: function () {
+                    var result = (this.SupplierNameAndId == "" && this.NoticeNumber == "")
+                    return result;
                 },
 
                 SelectSupplierClick: function (e) {
@@ -123,6 +135,21 @@
                     viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
                     });
             });
+
+            //UIObject.controls.textBoxes.NoticeNumberObj().kendoAutoComplete({
+            //    minlength: 3,
+            //    //dataTextField: "Text",
+            //    filter: "contains",
+            //    placeholder: 'Enter notice number',
+            //    dataSource: new kendo.data.DataSource({
+            //        transport: {
+            //            read: {
+            //                url: "../ObtainmentResponse/GetNoticeNumberSelect",
+            //                type: "GET"
+            //            }
+            //        }
+            //    }),
+            //});
         };
      
         function InitializeSearch() {
