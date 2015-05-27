@@ -10,6 +10,7 @@
         var obtianmentDetailModals = $("#ObtainmentDetailModals");
         var itemsChecked = 0;
         var selectedRequests = new Array();
+        var hasNoticeNumbers = false;
         var selectedRows = new Array();
 
         var obtainmentObject = {
@@ -91,7 +92,8 @@
                 NoPhoneSelected : "No conatact phone has been selected",
                 GeneralError: "Error Occurred",
                 EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-",
-                CannotGenerateNoticeNumber: "Cannot generate notice number"
+                CannotGenerateNoticeNumber: "Cannot generate notice number",
+                ResponseReceived: "A notice number is associated with one or several request(s) that are being processed"
             }
         };
 
@@ -236,7 +238,10 @@
 
      
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
-            ShowActionModals();
+            if (hasNoticeNumbers)
+                $(this).displayError(messages.errorMessages.ResponseReceived);
+            else
+                ShowActionModals();
         });
         
 
@@ -452,6 +457,12 @@
                             if (index > -1)
                                 selectedRequests.splice(index, 1);
                         }
+                        
+                        if (this['IsSelected'] && this['NoticeNumber'] != null)
+                            hasNoticeNumbers = true;
+
+                        if (!this['IsSelected'] && this['NoticeNumber'] != null)
+                            hasNoticeNumbers = false;
 
                         if (selectedRows.indexOf(this["uid"]) > -1)
                             grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
@@ -484,6 +495,12 @@
                                 if (index > -1)
                                     selectedRequests.splice(index, 1);
                             }
+
+                            if (this['IsSelected'] && this['NoticeNumber'] != null)
+                                hasNoticeNumbers = true;
+
+                            if (!this['IsSelected'] && this['NoticeNumber'] != null)
+                                hasNoticeNumbers = false;
                         });
                         kgrid.refresh();
                         UpdateNumberOfItemsChecked(itemsChecked);
