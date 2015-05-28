@@ -133,7 +133,9 @@
             Recepients:null,
             Cc:null,
             Subject:null,
-            Body:null
+            Body: null,
+            Files :null
+
         };
 
         var loadRequestsPlugin = function() {
@@ -243,7 +245,7 @@
             else
                 ShowActionModals();
         });
-        
+
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpCancelButton, function () {
             $(actionModals.FollowUp).toggleModal();
@@ -254,9 +256,25 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailCancelButton, function () {
-            $(actionModals.SendEmail).toggleModal();
-        });
 
+            // if there are attachments OR if the form has been edited, confirm
+            // abandon action with the user.
+
+            fUploadlib.abandonAttachments(function(action) {
+                if (action.abandon) {
+
+                    var files = action.attachments;
+                    console.log(files);
+
+                    // remove all attachments
+
+                    // TODO: see if form has been edited
+                    $(actionModals.SendEmail).toggleModal();
+                }
+            });
+
+        });
+        
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedCancelButton, function () {
             $(actionModals.FlagDiscontinued).toggleModal();
             });
@@ -275,7 +293,7 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
-       });
+        });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {            
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
@@ -334,7 +352,7 @@
             ddlNextSteps.value(nextStepValue);
             ddlNextSteps.enable(enable);
             dteDateAssigned.enable(enable);
-        }
+            }
 
         function ShowActionModals() {
            
@@ -343,7 +361,7 @@
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
                 return;
-             }
+                }
 
             if (ddlActions.value() == obtainmentActions.Empty) {
                 $(this).displayError(messages.errorMessages.NoActionSelected);
@@ -367,8 +385,7 @@
                         SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
                         $(actionModals.LogPhoneCall).displayModal();
                         $(obtainmentObject.controls.labels.ContactName).text(selectedItem.SupplierContactName);
-                    }
-                    else
+                } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
                     break;
 
@@ -379,27 +396,52 @@
 
                 case obtainmentActions.SendEmail:
 
-                    // ---- ARINDAM                    
+                    // ---- ARINDAM
+
+                try {
+
                     // at least one contact must be selected.
+
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                    
+                    console.log(selectedItems);
                     if (selectedItems != null) {
+
                         var strUrl = controllerCalls.GenerateNoticeNum;
                         $(this).ajaxCall(strUrl)
                             .success(function (data) {
-                                if (data != '') {                                 
+                                if (data != '') {
+
+                                    // set the next step
                                     SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
-                                    $(actionModals.SendEmail).displayModal();
+
+                                    // reset all upload state
+                                    fUploadlib.initialize();
+
+                                    // set up the notice number
                                     $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
+
+                                    // clear textboxes
+                                    $("#txtObtainmentEmailSendEmailBody").val("");
+                                    $("#txtObtainmentEmailSendEmailSubject").val("");
+
+                                    // display upload interface
+                                    $(actionModals.SendEmail).displayModal();
+                                    
                                 }
                             })
                             .error(function () {
                                 $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
                             });
-                      
-                    } else
+
+                    }
+
+                } catch (e) {
+
+                    // contact must be selected
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
+
+                }
 
                     break;
 
@@ -532,11 +574,10 @@
 
             var valid = true;
 
-
             // contact mandatory
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
-                $(obtainmentObject.controls.textBoxes.NoticeNumber).val().length <= 15 ||
+               // $(obtainmentObject.controls.textBoxes.NoticeNumber).val().length <= 15 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
 
                 $(modalId).toggleModal();
@@ -549,7 +590,7 @@
 
                 var actionName = "SendEmail";
                 var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
-                console.log("DDLNS:" + obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName);
+                //console.log("DDLNS:" + obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName);
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
 
@@ -566,6 +607,8 @@
                     obtainmentActionSendEmailModel.Cc = null;
                     obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.NoticeNumber).val() + " " + $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
                     obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+                    obtainmentActionSendEmailModel.Files = fUploadlib.getAttachments();
+
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
                     
                     $.ajax({
@@ -604,7 +647,7 @@
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
-                } else {
+            } else {
                 var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
@@ -625,11 +668,11 @@
                             return;
                         }
                     }
-
+                   
                     if (actionName == "CloseRequest")
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest();
 
-
+                    
                     if (selectedRequests.length > 0) {
                         $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
                          .success(function (successData) {
@@ -659,7 +702,7 @@
             obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() !=""?$(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val(): null;
             obtainmentMultipleWorkItemActionModel.Notes = "Customer Action:" +ddlCustomerActions.text() + "\n" + "Reason Code:" +obtainmentActionCloseRequest.ReasonCode + "\n" + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotes + "CloseRequest").val();
             return obtainmentActionCloseRequest;
-        }
+            }
 
         function FillPhoneCall(selectedPhoneItem) {
             obtainmentActionLogPhoneCallModel.LiveCall = $(obtainmentObject.controls.checkBox.LiveCall).val();
