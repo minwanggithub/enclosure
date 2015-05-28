@@ -111,7 +111,12 @@
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                     displaySavedMessage("NonSdsIndexation Saved.");
+                    if (data.substring(0, 5) == "Error") {                        
+                        DisplayErrorNotification(data);
+                    }
+                    else {
+                        displaySavedMessage("NonSdsIndexation Saved.");
+                    }
                 });
             });
         }
