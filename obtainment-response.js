@@ -33,6 +33,7 @@
                 SearchSupplierInfo: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
                 LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
                 LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
+                NoticeAutoComplete: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
             },
             warnings: {
                 NoRowSelected: "No row selected, please try again.",
@@ -56,11 +57,11 @@
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    //if (this.NoSearchCriteria())
-                    //{
-                    //    $(this).displayError(UIObject.warnings.NoSearchCriteria);
-                    //    return;
-                    //}
+                    if (this.NoSearchCriteria())
+                    {
+                        $(this).displayError(UIObject.warnings.NoSearchCriteria);
+                        return;
+                    }
 
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
@@ -78,6 +79,9 @@
                     e.preventDefault();
                     this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
+                    var inboundGrid = UIObject.controls.grids.InboundResponse
+                    if (inboundGrid().dataSource.total() > 0)
+                         inboundGrid().dataSource.data([]);
                 },
 
                 CloseSupplierClick: function (e) {
@@ -136,20 +140,21 @@
                     });
             });
 
-            //UIObject.controls.textBoxes.NoticeNumberObj().kendoAutoComplete({
-            //    minlength: 3,
-            //    //dataTextField: "Text",
-            //    filter: "contains",
-            //    placeholder: 'Enter notice number',
-            //    dataSource: new kendo.data.DataSource({
-            //        transport: {
-            //            read: {
-            //                url: "../ObtainmentResponse/GetNoticeNumberSelect",
-            //                type: "GET"
-            //            }
-            //        }
-            //    }),
-            //});
+            var noticObj = UIObject.controls.textBoxes.NoticeNumberObj().kendoAutoComplete({
+                MinLength: 2,
+                //dataTextField: "Text",
+                filter: "startswith",
+                dataSource: new kendo.data.DataSource({
+                    transport: {
+                        serverFiltering: true,
+                        serverPaging:false,
+                        read: {
+                            url: UIObject.controllerCalls.NoticeAutoComplete,
+                            type: "GET"
+                        }
+                    }
+                }),
+            });          
         };
      
         function InitializeSearch() {
