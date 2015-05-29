@@ -57,11 +57,11 @@
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    if (this.NoSearchCriteria())
-                    {
-                        $(this).displayError(UIObject.warnings.NoSearchCriteria);
-                        return;
-                    }
+                    //if (this.NoSearchCriteria())
+                    //{
+                    //    $(this).displayError(UIObject.warnings.NoSearchCriteria);
+                    //    return;
+                    //}
 
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
