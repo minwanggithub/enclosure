@@ -123,7 +123,7 @@
 
                 onViewSupplierClick: function (e) {
                     e.preventDefault();
-                    var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField);
+                    var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField)
 
                     if (supplierId > 0)
                         window.open(UIObject.controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
@@ -169,11 +169,19 @@
             });
         };
 
+        var IntializeSupplierUpdate = function (inboundId) {
+            $(document).ready(function () {
+                $("#btnChangeSupplier_" + inboundId).click(function () {
+                });
+            });
+        };
+
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             Initialize: Initialize,
             SearchBind: SearchBind,
             loadSupplierPlugIn: loadSupplierPlugIn,
+            IntializeSupplierUpdate:IntializeSupplierUpdate,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); }
         };
     };
