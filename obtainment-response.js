@@ -193,13 +193,19 @@
             viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'inherit');
         };
 
+        var MasterCollapse = function() {
+          if ($("#gdInboundResponse td.k-hierarchy-cell").find("a.k-minus").length == 0)
+              viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
+        };
+
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             Initialize: Initialize,
             SearchBind: SearchBind,
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
-            MasterExpand: MasterExpand,            
+            MasterExpand: MasterExpand,          
+            MasterCollapse: MasterCollapse,
         };
     };
 })(jQuery);
