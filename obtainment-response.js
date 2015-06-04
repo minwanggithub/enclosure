@@ -11,24 +11,28 @@
                 inboundResponseSearchSection: function () { return $("#divObtainmentResponseSearchSection") },
                 responseDetailGridSection: function () { return $("#ReponseDetail") },
                 supplierSearchFootSection: function () { return $("#supplierSearchFootSection") },
-                customerActionSection: function () { return $("#customerActionSection")},
+                customerActionSection: function () { return $("#customerActionSection") },
             },
             controls: {
                 grids: {
                     InboundResponse: function () { return $("#gdInboundResponse").data("kendoGrid") },
                     SearchSupplier: function () { return $("#gdSearchSupplier").data("kendoGrid") },
-                },              
+                },
                 textBoxes: {
                     NoticeNumberObj: function () { return $("#NoticeNumber") },
                     NoticeNumberObjField: "NoticeNumber",
                     SupplierNameAndIdObj: function () { return $("#SupplierNameAndId") },
                     SupplierNameAndIdObjField: "SupplierNameAndId",
                     SupplierIdObjField: "SupplierId",
-                },                
+                },
+                buttons: {
+                    ShowCollapseObjField: "ShowCollapse",
+                }
+
             },
-            popWindow : {
+            popWindow: {
                 supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") },
-                supplierPlugIn: function () { return $("#dgSupplierPlugIn") },         
+                supplierPlugIn: function () { return $("#dgSupplierPlugIn") },
             },
 
             controllerCalls: {
@@ -45,7 +49,7 @@
             errorMessage: {
                 GeneralError: "Error Occurred on server call."
             },
-        }
+        };
 
         var Initialize = function () {
             InitializeSearch();
@@ -102,6 +106,8 @@
                     for (var i = 0; i < allMasterRows.length; i++) {
                         inboundGrid().collapseRow(allMasterRows.eq(i));
                     }
+                    //viewModel.set('ShowCollapse', 'none');
+                    viewModel.set(UIObject.controls.buttons.ShowCollapseObjField,'none')
                 },
 
                 NoSearchCriteria: function () {
@@ -183,8 +189,8 @@
             });
         };
 
-        var MasterExpand = function() {
-            viewModel.set('ShowCollapse', 'inherit');
+        var MasterExpand = function () {
+            viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'inherit');
         };
 
         return {
