@@ -4,11 +4,14 @@
     }
 
     $.fn.complibObtainmentResponse = function () {
+        var viewModel = {};
+
         var UIObject = {
             sections: {
                 inboundResponseSearchSection: function () { return $("#divObtainmentResponseSearchSection") },
                 responseDetailGridSection: function () { return $("#ReponseDetail") },
                 supplierSearchFootSection: function () { return $("#supplierSearchFootSection") },
+                customerActionSection: function () { return $("#customerActionSection")},
             },
             controls: {
                 grids: {
@@ -49,11 +52,12 @@
         };
 
         var SearchBind = function () {
-            var viewModel = kendo.observable({
+            viewModel = kendo.observable({
                 NoticeNumber: "",
                 SupplierNameAndId: "", 
                 SupplierId: 0,
                 SupplierName: "",
+                ShowCollapse: "none",
 
                 SearchClick: function (e) {
                     e.preventDefault();
@@ -89,6 +93,15 @@
                 CloseSupplierClick: function (e) {
                     e.preventDefault();
                     UIObject.popWindow.supplierSearchDialog().center().close();
+                },
+
+                CollapseMasterDetailClick: function(e) {
+                    var inboundGrid = UIObject.controls.grids.InboundResponse
+                    var allMasterRows = inboundGrid().tbody.find('>tr.k-master-row');
+
+                    for (var i = 0; i < allMasterRows.length; i++) {
+                        inboundGrid().collapseRow(allMasterRows.eq(i));
+                    }
                 },
 
                 NoSearchCriteria: function () {
@@ -161,6 +174,7 @@
      
         function InitializeSearch() {
             UIObject.controls.grids.InboundResponse().dataSource.read();
+            kendo.bind(UIObject.sections.customerActionSection(), viewModel);
         };
 
         var loadSupplierPlugIn = function () {
@@ -169,11 +183,8 @@
             });
         };
 
-        var IntializeSupplierUpdate = function (inboundId) {
-            $(document).ready(function () {
-                $("#btnChangeSupplier_" + inboundId).click(function () {
-                });
-            });
+        var MasterExpand = function() {
+            viewModel.set('ShowCollapse', 'inherit');
         };
 
         return {
@@ -181,8 +192,8 @@
             Initialize: Initialize,
             SearchBind: SearchBind,
             loadSupplierPlugIn: loadSupplierPlugIn,
-            IntializeSupplierUpdate:IntializeSupplierUpdate,
-            closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); }
+            closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
+            MasterExpand: MasterExpand,            
         };
     };
 })(jQuery);
