@@ -58,7 +58,7 @@
         var SearchBind = function () {
             viewModel = kendo.observable({
                 NoticeNumber: "",
-                SupplierNameAndId: "",
+                SupplierNameAndId: "", 
                 SupplierId: 0,
                 SupplierName: "",
                 ShowCollapse: "none",
@@ -71,7 +71,7 @@
                     //    return;
                     //}
 
-                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
+                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
 
@@ -82,7 +82,7 @@
                            }).error(
                            function () {
                                $(this).displayError(UIObject.errorMessage.GeneralError);
-                           });
+                                });
 
                 },
 
@@ -95,7 +95,7 @@
                     var inboundGrid = UIObject.controls.grids.InboundResponse
 
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
-                        inboundGrid().dataSource.data([]);
+                         inboundGrid().dataSource.data([]);
                 },
 
                 CloseSupplierClick: function (e) {
@@ -155,11 +155,11 @@
             kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
 
             UIObject.controls.textBoxes.SupplierNameAndIdObj().keyup(function (e1) {
-                var code = (e1.keyCode ? e1.keyCode : e1.which);                
+                var code = (e1.keyCode ? e1.keyCode : e1.which);
                 if (code == 13) {//Search only on enter
                     viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
-                   $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
-                        viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
+                $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
+                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
                     });
                 }
             });
@@ -168,19 +168,64 @@
                 MinLength: 2,
                 //dataTextField: "Text",
                 filter: "startswith",
-                    dataSource: new kendo.data.DataSource({
-                        transport: {
+                dataSource: new kendo.data.DataSource({
+                    transport: {
                         serverFiltering: true,
                         serverPaging: false,
-                            read: {
-                                url: UIObject.controllerCalls.NoticeAutoComplete,
+                        read: {
+                            url: UIObject.controllerCalls.NoticeAutoComplete,
                             type: "GET"
+                        }
                     }
-            }
-        }),
-        });
+                }),
+            });          
         };
      
+
+        var EditSupplierOnResponseDetail = function (responseID) {
+
+            var editBtn = $('#EditSupplierBtn' + responseID);
+            var strUrl = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/IfExistEmailOrDomain';
+            $.ajax({
+                     method: "POST",
+                     url: strUrl,
+                     data: { inboundResponseId: responseID },
+                 })
+                .done(function(msg) {
+                    if(msg == false) {
+                       var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain'
+                       };
+                       DisplayConfirmationModal(args, function () {
+                          AddEmailOrDoman(responseID);
+                       });
+                   }
+                   else {
+                      UIObject.popWindow.supplierSearchDialog().center().open();
+                   }
+                })
+               .error(function(msg) {
+               });         
+            
+        }
+
+        function AddEmailOrDoman(responseID) {
+            var editBtn = $('#EditSupplierBtn'+responseID);
+            var strUrl =  GetEnvironmentLocation() + '/Operations/ObtainmentResponse/AddEmailOrDomain';
+     
+            $.ajax({
+                 method:"POST",
+                 url: strUrl,
+                 data: {inboundResponseId: responseID},
+                })
+                .done(function(msg) {     
+                    UIObject.popWindow.supplierSearchDialog().center().open();             
+               })
+               .error(function(msg){
+                    
+               });
+
+        }
+
         function InitializeSearch() {
             UIObject.controls.grids.InboundResponse().dataSource.read();
             kendo.bind(UIObject.sections.customerActionSection(), viewModel);
@@ -202,9 +247,10 @@
         };
 
         return {
-            PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
+            PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
             Initialize: Initialize,
             SearchBind: SearchBind,
+            EditSupplierOnResponseDetail: EditSupplierOnResponseDetail,
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
             MasterExpand: MasterExpand,          
