@@ -27,27 +27,27 @@
                 },
                 buttons: {
                     ShowCollapseObjField: "ShowCollapse",
-                }
+                }               
 
             },
             popWindow: {
-                supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") },
-                supplierPlugIn: function () { return $("#dgSupplierPlugIn") },
+                   supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") },
+                   supplierPlugIn: function () { return $("#dgSupplierPlugIn") },                   
             },
 
-            controllerCalls: {
-                SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
-                SearchSupplierInfo: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
-                LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
-                LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
-                NoticeAutoComplete: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
+                controllerCalls: {
+                    SearchResponse : GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
+                    SearchSupplierInfo : GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
+                    LoadSingleSupplier : GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
+                    LoadSupplierPlugIn : GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
+                    NoticeAutoComplete : GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
             },
-            warnings: {
-                NoRowSelected: "No row selected, please try again.",
-                NoSearchCriteria: "No search criteria entered."
-            },
-            errorMessage: {
-                GeneralError: "Error Occurred on server call."
+                warnings: {
+                    NoRowSelected: "No row selected, please try again.",
+                    NoSearchCriteria: "No search criteria entered."
+                    },
+                        errorMessage: {
+                            GeneralError: "Error Occurred on server call."
             },
         };
 
@@ -177,35 +177,84 @@
                             type: "GET"
                         }
                     }
-                }),
-            });          
+
+                 }),
+            });                     
         };
      
+        var SearchSupplierOnResponseDetailBind = function (responseId) {
+            viewModel = kendo.observable({              
+          
+                CloseSupplierClick: function (e) {
+                    e.preventDefault();
+                    UIObject.popWindow.supplierSearchDialog().center().close();
+                },             
+
+                SelectSupplierClick: function (e) {
+                    e.preventDefault();
+                    if (UIObject.controls.grids.SearchSupplier().dataSource.total() == 0) {
+                        onDisplayError(UIObject.warnings.NoRowSelected);
+                        return;
+                    }
+
+                    var item = UIObject.controls.grids.SearchSupplier().dataItem(UIObject.controls.grids.SearchSupplier().select());
+                    if (item == null) {
+                        onDisplayError(UIObject.warnings.NoRowSelected);
+                        return;
+                    }
+
+                    $('#lblSupplierInfoForResponseDetail' + responseId).text(item.CompanyId + ", " + item.Name);
+                    UIObject.popWindow.supplierSearchDialog().center().close();
+                },
+
+                onSearchSupplierClick: function (e) {
+                    e.preventDefault();
+                    UIObject.popWindow.supplierSearchDialog().center().open();
+                },
+           
+            });
+
+            kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
+            kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
+
+            UIObject.controls.textBoxes.SupplierNameAndIdObj().keyup(function (e1) {
+                var code = (e1.keyCode ? e1.keyCode : e1.which);
+                if (code == 13) {//Search only on enter
+                    viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
+                $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
+                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
+                    });
+                }
+            });
+                       
+        };
 
         var EditSupplierOnResponseDetail = function (responseID) {
 
-            var editBtn = $('#EditSupplierBtn' + responseID);
+            var editBtn = $('#EditSupplierBtn' +responseID);
             var strUrl = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/IfExistEmailOrDomain';
             $.ajax({
-                     method: "POST",
-                     url: strUrl,
-                     data: { inboundResponseId: responseID },
-                 })
-                .done(function(msg) {
-                    if(msg == false) {
-                       var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain'
-                       };
-                       DisplayConfirmationModal(args, function () {
-                          AddEmailOrDoman(responseID);
-                       });
-                   }
-                   else {
-                      UIObject.popWindow.supplierSearchDialog().center().open();
-                   }
-                })
-               .error(function(msg) {
-               });         
-            
+                method: "POST",
+                url: strUrl,
+                data: { inboundResponseId: responseID },
+            })
+            .done(function (msg) {
+              
+                if (msg == false) {
+                    var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
+                    DisplayConfirmationModal(args,
+                                             function () { AddEmailOrDoman(responseID); },
+                                             function() {  UIObject.popWindow.supplierSearchDialog().center().open();}
+                    );
+                }
+                else {
+                    UIObject.popWindow.supplierSearchDialog().center().open();
+                }
+
+            })
+            .error(function (msg) {
+        });
+
         }
 
         function AddEmailOrDoman(responseID) {
@@ -246,15 +295,38 @@
               viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
         };
 
+        var SaveInboundResponseDetail = function(data) {           
+            var strUrl =  GetEnvironmentLocation() + '/Operations/ObtainmentResponse/SaveInboundResponseDetail';
+
+            $.ajax({
+                     method: "POST",
+                     url: strUrl,
+                     data: JSON.stringify(data),
+                     contentType: 'application/json; charset=utf-8',
+                     error: function () {
+                           DisplayError('Inbound response detail could not be saved.');
+                     },
+                     success: function (successData) {
+                           if(successData.success == false)                             
+                                 DisplayError("Error Occurred.");
+                     },
+                     complete: function (compData) {
+                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Inbound response detail Saved Successful.");
+                    }
+                 })               
+        };
+
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
             Initialize: Initialize,
             SearchBind: SearchBind,
+            SearchSupplierOnResponseDetailBind: SearchSupplierOnResponseDetailBind,
             EditSupplierOnResponseDetail: EditSupplierOnResponseDetail,
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
             MasterExpand: MasterExpand,          
             MasterCollapse: MasterCollapse,
+            SaveInboundResponseDetail: SaveInboundResponseDetail
         };
     };
 })(jQuery);
