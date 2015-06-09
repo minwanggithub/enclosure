@@ -229,32 +229,8 @@
                        
         };
 
-        var EditSupplierOnResponseDetail = function (responseID) {
-
-            var editBtn = $('#EditSupplierBtn' +responseID);
-            var strUrl = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/IfExistEmailOrDomain';
-            $.ajax({
-                method: "POST",
-                url: strUrl,
-                data: { inboundResponseId: responseID },
-            })
-            .done(function (msg) {
-              
-                if (msg == false) {
-                    var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
-                    DisplayConfirmationModal(args,
-                                             function () { AddEmailOrDoman(responseID); },
-                                             function() {  UIObject.popWindow.supplierSearchDialog().center().open();}
-                    );
-                }
-                else {
-                    UIObject.popWindow.supplierSearchDialog().center().open();
-                }
-
-            })
-            .error(function (msg) {
-        });
-
+        var EditSupplierOnResponseDetail = function () {
+              UIObject.popWindow.supplierSearchDialog().center().open();
         }
 
         function AddEmailOrDoman(responseID) {
@@ -265,14 +241,10 @@
                  method:"POST",
                  url: strUrl,
                  data: {inboundResponseId: responseID},
-                })
-                .done(function(msg) {     
-                    UIObject.popWindow.supplierSearchDialog().center().open();             
-               })
-               .error(function(msg){
-                    
+                })                
+               .error(function(){
+                   DisplayError('Error: Cannot add Email or Domain.');
                });
-
         }
 
         function InitializeSearch() {
@@ -307,11 +279,31 @@
                            DisplayError('Inbound response detail could not be saved.');
                      },
                      success: function (successData) {
-                           if(successData.success == false)                             
-                                 DisplayError("Error Occurred.");
+                         if (successData == false) {
+                             DisplayError("Error Occurred.");
+                         }
+                         else {                        
+                             var strUrl = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/IfExistEmailOrDomain';
+                             var responseID = data['inboundResponseID'];
+                             $.ajax({
+                                     method: "POST",
+                                     url: strUrl,
+                                     data: { inboundResponseId: responseID },
+                             })
+                             .success(function (successData) {
+                                     if (successData == false) {
+                                        var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
+                                              DisplayConfirmationModal(args, function () { AddEmailOrDoman(responseID); } );
+                                     }
+                            })
+                            .error(function (msg) {
+                                  DisplayError('Error: Cannot add email or domain.');
+                             });
+
+                          }
                      },
                      complete: function (compData) {
-                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Inbound response detail Saved Successful.");
+                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Inbound response detail saved successfully.");
                     }
                  })               
         };
