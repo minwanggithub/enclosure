@@ -28,6 +28,7 @@
                     },
                     dropdownlists: {
                         ResponseStatusAll: "[id^=ddlResponseStatus]",
+                        ResponseStatusId: "ResponseStatusId",
                         ResponseStatusSpecific: "ddlResponseStatus",
                     },
                 grids: {
@@ -83,6 +84,7 @@
                 SupplierId: 0,
                 SupplierName: "",
                 ShowCollapse: "none",
+                ResponseStatusId: "0",
 
                 SearchClick: function (e) {
                     e.preventDefault();
@@ -112,8 +114,9 @@
                     this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
+                    this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
 
-                    var inboundGrid = UIObject.controls.grids.InboundResponse
+                    var inboundGrid = UIObject.controls.grids.InboundResponse;
 
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
                          inboundGrid().dataSource.data([]);
