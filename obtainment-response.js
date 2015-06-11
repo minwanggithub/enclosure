@@ -8,39 +8,56 @@
 
         var UIObject = {
             sections: {
-                inboundResponseSearchSection: function () { return $("#divObtainmentResponseSearchSection") },
-                responseDetailGridSection: function () { return $("#ReponseDetail") },
-                supplierSearchFootSection: function () { return $("#supplierSearchFootSection") },
-                customerActionSection: function () { return $("#customerActionSection") },
+                    inboundResponseSearchSection: function() { return $("#divObtainmentResponseSearchSection"); },
+                    responseDetailGridSection: function() { return $("#ReponseDetail"); },
+                    supplierSearchFootSection: function() { return $("#supplierSearchFootSection"); },
+                    customerActionSection: function() { return $("#customerActionSection"); },
             },
+                classes: {
+                    CancelIcon: 'k-i-cancel',
+                    DisabledLink: 'disabled-link',
+                    RefreshIcon: 'k-i-refresh'
+                },
             controls: {
+                    buttons: {
+                        CancelResponseAll: "[id^=btnResponseCancel]",
+                        CancelResponseSpecific: "btnResponseCancel",
+                        SaveResponseAll: "[id^=btnResponseSave]",
+                        SaveResponseSpecific: "btnResponseSave",
+                        ShowCollapseObjField: "ShowCollapse"
+                    },
+                    dropdownlists: {
+                        ResponseStatusAll: "[id^=ddlResponseStatus]",
+                        ResponseStatusSpecific: "ddlResponseStatus",
+                    },
                 grids: {
-                    InboundResponse: function () { return $("#gdInboundResponse").data("kendoGrid") },
-                    SearchSupplier: function () { return $("#gdSearchSupplier").data("kendoGrid") },
+                        InboundResponse: function() { return $("#gdInboundResponse").data("kendoGrid"); },
+                        SearchSupplier: function() { return $("#gdSearchSupplier").data("kendoGrid"); },
+                    },
+                    labels: {
+                        SupplierInfo: "lblSupplierInfoForResponseDetail",
                 },
                 textBoxes: {
-                    NoticeNumberObj: function () { return $("#NoticeNumber") },
+                        NoticeNumberObj: function() { return $("#NoticeNumber") },
                     NoticeNumberObjField: "NoticeNumber",
-                    SupplierNameAndIdObj: function () { return $("#SupplierNameAndId") },
+                        SupplierNameAndIdObj: function() { return $("#SupplierNameAndId") },
                     SupplierNameAndIdObjField: "SupplierNameAndId",
                     SupplierIdObjField: "SupplierId",
-                },
-                buttons: {
-                    ShowCollapseObjField: "ShowCollapse",
                 }               
-
             },
             popWindow: {
-                   supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow") },
-                   supplierPlugIn: function () { return $("#dgSupplierPlugIn") },                   
+                    supplierSearchDialog: function() { return $("#supplierSearchWindow").data("kendoWindow"); },
+                    supplierPlugIn: function() { return $("#dgSupplierPlugIn"); },
             },
-
-                controllerCalls: {
-                    SearchResponse : GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
-                    SearchSupplierInfo : GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
-                    LoadSingleSupplier : GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
-                    LoadSupplierPlugIn : GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
-                    NoticeAutoComplete : GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
+            controllerCalls: {
+                GetInboundResponseById: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetInboundResponseById",
+                SaveResponseDetail: GetEnvironmentLocation() + '/Operations/ObtainmentResponse/SaveInboundResponseDetail',
+                SearchResponse: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SearchInboundResponse",
+                SearchSupplierInfo : GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
+                LoadSingleSupplier : GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
+                LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
+                NoticeAutoComplete: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
+                IfExistEmailOrDomain: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/IfExistEmailOrDomain"
             },
                 warnings: {
                     NoRowSelected: "No row selected, please try again.",
@@ -53,6 +70,10 @@
 
         var Initialize = function () {
             InitializeSearch();
+
+            UIObject.sections.responseDetailGridSection().on("change", UIObject.controls.dropdownlists.ResponseStatusAll, onDdlResponseStatusesChange);
+            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
+            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
         };
 
         var SearchBind = function () {
@@ -203,7 +224,19 @@
                         return;
                     }
 
-                    $('#lblSupplierInfoForResponseDetail' + responseId).text(item.CompanyId + ", " + item.Name);
+                    var supplierLabel = $('#lblSupplierInfoForResponseDetail' + responseId);
+                    if (supplierLabel.length > 0) {
+                        var newValue = item.CompanyId + ", " +item.Name;
+                        var previousValue = supplierLabel.attr('data-previous-value');
+                        if (newValue != previousValue) 
+                            supplierLabel.attr('data-is-dirty', true);
+                        else 
+                            supplierLabel.removeAttr('data-is-dirty');
+
+                        supplierLabel.text(newValue);
+                        changeLayoutOnInputChange(responseId);
+                    }
+
                     UIObject.popWindow.supplierSearchDialog().center().close();
                 },
 
@@ -230,8 +263,8 @@
         };
 
         var EditSupplierOnResponseDetail = function () {
-              UIObject.popWindow.supplierSearchDialog().center().open();
-        }
+                    UIObject.popWindow.supplierSearchDialog().center().open();
+                }
 
         function AddEmailOrDoman(responseID) {
             var editBtn = $('#EditSupplierBtn'+responseID);
@@ -241,7 +274,7 @@
                  method:"POST",
                  url: strUrl,
                  data: {inboundResponseId: responseID},
-                })                
+                })
                .error(function(){
                    DisplayError('Error: Cannot add Email or Domain.');
                });
@@ -267,46 +300,179 @@
               viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
         };
 
-        var SaveInboundResponseDetail = function(data) {           
-            var strUrl =  GetEnvironmentLocation() + '/Operations/ObtainmentResponse/SaveInboundResponseDetail';
+        // Response Detail Section
+        function changeLayoutOnInputChange(inboundResponseId) {
+            if (inboundResponseId) {
+                var dirtyCount = $('span[id$=' +inboundResponseId + '][data-is-dirty="true"], input[id$=' +inboundResponseId + '][data-is-dirty="true"]').length;
+                var cancelBtn = $('#' + UIObject.controls.buttons.CancelResponseSpecific + inboundResponseId);
+                var saveBtn = $('#' + UIObject.controls.buttons.SaveResponseSpecific + inboundResponseId);
 
-            $.ajax({
-                     method: "POST",
-                     url: strUrl,
-                     data: JSON.stringify(data),
-                     contentType: 'application/json; charset=utf-8',
-                     error: function () {
-                           DisplayError('Inbound response detail could not be saved.');
-                     },
-                     success: function (successData) {
-                         if (successData == false) {
-                             DisplayError("Error Occurred.");
-                         }
-                         else {                        
-                             var strUrl = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/IfExistEmailOrDomain';
-                             var responseID = data['inboundResponseID'];
-                             $.ajax({
-                                     method: "POST",
-                                     url: strUrl,
-                                     data: { inboundResponseId: responseID },
-                             })
-                             .success(function (successData) {
-                                     if (successData == false) {
-                                        var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
-                                              DisplayConfirmationModal(args, function () { AddEmailOrDoman(responseID); } );
-                                     }
-                            })
-                            .error(function (msg) {
-                                  DisplayError('Error: Cannot add email or domain.');
-                             });
+                var saveFunc = dirtyCount > 0 ? onBtnResponseSaveClick : onDisabledButtonClick;
+                var addCancelClass = dirtyCount > 0 ? UIObject.classes.CancelIcon : UIObject.classes.RefreshIcon;
+                var addSaveClass = dirtyCount > 0 ? null : UIObject.classes.DisabledLink;
+                var cancelBtnText = dirtyCount > 0 ? 'Cancel' : 'Reload';
+                var removeCancelClass = dirtyCount > 0 ? UIObject.classes.RefreshIcon : UIObject.classes.CancelIcon;
+                var removeSaveClass = dirtyCount > 0 ? UIObject.classes.DisabledLink : null;
 
-                          }
-                     },
-                     complete: function (compData) {
-                         $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Inbound response detail saved successfully.");
-                    }
-                 })               
-        };
+                saveBtn.off('click');
+                saveBtn.on('click', saveFunc);
+                saveBtn.removeClass(removeSaveClass).addClass(addSaveClass);
+
+                var cancelBtnParts = $.parseHTML(cancelBtn.html());
+                $(cancelBtnParts[0]).removeClass(removeCancelClass).addClass(addCancelClass);
+                cancelBtnParts[1] = cancelBtnText;
+                cancelBtn.html(cancelBtnParts[0].outerHTML + cancelBtnParts[1]);
+            }
+        }
+
+        function onBtnResponseCancelClick(e) {
+            e.preventDefault();
+
+            var inboundResponseId = this.id.substring(UIObject.controls.buttons.CancelResponseSpecific.length);
+            var dirtyCount = $('input[id$=' + inboundResponseId + '][data-is-dirty="true"]').length;
+            if (dirtyCount > 0) {
+                
+                    var settings = {
+                        message: "You are going to discard your response changes. Are you sure you would like to continue?",
+                        header: "Discard Inbound Response Changes",
+                    };
+
+                    DisplayConfirmationModal(settings, function () {
+                        refreshResponseLayout(inboundResponseId);
+                    });
+
+            } else {
+                refreshResponseLayout(inboundResponseId);
+            }
+        }
+
+        function onBtnResponseSaveClick(e) {
+            e.preventDefault();
+
+            var inboundResponseId = this.id.substring(UIObject.controls.buttons.SaveResponseSpecific.length);
+            if (inboundResponseId) {
+
+                var supplierElem = $('#' +UIObject.controls.labels.SupplierInfo +inboundResponseId);
+                var supplierId =  supplierElem.length > 0 && supplierElem.text() ? supplierElem.text().split(',')[0].trim() : '';
+
+                var responseStatusSelector = '#' + UIObject.controls.dropdownlists.ResponseStatusSpecific + inboundResponseId;
+                var responseStatusElem = $(responseStatusSelector).data('kendoDropDownList');
+                var responseStatusId = responseStatusElem ? responseStatusElem.value() : null;
+
+                var formData = {};
+                formData['InboundResponseId'] = inboundResponseId;
+                formData['SupplierId']= supplierId;
+                formData['ResponseStatusId']= responseStatusId;
+
+                $(this).ajaxJSONCall(UIObject.controllerCalls.SaveResponseDetail, JSON.stringify(formData))
+                    .success(function(successData) {
+                        if (successData == false)
+                            $(this).displayError("Error occurred.");
+                        else { 
+                            $(this).savedSuccessFully("Inbound response detail saved.");
+
+                            var supplierAttached = supplierElem.attr('data-is-dirty');
+                            if (supplierElem.length > 0) resetFieldDefaultValue(supplierElem[0]);
+                            if (responseStatusElem) resetFieldDefaultValue(responseStatusElem.element[0]);
+                            changeLayoutOnInputChange(inboundResponseId);
+
+                            // Only attempt to check email and domain of supplier when attempting to attach a new one
+                            if (supplierAttached == "true") {
+                                var emailData = { "inboundResponseID": inboundResponseId };
+                                $(this).ajaxCall(UIObject.controllerCalls.IfExistEmailOrDomain, emailData)
+                                    .success(function(data) {
+                                        if(data == false) {
+                                            var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
+                                                    DisplayConfirmationModal(args, function() { AddEmailOrDoman(inboundResponseId); });
+                                        }
+                                    })
+                                    .error(function() {
+                                        $(this).displayError('Error: Cannot add email or domain.');
+                                    });
+                            }
+                        }
+                    })               
+                    .error(function() {
+                        $(this).displayError('Inbound response detail could not be saved.');
+                    });
+            }
+        }
+
+        function onDdlResponseStatusesChange(e) {
+            onInputFieldChange(e);
+            changeLayoutOnInputChange(this.id.substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length));
+        }
+
+        function onDisabledButtonClick(e) {
+            e.preventDefault();
+        }
+
+        function onInputFieldChange(e) {
+            var element = $(e.currentTarget);
+            var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
+
+            var currentValue = null;
+            if (element.is(':checkbox, :radio'))
+                currentValue = element[0].checked;
+            else if (element.data('kendoDropDownList')) {
+                var ddl = element.data('kendoDropDownList');
+                currentValue = ddl.value() && ddl.value().length > 0 ? ddl.value() : "0";
+            } else
+                currentValue = element.val();
+
+            if (defaultValue != currentValue)
+                element.attr('data-is-dirty', true);
+            else
+                element.removeAttr('data-is-dirty');
+        }
+
+        function refreshResponseLayout(inboundResponseId) {
+            if (inboundResponseId) {
+
+                var formData = {
+                    'inboundResponseId': parseInt(inboundResponseId)
+                };
+
+                $(this).ajaxJSONCall(UIObject.controllerCalls.GetInboundResponseById, JSON.stringify(formData))
+                    .success(function(successData) {
+                        if (successData) {
+                            var ddl = $('#' +UIObject.controls.dropdownlists.ResponseStatusSpecific +inboundResponseId).data('kendoDropDownList');
+                            if (ddl) {
+                                ddl.value(successData.ResponseStatusId);
+                                resetFieldDefaultValue(ddl.element[0]);
+                            }
+
+                            var label = $('#' +UIObject.controls.labels.SupplierInfo +inboundResponseId);
+                            if(label.length > 0) {
+                                label.text(successData.SupplierIdAndName);
+                                resetFieldDefaultValue(label[0]);
+                            }
+
+                            changeLayoutOnInputChange(inboundResponseId);
+
+                        } else
+                            $(this).displayError("An error occurred refreshing the inbound response");
+                    })
+                    .error(function() {
+                        $(this).displayError('An error occurred refreshing the inbound response');
+                    });
+            }
+        }
+
+        function resetFieldDefaultValue(field) {
+
+            // Check if field is an input or label
+            if (field.tagName == 'INPUT') {
+                if (field.getAttribute('type') == 'checkbox' || field.getAttribute('type') == 'radio')
+                    field.defaultChecked = field.checked;
+                else
+                    field.defaultValue = field.value;
+            } else if (field.tagName == 'SPAN' && $(field).hasClass('display-label')) {
+                field.setAttribute('data-previous-value', field.innerText);
+            }
+
+            field.removeAttribute('data-is-dirty');
+        }
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
@@ -317,8 +483,7 @@
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
             MasterExpand: MasterExpand,          
-            MasterCollapse: MasterCollapse,
-            SaveInboundResponseDetail: SaveInboundResponseDetail
+            MasterCollapse: MasterCollapse
         };
     };
 })(jQuery);
