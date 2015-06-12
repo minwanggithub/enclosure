@@ -22,6 +22,7 @@
                     buttons: {
                         CancelResponseAll: "[id^=btnResponseCancel]",
                         CancelResponseSpecific: "btnResponseCancel",
+                        EditSupplier: "EditSupplierBtn",
                         SaveResponseAll: "[id^=btnResponseSave]",
                         SaveResponseSpecific: "btnResponseSave",
                         ShowCollapseObjField: "ShowCollapse"
@@ -391,6 +392,9 @@
                                     })
                                     .error(function() {
                                         $(this).displayError('Error: Cannot add email or domain.');
+                                    })
+                                    .complete(function () {
+                                        $('#' +UIObject.controls.buttons.EditSupplier +inboundResponseId).hide();
                                     });
                             }
                         }
