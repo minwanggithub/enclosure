@@ -5,6 +5,7 @@
 
     $.fn.complibObtainmentResponse = function () {
         var viewModel = {};
+        var supplierSearchViewModel = {};
 
         var UIObject = {
             sections: {
@@ -22,7 +23,8 @@
                     buttons: {
                         CancelResponseAll: "[id^=btnResponseCancel]",
                         CancelResponseSpecific: "btnResponseCancel",
-                        EditSupplier: "EditSupplierBtn",
+                        EditSupplierAll: "[id^=EditSupplierBtn]",
+                        EditSupplierSpecific: "EditSupplierBtn",
                         SaveResponseAll: "[id^=btnResponseSave]",
                         SaveResponseSpecific: "btnResponseSave",
                         ShowCollapseObjField: "ShowCollapse"
@@ -40,9 +42,9 @@
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                 },
                 textBoxes: {
-                        NoticeNumberObj: function() { return $("#NoticeNumber") },
+                        NoticeNumberObj: function() { return $("#NoticeNumber"); },
                     NoticeNumberObjField: "NoticeNumber",
-                        SupplierNameAndIdObj: function() { return $("#SupplierNameAndId") },
+                        SupplierNameAndIdObj: function() { return $("#SupplierNameAndId"); },
                     SupplierNameAndIdObjField: "SupplierNameAndId",
                     SupplierIdObjField: "SupplierId",
                 }               
@@ -86,15 +88,10 @@
                 SupplierName: "",
                 ShowCollapse: "none",
                 ResponseStatusId: "0",
+                ExistingInboundResponseId: 0,
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    //if (this.NoSearchCriteria())
-                    //{
-                    //    $(this).displayError(UIObject.warnings.NoSearchCriteria);
-                    //    return;
-                    //}
-
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
@@ -102,7 +99,6 @@
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
                                UIObject.sections.responseDetailGridSection().html(data);
-                               //DisableEnableButtons(true);
                            }).error(
                            function () {
                                $(this).displayError(UIObject.errorMessage.GeneralError);
@@ -125,22 +121,22 @@
 
                 CloseSupplierClick: function (e) {
                     e.preventDefault();
+                    this.set("ExistingInboundResponseId", 0);
                     UIObject.popWindow.supplierSearchDialog().center().close();
                 },
 
                 CollapseMasterDetailClick: function (e) {
-                    var inboundGrid = UIObject.controls.grids.InboundResponse
+                    var inboundGrid = UIObject.controls.grids.InboundResponse;
                     var allMasterRows = inboundGrid().tbody.find('>tr.k-master-row');
 
                     for (var i = 0; i < allMasterRows.length; i++) {
                         inboundGrid().collapseRow(allMasterRows.eq(i));
                     }
-                    //viewModel.set('ShowCollapse', 'none');
-                    viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none')
+                    viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
                 },
 
                 NoSearchCriteria: function () {
-                    var result = (this.SupplierNameAndId == "" && this.NoticeNumber == "")
+                    var result = (this.SupplierNameAndId == "" && this.NoticeNumber == "");
                     return result;
                 },
 
@@ -157,19 +153,42 @@
                         return;
                     }
 
-                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, item.CompanyId + ", " + item.Name)
-                    viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, item.CompanyId)
+                    if (this.ExistingInboundResponseId > 0) {
+
+                        var supplierLabel = $('#lblSupplierInfoForResponseDetail' + this.ExistingInboundResponseId);
+                        if (supplierLabel.length > 0) {
+                            var newValue = item.CompanyId + ", " + item.Name;
+                            var previousValue = supplierLabel.attr('data-previous-value');
+                            if (newValue != previousValue)
+                                supplierLabel.attr('data-is-dirty', true);
+                            else
+                                supplierLabel.removeAttr('data-is-dirty');
+
+                            supplierLabel.text(newValue);
+                            changeLayoutOnInputChange(this.ExistingInboundResponseId);
+                        }
+
+                        this.set("ExistingInboundResponseId", 0);
+
+                    } else {
+                        viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, item.CompanyId + ", " +item.Name);
+                        viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, item.CompanyId);
+                    }
+
                     UIObject.popWindow.supplierSearchDialog().center().close();
                 },
-
                 onSearchSupplierClick: function (e) {
                     e.preventDefault();
+                    var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.EditSupplierSpecific.length);
+                    var parsedValue = parseInt(inboundResponseId);
+                    this.set("ExistingInboundResponseId", (IsNumeric(parsedValue, false) == true) ? parsedValue: 0);
+
                     UIObject.popWindow.supplierSearchDialog().center().open();
                 },
 
                 onViewSupplierClick: function (e) {
                     e.preventDefault();
-                    var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField)
+                    var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField);
 
                     if (supplierId > 0)
                         window.open(UIObject.controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
@@ -207,69 +226,6 @@
             });                     
         };
      
-        var SearchSupplierOnResponseDetailBind = function (responseId) {
-            viewModel = kendo.observable({              
-          
-                CloseSupplierClick: function (e) {
-                    e.preventDefault();
-                    UIObject.popWindow.supplierSearchDialog().center().close();
-                },             
-
-                SelectSupplierClick: function (e) {
-                    e.preventDefault();
-                    if (UIObject.controls.grids.SearchSupplier().dataSource.total() == 0) {
-                        onDisplayError(UIObject.warnings.NoRowSelected);
-                        return;
-                    }
-
-                    var item = UIObject.controls.grids.SearchSupplier().dataItem(UIObject.controls.grids.SearchSupplier().select());
-                    if (item == null) {
-                        onDisplayError(UIObject.warnings.NoRowSelected);
-                        return;
-                    }
-
-                    var supplierLabel = $('#lblSupplierInfoForResponseDetail' + responseId);
-                    if (supplierLabel.length > 0) {
-                        var newValue = item.CompanyId + ", " +item.Name;
-                        var previousValue = supplierLabel.attr('data-previous-value');
-                        if (newValue != previousValue) 
-                            supplierLabel.attr('data-is-dirty', true);
-                        else 
-                            supplierLabel.removeAttr('data-is-dirty');
-
-                        supplierLabel.text(newValue);
-                        changeLayoutOnInputChange(responseId);
-                    }
-
-                    UIObject.popWindow.supplierSearchDialog().center().close();
-                },
-
-                onSearchSupplierClick: function (e) {
-                    e.preventDefault();
-                    UIObject.popWindow.supplierSearchDialog().center().open();
-                },
-           
-            });
-
-            kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
-            kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
-
-            UIObject.controls.textBoxes.SupplierNameAndIdObj().keyup(function (e1) {
-                var code = (e1.keyCode ? e1.keyCode : e1.which);
-                if (code == 13) {//Search only on enter
-                    viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
-                $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
-                    viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
-                    });
-                }
-            });
-                       
-        };
-
-        var EditSupplierOnResponseDetail = function () {
-                    UIObject.popWindow.supplierSearchDialog().center().open();
-                }
-
         function AddEmailOrDoman(responseID) {
             var editBtn = $('#EditSupplierBtn'+responseID);
             var strUrl =  GetEnvironmentLocation() + '/Operations/ObtainmentResponse/AddEmailOrDomain';
@@ -394,7 +350,7 @@
                                         $(this).displayError('Error: Cannot add email or domain.');
                                     })
                                     .complete(function () {
-                                        $('#' +UIObject.controls.buttons.EditSupplier +inboundResponseId).hide();
+                                        $('#' +UIObject.controls.buttons.EditSupplierSpecific +inboundResponseId).hide();
                                     });
                             }
                         }
@@ -412,6 +368,18 @@
 
         function onDisabledButtonClick(e) {
             e.preventDefault();
+        }
+
+        function onResponseDetailExpand(e) {
+
+            var detailRow = e.detailRow.find('[id="InboundResponseSection"]');
+            if(detailRow.length > 0) {
+                var searchButton = detailRow.find(UIObject.controls.buttons.EditSupplierAll);
+                if (searchButton.length > 0 && typeof detailRow.attr('data-mvvm-bound') == 'undefined') {
+                    detailRow.attr('data-mvvm-bound', true);
+                    kendo.bind(detailRow, viewModel);
+                }
+            }
         }
 
         function onInputFieldChange(e) {
@@ -485,12 +453,11 @@
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
             Initialize: Initialize,
             SearchBind: SearchBind,
-            SearchSupplierOnResponseDetailBind: SearchSupplierOnResponseDetailBind,
-            EditSupplierOnResponseDetail: EditSupplierOnResponseDetail,
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
             MasterExpand: MasterExpand,          
-            MasterCollapse: MasterCollapse
+            MasterCollapse: MasterCollapse,
+            OnResponseDetailExpand: onResponseDetailExpand
         };
     };
 })(jQuery);
