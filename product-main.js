@@ -403,6 +403,7 @@
             });
 
             $(productObject.controls.buttons.SearchSupplier).click(function () {
+                debugger;
                 var grid = $(productObject.controls.grids.GridSearchSupplier).data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
                     $(this).displayError(messages.errorMessages.NoRowSelected);
@@ -583,27 +584,33 @@
             });
 
             //Add doc parts
-            $(productObject.controls.buttons.AddDocToProduct + "_" +pKey).on("click",function() {
-                activeProduct = pKey;
-                newProductActive = false;
+            $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
+                var docGuid = $(this).getQueryStringParameterByName("docGuid");
+                if (docGuid != "") {
+                    doclib.onDisplayNewDocumentPopUp();
+                }
+                else {
+                    activeProduct = pKey;
+                    newProductActive = false;
 
-                //Hook up the txtSearchSupplierId key events on document screen plugIn
-                $(productObject.controls.textBoxes.SearchSupplierId).keyup(function (event) {
-                    var code = (event.keyCode ? event.keyCode : event.which);
-                    if (code == 13) //Search only on enter
-                        DoLookUpSupplierOnKeyEnter(productObject.controls.textBoxes.SearchSupplierId);
-                });
-
-                $(productObject.controls.buttons.SearchSupplierId).click(function () {
-                    prodlib.showSupplierPlugIn("txtSearchSupplierId");
-                });
-
-                if (displayDocumentPopUp) {
-                    displayDocumentPopUp(function (data) {
-                        var doclists = [];
-                        doclists.push(data.ReferenceId);
-                        addDocumentListToProduct(doclists);
+                    //Hook up the txtSearchSupplierId key events on document screen plugIn
+                    $(productObject.controls.textBoxes.SearchSupplierId).keyup(function (event) {
+                        var code = (event.keyCode ? event.keyCode : event.which);
+                        if (code == 13) //Search only on enter
+                            DoLookUpSupplierOnKeyEnter(productObject.controls.textBoxes.SearchSupplierId);
                     });
+
+                    $(productObject.controls.buttons.SearchSupplierId).click(function () {
+                        prodlib.showSupplierPlugIn("txtSearchSupplierId");
+                    });
+
+                    if (displayDocumentPopUp) {
+                        displayDocumentPopUp(function (data) {
+                            var doclists = [];
+                            doclists.push(data.ReferenceId);
+                            addDocumentListToProduct(doclists);
+                        });
+                    }
                 }
             });
 
@@ -627,6 +634,7 @@
 
         }; //end of LoadProductMatchDetailsCompleted
 
+    
         var showSupplierPlugIn = function (currentSupplier) {
             activeSupplier = currentSupplier;
             $(productObject.controls.buttons.AddNewSupplier).hide();
@@ -691,7 +699,7 @@
             });
 
             $(productObject.controls.buttons.SearchSupplierId + "_" + pKey).click(function () {
-                activeSupplier = "txtSupplierId_" + pKey;
+                activeSupplier = "#txtSupplierId_" + pKey;
                 activeSupplierIndex = pKey;
                 supplierSearchDialog.data("kendoWindow").center().open();
                 //No Access here for add new supplier

@@ -19,7 +19,8 @@
                 RemoveRevisionAttachment: "RemoveAttachmentAlt",
                 SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
                 SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments",
-                UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt"
+                UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
+                ClearSessionVariablesDocument: "ClearSessionsVariables"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -134,6 +135,7 @@
                 DocumentNotes: "#gdDocumentNotes_",
                 DocumentRevision: "[id^=gdDocumentRevisions_]",
                 DocumentRevisionAttachments: "[id^=gdRevisionFileInfoDetail_]",
+                DocumentFromInboundResponse: "#gdDocumentFromInboundResponse",
                 DocumentRevisionNameNumbers: "#gdRevisionNameNumber_",
                 DocumentSearch: "#gdSearchDocument",
                 DocumentSearchPopUp: "#gdSearchDocumentPopUp",
@@ -221,7 +223,6 @@
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
-
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
@@ -515,6 +516,10 @@
             $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
+        var onDisplayNewDocumentPopUp = function() {
+            displayAddNewDocumentPopUp();
+        }
+
         /******************************** Search Methods (Pop-Up) ********************************/
         function displayAddNewDocumentPopUp() {
             if (generateLocationUrl) {
@@ -526,8 +531,10 @@
                     .success(function () {
                         var requestWindowHeight = 1024;
                         var requestWindowWidth = 1280;
-
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
+                        if ($(this).getQueryStringParameterByName("docGuid"))
+                            requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
+                        else
                         requestUrl = generateLocationUrl(requestUrl);
 
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
@@ -537,12 +544,10 @@
                         }
 
                         window.onbeforeunload = function (evt) {
-                            if (typeof evt == "undefined")
-                                evt = window.event;
-
-                            if (evt)
-                                requestWindow.close();
+                            if (typeof evt == "undefined") evt = window.event;
+                            if (evt) requestWindow.close();
                         }
+
                     })
                     .error(function () {displayError(documentMessages.errors.AddNewDocumentPopUp);});
                 
@@ -699,21 +704,31 @@
         }
 
         function saveNewDocumentRevisionToDatabase(callbackFunc, clearFields, clearAttachments) {
-
+            var formData = null;
+            var url = "";
             var form = $(documentElementSelectors.containers.NewDocumentForm);
-            var formData = {
-                model: getNewDocumentData(),
-                attachments: getDocumentRevisionAttachments(form)
-            };
+            if ($(this).getQueryStringParameterByName("docGuid") == "") {
+                formData = {
+                    model: getNewDocumentData(),
+                    attachments: getDocumentRevisionAttachments(form)
+                };
+            } else {
+                formData = {
+                    model: getNewDocumentData(),
+                    docGuidId: $(this).getQueryStringParameterByName("docGuid")
+                };
+            }
+
 
             if (formData.model) {
-
-                if (formData.attachments.length == 0) {
-                    displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
-                    return false;
+                if (formData.attachments != null) {
+                     if (formData.attachments.length == 0 && $(this).getQueryStringParameterByName("docGuid") == "") {
+                        displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
+                        return false;
+                    }   
                 }
 
-                var url = form.attr('action');
+                url = form.attr('action');
 
                 $(this).ajaxCall(url, formData)
                     .success(function(data) {
@@ -732,7 +747,7 @@
                             displayError(errorMessage);
                     })
                     .error(function() {displayError(documentMessages.errors.SaveNewDocumentError);});
-            } else
+            }else
                 displayError(documentMessages.errors.SaveNewDocumentError);
         }
 
@@ -761,14 +776,16 @@
         }
 
         function saveNewDocumentPopUp(documentId) {
-            if (window.opener) {
-                var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                if (parentSearchWindow.length > 0) {
-                    parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                    parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                    parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+            if ($(this).getQueryStringParameterByName("docGuid") == "") {
+                if (window.opener) {
+                    var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                    if (parentSearchWindow.length > 0) {
+                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                    }
                 }
-            }
+            } else parent.window.opener.location.reload();
 
             closeNewDocumentPopUp();
         }
@@ -1062,7 +1079,8 @@
         }
 
         function getDocumentRevisionAttachments(container) {
-            var grid = container && container.length > 0 ? container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid') : null;
+            var gridContainer = $(this).getQueryStringParameterByName("docGuid") != "" ? container.find(documentElementSelectors.grids.DocumentFromInboundResponse).data('kendoGrid') : container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+            var grid = container && container.length > 0 ? gridContainer : null;
             if (grid && grid.dataSource) {
 
                 var items = [];
@@ -1348,6 +1366,7 @@
         }
 
         function onDocumentRevisionCompanySearchBtnClick(e) {
+            debugger;
             e.preventDefault();
 
             var buttonElement = $(e.currentTarget);
@@ -1919,6 +1938,8 @@
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
+            onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp
+
         };
     };
 
