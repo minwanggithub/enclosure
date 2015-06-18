@@ -420,6 +420,11 @@
                             var label = $('#' +UIObject.controls.labels.SupplierInfo +inboundResponseId);
                             if(label.length > 0) {
                                 label.text(successData.SupplierIdAndName);
+
+                                if (successData.SupplierIdAndName && successData.SupplierIdAndName.length > 0) {
+                                    $('#' + UIObject.controls.buttons.EditSupplierSpecific + inboundResponseId).hide();
+                                }
+
                                 resetFieldDefaultValue(label[0]);
                             }
 
