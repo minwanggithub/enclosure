@@ -610,8 +610,10 @@
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.ResolveSideMenuButton);
             //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
             //xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
-            $(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton);
+            $(xreferenceObject.controls.buttons.NotFoundSideMenuButton).addClass("disabled-link");
+            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(false);
+            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton);
+
             $(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingSideMenuButton);
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(false);
