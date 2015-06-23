@@ -93,7 +93,8 @@
                 GeneralError: "Error Occurred",
                 EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
-                ResponseReceived: "A notice number is associated with one or several request(s) that are being processed"
+                ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
+                UnderCoonstruction: "This option is still under construction."
             }
         };
 
@@ -567,6 +568,14 @@
             $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
         }
 
+        function onDdlActionSelction(e)
+        {
+            var dataItem = this.dataItem(e.item.index());
+            if (dataItem.Text === "Log Web Search") {
+                $(this).displayError(messages.errorMessages.UnderCoonstruction);
+                e.preventDefault();
+            }
+        }
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
@@ -715,7 +724,8 @@
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
-            loadSupplierNotes: loadSupplierNotes
+            loadSupplierNotes: loadSupplierNotes,
+            onDdlActionSelction: onDdlActionSelction
         };
     };
 })(jQuery);
