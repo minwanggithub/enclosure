@@ -568,13 +568,9 @@
             $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
         }
 
-        function onDdlActionSelction(e)
+        function onDdlDataBound(e)
         {
-            var dataItem = this.dataItem(e.item.index());
-            if (dataItem.Text === "Log Web Search") {
-                $(this).displayError(messages.errorMessages.UnderCoonstruction);
-                e.preventDefault();
-            }
+            $(".unsupport").parent().click(false);
         }
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
@@ -725,7 +721,7 @@
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
             loadSupplierNotes: loadSupplierNotes,
-            onDdlActionSelction: onDdlActionSelction
+            onDdlDataBound: onDdlDataBound
         };
     };
 })(jQuery);
