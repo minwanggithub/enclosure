@@ -73,7 +73,9 @@
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             GenerateNoticeNum: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GenerateNoticeNum",
-        };
+            GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks"
+
+    };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
         var obtainmentActions = { Empty: "",ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
@@ -91,7 +93,7 @@
                 NoContactSelcted: "No contact has been selected from Contact Information",
                 NoPhoneSelected : "No conatact phone has been selected",
                 GeneralError: "Error Occurred",
-                EmailPartsMissing: "-EMAIL PARTS MISSING MESSAGE-",
+                EmailPartsMissing: "Email must have subject and body.",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
                 UnderCoonstruction: "This option is still under construction."
@@ -108,6 +110,7 @@
         };
 
         var obtainmentMultipleWorkItemActionModel = {
+            OWID: null,
             ObtainmentWorkItemIDs: null,
             ObtainmentActionLkpID: null,
             NextObtainmentStepLkpID: null,
@@ -353,7 +356,19 @@
             ddlNextSteps.value(nextStepValue);
             ddlNextSteps.enable(enable);
             dteDateAssigned.enable(enable);
+        }
+
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+         
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) {
+                    return pair[1];
+                }
             }
+        }
 
         function ShowActionModals() {
            
@@ -402,15 +417,37 @@
                 try {
 
                     // at least one contact must be selected.
-
+                  
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                    console.log(selectedItems);
+                    //console.log(selectedItems);
+
                     if (selectedItems != null) {
 
-                        var strUrl = controllerCalls.GenerateNoticeNum;
-                        $(this).ajaxCall(strUrl)
-                            .success(function (data) {
+                        // url to invoke for notice number 
+                        var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks;
+
+                       
+
+                        var cdata = new Object();
+                        cdata.owid = getQueryVariable("owid");
+                        cdata.ids = selectedRequests.join(",");
+
+                        console.log(cdata);
+
+                        $.ajax({
+                    
+                            url: strUrl,
+                            data: JSON.stringify(cdata),
+                            type: "POST",
+                            contentType: 'application/json; charset=utf-8',
+                            error: function () {
+                                $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                            },
+                            success: function (data) {
+
+                                console.log(data);
+
                                 if (data != '') {
 
                                     // set the next step
@@ -426,14 +463,59 @@
                                     $("#txtObtainmentEmailSendEmailBody").val("");
                                     $("#txtObtainmentEmailSendEmailSubject").val("");
 
+                                    var text = "Nethub links for the following products will be added to the outgoing email :";
+                                    var html = "<table>";
+
+                                    // display the product and document types for which links will be sent out
+                                    for (var i = 0; i < data.products.length; i++) {
+                                        text += data.products[i] + "(" + data.documents[i] + ")";
+                                        if (i < data.products.length - 1) text += ", ";
+                                        html += "<tr><td>" + data.products[i] + "</td><td>" + data.documents[i] + "</td></tr>";
+                                    }
+
+                                    html += "</table>";
+
+                                    $("#txtObtainmentEmailNethubLinks").val(text);
+
+                                
+
                                     // display upload interface
                                     $(actionModals.SendEmail).displayModal();
-                                    
+
                                 }
-                            })
-                            .error(function () {
-                                $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
-                            });
+                            },
+                            done: function () {
+                                $(this).savedSuccessFully(messages.successMessages.Saved);
+                            }
+                        });
+
+                        //var strUrl = controllerCalls.GenerateNoticeNum;
+                        // pass in the ids to generate the links
+                        //$(this).ajaxCall(strUrl)
+                        //    .success(function (data) {
+                        //        if (data != '') {
+
+                        //            // set the next step
+                        //            SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+
+                        //            // reset all upload state
+                        //            fUploadlib.initialize();
+
+                        //            // set up the notice number
+                        //            $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
+
+                        //            // clear textboxes
+                        //            $("#txtObtainmentEmailSendEmailBody").val("");
+                        //            $("#txtObtainmentEmailSendEmailSubject").val("");
+
+                        //            // display upload interface
+                        //            $(actionModals.SendEmail).displayModal();
+                                    
+                        //        }
+                        //    })
+                        //    .error(function () {
+                        //        $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                        //    });
 
                     }
 
@@ -602,6 +684,7 @@
                 if (ddlNextSteps.value() != "") {
 
                     // common
+                    obtainmentMultipleWorkItemActionModel.OWID = getQueryVariable("owid");
                     obtainmentMultipleWorkItemActionModel.ObtainmentWorkItemIDs = selectedRequests;
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionLkpID = ddlActions.value();
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepLkpID = ddlNextSteps.value();
