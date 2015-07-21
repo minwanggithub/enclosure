@@ -723,6 +723,12 @@
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["RequestWorkItemID"]);
+                            if (this["SupplierID"] != "0")
+                                $("#hdnSupplierName").val(this["SupplierID"]).trigger('change');
+                            else
+                                $("#hdnSupplierName").val("").trigger('change');
+
+                            $("#hdnProductName").val(this["ProductName"]).trigger('change');
                             itemsChecked++;
                         } else {
                             var index = selectedRequests.indexOf(this["RequestWorkItemID"]);

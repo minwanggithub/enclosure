@@ -44,6 +44,12 @@
                     SupplierSearch: "#txtSupplierSearch",
                     SearchSupplierId: "#txtSearchSupplierId"
                 },
+                hiddenTextBoxes: {
+                    HiddenSupplierName: "#hdnSupplierName",
+                    HiddenProductName: "#hdnProductName",
+                    HiddenStatusNotes: "#hdnStatusNotes"
+
+                },
                 dropdownlists: { ProductStatus: "#ddlProductStatus", PhysicalState: "#ddlPhysicalState"},
                 divs: {NewProductDetail: "#divNewProductDetail"}
             }
@@ -92,6 +98,7 @@
             }
         }
 
+        
         // Initializing Methods
         var initializeProductDetailControls = function(errorCallback, deactivateContentFunc) {
             onErrorCallback = errorCallback;
@@ -272,7 +279,11 @@
         }
 
         function saveProductInformation(activeSaveButton) {
-            var selectedSuppilerId = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().substring(0, $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(','));
+            var selectedSuppilerId = 0;
+            if ($(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(',') < 0)
+                selectedSuppilerId = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val();
+            else
+                selectedSuppilerId = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().substring(0, $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().substring($(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(',') + 1);
             var selectedStatusId = $(productObject.controls.dropdownlists.ProductStatus + "_" + activeSaveButton).data('kendoDropDownList').value();
             var selectedPhysicalStateId = $(productObject.controls.dropdownlists.PhysicalState + "_" + activeSaveButton).data('kendoDropDownList').value();
@@ -286,7 +297,7 @@
                         ObtainmentNote: $(productObject.controls.textBoxes.ObtainmentNote + "_" + activeSaveButton).val(),
                         XReferenceNote: $(productObject.controls.textBoxes.ReferenceNote + "_" + activeSaveButton).val(),
                         SelectedStatusId: selectedStatusId,
-                        StatusNotes: $("#hdnStatusNotes_" + activeSaveButton).val(),
+                        StatusNotes: $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton).val(),
                         SelectedPhysicalStateId: selectedPhysicalStateId,
                         PhysicalStateText: selectedPhysicalStateText
                     };
@@ -296,7 +307,6 @@
                     $(this).displayError(errorMessage);
                     return;
                 }
-        
                 if (activeSaveButton == 0) {
                     $(productObject.controls.textBoxes.ProductId + "_" + activeSaveButton).val(data.ReferenceId);
                     if ($(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton).hasClass("k-state-disabled")) {
@@ -318,8 +328,13 @@
 
                     UnBindingSaveCancel(0);
                     deactivateLayout(activeSaveButton);
-                    
-                    $(productObject.controls.textBoxes.ProductSearch).val(data.ReferenceId);
+
+                    // this checks that the xref screen hidden textboxes have values, if not means you are on the main product screen
+                    if ($(productObject.controls.hiddenTextBoxes.HiddenProductName).val() != "")
+                        $(productObject.controls.textBoxes.ProductSearch).val('ProductName:"' + $(productObject.controls.hiddenTextBoxes.HiddenProductName).val() + '"');
+                    else
+                        $(productObject.controls.textBoxes.ProductSearch).val(data.ReferenceId);
+
                     $(productObject.controls.divs.NewProductDetail).html("");
 
                     var grid = $(productObject.controls.grids.GridSearchProduct).data('kendoGrid');
@@ -334,7 +349,7 @@
                         grid.dataSource.read();
                     }
                 } else {
-                    $('#hdnStatusNotes_' +activeSaveButton).val('');
+                    $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton).val('');
                     reloadProductHistoryGrid(activeSaveButton);
                     setProductGridDataSourceItem(data);
                 }
