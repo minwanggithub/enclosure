@@ -57,6 +57,7 @@
         var controllerCalls = {
             AddDocumentListToProduct: GetEnvironmentLocation() + "/Configuration/ProductManager/AddDocumentListToProduct",
             GetProductPartNumberById: GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById",
+            GetProductNameNumberById: GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductNameNumberById",
             LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",
             DeleteProductDocument: GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument",
             LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
@@ -132,8 +133,8 @@
                     }
 
                     var currentProductAttributes = (newProductActive) ? productObject.controls.textBoxes.ProductAttributes + "_0" : productObject.controls.textBoxes.ProductAttributes + "_" + activeProduct;
-                    $.post(controllerCalls.GetProductPartNumberById, { productId: activeProduct }, function (partNumber) {
-                        $(currentProductAttributes).val(partNumber);
+                    $.post(controllerCalls.GetProductNameNumberById, { productId: activeProduct }, function (nameNumber) {
+                        $(currentProductAttributes).val(nameNumber);
                     });
 
                 } else if (flag == '2')
@@ -469,8 +470,8 @@
             //if not work, then get PartNumber using serverFiltering sproc
             setTimeout(function () {
                 var currentProductAttributes = productObject.controls.textBoxes.ProductAttributes + "_" + activepid.value;
-                $.post(controllerCalls.GetProductPartNumberById, { productId: pid }, function (partNumber) {
-                    $(currentProductAttributes).val(partNumber);
+                $.post(controllerCalls.GetProductNameNumberById, { productId: pid }, function (nameNumber) {
+                    $(currentProductAttributes).val(nameNumber);
                 });
             }, 500);
         };
