@@ -710,12 +710,23 @@
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
                         if (selectedRow.length > 0) {
+                           
                             if ($(this).is(':checked')) {
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
-                            }else
+                            } else {
+                                if (dataItem["SupplierName"] != $("#hdnSupplier").val()) {
+                                    $("#hdnSupplierName").val(dataItem["SupplierID"]);
+                                    $("#hdnProductName").val(dataItem["ProductName"]);
+                                    $("#hdnSupplier").val(dataItem["SupplierName"]);
+                                    $("#hdnProductName").trigger('change');
+                                    $("#hdnSupplierName").trigger('change');
+                                    $("#hdnSupplier").trigger('change');
+                                }
                                 selectedRows.push(selectedRow.attr('data-uid'));
+                            }
+                                
                         }
                     }
 
@@ -723,29 +734,24 @@
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["RequestWorkItemID"]);
-                            if (this["SupplierID"] != "0")
-                                $("#hdnSupplierName").val(this["SupplierID"]).trigger('change');
-                            else
-                                $("#hdnSupplierName").val("").trigger('change');
-
-                            $("#hdnProductName").val(this["ProductName"]).trigger('change');
                             itemsChecked++;
                         } else {
-                            var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                           var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
                             if (index > -1)
                                 selectedRequests.splice(index, 1);
                         }
-
+                        
                         if (selectedRows.indexOf(this["uid"]) > -1)
                             grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
                         else 
                             grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                     });
-
+                    
                     UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
                 }
-                
+
+              
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
@@ -851,6 +857,9 @@
         };
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
+            if (numberOfItems==0)
+                $("#hdnSupplier").val("").trigger('change');
+
             $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
         }
 

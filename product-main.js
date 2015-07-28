@@ -400,7 +400,7 @@
         ////////////non publuc / public/////////////
         var panelbar_activated = function () {
             //Can not be moved to partial view, or it cause clear and search again
-            $(productObject.controls.buttons.ClearProductBtn).click(function () {
+            $(productObject.controls.buttons.ClearProductBtn).on("click", function () {
                 if (parent.window.opener != null) {
                     if (parent.window.opener.document.getElementById("txtProductId") != null) {
                         var txtName = parent.window.opener.document.getElementById("txtProductId");
@@ -486,7 +486,7 @@
         var panelbar_expand = function () {
         };
 
-        var onProductStatusChange = function() {
+        var onProductStatusChange = function () {
             var elemId = this.element.attr('id');
             elemId = elemId.replace('ddlProductStatus_', '');
             BindingSaveCancel(elemId);
@@ -523,8 +523,10 @@
         ////////////non publuc / public/////////////
         var refreshProductSearchResultGrid = function () {
             var grid = $(productObject.controls.grids.GridSearchProduct).data("kendoGrid");
-            if (grid.dataSource.view().length == 0)
+            if (grid.dataSource.view().length == 0) {
                 grid.dataSource.page(1);
+            }
+                
             else {
                 grid.dataSource.filter([]);
                 grid.dataSource.data([]);
@@ -532,6 +534,8 @@
             }
 
             QueueQuery();
+            grid.dataSource.filter({ field: "ProductName", operator: "eq", value: $("#hdnProductName").val()});
+        
         };
 
         var QueueQuery = function () {
