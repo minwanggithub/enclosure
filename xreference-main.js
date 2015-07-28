@@ -712,6 +712,9 @@
                         if (selectedRow.length > 0) {
                            
                             if ($(this).is(':checked')) {
+                                $("#hdnSupplierName").val("");
+                                $("#hdnProductName").val("");
+                                $("#hdnSupplier").val("");
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
