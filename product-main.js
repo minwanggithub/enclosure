@@ -534,8 +534,10 @@
             }
 
             QueueQuery();
-            grid.dataSource.filter({ field: "ProductName", operator: "eq", value: $("#hdnProductName").val()});
-        
+
+            if($("#hdnProductName").val().length>0)
+                grid.dataSource.filter({ field: "ProductName", operator: "eq", value: $("#hdnProductName").val()});
+
         };
 
         var QueueQuery = function () {
