@@ -420,7 +420,7 @@
                   
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                    //console.log(selectedItems);
+                    console.log(selectedItems);
 
                     if (selectedItems != null) {
 
@@ -691,7 +691,12 @@
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepDueDate = dteDateAssigned.value();
 
                     // send email specific
-                    obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val();
+
+                    var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
+                    var contact = contactsGrid.dataItem(contactsGrid.select());
+                    //console.log(contact);
+
+                    obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val() + "|" + contact.CompanyContactEmailId;
                     obtainmentActionSendEmailModel.Cc = null;
                     obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.NoticeNumber).val() + " " + $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
                     obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
