@@ -6,6 +6,7 @@
     $.fn.complibObtainmentResponse = function () {
         var viewModel = {};
         var supplierSearchViewModel = {};
+        var notesModalSettings;
 
         var UIObject = {
             sections: {
@@ -41,13 +42,15 @@
                     labels: {
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                 },
-                textBoxes: {
+                    textBoxes: {
+                        Description: "divDescription",
                         NoticeNumberObj: function() { return $("#NoticeNumber"); },
-                    NoticeNumberObjField: "NoticeNumber",
+                        NoticeNumberObjField: "NoticeNumber",
+                        StatusNotes: "hdnStatusNotes",
                         SupplierNameAndIdObj: function() { return $("#SupplierNameAndId"); },
-                    SupplierNameAndIdObjField: "SupplierNameAndId",
-                    SupplierIdObjField: "SupplierId",
-                }               
+                        SupplierNameAndIdObjField: "SupplierNameAndId",
+                        SupplierIdObjField: "SupplierId",
+                }
             },
             popWindow: {
                     supplierSearchDialog: function() { return $("#supplierSearchWindow").data("kendoWindow"); },
@@ -260,6 +263,10 @@
               viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
         };
 
+        var setNotesModalSettings = function (settings) {
+            notesModalSettings = settings;
+        };
+
         // Response Detail Section
         function changeLayoutOnInputChange(inboundResponseId) {
             if (inboundResponseId) {
@@ -324,41 +331,70 @@
                 formData['SupplierId']= supplierId;
                 formData['ResponseStatusId']= responseStatusId;
 
-                $(this).ajaxJSONCall(UIObject.controllerCalls.SaveResponseDetail, JSON.stringify(formData))
-                    .success(function(successData) {
-                        if (successData == false)
-                            $(this).displayError("Error occurred.");
-                        else { 
-                            $(this).savedSuccessFully("Inbound response detail saved.");
+                saveResponse(formData, function() {
+                    var supplierAttached = supplierElem.attr('data-is-dirty');
+                    if (supplierElem.length > 0) resetFieldDefaultValue(supplierElem[0]);
+                    if (responseStatusElem) resetFieldDefaultValue(responseStatusElem.element[0]);
 
-                            var supplierAttached = supplierElem.attr('data-is-dirty');
-                            if (supplierElem.length > 0) resetFieldDefaultValue(supplierElem[0]);
-                            if (responseStatusElem) resetFieldDefaultValue(responseStatusElem.element[0]);
-                            changeLayoutOnInputChange(inboundResponseId);
+                    var hdnStatusNotes = $('#' + UIObject.controls.textBoxes.StatusNotes + formData.InboundResponseId);
+                    if (hdnStatusNotes.length > 0 && hdnStatusNotes.val()) {
+                        var descElem = $('#' + UIObject.controls.textBoxes.Description + inboundResponseId);
+                        descElem.text(descElem.text() + ' ' + hdnStatusNotes.val());
+                        hdnStatusNotes.val(null);
+                    }
 
-                            // Only attempt to check email and domain of supplier when attempting to attach a new one
-                            if (supplierAttached == "true") {
-                                var emailData = { "inboundResponseID": inboundResponseId };
-                                $(this).ajaxCall(UIObject.controllerCalls.IfExistEmailOrDomain, emailData)
-                                    .success(function(data) {
-                                        if(data == false) {
-                                            var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
-                                                    DisplayConfirmationModal(args, function() { AddEmailOrDoman(inboundResponseId); });
-                                        }
-                                    })
-                                    .error(function() {
-                                        $(this).displayError('Error: Cannot add email or domain.');
-                                    })
-                                    .complete(function () {
-                                        $('#' +UIObject.controls.buttons.EditSupplierSpecific +inboundResponseId).hide();
-                                    });
-                            }
-                        }
-                    })               
-                    .error(function() {
-                        $(this).displayError('Inbound response detail could not be saved.');
-                    });
+                    changeLayoutOnInputChange(inboundResponseId);
+
+                    // Only attempt to check email and domain of supplier when attempting to attach a new one
+                    if (supplierAttached == "true") {
+                        var emailData = { "inboundResponseID": inboundResponseId };
+                        $(this).ajaxCall(UIObject.controllerCalls.IfExistEmailOrDomain, emailData)
+                            .success(function(data) {
+                                if(data == false) {
+                                    var args = { message: 'Do you want to add email or domain to supplier contact?', header: 'Add email and domain' };
+                                    DisplayConfirmationModal(args, function() { AddEmailOrDoman(inboundResponseId); });
+                                }
+                            })
+                            .error(function() {
+                                $(this).displayError('Error: Cannot add email or domain.');
+                            })
+                            .complete(function () {
+                                $('#' +UIObject.controls.buttons.EditSupplierSpecific +inboundResponseId).hide();
+                            });
+                    }
+                });
             }
+        }
+
+        function saveResponse(data, successFunc) {
+            
+            $(this).ajaxJSONCall(UIObject.controllerCalls.SaveResponseDetail, JSON.stringify(data))
+                    .success(function (successData) {
+                        
+                        // Attempt to save the information to the database
+                        if (typeof successData.displayMessage != 'undefined') {
+
+                            if (notesModalSettings) {
+                                notesModalSettings.displayStatusNoteConfirmation(successData, function (eval) {
+                                    $('#' + UIObject.controls.textBoxes.StatusNotes + data.InboundResponseId).val(eval.modalNotes);
+                                    data['StatusNotes'] = eval.modalNotes;
+                                    saveResponse(data, successFunc);
+                                });
+
+                            } else {
+                                $(this).displayError("Error occurred.");
+                            }
+
+                        } else if (successData == true) {
+                            $(this).savedSuccessFully("Inbound response detail saved.");
+                            if (successFunc) successFunc();
+                        } else {
+                            $(this).displayError("Error occurred.");
+                        }
+                })               
+                .error(function() {
+                    $(this).displayError('Inbound response detail could not be saved.');
+                });
         }
 
         function onDdlResponseStatusesChange(e) {
@@ -428,6 +464,11 @@
                                 resetFieldDefaultValue(label[0]);
                             }
 
+                            var field = $('#' + UIObject.controls.textBoxes.Description + inboundResponseId);
+                            if (field.length > 0) {
+                                field.text(successData.Description);
+                            }
+
                             changeLayoutOnInputChange(inboundResponseId);
 
                         } else
@@ -462,7 +503,8 @@
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
             MasterExpand: MasterExpand,          
             MasterCollapse: MasterCollapse,
-            OnResponseDetailExpand: onResponseDetailExpand
+            OnResponseDetailExpand: onResponseDetailExpand,
+            setNotesModalSettings: setNotesModalSettings
         };
     };
 })(jQuery);
