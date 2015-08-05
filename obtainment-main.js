@@ -64,8 +64,8 @@
                 checkBox:{LiveCall:"#chkLiveCall"}
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall:"#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued:"#mdlFlagDiscontinued", NotRequired:"#mdlNotRequired", CloseRequest:"#mdlCloseRequest", ViewHistory: "#mdlViewHistory" };
-        var kendoWindows = { ViewHistory: "#supplierSearchWindow" };
+        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall: "#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued: "#mdlFlagDiscontinued", NotRequired: "#mdlNotRequired", CloseRequest: "#mdlCloseRequest", ViewHistory: "#mdlViewHistory", AccountInfo: "#mdlViewAccount" };
+        var kendoWindows = {ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
@@ -73,7 +73,8 @@
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             GenerateNoticeNum: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GenerateNoticeNum",
-            GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks"
+            GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks",
+            GetObtainmentAccountInfo: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentAccountInfo"
 
     };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
@@ -323,6 +324,11 @@
         obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
              e.preventDefault();
              ShowHistory(null, this.id);
+            });
+
+       obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
+            e.preventDefault();
+            ShowAccount(this.id, null);
         });
 
         function ShowHistory(obtainmentWorkId, supplierId) {
@@ -334,6 +340,17 @@
                }).error(function () {
                    $(this).displayError(messages.errorMessages.GeneralError);
                });
+        }
+
+        function ShowAccount(obtainmentWorkId) {
+             $(this).ajaxCall(controllerCalls.GetObtainmentAccountInfo, { obtainmentWorkID: obtainmentWorkId })
+               .success(function(data) {
+                   $("#dvAccountInformation").html(data);
+                   $(kendoWindows.ViewAccount).data("kendoWindow").center().open();
+                   $("div.k-widget.k-window").css("top", "20px");
+                   }).error(function() {
+                   $(this).displayError(messages.errorMessages.GeneralError);
+                   });
         }
 
         function SetNextStepForSendEmail(nextStepValue, actionName, contacts) {
@@ -462,23 +479,21 @@
                                     // clear textboxes
                                     $("#txtObtainmentEmailSendEmailBody").val("");
                                     $("#txtObtainmentEmailSendEmailSubject").val("");
+                                    debugger;
+                                    if ($.inArray('Conflict Minerals', data.documents) > -1) {
+                                        var text =  "Nethub links for the following products will be added to the outgoing email :";
+                                        var html = "<table>";
 
-                                    var text = "Nethub links for the following products will be added to the outgoing email :";
-                                    var html = "<table>";
+                                        // display the product and document types for which links will be sent out
+                                        for (var i = 0; i < data.products.length; i++) {
+                                            text += data.products[i] + "(" + c + ")";
+                                                if (i < data.products.length - 1) text += ", ";
+                                                html += "<tr><td>" + data.products[i] + "</td><td>" + data.documents[i] + "</td></tr>";
+                                        }
 
-                                    // display the product and document types for which links will be sent out
-                                    for (var i = 0; i < data.products.length; i++) {
-                                        text += data.products[i] + "(" + data.documents[i] + ")";
-                                        if (i < data.products.length - 1) text += ", ";
-                                        html += "<tr><td>" + data.products[i] + "</td><td>" + data.documents[i] + "</td></tr>";
+                                        html += "</table>";
+                                        $("#txtObtainmentEmailNethubLinks").val(text);
                                     }
-
-                                    html += "</table>";
-
-                                    $("#txtObtainmentEmailNethubLinks").val(text);
-
-                                
-
                                     // display upload interface
                                     $(actionModals.SendEmail).displayModal();
 
