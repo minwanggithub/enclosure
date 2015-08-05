@@ -30,18 +30,22 @@
                         SaveResponseSpecific: "btnResponseSave",
                         ShowCollapseObjField: "ShowCollapse"
                     },
+                    containers: {
+                        InboundResponsePanel: "InboundResponsePanel"
+                    },
                     dropdownlists: {
                         ResponseStatusAll: "[id^=ddlResponseStatus]",
                         ResponseStatusId: "ResponseStatusId",
                         ResponseStatusSpecific: "ddlResponseStatus",
                     },
-                grids: {
+                    grids: {
                         InboundResponse: function() { return $("#gdInboundResponse").data("kendoGrid"); },
                         SearchSupplier: function() { return $("#gdSearchSupplier").data("kendoGrid"); },
                     },
                     labels: {
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
-                },
+                        UnprocessedResponsesCount: "lblUnprocessedCount",
+                    },
                     textBoxes: {
                         Description: "divDescription",
                         NoticeNumberObj: function() { return $("#NoticeNumber"); },
@@ -50,7 +54,7 @@
                         SupplierNameAndIdObj: function() { return $("#SupplierNameAndId"); },
                         SupplierNameAndIdObjField: "SupplierNameAndId",
                         SupplierIdObjField: "SupplierId",
-                }
+                    }
             },
             popWindow: {
                     supplierSearchDialog: function() { return $("#supplierSearchWindow").data("kendoWindow"); },
@@ -81,6 +85,7 @@
             UIObject.sections.responseDetailGridSection().on("change", UIObject.controls.dropdownlists.ResponseStatusAll, onDdlResponseStatusesChange);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
+            UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
         };
 
         var SearchBind = function () {
@@ -266,6 +271,11 @@
         var setNotesModalSettings = function (settings) {
             notesModalSettings = settings;
         };
+
+        // Response Search Panel Section
+        function onUnprocessedResponseLabelClick() {
+            $("#" + UIObject.controls.containers.InboundResponsePanel + " .k-header:first").trigger('click');
+        }
 
         // Response Detail Section
         function changeLayoutOnInputChange(inboundResponseId) {
