@@ -496,6 +496,7 @@
 
         //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
+            debugger;
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
             var drpContains;
             if(this.id.length > 0) {
@@ -514,9 +515,10 @@
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
-                }
-                    if (ddlName == xreferenceObject.controls.dropdownlists.FieldsDropDownList) {
+                } 
+                    if (ddlName == xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#","")) {
                         $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
+                        $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).val("");
                         $("#dvDropDown_" + index).css("display", "none");
                         if(drpContains!=null)
                             drpContains.select(criteriaCondition.StartsWith);
