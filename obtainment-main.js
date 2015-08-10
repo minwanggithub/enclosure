@@ -9,7 +9,8 @@
         var obtainmentDetailWorkFlowObj = $("#ObtianmentWFDetails");
         var obtianmentDetailModals = $("#ObtainmentDetailModals");
         var itemsChecked = 0;
-        var selectedRequests = new Array();
+        var selectedRequests = new Array();         // ids selected in the grid
+        var preSelectedRequests = new Array();      // ids in previously sent email
         var hasNoticeNumbers = false;
         var selectedRows = new Array();
 
@@ -73,8 +74,11 @@
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             GenerateNoticeNum: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GenerateNoticeNum",
+            RetrieveSentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/RetrieveSentEmail",
             GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks",
-            GetObtainmentAccountInfo: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentAccountInfo"
+            GetObtainmentAccountInfo: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentAccountInfo",
+            SaveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkflow/SaveEmailAttachment",
+            RemoveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveEmailAttachment",
 
     };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
@@ -97,7 +101,8 @@
                 EmailPartsMissing: "Email must have subject and body.",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
-                UnderCoonstruction: "This option is still under construction."
+                UnderCoonstruction: "This option is still under construction.",
+                CannotRetrieveSentEmail: "Unable to retrieve sent email.",
             }
         };
 
@@ -278,6 +283,10 @@
                 }
             });
 
+            // destroy the uploader control 
+            //$("#files").data("kendoUpload").destroy();
+            //$(".upload-section").html('<input autocomplete="off" multiple="multiple" data-role="upload" id="files" name="files" type="file">');
+
         });
         
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedCancelButton, function () {
@@ -324,7 +333,7 @@
         obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
              e.preventDefault();
              ShowHistory(null, this.id);
-            });
+        });
 
        obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
             e.preventDefault();
@@ -357,13 +366,7 @@
 
             var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
             ddlNextSteps.value(nextStepValue);
-
-            var emailIds = []; 
-            //for (var i = 0; contacts != null && i < contacts.length; i++) {
-              //  emailIds.push(contacts[i].Email);
-            //}
-
-            $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val(/*emailIds.join(";")*/ contacts.Email);
+            $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val(contacts.Email);
 
         }
 
@@ -385,6 +388,80 @@
                     return pair[1];
                 }
             }
+        }
+
+        function PopulateEmailActionModal(data, resend) {
+
+            if (data != null) {
+
+                // reset all upload state
+                fUploadlib.initialize(data.files);
+
+                // set up notice number
+                $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
+
+                // set up subject
+                $("#txtObtainmentEmailSendEmailSubject").val(data.subject);
+
+                // reset the email body and re-initialize the kendo editor
+                var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
+                editor.value(data.body);
+                
+                try {
+
+                    // destroy and create the kendo upload control each time.
+                    // the control may not have been created yet.
+                    $("#files").data("kendoUpload").destroy();
+
+                    // force clean up the mark up added by kendo 
+                    $(".upload-section").html('<input autocomplete="off" multiple="multiple" data-role="upload" id="files" name="files" type="file">');
+
+
+                } catch (e)
+                {
+
+                }
+
+                // set selections - note the grid is not updated                    
+                preSelectedRequests = data.obtainmentWorkItemIDs;
+                if (!resend) preSelectedRequests = null;
+
+                $("#files").kendoUpload({
+                    "success": fUploadlib.onFileUploadSuccess,
+                    "select": fUploadlib.onFileUploadSelect,
+                    "error": fUploadlib.onFileUploadError,
+                    "upload": fUploadlib.onFileUploadUpload,
+                    "remove": fUploadlib.onFileUploadRemove,
+                    "localization": { "select": "Attach file" },
+                    "async": {
+                        "saveUrl": controllerCalls.SaveEmailAttachment,
+                        "autoUpload": true,
+                        "removeUrl": controllerCalls.RemoveEmailAttachment
+                    },
+                    "files" : data.files
+                });
+
+                var text = "Nethub links for the following products will be added to the outgoing email :";
+                var html = "<table>";
+
+                // display html link information
+                for (var i = 0; i < data.links.length; i++) {
+                    text += data.links[i];
+                    if (i < data.links.length - 1) text += ", ";
+                    html += "<tr><td>" + data.links[i] + "</td></tr>";
+                }
+
+                html += "</table>";
+
+                // set NETHUB links
+                $("#txtObtainmentEmailNethubLinks").val(text);
+
+                // change caption as needed
+                $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
+
+
+            }
+
         }
 
         function ShowActionModals() {
@@ -434,7 +511,6 @@
                 try {
 
                     // at least one contact must be selected.
-                  
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var selectedItems = contactsGrid.dataItem(contactsGrid.select());
                     console.log(selectedItems);
@@ -443,8 +519,6 @@
 
                         // url to invoke for notice number 
                         var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks;
-
-                       
 
                         var cdata = new Object();
                         cdata.owid = getQueryVariable("owid");
@@ -463,37 +537,19 @@
                             },
                             success: function (data) {
 
-                                console.log(data);
-
                                 if (data != '') {
+
+                                    // defaults
+                                    data.subject = "";
+                                    data.body = "";
+                                    data.files = [];
 
                                     // set the next step
                                     SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
 
-                                    // reset all upload state
-                                    fUploadlib.initialize();
+                                    // set up the form
+                                    PopulateEmailActionModal(data, false);
 
-                                    // set up the notice number
-                                    $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
-
-                                    // clear textboxes
-                                    $("#txtObtainmentEmailSendEmailBody").val("");
-                                    $("#txtObtainmentEmailSendEmailSubject").val("");
-                                    debugger;
-                                    if ($.inArray('Conflict Minerals', data.documents) > -1) {
-                                        var text =  "Nethub links for the following products will be added to the outgoing email :";
-                                        var html = "<table>";
-
-                                        // display the product and document types for which links will be sent out
-                                        for (var i = 0; i < data.products.length; i++) {
-                                            text += data.products[i] + "(" + c + ")";
-                                                if (i < data.products.length - 1) text += ", ";
-                                                html += "<tr><td>" + data.products[i] + "</td><td>" + data.documents[i] + "</td></tr>";
-                                        }
-
-                                        html += "</table>";
-                                        $("#txtObtainmentEmailNethubLinks").val(text);
-                                    }
                                     // display upload interface
                                     $(actionModals.SendEmail).displayModal();
 
@@ -503,34 +559,6 @@
                                 $(this).savedSuccessFully(messages.successMessages.Saved);
                             }
                         });
-
-                        //var strUrl = controllerCalls.GenerateNoticeNum;
-                        // pass in the ids to generate the links
-                        //$(this).ajaxCall(strUrl)
-                        //    .success(function (data) {
-                        //        if (data != '') {
-
-                        //            // set the next step
-                        //            SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
-
-                        //            // reset all upload state
-                        //            fUploadlib.initialize();
-
-                        //            // set up the notice number
-                        //            $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
-
-                        //            // clear textboxes
-                        //            $("#txtObtainmentEmailSendEmailBody").val("");
-                        //            $("#txtObtainmentEmailSendEmailSubject").val("");
-
-                        //            // display upload interface
-                        //            $(actionModals.SendEmail).displayModal();
-                                    
-                        //        }
-                        //    })
-                        //    .error(function () {
-                        //        $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
-                        //    });
 
                     }
 
@@ -672,14 +700,13 @@
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
-            // determine that there is at least one email to address, a subject and a email body
+            // ensure that the email has contact, subject and message body. without these a
+            // email may not be sent out
 
             var valid = true;
 
-            // contact mandatory
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
-               // $(obtainmentObject.controls.textBoxes.NoticeNumber).val().length <= 15 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
 
                 $(modalId).toggleModal();
@@ -700,7 +727,11 @@
 
                     // common
                     obtainmentMultipleWorkItemActionModel.OWID = getQueryVariable("owid");
-                    obtainmentMultipleWorkItemActionModel.ObtainmentWorkItemIDs = selectedRequests;
+
+                    // differentiate between email resends/sends
+                    var owiIds = (preSelectedRequests == null ? selectedRequests : preSelectedRequests);
+                    obtainmentMultipleWorkItemActionModel.ObtainmentWorkItemIDs = owiIds;
+
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionLkpID = ddlActions.value();
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepLkpID = ddlNextSteps.value();
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepDueDate = dteDateAssigned.value();
@@ -713,7 +744,8 @@
 
                     obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val() + "|" + contact.CompanyContactEmailId;
                     obtainmentActionSendEmailModel.Cc = null;
-                    obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.NoticeNumber).val() + " " + $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
+                    obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
+                    obtainmentActionSendEmailModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumber).val();
                     obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
                     obtainmentActionSendEmailModel.Files = fUploadlib.getAttachments();
 
@@ -820,11 +852,74 @@
             return obtainmentActionLogPhoneCallModel;
         }
 
+        function loadSentEmail(obtainmentWorkItemId) {
+
+            try {
+
+                // at least one contact must be selected.
+                var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
+                var selectedItems = contactsGrid.dataItem(contactsGrid.select());
+                console.log(selectedItems);
+
+                if (selectedItems != null) {
+
+                    // url to invoke for existing email definition
+                    var strUrl = controllerCalls.RetrieveSentEmail;
+
+                    var data = new Object();
+                    data.obtainmentWorkItemId = obtainmentWorkItemId;
+
+                    $.ajax({
+                        url: strUrl,
+                        data: JSON.stringify(data),
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        error: function() {
+                            $(this).displayError(messages.errorMessages.CannotRetrieveSentEmail);
+                        },
+                        success: function(response) {
+
+                            if (data != null) {
+
+                                // set the next step
+                                SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+
+                                // set up the form
+                                PopulateEmailActionModal(response.data, true);
+
+                                // display upload interface
+                                $(actionModals.SendEmail).displayModal();
+
+                            }
+                        },
+                        done: function() {
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                        }
+                    });
+
+                } else {
+
+                    // contact must be selected
+                    $(this).displayError(messages.errorMessages.NoContactSelcted);
+
+
+                }
+
+            } catch (e) {
+
+                // contact must be selected
+                $(this).displayError(messages.errorMessages.NoContactSelcted);
+
+            }
+
+        }
+
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
             loadSupplierNotes: loadSupplierNotes,
-            onDdlDataBound: onDdlDataBound
+            onDdlDataBound: onDdlDataBound,
+            loadSentEmail : loadSentEmail
         };
     };
 })(jQuery);

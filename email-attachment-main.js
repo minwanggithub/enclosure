@@ -14,7 +14,7 @@
 
         // ************************************** Local Methods **************************************************
         function displayConfirmation(settings, yesFunc, noFunc) {
-            
+
             if (DisplayConfirmationModal)
                 DisplayConfirmationModal(settings, yesFunc, noFunc);
             else {
@@ -163,7 +163,7 @@
             }
         };
 
-        var initialize = function () {
+        var initialize = function (files) {
 
             // clear out kendo upload
             $(".k-upload-files").remove();
@@ -171,8 +171,18 @@
             $(".k-upload.k-header").addClass("k-upload-empty");
             $(".k-upload-button").removeClass("k-state-focused");
 
-            // list of files
+            // storage for attachments
             uploadStake = [];
+
+            for (var i = 0; files != null && i < files.length; i++) {
+
+                var data = new Object();
+                data.files = [];
+
+                data.files.push(files[i]);
+                uploadStake.push(data);
+
+            }
 
         };
 
@@ -204,7 +214,7 @@
 
                 console.log(value);
                 console.log(e.files[0]);
-                
+
                 // remove the element that matches the file GUID
                 if (value.files[0].dictGuid == e.files[0].name && i == null) {
                     i = index;
@@ -247,6 +257,7 @@
                 e.files[0].dictGuid = e.response.id;
                 uploadStake.push(e);
             }
+
         };
 
         var onFileUploadUpload = function (e) {
@@ -265,7 +276,7 @@
                 };
 
                 displayConfirmation(settings,
-                    function() {
+                    function () {
 
                         uploadStake = [];
 
@@ -293,7 +304,7 @@
             }
         };
 
-        var getAttachments = function() {
+        var getAttachments = function () {
 
             var dictGuids = [];
 
@@ -316,7 +327,7 @@
             onFileUploadSelect: onFileUploadSelect,
             onFileUploadSuccess: onFileUploadSuccess,
             onFileUploadUpload: onFileUploadUpload,
-            onFileUploadWindowClose: onFileUploadWindowClose
+            onFileUploadWindowClose: onFileUploadWindowClose,
         };
     };
 
