@@ -441,20 +441,24 @@
                     "files" : data.files
                 });
 
-                var text = "Nethub links for the following products will be added to the outgoing email :";
-                var html = "<table>";
+                // re-set NETHUB links
+                $("#txtObtainmentEmailNethubLinks").val("No NETHUB links to add.");
 
-                // display html link information
-                for (var i = 0; i < data.links.length; i++) {
-                    text += data.links[i];
-                    if (i < data.links.length - 1) text += ", ";
-                    html += "<tr><td>" + data.links[i] + "</td></tr>";
+                if (data.links != null && data.links.length > 0) {
+
+                    var text = "Nethub links for the following products will be added to the outgoing email :";
+                    var html = "<table>";
+
+                    // display html link information
+                    for (var i = 0; i < data.links.length; i++) {
+                        text += data.links[i];
+                        if (i < data.links.length - 1) text += ", ";
+                        html += "<tr><td>" + data.links[i] + "</td></tr>";
+                    }
+
+                    html += "</table>";
+
                 }
-
-                html += "</table>";
-
-                // set NETHUB links
-                $("#txtObtainmentEmailNethubLinks").val(text);
 
                 // change caption as needed
                 $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
