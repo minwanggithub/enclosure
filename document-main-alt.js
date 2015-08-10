@@ -533,7 +533,12 @@
                         var requestWindowWidth = 1280;
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
                         if ($(this).getQueryStringParameterByName("docGuid"))
-                            requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
+                            if ($(this).getQueryStringParameterByName("inboundResponseid")) {
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid");
+                            } else {
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
+                            }
+                        
                         else
                         requestUrl = generateLocationUrl(requestUrl);
 
