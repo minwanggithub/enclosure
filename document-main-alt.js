@@ -532,16 +532,16 @@
                         var requestWindowHeight = 1024;
                         var requestWindowWidth = 1280;
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
-                        if ($(this).getQueryStringParameterByName("docGuid"))
+                        if ($(this).getQueryStringParameterByName("docGuid")) {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid");
                             } else {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
                             }
-                        
+                        }
                         else
-                        requestUrl = generateLocationUrl(requestUrl);
-
+                            requestUrl = generateLocationUrl(requestUrl);
+                        
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
                         requestWindow.onload = function () {
                             var doc = this.document;
@@ -1371,7 +1371,7 @@
         }
 
         function onDocumentRevisionCompanySearchBtnClick(e) {
-            debugger;
+            
             e.preventDefault();
 
             var buttonElement = $(e.currentTarget);
