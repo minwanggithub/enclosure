@@ -446,19 +446,13 @@
 
                 if (data.links != null && data.links.length > 0) {
 
-                    var text = "Nethub links for the following products will be added to the outgoing email :";
-                    var html = "<table>";
-
-                    // display html link information
+                    var text = "Nethub links for the following products will be added to the outgoing email - ";
                     for (var i = 0; i < data.links.length; i++) {
                         text += data.links[i];
                         if (i < data.links.length - 1) text += ", ";
-                        html += "<tr><td>" + data.links[i] + "</td></tr>";
                     }
 
-                    html += "</table>";
-
-                    $("#txtObtainmentEmailNethubLinks").val(html);
+                    $("#txtObtainmentEmailNethubLinks").val(text);
 
                 }
 
