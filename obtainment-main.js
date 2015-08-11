@@ -458,7 +458,10 @@
 
                     html += "</table>";
 
+                    $("#txtObtainmentEmailNethubLinks").val(html);
+
                 }
+
 
                 // change caption as needed
                 $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
