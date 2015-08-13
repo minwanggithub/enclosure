@@ -423,7 +423,7 @@
                 }
 
                 // set selections - note the grid is not updated                    
-                preSelectedRequests = data.obtainmentWorkItemIDs;
+                preSelectedRequests = data.ids;
                 if (!resend) preSelectedRequests = null;
 
                 $("#files").kendoUpload({
