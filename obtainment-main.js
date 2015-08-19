@@ -44,8 +44,9 @@
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
-                    NoticeNumber: "#txtNoticeNum",
+                    NoticeNumber: "#NoticeNumber",
                     ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"                    
+
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
                 dropdownlists: {
@@ -205,6 +206,7 @@
             drpLockType.select(0);
             drpAssignedToType.select(0);
             drpNextStep.select(0);
+            $(obtainmentObject.controls.textBoxes.NoticeNumber).val('');
             $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
         });
 
@@ -213,7 +215,6 @@
         });
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
-         
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
@@ -235,7 +236,8 @@
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
                 + obtainmentWorkLoadSearchResultModel.LockTypeId
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
-                + obtainmentWorkLoadSearchResultModel.NextStepId;
+                + obtainmentWorkLoadSearchResultModel.NextStepId
+                + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0";
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
                 DisableEnableButtons(false);
@@ -340,7 +342,7 @@
         obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
              e.preventDefault();
              ShowHistory(null, this.id);
-        });
+            });
 
        obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
             e.preventDefault();
