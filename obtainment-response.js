@@ -28,7 +28,9 @@
                         EditSupplierSpecific: "EditSupplierBtn",
                         SaveResponseAll: "[id^=btnResponseSave]",
                         SaveResponseSpecific: "btnResponseSave",
-                        ShowCollapseObjField: "ShowCollapse"
+                        ShowCollapseObjField: "ShowCollapse",
+                        ResendObtainmentEmail: "[id^=btnResendObtainmentEmail]",
+                        ResendObtainmentEmailSpecific: "btnResendObtainmentEmail"
                     },
                     containers: {
                         InboundResponsePanel: "InboundResponsePanel"
@@ -68,7 +70,8 @@
                 LoadSingleSupplier : GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
                 LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
                 NoticeAutoComplete: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
-                IfExistEmailOrDomain: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/IfExistEmailOrDomain"
+                IfExistEmailOrDomain: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/IfExistEmailOrDomain",
+                ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail"
             },
                 warnings: {
                     NoRowSelected: "No row selected, please try again.",
@@ -80,12 +83,16 @@
         };
 
         var Initialize = function () {
+
             InitializeSearch();
 
+            // wire up event handlers
             UIObject.sections.responseDetailGridSection().on("change", UIObject.controls.dropdownlists.ResponseStatusAll, onDdlResponseStatusesChange);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
             UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
+            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
+
         };
 
         var SearchBind = function () {
@@ -414,6 +421,30 @@
 
         function onDisabledButtonClick(e) {
             e.preventDefault();
+        }
+
+        function onBtnResendObtainmentEmailClick(e) {
+
+            var inboundResponseId = this.id.substring(UIObject.controls.buttons.ResendObtainmentEmailSpecific.length);
+            if (inboundResponseId) {
+
+                var formData = {
+                    'inboundResponseId': parseInt(inboundResponseId)
+                };
+
+                $(this).ajaxJSONCall(UIObject.controllerCalls.ResendObtainmentEmail, JSON.stringify(formData))
+                    .success(function (data) {
+                        if (data.successful) {
+                            $(this).displayError("The email associated with this response has been resent.");
+                        } else {
+                            $(this).displayError("The email associated with this response could not be resent.");
+                        }
+                    })
+                    .error(function () {
+                        $(this).displayError('An error occurred while resending the email assocaited with this response.');
+                    });
+            }
+
         }
 
         function onResponseDetailExpand(e) {
