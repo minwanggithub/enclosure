@@ -62,7 +62,7 @@
                     CloseRequestReasonCode: "#ddlReasonCode"
                 },
                 labels: {ContactName: "#lblContactName"},
-                checkBox:{LiveCall:"#chkLiveCall"}
+                checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
             }
         }
         var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall: "#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued: "#mdlFlagDiscontinued", NotRequired: "#mdlNotRequired", CloseRequest: "#mdlCloseRequest", ViewHistory: "#mdlViewHistory", AccountInfo: "#mdlViewAccount" };
@@ -112,7 +112,8 @@
             DocumentTypeId:0,
             LockTypeId : 0,
             AssignedToId:0,
-            NextStepId0:0
+            NextStepId0: 0,
+            IncludeInboundResponse: false
         };
 
         var obtainmentMultipleWorkItemActionModel = {
@@ -177,7 +178,7 @@
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
-            
+            obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
             DisableEnableButtons(false);
             
             $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
@@ -204,6 +205,11 @@
             drpLockType.select(0);
             drpAssignedToType.select(0);
             drpNextStep.select(0);
+            $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
+        });
+
+        obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function() {
+            $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
         });
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
@@ -222,6 +228,7 @@
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
+            obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
