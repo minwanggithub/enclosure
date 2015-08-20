@@ -76,7 +76,8 @@
                 PleaseSelectDocumentToDelete: "Please select document(s) to delete.",
                 ErrorSavingProduct: "Error occured while saving the product",
                 NoRowSelected: "No row selected",
-                SelectDocumentsToDelete: 'Please select document(s) to delete.'
+                SelectDocumentsToDelete: 'Please select document(s) to delete.',
+                CompletedAttachDocToProd: 'Completed attach document to product.'
             }
         }
 
@@ -605,11 +606,53 @@
                     window.open(controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
             });
 
+           
             //Add doc parts
+            function attachDocRevToProd(pKey, docGuid, noticeNo, inboundResponseid) {
+
+                var strUrl = GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd';
+                $.ajax({
+                    method: "POST",
+                    url: strUrl,
+                    data: JSON.stringify({ productId: pKey, docGuid: docGuid, noticeNumber: noticeNo, inboundResponseid : inboundResponseid}),
+                    contentType: 'application/json; charset=utf-8',
+                    error: function () {
+                        DisplayError('Cannot attach Document to product.');
+                    },
+                    success: function (success) {
+                        if (success) {
+                            $('#btnRefreshProduct_' + pKey).click();
+                            onDisplayError(messages.errorMessages.CompletedAttachDocToProd);
+                        }
+                    }
+                });
+
+            }
+
             $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
-                var docGuid = $(this).getQueryStringParameterByName("docGuid");
-                if (docGuid != "") {
-                    doclib.onDisplayNewDocumentPopUp();
+               
+                var guid = $(this).getQueryStringParameterByName("docGuid");
+                var noticeNo = $(this).getQueryStringParameterByName("nnumber");
+                var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
+
+                if (guid != "") {
+                    var strUrl = GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev';
+                    $.ajax({
+                        method: "POST",
+                        url: strUrl,
+                        data: JSON.stringify({ docGuid: guid }),
+                        contentType: 'application/json; charset=utf-8',
+                        error: function () {
+                            DisplayError('Error at action IfExistsDocRev.');
+                        },
+                        success: function (ifExists) {
+                            if (ifExists == false) {
+                                doclib.onDisplayNewDocumentPopUp();;
+                            } else {
+                                attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid);
+                            }
+                        }
+                    });
                 }
                 else {
                     activeProduct = pKey;
