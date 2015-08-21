@@ -44,7 +44,8 @@
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
-                    NoticeNumber: "#NoticeNumber",
+                    NoticeNumberSearch: "#NoticeNumber",
+                    NoticeNumber: "#txtNoticeNum",
                     ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"                    
 
                 },
@@ -206,7 +207,7 @@
             drpLockType.select(0);
             drpAssignedToType.select(0);
             drpNextStep.select(0);
-            $(obtainmentObject.controls.textBoxes.NoticeNumber).val('');
+            $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val('');
             $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
         });
 
@@ -229,7 +230,7 @@
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
-            obtainmentWorkLoadSearchResultModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumber).val();
+            obtainmentWorkLoadSearchResultModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
