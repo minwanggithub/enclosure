@@ -77,7 +77,7 @@
                 ErrorSavingProduct: "Error occured while saving the product",
                 NoRowSelected: "No row selected",
                 SelectDocumentsToDelete: 'Please select document(s) to delete.',
-                CompletedAttachDocToProd: 'Completed attach document to product.'
+                CompletedAttachDocToProd: 'Finish attaching existing document to product.'
             }
         }
 
@@ -609,7 +609,7 @@
            
             //Add doc parts
             function attachDocRevToProd(pKey, docGuid, noticeNo, inboundResponseid) {
-
+                
                 var strUrl = GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd';
                 $.ajax({
                     method: "POST",
@@ -619,10 +619,13 @@
                     error: function () {
                         DisplayError('Cannot attach Document to product.');
                     },
-                    success: function (success) {
-                        if (success) {
+                    success: function (result) {
+                       
+                        if (result == 'success') {
                             $('#btnRefreshProduct_' + pKey).click();
                             onDisplayError(messages.errorMessages.CompletedAttachDocToProd);
+                        } else {
+                            onDisplayError(result);
                         }
                     }
                 });
@@ -630,7 +633,7 @@
             }
 
             $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
-               
+                
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
