@@ -314,6 +314,7 @@
                     if ($(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton).hasClass("k-state-disabled")) {
                         $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton).removeClass("k-state-disabled");
                         $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton).click(function () {
+                            
                             newProductActive = true;
                             activeProduct = data.ReferenceId;
                             $(productObject.controls.dropdownlists.ProductStatus + "_" + activeSaveButton).data('kendoDropDownList').enable(true);
@@ -420,7 +421,7 @@
             });
 
             $(productObject.controls.buttons.SearchSupplier).click(function () {
-                debugger;
+                
                 var grid = $(productObject.controls.grids.GridSearchSupplier).data("kendoGrid");
                 if (grid.dataSource.total() == 0) {
                     $(this).displayError(messages.errorMessages.NoRowSelected);
@@ -633,11 +634,10 @@
             }
 
             $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
-                
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
-
+                
                 if (guid != "") {
                     var strUrl = GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev';
                     $.ajax({
@@ -650,7 +650,7 @@
                         },
                         success: function (ifExists) {
                             if (ifExists == false) {
-                                doclib.onDisplayNewDocumentPopUp();;
+                                doclib.onDisplayNewDocumentPopUp(pKey);;
                             } else {
                                 attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid);
                             }

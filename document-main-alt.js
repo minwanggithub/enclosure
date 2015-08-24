@@ -516,12 +516,13 @@
             $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
-        var onDisplayNewDocumentPopUp = function() {
-            displayAddNewDocumentPopUp();
+        var onDisplayNewDocumentPopUp = function(pKey) {
+            displayAddNewDocumentPopUp(pKey);
         }
 
         /******************************** Search Methods (Pop-Up) ********************************/
-        function displayAddNewDocumentPopUp() {
+        function displayAddNewDocumentPopUp(pKey) {
+         
             if (generateLocationUrl) {
                 var url = documentAjaxSettings.controllers.Home + '/' + documentAjaxSettings.actions.OpenWindowVariable;
                 var locationUrl = generateLocationUrl(url);
@@ -534,7 +535,7 @@
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
                         if ($(this).getQueryStringParameterByName("docGuid")) {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
-                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid");
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") +"&productid="+pKey;
                             } else {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
                             }
