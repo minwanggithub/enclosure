@@ -889,20 +889,26 @@
                         error: function() {
                             $(this).displayError(messages.errorMessages.CannotRetrieveSentEmail);
                         },
-                        success: function(response) {
+                        success: function(response, status, xhr) {
 
-                            if (data != null) {
+                            // status OK
+                            if (xhr.status == "200") {
 
-                                // set the next step
-                                SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+                                if (data != null) {
 
-                                // set up the form
-                                PopulateEmailActionModal(response.data, true);
+                                    // set the next step
+                                    SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
 
-                                // display upload interface
-                                $(actionModals.SendEmail).displayModal();
+                                    // set up the form
+                                    PopulateEmailActionModal(response.data, true);
 
-                            }
+                                    // display upload interface
+                                    $(actionModals.SendEmail).displayModal();
+
+                                }
+
+                            } 
+
                         },
                         done: function() {
                             $(this).savedSuccessFully(messages.successMessages.Saved);
