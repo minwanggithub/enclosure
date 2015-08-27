@@ -215,6 +215,8 @@
             $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
         });
 
+       
+
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
