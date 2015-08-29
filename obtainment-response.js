@@ -60,7 +60,8 @@
             },
             popWindow: {
                     supplierSearchDialog: function() { return $("#supplierSearchWindow").data("kendoWindow"); },
-                    supplierPlugIn: function() { return $("#dgSupplierPlugIn"); },
+                    supplierPlugIn: function () { return $("#dgSupplierPlugIn"); },
+                    resendEmailDialog: function () { return $("#obtainmentEmailWindow").data("kendoWindow"); }
             },
             controllerCalls: {
                 GetInboundResponseById: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetInboundResponseById",
@@ -431,13 +432,17 @@
                 var formData = {
                     'inboundResponseId': parseInt(inboundResponseId)
                 };
-
+ 
+ 
                 $(this).ajaxJSONCall(UIObject.controllerCalls.ResendObtainmentEmail, JSON.stringify(formData))
+
+
                     .success(function (data) {
                         if (data.successful) {
-                            $(this).displayError("The email associated with this response has been resent.");
+                            $(this).displayError("The original email associated with this obtainment response has been resent.");
                         } else {
-                            $(this).displayError("The email associated with this response could not be resent.");
+                            $(this).displayError("The original email associated with this obtainment response can not be resent as the" +
+                                " attachments are no longer available. You will have to re-create the email.");
                         }
                     })
                     .error(function () {
