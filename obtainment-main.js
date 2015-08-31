@@ -59,9 +59,10 @@
                     NextStepDropDownList: "#ddlNextStep",
                     ActionsDropDownList: "#ddlAction",
                     NextStepsDropDownList: "#ddlNextSteps",
-                    InternalNotes : "#ddlInternalNotes",
+                    InternalNotes: "#ddlInternalNotes",
                     CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
-                    CloseRequestReasonCode: "#ddlReasonCode"
+                    CloseRequestReasonCode: "#ddlReasonCode",
+                    SupplierContactList: "#ddlSupplierContactList"
                 },
                 labels: {ContactName: "#lblContactName"},
                 checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
@@ -508,7 +509,9 @@
                         phoneContactGrid.refresh();
                         SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
                         $(actionModals.LogPhoneCall).displayModal();
-                        $(obtainmentObject.controls.labels.ContactName).text(selectedItem.SupplierContactName);
+                        var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
+                        ddlContactList.value(selectedItem.SupplierContactName);
+
                 } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
                     break;
