@@ -1119,7 +1119,7 @@
 
         var onContactGeneralActivate = function (e) {
             //alert($(e.item).find("> .k-link").text());
-            if (IsReadOnlyMode() && $(e.item).find("* > .k-link").text() == "General") {
+            if (IsReadOnlyMode() && $(e.item).find(".k-link").text() == "General") {
                 //alert($(e.item).find("> .k-link").text());
                 //Identification section
                 setTimeout(function () {
