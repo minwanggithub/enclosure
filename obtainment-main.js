@@ -42,6 +42,7 @@
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
+                    ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
                     NoticeNumberSearch: "#NoticeNumber",
@@ -85,7 +86,7 @@
 
     };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
-        var obtainmentActions = { Empty: "",ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var obtainmentActions = { Empty: "",CustomerAction:"8", ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
@@ -323,8 +324,12 @@
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
         });
 
-        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {            
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
+            if($("#dvCustomerAction").is(":visible"))
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
+
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailButton, function () {
@@ -600,6 +605,15 @@
 
                 case obtainmentActions.ConfirmAsCurrent:
                     SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
+                    $("#dvCustomerAction").hide();
+                    $("#lblTitle").text("Confirm as Current");
+                    $(actionModals.CloseRequest).displayModal();
+                    break;
+
+                case obtainmentActions.CustomerAction:
+                    SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
+                    $("#lblTitle").text("Customer Action");
+                    $("#dvCustomerAction").show();
                     $(actionModals.CloseRequest).displayModal();
                     break;
             }
@@ -801,6 +815,12 @@
         }
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
+            var customerAction = false;
+            if (actionName == "CustomerAction") {
+                actionName = "CloseRequest";
+                customerAction = true;
+            }
+                
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -825,9 +845,11 @@
                             return;
                         }
                     }
-                   
-                    if (actionName == "CloseRequest")
-                        obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest();
+
+                    if (customerAction) actionName = "CustomerAction";
+
+                    if (actionName == "CloseRequest" || actionName == "CustomerAction")
+                        obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
 
                     
                     if (selectedRequests.length > 0) {
@@ -853,11 +875,14 @@
             }
         }
 
-        function FillCloseRequest() {
+        function FillCloseRequest(actionName) {
+            var strCustomerAction = "";
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
             obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.value();
-            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() !=""?$(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val(): null;
-            obtainmentMultipleWorkItemActionModel.Notes = "Customer Action:" +ddlCustomerActions.text() + "\n" + "Reason Code:" +obtainmentActionCloseRequest.ReasonCode + "\n" + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotes + "CloseRequest").val();
+            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() != "" ? $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() : null;
+            if (actionName == "CustomerAction")
+                strCustomerAction = "Customer Action:" + ddlCustomerActions.text() + "\n" + "Reason Code:" + obtainmentActionCloseRequest.ReasonCode + "\n";
+            obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
             return obtainmentActionCloseRequest;
             }
 
