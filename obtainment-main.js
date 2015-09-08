@@ -27,7 +27,9 @@
                     SaveSearchSettings: "#saveSearchSettingsBtn",
                     ActionLoadModal: "#actionLoadModalBtn",
                     FollowUpSaveButton: "#btnSaveFollowUp",
+                    LogWebSearchSaveButton: "tnSaveLogWebSearch",
                     FollowUpCancelButton: "#btnCancelFollowUp",
+                    LogWebSearchCancelButton: "#btnCancelLogWebSearch",
                     LogPhoneCallSaveButton: "#btnSavePhoneCall",
                     LogPhoneCallCancelButton: "#btnCancelPhoneCall",
                     SendEmailButton: "#btnSendEmail",
@@ -69,7 +71,8 @@
                 checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", LogPhoneCall: "#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued: "#mdlFlagDiscontinued", NotRequired: "#mdlNotRequired", CloseRequest: "#mdlCloseRequest", ViewHistory: "#mdlViewHistory", AccountInfo: "#mdlViewAccount" };
+        var actionModals = { FollowUp: "#mdlFollowUp", LogWebSearch: "#mdlLogWebSearch", LogPhoneCall: "#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued: "#mdlFlagDiscontinued", NotRequired: "#mdlNotRequired", CloseRequest: "#mdlCloseRequest", ViewHistory: "#mdlViewHistory", AccountInfo: "#mdlViewAccount"
+        };
         var kendoWindows = {ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
@@ -84,6 +87,7 @@
             SaveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkflow/SaveEmailAttachment",
             RemoveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveEmailAttachment",
             GetContactList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactList",
+            GetContactPhoneList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactPhoneList",
 
     };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
@@ -510,16 +514,22 @@
                
                     var owid = location.search.substring(1).split('&')[1].split('=')[1];
                     var companyid = owid.split('-')[0];
-                    $(this).ajaxCall(controllerCalls.GetContactList, {supplierid:companyid})
+                    $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
+                    $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
                         .success(function(data) {
                             //update contact list
                             $("#ddlSupplierContactList").kendoDropDownList({
-                                "dataSource": data, 
-                                "dataTextField": "Text", "autoBind": false, "dataValueField": "Value", "optionLabel": "Select"
-                            });
+                                "dataSource": data,
+                                "dataTextField": "Text",
+                                "autoBind": false,
+                                "dataValueField": "Value",
+                                "optionLabel": "Select",
+                                "change": onChangeContactName,
+                           });
 
                             var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
                             ddlContactList.value(selectedItem.SupplierContactName);
+                            
                         })
                         .error(function() {
                             $(this).displayError(messages.errorMessages.GeneralError);
@@ -539,8 +549,9 @@
                     break;
 
                 case obtainmentActions.LogWebSearch:
-                    SetNextStep(nextStepsValues.WebSearch,"", true);
-                    //$(actionModals.FollowUp).displayModal();
+                   
+                    SetNextStep(nextStepsValues.FirstAutomatedEmail, "SendEmail", true);
+                    $(actionModals.LogWebSearch).displayModal();
                     break;
 
                 case obtainmentActions.SendEmail:
@@ -634,6 +645,20 @@
                     $(actionModals.CloseRequest).displayModal();
                     break;
             }
+        }
+
+        function onChangeContactName() {
+         
+            var owid = location.search.substring(1).split('&')[1].split('=')[1];
+            var companyid = owid.split('-')[0];
+            var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
+            var contactName = ddlContactList._selectedValue;
+            
+            $(this).ajaxCall(controllerCalls.GetContactPhoneList, { supplierid: companyid, contactname: contactName })
+                .success(function (result) {
+                    var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
+                    phoneContactGrid.dataSource.data(result);
+                });
         }
 
         function DisableEnableButtons(enable) {
