@@ -105,7 +105,7 @@
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 NoContactSelcted: "No contact has been selected from Contact Information",
-                NoPhoneSelected : "No conatact phone has been selected",
+                NoPhoneSelected : "No contact phone has been selected",
                 GeneralError: "Error Occurred",
                 EmailPartsMissing: "Email must have subject and body.",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
