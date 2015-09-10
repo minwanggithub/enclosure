@@ -852,7 +852,7 @@
         };
 
         var onGridSaveFacilityPhone = function(e) {
-            alert("here");
+           
        }
 
        //facility phone
@@ -870,11 +870,11 @@
                
                 var data = {
                     supplierFacilityPhoneId: supplierFacilityPhoneId, companyId: supplierId, facilityid: supplierFacilityId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.SupplierFacilityCityAreaCode,
-                    extension: e.model.SupplierFacilityExtension, localNo: e.model.SupplierFacilityLocalNumber, countryId: e.model.CountryLkpId
+                    extension: e.model.SupplierFacilityExtension, localNo: e.model.SupplierFacilityLocalNumber, countryId: e.model.CountryLkpId, internationalDialingCode: e.model.InternationalDialingCode
                 };
 
                 //validation to check before saving
-                if (data.countryId != null && data.phoneType != null) {
+                if (data.internationalDialingCode != null && data.phoneType != null) {
                     if (isNaN(data.areaCode) || data.areaCode == null)
                         validationMessage = "Area Code must be numeric";
 
@@ -905,7 +905,7 @@
                             saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                         });
                     } else {
-                        if (data.countryId != null && data.phoneType!=null) {
+                        if (data.internationalDialingCode != null && data.phoneType != null) {
                             if (IsNumeric(data.localNo) && IsNumeric(data.areaCode))
                                 saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                             else
@@ -930,14 +930,15 @@
                var supplierContactPhoneId = e.model.CompanyContactPhoneId;
                var validationMessage = "";
                $('#DetailSupplier #gdContactPhone').data("kendoGrid").cancelChanges();
+             
                var data = {
                    supplierContactPhoneId: supplierContactPhoneId, companyId: supplierId, contactid: supplierContactId, phoneType: e.model.SelectPhoneTypeId, areaCode: e.model.CityOrAreaCode,
-                   extension: e.model.Extension, localNo: e.model.LocalNumber, countryId: e.model.CountryLkpId
+                   extension: e.model.Extension, localNo: e.model.LocalNumber, countryId: e.model.CountryLkpId, internationalDialingCode: e.model.InternationalDialingCode
                };
 
                
                //validation to check before saving
-               if (data.countryId != null && data.phoneType != null) {
+               if (data.internationalDialingCode != null && data.phoneType != null) {
                    if (isNaN(data.areaCode) || data.areaCode == null)
                        validationMessage = "Area Code must be numeric";
 
@@ -958,6 +959,7 @@
                }
 
                $.post(validationUrl, data, function (data1) {
+                   
                    if (data1.indexOf("Duplicate") >=0) {
                        var args = {
                            header: 'Confirm Save',
@@ -968,7 +970,7 @@
                        });
                    }
                    else {
-                       if (data.countryId != null && data.phoneType != null) {
+                       if (data.internationalDialingCode != null && data.phoneType != null) {
                            if (IsNumeric(data.localNo) && IsNumeric(data.areaCode))
                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                            else
