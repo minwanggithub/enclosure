@@ -27,7 +27,7 @@
                     SaveSearchSettings: "#saveSearchSettingsBtn",
                     ActionLoadModal: "#actionLoadModalBtn",
                     FollowUpSaveButton: "#btnSaveFollowUp",
-                    LogWebSearchSaveButton: "tnSaveLogWebSearch",
+                    LogWebSearchSaveButton: "#btnSaveLogWebSearch",
                     FollowUpCancelButton: "#btnCancelFollowUp",
                     LogWebSearchCancelButton: "#btnCancelLogWebSearch",
                     LogPhoneCallSaveButton: "#btnSavePhoneCall",
@@ -281,6 +281,10 @@
             $(actionModals.FollowUp).toggleModal();
         });
 
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogWebSearchCancelButton, function () {
+            $(actionModals.LogWebSearch).toggleModal();
+        });
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallCancelButton, function () {
             $(actionModals.LogPhoneCall).toggleModal();
         });
@@ -323,6 +327,10 @@
         
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogWebSearchSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "LogWebSearch", actionModals.LogWebSearch);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallSaveButton, function () {
@@ -394,7 +402,7 @@
 
         }
 
-        function SetNextStep(nextStepValue, actionName,enable) {
+        function SetNextStep(nextStepValue, actionName, enable) {
             var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
             var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
             ddlNextSteps.value(nextStepValue);
@@ -549,8 +557,7 @@
                     break;
 
                 case obtainmentActions.LogWebSearch:
-                   
-                    SetNextStep(nextStepsValues.FirstAutomatedEmail, "SendEmail", true);
+                    SetNextStep(nextStepsValues.FirstAutomatedEmail, "LogWebSearch", true);
                     $(actionModals.LogWebSearch).displayModal();
                     break;
 
@@ -879,9 +886,14 @@
                     if (actionName == "PhoneCall") {
                         var contactPhonegrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         var selectedPhoneItem = contactPhonegrid.dataItem(contactPhonegrid.select());
-                        if (selectedPhoneItem != null)
+                        if (selectedPhoneItem != null) {
+                            if (obtainmentMultipleWorkItemActionModel.Notes.length > 0) {
+                                obtainmentMultipleWorkItemActionModel.Notes = obtainmentMultipleWorkItemActionModel.Notes + ". Selected CompanyContactId:" + selectedPhoneItem.CompanyContactId + ". Selected CompanyContactPhoneId:" + selectedPhoneItem.CompanyContactPhoneId;
+                            } else {
+                                obtainmentMultipleWorkItemActionModel.Notes = obtainmentMultipleWorkItemActionModel.Notes + " Selected CompanyContactId:" + selectedPhoneItem.CompanyContactId + ". Selected CompanyContactPhoneId:" + selectedPhoneItem.CompanyContactPhoneId;
+                            }
                             obtainmentMultipleWorkItemActionModel.ObtianActionLogPhoneCallModel = FillPhoneCall(selectedPhoneItem);
-                        else {
+                        } else {
                             $(modalId).toggleModal();
                             $(this).displayError(messages.errorMessages.NoPhoneSelected);
                             return;
