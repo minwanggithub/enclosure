@@ -302,7 +302,9 @@
                         StatusNotes: $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton).val(),
                         SelectedPhysicalStateId: selectedPhysicalStateId,
                         PhysicalStateText: selectedPhysicalStateText
-                    };
+            };
+            debugger;
+            $(productObject.controls.hiddenTextBoxes.HiddenProductName).val($(productObject.controls.textBoxes.ProductName + "_" + activeSaveButton).val());
             $.post(controllerCalls.SaveProduct, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (!data || data.ErrorMessage) {
                     var errorMessage = data.ErrorMessage || messages.errorMessages.ErrorSavingProduct;
@@ -337,7 +339,7 @@
                         $(productObject.controls.textBoxes.ProductSearch).val('ProductName:"' + $(productObject.controls.hiddenTextBoxes.HiddenProductName).val() + '"');
                     else
                         $(productObject.controls.textBoxes.ProductSearch).val(data.ReferenceId);
-
+                    debugger;
                     $(productObject.controls.divs.NewProductDetail).html("");
 
                     var grid = $(productObject.controls.grids.GridSearchProduct).data('kendoGrid');
