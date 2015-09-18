@@ -576,9 +576,8 @@
 
                         // url to invoke for notice number 
                         var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks;
-
                         var cdata = new Object();
-                        cdata.owid = getQueryVariable("owid");
+                        cdata.owid = $("#hdnOwid").val().replace("Owid: ","");
                         cdata.ids = selectedRequests.join(",");
 
                         console.log(cdata);
