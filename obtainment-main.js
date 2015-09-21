@@ -522,7 +522,7 @@
                
                     var owid = location.search.substring(1).split('&')[1].split('=')[1];
                     var companyid = owid.split('-')[0];
-                    $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
+                 
                     $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
                         .success(function(data) {
                             //update contact list
@@ -886,6 +886,7 @@
                         var contactPhonegrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         var selectedPhoneItem = contactPhonegrid.dataItem(contactPhonegrid.select());
                         if (selectedPhoneItem != null) {
+                            
                             if (obtainmentMultipleWorkItemActionModel.Notes.length > 0) {
                                 obtainmentMultipleWorkItemActionModel.Notes = obtainmentMultipleWorkItemActionModel.Notes + ". Selected CompanyContactId:" + selectedPhoneItem.CompanyContactId + ". Selected CompanyContactPhoneId:" + selectedPhoneItem.CompanyContactPhoneId;
                             } else {
