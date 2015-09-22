@@ -886,12 +886,6 @@
                         var contactPhonegrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         var selectedPhoneItem = contactPhonegrid.dataItem(contactPhonegrid.select());
                         if (selectedPhoneItem != null) {
-                            
-                            if (obtainmentMultipleWorkItemActionModel.Notes.length > 0) {
-                                obtainmentMultipleWorkItemActionModel.Notes = obtainmentMultipleWorkItemActionModel.Notes + ". Selected CompanyContactId:" + selectedPhoneItem.CompanyContactId + ". Selected CompanyContactPhoneId:" + selectedPhoneItem.CompanyContactPhoneId;
-                            } else {
-                                obtainmentMultipleWorkItemActionModel.Notes = obtainmentMultipleWorkItemActionModel.Notes + " Selected CompanyContactId:" + selectedPhoneItem.CompanyContactId + ". Selected CompanyContactPhoneId:" + selectedPhoneItem.CompanyContactPhoneId;
-                            }
                             obtainmentMultipleWorkItemActionModel.ObtianActionLogPhoneCallModel = FillPhoneCall(selectedPhoneItem);
                         } else {
                             $(modalId).toggleModal();
