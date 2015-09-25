@@ -787,11 +787,14 @@
                     docNode.hasChildren = true;
                 }
 
-                var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
-                var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
-                if (typeof (tvDataItem) != "undefined") {
-                    selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
-                    repopulateTreeBranch(form, docNode);
+                try {
+                    var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
+                    var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
+                    if (typeof (tvDataItem) != "undefined") {
+                        selectedNode = (tvDataItem.length > 0) ? null : tvDataItem.id;
+                        repopulateTreeBranch(form, docNode);
+                    }
+                   } catch (ex) {
                 }
 
                 // Attempt to reload the status history grid
