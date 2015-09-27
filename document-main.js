@@ -787,6 +787,7 @@
                     docNode.hasChildren = true;
                 }
 
+
                 try {
                     var kendoTreeView = $('#tvProductSearchResult').data("kendoTreeView");
                     var tvDataItem = kendoTreeView.dataItem(kendoTreeView.select());
