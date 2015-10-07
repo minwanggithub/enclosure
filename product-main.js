@@ -31,7 +31,8 @@
                     RefreshProduct: "#btnRefreshProduct",
                     SaveProduct: "#btnSaveProduct",
                     DeleteDocFromProduct: "#btnDeleteDocFromProduct",
-                    CancelProductEdit: "#btnCancelProductEdit"
+                    CancelProductEdit: "#btnCancelProductEdit",
+                    AddNewRevision: "[id^=btnAddDocumentRevision_]"
                 },
                 textBoxes: {
                     ProductName: "#txtProductName",
@@ -303,7 +304,7 @@
                         SelectedPhysicalStateId: selectedPhysicalStateId,
                         PhysicalStateText: selectedPhysicalStateText
             };
-            debugger;
+           
             $(productObject.controls.hiddenTextBoxes.HiddenProductName).val($(productObject.controls.textBoxes.ProductName + "_" + activeSaveButton).val());
             $.post(controllerCalls.SaveProduct, { jsProductSearchModel: JSON.stringify(queryText) }, function (data) {
                 if (!data || data.ErrorMessage) {
@@ -339,7 +340,7 @@
                         $(productObject.controls.textBoxes.ProductSearch).val('ProductName:"' + $(productObject.controls.hiddenTextBoxes.HiddenProductName).val() + '"');
                     else
                         $(productObject.controls.textBoxes.ProductSearch).val(data.ReferenceId);
-                    debugger;
+                    
                     $(productObject.controls.divs.NewProductDetail).html("");
 
                     var grid = $(productObject.controls.grids.GridSearchProduct).data('kendoGrid');
@@ -636,6 +637,7 @@
             }
 
             $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
+                
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
@@ -917,7 +919,6 @@
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
             onProductPhysicalStateChange: onProductPhysicalStateChange,
-
             setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback
         };
     };

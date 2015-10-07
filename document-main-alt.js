@@ -100,7 +100,9 @@
                 DocumentStatusHistory: "#StatusNotesText_",
                 NewDocument: "#pnlNewDocument",
                 NewDocumentForm: "#frmNewDocument",
-                NewDocumentPopUp: ".add-new-document-popup"
+                NewDocumentPopUp: ".add-new-document-popup",
+                NewRevision: "#pnlNewRevision",
+                NewRevisionPopUp: ".add-new-revision-popup"
             },
             datepickers: {
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
@@ -172,6 +174,7 @@
         var documentMessages = {
             errors: {
                 AddNewDocumentPopup: "An error occured displaying the add new document screen. Please container you adminstrator.",
+                AddNewRevisionPopup: "An error occured displaying the add new revision screen. Please container you adminstrator.",
                 CompanyViewError: "An error occurred displaying the selected company. Please review you selection and try again.",
                 ConfirmationDateFuture: "Invalid confirmation date, it can't be a future date.",
                 ConfirmationDateGreaterThanRevisionDate: "Invalid confirmation date, it must be greater than or equal to revision date.",
@@ -192,7 +195,7 @@
                 SaveNewDocumentAttachmentError: "New documents cannot be created without an attachment. Add an attachment and please try again.",
                 SaveNewDocumentError: "Save the new document could not be completed. Please review you changes and try again.",
                 SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again."
-    },
+            },
             modals: {
                 DocumentDeleteContainerComponentHeader: "Delete Container Component Confirmation",
                 DocumentDeleteContainerComponentMessage: "Are you sure you want to delete this container component?",
@@ -522,7 +525,7 @@
 
         /******************************** Search Methods (Pop-Up) ********************************/
         function displayAddNewDocumentPopUp(pKey) {
-         
+            
             if (generateLocationUrl) {
                 var url = documentAjaxSettings.controllers.Home + '/' + documentAjaxSettings.actions.OpenWindowVariable;
                 var locationUrl = generateLocationUrl(url);
@@ -542,7 +545,7 @@
                         }
                         else
                             requestUrl = generateLocationUrl(requestUrl);
-                        
+                       
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
                         requestWindow.onload = function () {
                             var doc = this.document;
@@ -876,6 +879,47 @@
             }
         };
 
+        function getTodayDate() {
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            return mm + '/' + dd + '/' + yyyy;
+            
+        }
+
+        var onNewRevisionPanelActivate = function (e) {
+            
+            var documentId = location.search.substring(1).split('&')[1].split('=')[1];
+            var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
+            $("[id*=btnDocumentRevisionSave_" + documentId + "]").removeClass('disabled-link');
+            $("[id*=btnDocumentRevisionSave_" + documentId + "]").on("click", onDocumentRevisionSaveBtnClick2);
+            $("[id*=btnDocumentRevisionCancel_" + documentId + "]").on("click", onDocumentNewRevisionDetailsCancelBtnClick2);
+            $("[id*=btnSetUnknownMfg_" + documentId + "]").hide();
+            $("[id*=revisionMfgIdBtn_" + documentId + "]").hide();
+            $("[id*=revisionSupplierIdBtn_" + documentId + "]").hide();
+            $("[id*=viewRevisionManufacturerIdBtn_" + documentId + "]").on("conlick", onDocumentRevisionCompanyViewBtnClick);
+            $("[id*=viewRevisionSupplierIdBtn_" + documentId + "]").on("click", onDocumentRevisionCompanyViewBtnClick); 
+            $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
+            $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
+            $("[id*=RevisionDate_" + documentId + "]").val(getTodayDate());
+            $("[id*=VerifyDate_" + documentId + "]").val(getTodayDate());
+            
+            // If we are within the popup window display the panel
+            var addNewRevisionPopUp = $(documentElementSelectors.containers.NewRevision).parents(documentElementSelectors.containers.NewRevisionPopUp);
+            if (addNewRevisionPopUp.length > 0) {
+                $(documentElementSelectors.containers.NewRevision).show(500);
+            }
+        };
+
+
         /******************************** Document Methods ********************************/
         function checkDocumentDetailsDirtyStatus(container) {
             changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentDetailsSave, documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsSaveBtnClick, true);
@@ -1100,6 +1144,22 @@
             }
         }
 
+        function getDocumentRevisionAttachments2(container, documentId, revisionId) {
+            var gridContainer = $(this).getQueryStringParameterByName("docGuid") != "" ? container.find(documentElementSelectors.grids.DocumentFromInboundResponse).data('kendoGrid') : container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+            var grid = container && container.length > 0 ? gridContainer : null;
+
+            if (grid && grid.dataSource) {
+
+                var items = [];
+                var gridData = grid.dataSource.data();
+                for (var i = 0; i < gridData.length; i++) {
+                    items.push({ DocumentId: documentId, RevisionId: revisionId, PhysicalPath: '', DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid") });
+                }
+
+                return items;
+            }
+        }
+
         function getDocumentRevisionDetailsData(container, documentId, revisionId) {
 
             if (!container && documentId & revisionId) {
@@ -1130,6 +1190,41 @@
 
                 return result;
             }
+
+            return null;
+        }
+
+        function getDocumentRevisionDetailsData2(container, documentId, revisionId) {
+
+         if (!container && documentId & revisionId) { 
+                container =((revisionId || 0) == 0) ? $(documentElementSelectors.containers.DocumentNewRevision +documentId): $(documentElementSelectors.containers.DocumentRevision +documentId);
+         }
+
+                if (container && container.length > 0) {
+                    var result = {
+                        BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
+                        DocumentId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val(),
+                        DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
+                        DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
+                        DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
+                        IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
+                        IsGoodImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).is(":checked"),
+                        ManufacturerId: null,
+                        RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
+                        RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
+                        DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
+                        SupplierId: null,
+                        VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+               };
+
+               if (extractCompanyIdFromTemplate) {
+                    result.ManufacturerId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val());
+                    result.SupplierId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val());
+                }
+
+                return result;
+                }
 
             return null;
         }
@@ -1196,6 +1291,29 @@
                 } else
                     container.hide(500);
             }
+        }
+
+        function onDocumentNewRevisionDetailsCancelBtnClick2(e) {
+            e.preventDefault();
+            window.opener = self;
+            
+            var container = $(e.currentTarget).parents('ul[id^=pnlNewRevision]');
+            if (container.length > 0) {
+
+                if (isContainerFieldsDirty(container) == true) {
+                    var settings = {
+                        message: documentMessages.modals.DocumentRevisionDiscardChangesMessage,
+                        header: documentMessages.modals.DocumentRevisionDiscardChangesHeader,
+                    };
+
+                    displayConfirmationModal(settings, function() {
+                        revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);
+                        window.close();
+                    });
+                } else {
+                    window.close();
+                }
+            } 
         }
 
         function onDocumentNewRevisionDetailsDeleteAttachmentBtnClick(e) {
@@ -1389,8 +1507,9 @@
         }
 
         function onDocumentRevisionCompanyViewBtnClick(e) {
+            
             e.preventDefault();
-
+            
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -1582,9 +1701,43 @@
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
 
+        function onDocumentRevisionSaveBtnClick2(e) {
+            e.preventDefault();
+            var documentId = location.search.substring(1).split('&')[1].split('=')[1];
+         
+            var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
+            var formData = {
+                model: getDocumentRevisionDetailsData2(form, documentId, 0),
+                attachments: getDocumentRevisionAttachments2(form, documentId, 0)
+            };
+
+            if (formData.model) {
+
+                if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
+                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
+                    return false;
+                }
+
+                var url = form.attr("action");
+                $(this).ajaxCall(url, formData)
+                    .success(function (data) {
+                        var errorMessage = parseErrorMessage(data);
+                        if (!errorMessage) {
+                            displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
+                            $("[id*=RevisionId_" + data.DocumentId + "]").val(data.RevisionId);
+                            $("[id*=btnDocumentRevisionSave_" + data.DocumentId + "]").attr("disabled", "disabled");
+                            $("[id*=btnDocumentRevisionSave_" + data.DocumentId + "]").unbind("click");
+                        } else
+                            displayError(errorMessage);
+                    })
+                    .error(function () { displayError(documentMessages.errors.SaveDocumentRevisionError); });
+            } else
+                displayError(documentMessages.errors.SaveDocumentRevisionError);
+        }
+
         function onDocumentRevisionSetUnknownCompanyBtnClick(e) {
             e.preventDefault();
-
+            
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -1600,6 +1753,7 @@
                 .error(function(xhr, textStatus, error) { displayError(error); });
         }
 
+    
         function setDocumentRevisionDetailsDefaultValues(container) {
             if (container && container.length > 0) {
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
@@ -1944,6 +2098,7 @@
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
+            onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp
 
         };
