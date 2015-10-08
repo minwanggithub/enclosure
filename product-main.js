@@ -63,7 +63,9 @@
             DeleteProductDocument: GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument",
             LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
             GetStatusAction: GetEnvironmentLocation() + "/Configuration/ProductManager/GetStatusAction",
-            SaveProduct: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveProduct"
+            SaveProduct: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveProduct",
+            AttachDocRevToProd: GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd',
+            IfExistsDocRev: GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev'
         }
         var messages = {
             confirmationMessages: {
@@ -78,7 +80,9 @@
                 ErrorSavingProduct: "Error occured while saving the product",
                 NoRowSelected: "No row selected",
                 SelectDocumentsToDelete: 'Please select document(s) to delete.',
-                CompletedAttachDocToProd: 'Finish attaching existing document to product.'
+                CompletedAttachDocToProd: 'Finish attaching existing document to product.',
+                ErrorAttachDocToProd: 'Cannot attach Document to product.',
+                ErrorAtIfExistsDocRev: 'Error at action IfExistsDocRev.'
             }
         }
 
@@ -612,26 +616,16 @@
 
            
             //Add doc parts
-            function attachDocRevToProd(pKey, docGuid, noticeNo, inboundResponseid) {
-                
-                var strUrl = GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd';
-                $.ajax({
-                    method: "POST",
-                    url: strUrl,
-                    data: JSON.stringify({ productId: pKey, docGuid: docGuid, noticeNumber: noticeNo, inboundResponseid : inboundResponseid}),
-                    contentType: 'application/json; charset=utf-8',
-                    error: function () {
-                        DisplayError('Cannot attach Document to product.');
-                    },
-                    success: function (result) {
-                       
+            function attachDocRevToProd(pKey, docGuid, noticeNo, inboundResponseid, supplierid) {
+            
+                $.post(controllerCalls.AttachDocRevToProd, { productId: pKey, docGuid: docGuid, noticeNumber: noticeNo, inboundResponseid: inboundResponseid, supplierid: supplierid },
+                    function (result) {
                         if (result == 'success') {
                             $('#btnRefreshProduct_' + pKey).click();
                             onDisplayError(messages.errorMessages.CompletedAttachDocToProd);
                         } else {
-                            onDisplayError(result);
+                            onDisplayError(ErrorAttachDocToProd);
                         }
-                    }
                 });
 
             }
@@ -641,24 +635,17 @@
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
-                
+                var supplierid = $(this).getQueryStringParameterByName("sid");
+
                 if (guid != "") {
-                    var strUrl = GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev';
-                    $.ajax({
-                        method: "POST",
-                        url: strUrl,
-                        data: JSON.stringify({ docGuid: guid }),
-                        contentType: 'application/json; charset=utf-8',
-                        error: function () {
-                            DisplayError('Error at action IfExistsDocRev.');
-                        },
-                        success: function (ifExists) {
+                    
+                    $.post(controllerCalls.IfExistsDocRev, { docGuid: guid }, function (ifExists) {
+
                             if (ifExists == false) {
                                 doclib.onDisplayNewDocumentPopUp(pKey);;
                             } else {
-                                attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid);
+                                attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid, supplierid);
                             }
-                        }
                     });
                 }
                 else {
