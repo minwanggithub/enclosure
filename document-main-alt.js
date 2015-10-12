@@ -20,7 +20,8 @@
                 SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
                 SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments",
                 UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
-                ClearSessionVariablesDocument: "ClearSessionsVariables"
+                ClearSessionVariablesDocument: "ClearSessionsVariables",
+                GetSupplierName: "GetSupplierName"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -888,7 +889,7 @@
             var yyyy = today.getFullYear();
             if (dd < 10) {
                 dd = '0' + dd;
-            }
+            } 
             if (mm < 10) {
                 mm = '0' + mm;
             }
@@ -900,6 +901,23 @@
             
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
+            
+            $(this).ajaxCall(generateActionUrl("../../" + documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.GetSupplierName), {supplierId: supplierId})
+            .success(function (result) {
+                if (result.message == "Error" || result.success == false) {
+                    $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
+                    $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
+                } else {
+                    $("[id*=txtSupplierId_" + documentId + "]").val(supplierId + ', ' + result);
+                    $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId + ', ' + result);
+               }
+           })
+           .error(function () {
+               $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
+               $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
+           });
+
+
             $("[id*=btnDocumentRevisionSave_" + documentId + "]").removeClass('disabled-link');
             $("[id*=btnDocumentRevisionSave_" + documentId + "]").on("click", onDocRevSaveForInboundResponseBtnClick);
             $("[id*=btnDocumentRevisionCancel_" + documentId + "]").on("click", onDocNewRevDetailsCancelForInboundResponseBtnClick);

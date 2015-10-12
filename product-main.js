@@ -624,7 +624,7 @@
                             $('#btnRefreshProduct_' + pKey).click();
                             onDisplayError(messages.errorMessages.CompletedAttachDocToProd);
                         } else {
-                            onDisplayError(ErrorAttachDocToProd);
+                            onDisplayError(result);
                         }
                 });
 
@@ -642,7 +642,7 @@
                     $.post(controllerCalls.IfExistsDocRev, { docGuid: guid }, function (ifExists) {
 
                             if (ifExists == false) {
-                                doclib.onDisplayNewDocumentPopUp(pKey);;
+                                doclib.onDisplayNewDocumentPopUp(pKey);
                             } else {
                                 attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid, supplierid);
                             }
