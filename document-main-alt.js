@@ -729,12 +729,13 @@
                 };
             }
 
-
             if (formData.model) {
                 if (formData.attachments != null) {
-                     if (formData.attachments.length == 0 && $(this).getQueryStringParameterByName("docGuid") == "") {
-                        displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
-                        return false;
+                    if (formData.attachments.length == 0 && $(this).getQueryStringParameterByName("docGuid") == "") {
+                        if (formData.model.ContainerTypeId != 2) {
+                            displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
+                            return false;
+                        }
                     }   
                 }
 
