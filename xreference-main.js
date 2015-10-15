@@ -724,7 +724,7 @@
                                 if (dataItem["SupplierName"] != $("#hdnSupplier").val()) {
                                     $("#hdnSupplierName").val(dataItem["SupplierID"]);
                                     $("#hdnProductName").val(dataItem["ProductName"]);
-                                    $("#hdnSupplier").val(dataItem["SupplierName"]);
+                                    $("#hdnSupplier").val(dataItem["SupplierID"]);
                                     $("#hdnProductName").trigger('change');
                                     $("#hdnSupplierName").trigger('change');
                                     $("#hdnSupplier").trigger('change');

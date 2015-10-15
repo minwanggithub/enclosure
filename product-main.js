@@ -32,10 +32,12 @@
                     SaveProduct: "#btnSaveProduct",
                     DeleteDocFromProduct: "#btnDeleteDocFromProduct",
                     CancelProductEdit: "#btnCancelProductEdit",
-                    AddNewRevision: "[id^=btnAddDocumentRevision_]"
+                    AddNewRevision: "[id^=btnAddDocumentRevision_]",
+                    ProductSearch: "#searchProductBtn"
                 },
                 textBoxes: {
                     ProductName: "#txtProductName",
+                    ProductId: "#txtSearchProductId",
                     ProductAttributes: "#txtProductAttributes",
                     SupplierId: "#txtSupplierId",
                     ProductId: "#txtProductId",
@@ -338,12 +340,13 @@
 
                     UnBindingSaveCancel(0);
                     deactivateLayout(activeSaveButton);
-
                     // this checks that the xref screen hidden textboxes have values, if not means you are on the main product screen
-                    if ($(productObject.controls.hiddenTextBoxes.HiddenProductName).val() != "")
-                        $(productObject.controls.textBoxes.ProductSearch).val('ProductName:"' + $(productObject.controls.hiddenTextBoxes.HiddenProductName).val() + '"');
+                    if ($(productObject.controls.hiddenTextBoxes.HiddenProductName).val() != "") {
+                        $("#divSearchSection " + productObject.controls.textBoxes.ProductName).val($(productObject.controls.hiddenTextBoxes.HiddenProductName).val());
+                        $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
+                    }
                     else
-                        $(productObject.controls.textBoxes.ProductSearch).val(data.ReferenceId);
+                        $("#divSearchSection " + productObject.controls.textBoxes.ProductId).val(data.ReferenceId);
                     
                     $(productObject.controls.divs.NewProductDetail).html("");
 
@@ -417,7 +420,7 @@
                     }
                 }
                 //Remove search result
-                $(productObject.controls.textBoxes.ProductSearch).val("");
+                //$(productObject.controls.textBoxes.ProductSearch).val("");
                 var grid = $(productObject.controls.grids.GridSearchProduct).data("kendoGrid");
                 if (grid.dataSource.total() == 0)
                     return false;
@@ -542,7 +545,7 @@
                 grid.dataSource.page(1);
             }
 
-            QueueQuery();
+           // QueueQuery();
 
             if($("#hdnProductName").val().length>0)
                 grid.dataSource.filter({ field: "ProductName", operator: "eq", value: $("#hdnProductName").val()});
