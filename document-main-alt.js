@@ -1173,7 +1173,13 @@
                 var items = [];
                 var gridData = grid.dataSource.data();
                 for (var i = 0; i < gridData.length; i++) {
-                    items.push({ DocumentId: documentId, RevisionId: revisionId, PhysicalPath: '', DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid") });
+                    items.push({
+                        DocumentId: documentId,
+                        RevisionId: revisionId,
+                        PhysicalPath: '',
+                        DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
+                        OriginalFileName: gridData[i].OriginalFileName
+                    });
                 }
 
                 return items;
