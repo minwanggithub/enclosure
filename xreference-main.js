@@ -422,8 +422,8 @@
                 if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
                     var data = { };
                     data['ids']= selectedRequests;
-                    data['customerAction']= selCustomerAction.text();
-                    data['notes'] = $(xreferenceObject.controls.textBoxes.NotesTextBox).text();
+                    data['customerAction']= "Customer Action";
+                    data['notes'] = selCustomerAction.text();
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
                     $(actionModals.CustomerAction).toggleModal();
