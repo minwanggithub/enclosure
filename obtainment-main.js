@@ -39,7 +39,8 @@
                     NotRequiredSaveButton: "#btnSaveNotRequired",
                     NotRequiredCancelButton: "#btnCancelNotRequired",
                     CloseRequestSaveButton: "#btnSaveCloseRequest",
-                    CloseRequestCancelButton: "#btnCancelCloseRequest"
+                    CloseRequestCancelButton: "#btnCancelCloseRequest",
+                    SuperSupplierEmailButton: "#btnSuperMail"
                 },
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
@@ -49,7 +50,8 @@
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
                     NoticeNumberSearch: "#NoticeNumber",
                     NoticeNumber: "#txtNoticeNum",
-                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody"                    
+                    ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",
+                    SupplierId: "#txtSupplierId"
 
                 },
                 dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
@@ -71,8 +73,19 @@
                 checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
             }
         }
-        var actionModals = { FollowUp: "#mdlFollowUp", LogWebSearch: "#mdlLogWebSearch", LogPhoneCall: "#mdlLogPhoneCall", SendEmail: "#mdlSendEmail", FlagDiscontinued: "#mdlFlagDiscontinued", NotRequired: "#mdlNotRequired", CloseRequest: "#mdlCloseRequest", ViewHistory: "#mdlViewHistory", AccountInfo: "#mdlViewAccount"
+        var actionModals = {
+            FollowUp: "#mdlFollowUp",
+            LogWebSearch: "#mdlLogWebSearch",
+            LogPhoneCall: "#mdlLogPhoneCall",
+            SendEmail: "#mdlSendEmail",
+            FlagDiscontinued: "#mdlFlagDiscontinued",
+            NotRequired: "#mdlNotRequired",
+            CloseRequest: "#mdlCloseRequest",
+            ViewHistory: "#mdlViewHistory",
+            AccountInfo: "#mdlViewAccount",
+            SuperMail: "#mdlSuperEmail"
         };
+
         var kendoWindows = {ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
@@ -215,7 +228,9 @@
             drpAssignedToType.select(0);
             drpNextStep.select(0);
             $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val('');
+            $(obtainmentObject.controls.textBoxes.SupplierId).val('');
             $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
+            $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
         });
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function() {
@@ -240,8 +255,10 @@
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             obtainmentWorkLoadSearchResultModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val();
+            obtainmentWorkLoadSearchResultModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
+            
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
@@ -250,12 +267,12 @@
                 + obtainmentWorkLoadSearchResultModel.NextStepId
                 + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0";
 
-            if (obtainmentWorkLoadSearchResultModel.HasFilter > 0) {
+                if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
                 DisableEnableButtons(false);
 
                 kendo.ui.progress(obtainmentDetailObj, true);
                 $(this).ajaxCall(controllerCalls.SearchRequests, {searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-                    .success(function(data) {
+                    .success(function (data) {
                         obtainmentDetailObj.html(data);
                         DisableEnableButtons(true);
                     }).error(
@@ -267,6 +284,10 @@
                 $(this).displayError(messages.errorMessages.SelectFilter);
         });
 
+        obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
+            var supplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            $(this).displayError("You have selectd supplier id " + supplierId + " to send out super email,<br/> but this feature is currently under development");
+        });
 
      
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
@@ -370,7 +391,11 @@
        obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
             e.preventDefault();
             ShowAccount(this.id, null);
-        });
+       });
+
+
+     
+
 
         function ShowHistory(obtainmentWorkId, supplierId) {
             $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId })
@@ -487,15 +512,11 @@
                     $("#txtObtainmentEmailNethubLinks").val(text);
 
                 }
-
-
                 // change caption as needed
                 $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
-
-
             }
-
         }
+
 
         function ShowActionModals() {
            
@@ -670,7 +691,7 @@
         function DisableEnableButtons(enable) {
             $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(enable);
             $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(enable);
-            $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
+            $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);          
         };
 
         function initializeMultiSelectCheckboxes(obj) {
@@ -776,6 +797,13 @@
         {
             $(".unsupport").parent().click(false);
         }
+
+        function onLoadChanged(e) {
+            var rows = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid").dataSource.data.length;
+            var enable = (rows > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
+            $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
+        }
+
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
@@ -1010,12 +1038,14 @@
 
         }
 
+     
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
             loadSupplierNotes: loadSupplierNotes,
             onDdlDataBound: onDdlDataBound,
-            loadSentEmail : loadSentEmail
+            onLoadChange: onLoadChanged,
+            loadSentEmail: loadSentEmail
         };
     };
 })(jQuery);

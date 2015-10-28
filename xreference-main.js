@@ -176,10 +176,11 @@
 
             }
 
-            if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
-                $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-                $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
-            }
+            //Obsolete this feature based on the TRECOMPLI-1271
+            //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+            //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+            //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
+            //}
 
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
@@ -379,17 +380,18 @@
         });
 
         //Not Found
-         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton, function() {
-             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
-                 $(this).displayError(messages.errorMessages.NoItemsSelected);
-             } else {
-                 var data = {};
-                 data['ids'] = selectedRequests;
-                 var args = { message: 'Are you sure you would like to proceed?', header: 'Save Not Found Items'};
-                 DisplayConfirmationModal(args, function () {
-                     SaveRequest(controllerCalls.SaveNotFound, data, null);
-                 });
-             }
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton, function () {
+            $(this).displayError("This feature has been obsolted based on the TRECOMPLI-1271");
+             //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+             //    $(this).displayError(messages.errorMessages.NoItemsSelected);
+             //} else {
+             //    var data = {};
+             //    data['ids'] = selectedRequests;
+             //    var args = { message: 'Are you sure you would like to proceed?', header: 'Save Not Found Items'};
+             //    DisplayConfirmationModal(args, function () {
+             //        SaveRequest(controllerCalls.SaveNotFound, data, null);
+             //    });
+             //}
          });
 
         //Save Request for Obtainment
@@ -612,12 +614,12 @@
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.ResolveSideMenuButton);
             //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
             //xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
-            $(xreferenceObject.controls.buttons.NotFoundSideMenuButton).addClass("disabled-link");
+            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).addClass("disabled-link");
             //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(false);
             //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton);
 
-            $(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingSideMenuButton);
+            //$(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(false);
+            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingSideMenuButton);
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.CustomerActionSideMenuButton);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(false);
@@ -629,15 +631,15 @@
         function EnableSideMenuItems() {
             $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
             //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).removeAttr("disabled");
-            $(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(true);
-            $(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(true);
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
             //ShowDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
             //ShowDisplayModal(xreferenceObject.controls.buttons.NotFoundSideMenuButton, actionModals.Obtainment);
-            ShowDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
             ShowDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
         }
@@ -655,10 +657,11 @@
                 $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
             }
 
-            if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
-                $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-                $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
-            }
+            //Obsolete this feature based on the TRECOMPLI-1271
+            //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+            //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+            //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
+            //}
          
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
@@ -679,10 +682,11 @@
                     $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
                 }
 
-                if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
-                    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-                    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
-                }
+                //Obsolete this feature based on the TRECOMPLI-1271
+                //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
+                //}
 
                 DisableSideMenuItems();
                 EnableSideMenuItem(btnObj);
