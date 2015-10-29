@@ -833,7 +833,8 @@
                 if (ddlNextSteps.value() != "") {
 
                     // common
-                    obtainmentMultipleWorkItemActionModel.OWID = getQueryVariable("owid");
+                    obtainmentMultipleWorkItemActionModel.OWID = GetOWID().owid;//getQueryVariable("owid");
+                    //console.log(obtainmentMultipleWorkItemActionModel.OWID);
 
                     // differentiate between email resends/sends
                     var owiIds = (preSelectedRequests == null ? selectedRequests : preSelectedRequests);
