@@ -103,7 +103,8 @@
                 NewDocumentForm: "#frmNewDocument",
                 NewDocumentPopUp: ".add-new-document-popup",
                 NewRevision: "#pnlNewRevision",
-                NewRevisionPopUp: ".add-new-revision-popup"
+                NewRevisionPopUp: ".add-new-revision-popup",
+                SupplierSearchPopUp: "#supplierSearchWindow"
             },
             datepickers: {
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
@@ -496,6 +497,22 @@
             performDocumentSearch();
         }
 
+        function onDocumentSearchSearchSupplierBtnClick(e) {
+            e.preventDefault();
+
+            var buttonElement = $(e.currentTarget);
+            if (displaySupplierPopUp) {
+                displaySupplierPopUp(function (data) {
+
+                    var siblingSelector = getCompanyTextFieldSibling(buttonElement);
+                    if (siblingSelector) {
+                        var companyInfo = getCompanyTemplate ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
+                        buttonElement.siblings(siblingSelector + ":first").val(companyInfo).trigger('change');
+                    }
+                });
+            }
+        }
+
         var getDocumentSearchCriteria = function () {
             var container = $(documentElementSelectors.containers.DocumentSearch);
             return getContainerSearchCriteria(container);
@@ -600,6 +617,22 @@
             performDocumentSearchPopUp();
         }
 
+        function onDocumentSearchPopUpSupplierSearchBtnClick(e) {
+            e.preventDefault();
+
+            var buttonElement = $(e.currentTarget);
+            if (displaySupplierPopUp) {
+                displaySupplierPopUp(function (data) {
+
+                    var siblingSelector = getCompanyTextFieldSibling(buttonElement);
+                    if (siblingSelector) {
+                        var companyInfo = getCompanyTemplate ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
+                        buttonElement.siblings(siblingSelector + ":first").val(companyInfo).trigger('change');
+                    }
+                });
+            }
+        }
+
         var getDocumentSearchPopUpCriteria = function() {
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             return getContainerSearchCriteria(container);
@@ -613,6 +646,7 @@
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchPopUpAddNewDocumentBtnClick);
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchPopUpClearBtnClick);
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearch, onDocumentSearchPopUpSearchBtnClick);
+            documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchPopUpSupplierSearchBtnClick);
 
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchDocumentId, onDocumentSearchPopUpFieldKeyUp);
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchPartNumber, onDocumentSearchPopUpFieldKeyUp);
@@ -1086,6 +1120,7 @@
             container.on('change', documentElementSelectors.containers.DocumentDetailsForm + ' input', onDocumentDetailsFieldChange);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsSave, onDisabledButtonClick);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsCancelBtnClick);
+            container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
 
             // Revision
             container.on('change', documentElementSelectors.containers.DocumentRevisionDetailsForm + ' input', onDocumentRevisionFieldChange);
@@ -1141,6 +1176,8 @@
                     buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerView) ||
                     buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer))
                     siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId;
+                else if (buttonElement.is(documentElementSelectors.buttons.DocumentSearchSearchSupplier))
+                    siblingSelector = documentElementSelectors.textboxes.DocumentSearchSupplierId;
 
                 return siblingSelector;
             }
@@ -1983,7 +2020,7 @@
         function onDocumentAddContainerComponentsBtnClick(e) {
             e.preventDefault();
             var currentDocumentId = extractReferenceId(this.getAttribute('id'));
-            
+
             if (displayDocumentPopUp) {
                 displayDocumentPopUp(function (data) {
                     var ddl = $(documentElementSelectors.dropdownlists.DocumentContainerClassificationType + currentDocumentId).data('kendoDropDownList');

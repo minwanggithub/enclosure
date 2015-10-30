@@ -498,7 +498,7 @@
 
         //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
-            debugger;
+
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
             var drpContains;
             if(this.id.length > 0) {

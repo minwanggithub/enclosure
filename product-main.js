@@ -37,7 +37,6 @@
                 },
                 textBoxes: {
                     ProductName: "#txtProductName",
-                    ProductId: "#txtSearchProductId",
                     ProductAttributes: "#txtProductAttributes",
                     SupplierId: "#txtSupplierId",
                     ProductId: "#txtProductId",
@@ -45,7 +44,8 @@
                     ReferenceNote: "#txtXReferenceNote",
                     ProductSearch: "#txtProductSearch",
                     SupplierSearch: "#txtSupplierSearch",
-                    SearchSupplierId: "#txtSearchSupplierId"
+                    SearchSupplierId: "#txtSearchSupplierId",
+                    ProductSearchProductId: "#txtSearchProductId",
                 },
                 hiddenTextBoxes: {
                     HiddenSupplierName: "#hdnSupplierName",
@@ -145,7 +145,7 @@
                         $(currentProductAttributes).val(nameNumber);
                     });
 
-                } else if (flag == '2')
+                } else if (flag == '2')    
                     $(this).displayError(messages.errorMessages.DocumentAlreadyExistsCannotAttach);
                 else if (flag == '3')
                     $(this).displayError(data.substring(data.indexOf('msg:') + 4));
@@ -346,7 +346,7 @@
                         $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
                     }
                     else
-                        $("#divSearchSection " + productObject.controls.textBoxes.ProductId).val(data.ReferenceId);
+                        $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductId).val(data.ReferenceId);
                     
                     $(productObject.controls.divs.NewProductDetail).html("");
 
@@ -413,6 +413,7 @@
         var panelbar_activated = function () {
             //Can not be moved to partial view, or it cause clear and search again
             $(productObject.controls.buttons.ClearProductBtn).on("click", function () {
+
                 if (parent.window.opener != null) {
                     if (parent.window.opener.document.getElementById("txtProductId") != null) {
                         var txtName = parent.window.opener.document.getElementById("txtProductId");
@@ -429,47 +430,6 @@
                 grid.dataSource.data([]);
                 return false;
             });
-
-            $(productObject.controls.buttons.SearchSupplier).click(function () {
-                
-                var grid = $(productObject.controls.grids.GridSearchSupplier).data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    $(this).displayError(messages.errorMessages.NoRowSelected);
-                    return;
-                }
-                var data = grid.dataItem(grid.select());
-                if (data == null) {
-                    $(this).displayError(messages.errorMessages.NoRowSelected);
-                    return;
-                }
-
-                $(activeSupplier).val(data.id + ", " + data.Name);
-                supplierSearchDialog.data("kendoWindow").close();
-                BindingSaveCancel(activeSupplierIndex);
-            });
-
-            $(productObject.controls.buttons.SearchSupplier).dblclick(function () {
-                var grid = $(productObject.controls.buttons.SearchSupplier).data("kendoGrid");
-                    if (grid.dataSource.total() == 0) {
-                        $(this).displayError(messages.errorMessages.NoRowSelected);
-                        return;
-                    }
-                    var data = grid.dataItem(grid.select());
-                    if (data == null) {
-                        $(this).displayError(messages.errorMessages.NoRowSelected);
-                        return;
-                    }
-                    $(activeSupplier).val(data.id + ", " + data.Name);
-                    supplierSearchDialog.data("kendoWindow").close();
-                    BindingSaveCancel(activeSupplierIndex);
-            });
-
-            $(productObject.controls.buttons.CancelSupplierSearch).click(function () {
-                supplierSearchDialog.data("kendoWindow").close();
-            });
-
-            if (initializeSearchHistoryCallback)
-                initializeSearchHistoryCallback('gdSearchProduct', 'txtProductSearch', refreshProductSearchResultGrid);
         };
 
         var RemovedProductDocument = function (e) {
@@ -591,23 +551,17 @@
             BindInputs(pKey);
 
            
-            $(productObject.controls.buttons.SearchSupplierId + "_" + pKey).on("click", function () {
+            $(productObject.controls.buttons.SearchSupplierId + "_" + pKey).on("click", function() {
                 activeSupplier = productObject.controls.textBoxes.SupplierId + '_' + pKey;
                 activeSupplierIndex = pKey;
 
-                //BootStrap Dialog
-                supplierSearchDialog.data("kendoWindow").center().open();
-                //No Access here for add new supplier
-                $(productObject.controls.buttons.AddNewSupplier).hide();
-
-                $(productObject.controls.buttons.ClearSupplierBtn).click(function () {
-                    //Remove search result
-                    var grid = $(productObject.controls.grids.GridSearchSupplier).data("kendoGrid");
-                    grid.dataSource.filter({});
-                    grid.dataSource.data([]);
-                    $(productObject.controls.textBoxes.SupplierSearch).val("");
-                    return false;
-                });
+                if (displaySupplierPopUp) {
+                    displaySupplierPopUp(function(data) {
+                        var companyInfo = typeof getCompanyTemplate != "undefined" ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
+                        $(activeSupplier).val(companyInfo);
+                        BindingSaveCancel(activeSupplierIndex);
+                    });
+                }
             });
 
             //(SH) 4-16-2014
@@ -641,7 +595,6 @@
                 var supplierid = $(this).getQueryStringParameterByName("sid");
 
                 if (guid != "") {
-                    
                     $.post(controllerCalls.IfExistsDocRev, { docGuid: guid }, function (ifExists) {
 
                             if (ifExists == false) {
@@ -652,19 +605,9 @@
                     });
                 }
                 else {
+
                     activeProduct = pKey;
                     newProductActive = false;
-
-                    //Hook up the txtSearchSupplierId key events on document screen plugIn
-                    $(productObject.controls.textBoxes.SearchSupplierId).keyup(function (event) {
-                        var code = (event.keyCode ? event.keyCode : event.which);
-                        if (code == 13) //Search only on enter
-                            DoLookUpSupplierOnKeyEnter(productObject.controls.textBoxes.SearchSupplierId);
-                    });
-
-                    $(productObject.controls.buttons.SearchSupplierId).click(function () {
-                        prodlib.showSupplierPlugIn("txtSearchSupplierId");
-                    });
 
                     if (displayDocumentPopUp) {
                         displayDocumentPopUp(function (data) {
@@ -763,16 +706,14 @@
             $(productObject.controls.buttons.SearchSupplierId + "_" + pKey).click(function () {
                 activeSupplier = "#txtSupplierId_" + pKey;
                 activeSupplierIndex = pKey;
-                supplierSearchDialog.data("kendoWindow").center().open();
-                //No Access here for add new supplier
-                $(productObject.controls.buttons.AddNewSupplier).addClass("k-state-disabled").unbind('click');
-                $(productObject.controls.buttons.ClearSupplierBtn).click(function () {
-                    //Remove search result
-                    var grid = $(productObject.controls.grids.GridSearchSupplier).data("kendoGrid");
-                    grid.dataSource.data([]);
-                    $(productObject.controls.textBoxes.SupplierSearch).val("");
-                    return false;
-                });
+
+                if (displaySupplierPopUp) {
+                    displaySupplierPopUp(function(data) {
+                        var companyInfo = typeof getCompanyTemplate != "undefined" ? getCompanyTemplate(data.CompanyId, data.Name): data.CompanyId + ', ' +data.Name;
+                        $(activeSupplier).val(companyInfo);
+                        BindingSaveCancel(activeSupplierIndex);
+                    });
+                }
             });
         };
 
