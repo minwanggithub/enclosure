@@ -8,6 +8,7 @@
         var obtainmentSearchObj = $("#ObtianmentWFGrid");
         var obtainmentDetailWorkFlowObj = $("#ObtianmentWFDetails");
         var obtianmentDetailModals = $("#ObtainmentDetailModals");
+        var obtainmentSuperEmailModal = $("#SuperMailPopUpModal");
         var itemsChecked = 0;
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
@@ -20,7 +21,7 @@
                     GridRequests: "#gdRequests", GridSupplierNotes: "#gdSupplierNotes", GridDetailRequests: "#gdDetailRequests",
                     GridContactPhone: "#gdContactPhoneObtainment", GridSupplier: "#DetailSupplier #gdSupplierContacts",
                     GridContactEmail: "#DetailSupplier #gdContactEmail"
-            },
+                },
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
                     SearchRequestsButton: "#searchRequestBtn",
@@ -40,7 +41,10 @@
                     NotRequiredCancelButton: "#btnCancelNotRequired",
                     CloseRequestSaveButton: "#btnSaveCloseRequest",
                     CloseRequestCancelButton: "#btnCancelCloseRequest",
-                    SuperSupplierEmailButton: "#btnSuperMail"
+                    SuperSupplierEmailButton: "#btnSuperMail",
+                    btnCancelSuperEmailButton: "#btnCancelSuperEmail",
+                    btnSendSuperEmailButton: "#btnSendSuperEmail"
+
                 },
                 textBoxes: {
                     NumberOfItemsTextBox: "#numberOfItems",
@@ -51,10 +55,15 @@
                     NoticeNumberSearch: "#NoticeNumber",
                     NoticeNumber: "#txtNoticeNum",
                     ObtainmentEmailBody: "#txtObtainmentEmailSendEmailBody",
+                    SuperEmailSubject: "#txtSuperEmailSubject",
+                    SuperObtainmentEmailBody: "#txtSuperEmailBody",
                     SupplierId: "#txtSupplierId"
 
                 },
-                dateTime: { NextStepDueDate: "#dteNextStepDueDate" },
+                dateTime: {
+                    NextStepDueDate: "#dteNextStepDueDate",
+                    SuperEmailNextStepDueDate: "#dteSuperEmailNextStepDueDate"
+                },
                 dropdownlists: {
                     TeamsDropDownList: "#ddlTeams",
                     PrefLangDropDownList: "#ddlDocumentLanguage",
@@ -67,9 +76,11 @@
                     InternalNotes: "#ddlInternalNotes",
                     CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
                     CloseRequestReasonCode: "#ddlReasonCode",
-                    SupplierContactList: "#ddlSupplierContactList"
+                    SupplierContactList: "#ddlSupplierContactList",
+                    SuperEmailRecepient: "#ddlSuperEmail",
+                    SuperEmailNextStep: "#ddlSuperEmailNextStep"
                 },
-                labels: {ContactName: "#lblContactName"},
+                labels: { ContactName: "#lblContactName" },
                 checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
             }
         }
@@ -86,13 +97,14 @@
             SuperMail: "#mdlSuperEmail"
         };
 
-        var kendoWindows = {ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
+        var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
+            SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
             GenerateNoticeNum: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GenerateNoticeNum",
             RetrieveSentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/RetrieveSentEmail",
             GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks",
@@ -101,12 +113,16 @@
             RemoveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveEmailAttachment",
             GetContactList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactList",
             GetContactPhoneList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactPhoneList",
+            GetSupplierPortalUrl: GetEnvironmentLocation() + "/Operations/Company/GetCompliSupplierPortalUrl",
 
-    };
+        };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
-        var obtainmentActions = { Empty: "",CustomerAction:"8", ConfirmAsCurrent:"7",FlagNotRequired:"6",FlagDiscontinued:"5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var obtainmentActions = { Empty: "", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
-            successMessages: { Saved: "Saved Successful" },
+            successMessages: {
+                Saved: "Saved Successful",
+                SuperEmailDirection: "<br/><b>Please follow this link to submit your document. </b> <br/><br/>"
+            },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
@@ -118,22 +134,23 @@
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 NoContactSelcted: "No contact has been selected from Contact Information",
-                NoPhoneSelected : "No contact phone has been selected",
+                NoPhoneSelected: "No contact phone has been selected",
                 GeneralError: "Error Occurred",
                 EmailPartsMissing: "Email must have subject and body.",
+                EmailAddressMissing: "Email address needs to be selected",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
                 UnderCoonstruction: "This option is still under construction.",
-                CannotRetrieveSentEmail: "Unable to retrieve sent email.",
+                CannotRetrieveSentEmail: "Unable to retrieve sent email."
             }
         };
 
         var obtainmentWorkLoadSearchResultModel = {
-            TeamID:0,
-            DocumentLanguageId:0,
-            DocumentTypeId:0,
-            LockTypeId : 0,
-            AssignedToId:0,
+            TeamID: 0,
+            DocumentLanguageId: 0,
+            DocumentTypeId: 0,
+            LockTypeId: 0,
+            AssignedToId: 0,
             NextStepId0: 0,
             IncludeInboundResponse: false
         };
@@ -154,7 +171,7 @@
             LiveCall: false,
             CompanyContactId: null,
             CompanyContactPhoneId: null,
-            InternalNotesLkpId:null
+            InternalNotesLkpId: null
         };
 
         var obtainmentActionCloseRequest = {
@@ -163,15 +180,23 @@
         };
 
         var obtainmentActionSendEmailModel = {
-            Recepients:null,
-            Cc:null,
-            Subject:null,
+            Recepients: null,
+            Cc: null,
+            Subject: null,
             Body: null,
-            Files :null
-
+            Files: null
         };
 
-        var loadRequestsPlugin = function() {
+        var superEmailModel = {
+            Recepients: null,
+            Subject: null,
+            MessageBody: null,            
+            SupplierId: null,
+            NextStep: null,
+            DueDate: null        
+        };
+
+        var loadRequestsPlugin = function () {
             initializeMultiSelectCheckboxes(obtainmentDetailWorkFlowObj);
         }
 
@@ -180,7 +205,7 @@
             grid.dataSource.read();
         };
 
-        var loadSupplierNotes = function() {
+        var loadSupplierNotes = function () {
             var grid = $(obtainmentObject.controls.grids.GridSupplierNotes).data("kendoGrid");
             grid.dataSource.read();
         }
@@ -195,23 +220,23 @@
             var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
 
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
-            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();            
+            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
             DisableEnableButtons(false);
-            
+
             $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
                .success(function (successData) {
-                    if (successData.success == true) {
-                        DisableEnableButtons(true);
-                        $(this).savedSuccessFully(messages.successMessages.Saved);
-                    }
-                }).error(function (error) {
-                    $(this).displayError(error);
-            });
+                   if (successData.success == true) {
+                       DisableEnableButtons(true);
+                       $(this).savedSuccessFully(messages.successMessages.Saved);
+                   }
+               }).error(function (error) {
+                   $(this).displayError(error);
+               });
         });
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.ClearRequestSearchButton, function () {
@@ -233,13 +258,23 @@
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
         });
 
-        obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function() {
+        obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function () {
             $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
         });
 
-       
+
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
+            
+            //Based on TRECOMPLI-1302, if supplier Id has value, then it will clear the rest filter and do super mail
+            var supplierFilter = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            if (supplierFilter != "")
+            {
+                $(obtainmentObject.controls.buttons.ClearRequestSearchButton).click();
+                $(obtainmentObject.controls.textBoxes.SupplierId).val(supplierFilter);
+            }
+
+
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
             var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
@@ -258,7 +293,7 @@
             obtainmentWorkLoadSearchResultModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
-            
+
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
@@ -267,16 +302,16 @@
                 + obtainmentWorkLoadSearchResultModel.NextStepId
                 + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0";
 
-                if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
+            if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
                 DisableEnableButtons(false);
 
                 kendo.ui.progress(obtainmentDetailObj, true);
-                $(this).ajaxCall(controllerCalls.SearchRequests, {searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
+                $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
                     .success(function (data) {
                         obtainmentDetailObj.html(data);
                         DisableEnableButtons(true);
                     }).error(
-                    function() {
+                    function () {
                         $(this).displayError(messages.errorMessages.GeneralError);
                     });
             }
@@ -286,10 +321,27 @@
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
             var supplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
-            $(this).displayError("You have selectd supplier id " + supplierId + " to send out super email,<br/> but this feature is currently under development");
+            //Getting supplier portal URL
+            $(this).ajaxCall(controllerCalls.GetSupplierPortalUrl, {supplierId: supplierId})
+                    .success(function (successData) {
+                        SetSuperEmailDefault(successData);
+                    }).error(function (error) {
+                        $(this).displayError(error);
+            });
         });
 
-     
+
+
+        obtainmentSearchObj.on("keyup", obtainmentObject.controls.textBoxes.SupplierId, function (e1) {
+            var code = (e1.keyCode ? e1.keyCode : e1.which);
+            if (code == 13) //Search only on enter
+                $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
+            
+            if ($(obtainmentObject.controls.textBoxes.SupplierId).val() == "")
+                $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
+
+        });
+
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
             if (hasNoticeNumbers)
                 $(this).displayError(messages.errorMessages.ResponseReceived);
@@ -315,7 +367,7 @@
             // if there are attachments OR if the form has been edited, confirm
             // abandon action with the user.
 
-            fUploadlib.abandonAttachments(function(action) {
+            fUploadlib.abandonAttachments(function (action) {
                 if (action.abandon) {
 
                     var files = action.attachments;
@@ -333,10 +385,10 @@
             //$(".upload-section").html('<input autocomplete="off" multiple="multiple" data-role="upload" id="files" name="files" type="file">');
 
         });
-        
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedCancelButton, function () {
             $(actionModals.FlagDiscontinued).toggleModal();
-            });
+        });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredCancelButton, function () {
             $(actionModals.NotRequired).toggleModal();
@@ -345,7 +397,7 @@
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestCancelButton, function () {
             $(actionModals.CloseRequest).toggleModal();
         });
-        
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
         });
@@ -359,7 +411,7 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
-            if($("#dvCustomerAction").is(":visible"))
+            if ($("#dvCustomerAction").is(":visible"))
                 SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
             else
                 SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
@@ -380,26 +432,120 @@
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
-            ShowHistory(this.id,null);
+            ShowHistory(this.id, null);
         });
-       
-        obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
-             e.preventDefault();
-             ShowHistory(null, this.id);
-            });
 
-       obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
+        obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
+            e.preventDefault();
+            ShowHistory(null, this.id);
+        });
+
+        obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
             e.preventDefault();
             ShowAccount(this.id, null);
-       });
+        });
 
 
-     
+        function SetSuperEmailDefault(supplierUrl)
+        {
+            $(actionModals.SuperMail).draggable({
+                handle: ".modal-header"
+            });
+            //$(actionModals.SuperMail).css('height', '550px');
+            $(actionModals.SuperMail).displayModal();
+            var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(messages.successMessages.SuperEmailDirection + supplierUrl);
+
+            RefreshSuperEmailDialog();          
+        }
+
+        function RefreshSuperEmailDialog() {
+            //Refresh the SupplierContactId based on the previous value
+
+            $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).off("click");
+            $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).off("click");
+
+            $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () { $(actionModals.SuperMail).toggleModal(); });
+            $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).click(function () {
+                if ($(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == '') {
+                    $(actionModals.SuperMail).hide();
+                    $("#errorReport").on('hidden', function () {
+                        $(actionModals.SuperMail).show();
+                        $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
+                    })
+                    SubError(messages.errorMessages.EmailAddressMissing);
+                }
+                else {
+                    DeliverSuperMain();
+                }
+            });
+        }
+
+
+        function SubError(errorMessage) {
+            var message = errorMessage;
+            $('#errorReport').find('.modal-body').html(message);
+            $("#errorReport").modal({
+                backdrop: true,
+                keyboard: true
+            }).css({
+                width: 'auto',
+                'margin-left': function () {
+                    return -($(this).width() / 2); //auto size depending on the message
+                }
+            });
+        }
+
+        function DeliverSuperMain() {
+            superEmailModel.Recepients = $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val()
+            superEmailModel.Subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val();            
+            superEmailModel.MessageBody = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value();
+            superEmailModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            superEmailModel.NextStep = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
+            superEmailModel.DueDate = $(obtainmentObject.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value();
+
+            var jData = JSON.stringify(superEmailModel);
+
+            //There are issues with this ajax wrapper, can not deserialized the data, using native instead
+            //$(this).ajaxCall(controllerCalls.SendSuperEmail, {obtainmentActionSendSuperEmailModel: jData})
+            //             .success(function (successData) {
+            //                 if (successData.success == true) {
+            //                     $(this).savedSuccessFully(messages.successMessages.Saved);
+            //    }
+            //    }).error(function (error) {
+            //                         $(this).displayError(error);
+            //});
+
+            $.ajax({
+                url: controllerCalls.SendSuperEmail,
+                    data: JSON.stringify(superEmailModel),
+                type: "POST",
+                    contentType: 'application/json; charset=utf-8',
+                    beforeSend: function () {
+                        //kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
+                        },
+                        error: function () {
+                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                    },
+                    success: function (successData) {
+                            if (successData.success == true) {
+                                $(actionModals.SuperMail).toggleModal();
+                                    $(this).savedSuccessFully(successData.message);
+                                    //Trigger search button to refresh
+                            }
+                            else
+                               $(this).displayError(successData.message);
+                        },
+                    done: function () {
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                        }
+                });
+        }
+
 
 
         function ShowHistory(obtainmentWorkId, supplierId) {
             $(this).ajaxCall(controllerCalls.ObtainmentWorkItemLoadHistory, { obtainmentWorkID: obtainmentWorkId, supplierId: supplierId })
-               .success(function(data) {
+               .success(function (data) {
                    $("#dvRequestItemHistory").html(data);
                    $(kendoWindows.ViewHistory).data("kendoWindow").center().open();
                    $("div.k-widget.k-window").css("top", "20px");
@@ -409,14 +555,14 @@
         }
 
         function ShowAccount(obtainmentWorkId) {
-             $(this).ajaxCall(controllerCalls.GetObtainmentAccountInfo, { obtainmentWorkID: obtainmentWorkId })
-               .success(function(data) {
-                   $("#dvAccountInformation").html(data);
-                   $(kendoWindows.ViewAccount).data("kendoWindow").center().open();
-                   $("div.k-widget.k-window").css("top", "20px");
-                   }).error(function() {
-                   $(this).displayError(messages.errorMessages.GeneralError);
-                   });
+            $(this).ajaxCall(controllerCalls.GetObtainmentAccountInfo, { obtainmentWorkID: obtainmentWorkId })
+              .success(function (data) {
+                  $("#dvAccountInformation").html(data);
+                  $(kendoWindows.ViewAccount).data("kendoWindow").center().open();
+                  $("div.k-widget.k-window").css("top", "20px");
+              }).error(function () {
+                  $(this).displayError(messages.errorMessages.GeneralError);
+              });
         }
 
         function SetNextStepForSendEmail(nextStepValue, actionName, contacts) {
@@ -437,7 +583,7 @@
 
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
-         
+
             var vars = query.split("&");
             for (var i = 0; i < vars.length; i++) {
                 var pair = vars[i].split("=");
@@ -463,7 +609,7 @@
                 // reset the email body and re-initialize the kendo editor
                 var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
                 editor.value(data.body);
-                
+
                 try {
 
                     // destroy and create the kendo upload control each time.
@@ -474,8 +620,7 @@
                     $(".upload-section").html('<input autocomplete="off" multiple="multiple" data-role="upload" id="files" name="files" type="file">');
 
 
-                } catch (e)
-                {
+                } catch (e) {
 
                 }
 
@@ -495,7 +640,7 @@
                         "autoUpload": true,
                         "removeUrl": controllerCalls.RemoveEmailAttachment
                     },
-                    "files" : data.files
+                    "files": data.files
                 });
 
                 // re-set NETHUB links
@@ -519,13 +664,13 @@
 
 
         function ShowActionModals() {
-           
-             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
+
+            var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
                 return;
-                }
+            }
 
             if (ddlActions.value() == obtainmentActions.Empty) {
                 $(this).displayError(messages.errorMessages.NoActionSelected);
@@ -540,12 +685,12 @@
                     break;
 
                 case obtainmentActions.LogPhoneCall:
-               
+
                     var owid = location.search.substring(1).split('&')[1].split('=')[1];
                     var companyid = owid.split('-')[0];
-                 
+
                     $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
-                        .success(function(data) {
+                        .success(function (data) {
                             //update contact list
                             $("#ddlSupplierContactList").kendoDropDownList({
                                 "dataSource": data,
@@ -554,16 +699,16 @@
                                 "dataValueField": "Value",
                                 "optionLabel": "Select",
                                 "change": onChangeContactName,
-                           });
+                            });
 
                             var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
                             ddlContactList.value(selectedItem.SupplierContactName);
-                            
+
                         })
-                        .error(function() {
+                        .error(function () {
                             $(this).displayError(messages.errorMessages.GeneralError);
                         });
-                    
+
                     var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
                     var selectedItem = contactgrid.dataItem(contactgrid.select());
                     if (selectedItem != null) {
@@ -586,65 +731,65 @@
 
                     // ---- ARINDAM
 
-                try {
+                    try {
 
-                    // at least one contact must be selected.
-                    var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
-                    var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                    console.log(selectedItems);
+                        // at least one contact must be selected.
+                        var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
+                        var selectedItems = contactsGrid.dataItem(contactsGrid.select());
+                        console.log(selectedItems);
 
-                    if (selectedItems != null) {
+                        if (selectedItems != null) {
 
-                        // url to invoke for notice number 
-                        var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks;
-                        var cdata = new Object();
-                        cdata.owid = $("#hdnOwid").val().replace("Owid: ","");
-                        cdata.ids = selectedRequests.join(",");
+                            // url to invoke for notice number 
+                            var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks;
+                            var cdata = new Object();
+                            cdata.owid = $("#hdnOwid").val().replace("Owid: ", "");
+                            cdata.ids = selectedRequests.join(",");
 
-                        console.log(cdata);
+                            console.log(cdata);
 
-                        $.ajax({
-                    
-                            url: strUrl,
-                            data: JSON.stringify(cdata),
-                            type: "POST",
-                            contentType: 'application/json; charset=utf-8',
-                            error: function () {
-                                $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
-                            },
-                            success: function (data) {
+                            $.ajax({
 
-                                if (data != '') {
+                                url: strUrl,
+                                data: JSON.stringify(cdata),
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                error: function () {
+                                    $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                                },
+                                success: function (data) {
 
-                                    // defaults
-                                    data.subject = "";
-                                    data.body = "";
-                                    data.files = [];
+                                    if (data != '') {
 
-                                    // set the next step
-                                    SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+                                        // defaults
+                                        data.subject = "";
+                                        data.body = "";
+                                        data.files = [];
 
-                                    // set up the form
-                                    PopulateEmailActionModal(data, false);
+                                        // set the next step
+                                        SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
 
-                                    // display upload interface
-                                    $(actionModals.SendEmail).displayModal();
+                                        // set up the form
+                                        PopulateEmailActionModal(data, false);
 
+                                        // display upload interface
+                                        $(actionModals.SendEmail).displayModal();
+
+                                    }
+                                },
+                                done: function () {
+                                    $(this).savedSuccessFully(messages.successMessages.Saved);
                                 }
-                            },
-                            done: function () {
-                                $(this).savedSuccessFully(messages.successMessages.Saved);
-                            }
-                        });
+                            });
 
-                    }
+                        }
 
-                } catch (e) {
+                    } catch (e) {
 
-                    // contact must be selected
+                        // contact must be selected
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
 
-                }
+                    }
 
                     break;
 
@@ -675,12 +820,12 @@
         }
 
         function onChangeContactName() {
-         
+
             var owid = location.search.substring(1).split('&')[1].split('=')[1];
             var companyid = owid.split('-')[0];
             var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
             var contactName = ddlContactList._selectedValue;
-            
+
             $(this).ajaxCall(controllerCalls.GetContactPhoneList, { supplierid: companyid, contactname: contactName })
                 .success(function (result) {
                     var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
@@ -691,7 +836,7 @@
         function DisableEnableButtons(enable) {
             $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(enable);
             $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(enable);
-            $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);          
+            $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
         };
 
         function initializeMultiSelectCheckboxes(obj) {
@@ -725,7 +870,7 @@
                             if (index > -1)
                                 selectedRequests.splice(index, 1);
                         }
-                        
+
                         if (this['IsSelected'] && this['NoticeNumber'] != null)
                             hasNoticeNumbers = true;
 
@@ -793,17 +938,23 @@
             $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
         }
 
-        function onDdlDataBound(e)
-        {
+        function onDdlDataBound(e) {
             $(".unsupport").parent().click(false);
         }
 
-        function onLoadChanged(e) {
-            var rows = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid").dataSource.data.length;
-            var enable = (rows > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
+        var onLoadChanged =  function (e) {
+            var count = $("#gdRequests").data("kendoGrid").dataSource.total();
+            alert(count);
+
+            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
         }
 
+        var onObtainmentReqeustDataBound = function (e) {
+            var count = $("#gdRequests").data("kendoGrid").dataSource.total();
+            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
+            $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
+        }
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
@@ -858,19 +1009,19 @@
                     obtainmentActionSendEmailModel.Files = fUploadlib.getAttachments();
 
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
-                    
+
                     $.ajax({
                         url: strUrl,
                         data: JSON.stringify(obtainmentMultipleWorkItemActionModel),
                         type: "POST",
                         contentType: 'application/json; charset=utf-8',
-                        beforeSend: function() {
+                        beforeSend: function () {
                             kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
                         },
-                        error: function() {
+                        error: function () {
                             $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                         },
-                        success: function(successData) {
+                        success: function (successData) {
                             if (successData.success == true) {
                                 kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
                                 var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
@@ -882,7 +1033,7 @@
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
 
                         },
-                        done: function() {
+                        done: function () {
                             $(this).savedSuccessFully(messages.successMessages.Saved);
                         }
                     });
@@ -897,7 +1048,7 @@
                 actionName = "CloseRequest";
                 customerAction = true;
             }
-                
+
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -928,7 +1079,7 @@
                     if (actionName == "CloseRequest" || actionName == "CustomerAction")
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
 
-                    
+
                     if (selectedRequests.length > 0) {
                         $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
                          .success(function (successData) {
@@ -961,13 +1112,13 @@
                 strCustomerAction = "Customer Action:" + ddlCustomerActions.text() + "\n" + "Reason Code:" + obtainmentActionCloseRequest.ReasonCode + "\n";
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
             return obtainmentActionCloseRequest;
-            }
+        }
 
         function FillPhoneCall(selectedPhoneItem) {
             obtainmentActionLogPhoneCallModel.LiveCall = $(obtainmentObject.controls.checkBox.LiveCall).val();
             obtainmentActionLogPhoneCallModel.CompanyContactId = selectedPhoneItem.CompanyContactId;
             obtainmentActionLogPhoneCallModel.CompanyContactPhoneId = selectedPhoneItem.CompanyContactPhoneId;
-            obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val()!=""?$(obtainmentObject.controls.dropdownlists.InternalNotes).val():null;
+            obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val() != "" ? $(obtainmentObject.controls.dropdownlists.InternalNotes).val() : null;
             return obtainmentActionLogPhoneCallModel;
         }
 
@@ -993,10 +1144,10 @@
                         data: JSON.stringify(data),
                         type: "POST",
                         contentType: 'application/json; charset=utf-8',
-                        error: function() {
+                        error: function () {
                             $(this).displayError(messages.errorMessages.CannotRetrieveSentEmail);
                         },
-                        success: function(response, status, xhr) {
+                        success: function (response, status, xhr) {
 
                             // status OK
                             if (xhr.status == "200") {
@@ -1014,10 +1165,10 @@
 
                                 }
 
-                            } 
+                            }
 
                         },
-                        done: function() {
+                        done: function () {
                             $(this).savedSuccessFully(messages.successMessages.Saved);
                         }
                     });
@@ -1039,14 +1190,23 @@
 
         }
 
-     
+        function selectedSuperMailSupplierId() {
+            var id = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+
+            return {
+                supplierId: id
+            };
+        }
+
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
             loadSupplierNotes: loadSupplierNotes,
             onDdlDataBound: onDdlDataBound,
             onLoadChange: onLoadChanged,
-            loadSentEmail: loadSentEmail
+            onObtainmentReqeustDataBound: onObtainmentReqeustDataBound,
+            loadSentEmail: loadSentEmail,
+            selectedSuperMailSupplierId: selectedSuperMailSupplierId
         };
     };
 })(jQuery);
