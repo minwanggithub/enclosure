@@ -685,8 +685,7 @@
                     break;
 
                 case obtainmentActions.LogPhoneCall:
-
-                    var owid = location.search.substring(1).split('&')[1].split('=')[1];
+                    var owid = $("#hdnOwid").val().replace("Owid: ", "");
                     var companyid = owid.split('-')[0];
 
                     $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
@@ -821,7 +820,7 @@
 
         function onChangeContactName() {
 
-            var owid = location.search.substring(1).split('&')[1].split('=')[1];
+            var owid = $("#hdnOwid").val().replace("Owid: ", "");
             var companyid = owid.split('-')[0];
             var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
             var contactName = ddlContactList._selectedValue;
