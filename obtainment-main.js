@@ -687,6 +687,8 @@
                 case obtainmentActions.LogPhoneCall:
                     var owid = $("#hdnOwid").val().replace("Owid: ", "");
                     var companyid = owid.split('-')[0];
+                    var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
+                    var selectedItem = contactgrid.dataItem(contactgrid.select());
 
                     $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
                         .success(function (data) {
@@ -700,23 +702,24 @@
                                 "change": onChangeContactName,
                             });
 
-                            var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
-                            ddlContactList.value(selectedItem.SupplierContactName);
+                            if (selectedItem != null) {
+                                var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
+                                ddlContactList.value(selectedItem.SupplierContactName);
+                            }
 
                         })
                         .error(function () {
                             $(this).displayError(messages.errorMessages.GeneralError);
                         });
 
-                    var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
-                    var selectedItem = contactgrid.dataItem(contactgrid.select());
+                  
                     if (selectedItem != null) {
-
                         var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         phoneContactGrid.dataSource.read();
                         phoneContactGrid.refresh();
                         SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
                         $(actionModals.LogPhoneCall).displayModal();
+                        
                     } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
                     break;
