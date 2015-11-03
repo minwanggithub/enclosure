@@ -192,7 +192,7 @@
             Subject: null,
             MessageBody: null,            
             SupplierId: null,
-            NextStep: null,
+            NextStepId: null,
             DueDate: null        
         };
 
@@ -466,7 +466,7 @@
 
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () { $(actionModals.SuperMail).toggleModal(); });
             $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).click(function () {
-                if ($(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == '') {
+                if ($(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == '' || $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == 'Select One') {
                     $(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
                         $(actionModals.SuperMail).show();
@@ -500,7 +500,7 @@
             superEmailModel.Subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val();            
             superEmailModel.MessageBody = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value();
             superEmailModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
-            superEmailModel.NextStep = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
+            superEmailModel.NextStepId = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
             superEmailModel.DueDate = $(obtainmentObject.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value();
 
             var jData = JSON.stringify(superEmailModel);
@@ -529,8 +529,8 @@
                     success: function (successData) {
                             if (successData.success == true) {
                                 $(actionModals.SuperMail).toggleModal();
-                                    $(this).savedSuccessFully(successData.message);
-                                    //Trigger search button to refresh
+                                $(this).savedSuccessFully(successData.message);
+                                $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
                             }
                             else
                                $(this).displayError(successData.message);
