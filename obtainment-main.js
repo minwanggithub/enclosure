@@ -332,7 +332,7 @@
 
 
 
-        obtainmentSearchObj.on("keyup", obtainmentObject.controls.textBoxes.SupplierId, function (e1) {
+        obtainmentSearchObj.on("input propertychange paste keyup", obtainmentObject.controls.textBoxes.SupplierId, function (e1) {
             var code = (e1.keyCode ? e1.keyCode : e1.which);
             if (code == 13) //Search only on enter
                 $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
@@ -698,29 +698,29 @@
                                 "dataTextField": "Text",
                                 "autoBind": false,
                                 "dataValueField": "Value",
-                                "optionLabel": "Select",
+                                "optionLabel" : "Select",
                                 "change": onChangeContactName,
-                            });
+                    });
 
-                            if (selectedItem != null) {
+                    if (selectedItem != null) {
                                 var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
                                 ddlContactList.value(selectedItem.SupplierContactName);
-                            }
+                                }
 
-                        })
+                                })
                         .error(function () {
                             $(this).displayError(messages.errorMessages.GeneralError);
-                        });
+                            });
 
-                  
-                    if (selectedItem != null) {
+
+                        if (selectedItem != null) {
                         var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         phoneContactGrid.dataSource.read();
                         phoneContactGrid.refresh();
                         SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
                         $(actionModals.LogPhoneCall).displayModal();
-                        
-                    } else
+
+                } else
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
                     break;
 
@@ -731,9 +731,9 @@
 
                 case obtainmentActions.SendEmail:
 
-                    // ---- ARINDAM
+                        // ---- ARINDAM
 
-                    try {
+                        try {
 
                         // at least one contact must be selected.
                         var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
@@ -753,40 +753,40 @@
                             $.ajax({
 
                                 url: strUrl,
-                                data: JSON.stringify(cdata),
+                                    data: JSON.stringify(cdata),
                                 type: "POST",
-                                contentType: 'application/json; charset=utf-8',
-                                error: function () {
+                                    contentType: 'application/json; charset=utf-8',
+                                        error: function () {
                                     $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
                                 },
-                                success: function (data) {
+                                    success: function (data) {
 
                                     if (data != '') {
 
-                                        // defaults
+                                    // defaults
                                         data.subject = "";
                                         data.body = "";
-                                        data.files = [];
+                                        data.files =[];
 
                                         // set the next step
                                         SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
 
-                                        // set up the form
+                                    // set up the form
                                         PopulateEmailActionModal(data, false);
 
-                                        // display upload interface
+                                    // display upload interface
                                         $(actionModals.SendEmail).displayModal();
 
-                                    }
+                                        }
                                 },
-                                done: function () {
+                                            done: function () {
                                     $(this).savedSuccessFully(messages.successMessages.Saved);
-                                }
-                            });
+                                    }
+                                    });
 
                         }
 
-                    } catch (e) {
+                        } catch (e) {
 
                         // contact must be selected
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
@@ -818,8 +818,8 @@
                     $("#dvCustomerAction").show();
                     $(actionModals.CloseRequest).displayModal();
                     break;
-            }
-        }
+                    }
+                    }
 
         function onChangeContactName() {
 
