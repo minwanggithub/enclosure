@@ -46,6 +46,7 @@
                     SupplierSearch: "#txtSupplierSearch",
                     SearchSupplierId: "#txtSearchSupplierId",
                     ProductSearchProductId: "#txtSearchProductId",
+                    ProductSearchProductName: "#txtProductSearchProductName"
                 },
                 hiddenTextBoxes: {
                     HiddenSupplierName: "#hdnSupplierName",
@@ -342,7 +343,7 @@
                     deactivateLayout(activeSaveButton);
                     // this checks that the xref screen hidden textboxes have values, if not means you are on the main product screen
                     if ($(productObject.controls.hiddenTextBoxes.HiddenProductName).val() != "") {
-                        $("#divSearchSection " + productObject.controls.textBoxes.ProductName).val($(productObject.controls.hiddenTextBoxes.HiddenProductName).val());
+                        $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductName).val($(productObject.controls.hiddenTextBoxes.HiddenProductName).val());
                         $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
                     }
                     else
