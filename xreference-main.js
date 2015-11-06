@@ -716,22 +716,28 @@
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
                         if (selectedRow.length > 0) {
-                           
+
                             if ($(this).is(':checked')) {
-                                $("#hdnSupplierName").val("");
-                                $("#hdnProductName").val("");
-                                $("#hdnSupplier").val("");
+                                $("#hdnSupplierName").val("").trigger('change');
+                                $("#hdnProductName").val("").trigger('change');
+                                $("#hdnSupplier").val("").trigger('change');
+
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
+
+                                if (typeof performXrefProductSearch != "undefined")
+                                    performXrefProductSearch();
+
                             } else {
-                                if (dataItem["SupplierName"] != $("#hdnSupplier").val()) {
-                                    $("#hdnSupplierName").val(dataItem["SupplierID"]);
-                                    $("#hdnProductName").val(dataItem["ProductName"]);
-                                    $("#hdnSupplier").val(dataItem["SupplierID"]);
-                                    $("#hdnProductName").trigger('change');
-                                    $("#hdnSupplierName").trigger('change');
-                                    $("#hdnSupplier").trigger('change');
+
+                                if (dataItem["ProductName"] != $("#hdnProductName").val() || dataItem["SupplierID"] != $("#hdnSupplier").val()) {
+                                    $("#hdnSupplierName").val(dataItem["SupplierName"]).trigger('change');
+                                    $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
+                                    $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
+
+                                    if (typeof performXrefProductSearch != "undefined") 
+                                        performXrefProductSearch();
                                 }
                                 selectedRows.push(selectedRow.attr('data-uid'));
                             }
