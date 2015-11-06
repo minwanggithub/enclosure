@@ -448,9 +448,9 @@
 
         function SetSuperEmailDefault(supplierUrl)
         {
-            $(actionModals.SuperMail).draggable({
-                handle: ".modal-header"
-            });
+            //$(actionModals.SuperMail).draggable({
+            //    handle: ".modal-header"
+            //});
             //$(actionModals.SuperMail).css('height', '550px');
             $(actionModals.SuperMail).displayModal();
             var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(messages.successMessages.SuperEmailDirection + supplierUrl);
