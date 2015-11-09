@@ -1200,6 +1200,16 @@
             };
         }
 
+        function ObtainmentDetailRoute(OWType, OSourceId, ProductId) {
+            debugger;
+            if (OWType == 'Revision') {
+                return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "', target='_blank'>" + OWType + "</a>";
+            }
+            else {
+                return OWType
+            }
+        }
+
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
@@ -1208,7 +1218,8 @@
             onLoadChange: onLoadChanged,
             onObtainmentReqeustDataBound: onObtainmentReqeustDataBound,
             loadSentEmail: loadSentEmail,
-            selectedSuperMailSupplierId: selectedSuperMailSupplierId
+            selectedSuperMailSupplierId: selectedSuperMailSupplierId,
+            ObtainmentDetailRoute: ObtainmentDetailRoute
         };
     };
 })(jQuery);
