@@ -1201,7 +1201,6 @@
         }
 
         function ObtainmentDetailRoute(OWType, OSourceId, ProductId) {
-            debugger;
             if (OWType == 'Revision') {
                 return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "', target='_blank'>" + OWType + "</a>";
             }
