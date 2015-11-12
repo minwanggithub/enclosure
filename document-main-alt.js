@@ -75,6 +75,7 @@
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchSupplierIdBtn",
+                DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -144,6 +145,7 @@
                 DocumentSearch: "#gdSearchDocument",
                 DocumentSearchPopUp: "#gdSearchDocumentPopUp",
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
+                NonDocumentProduct: "#gdNonDocumentProduct_"
             },
             hidden: {
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
@@ -172,6 +174,10 @@
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
             }
         };
+
+        var controllerCalls = {
+            RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate"
+        }
 
         var documentMessages = {
             errors: {
@@ -217,7 +223,9 @@
                 DocumentSaved: "Document Saved",
             },
             warnings: {
-                DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document."
+                DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
+                UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
+                LinkDocumentToAllMfrProudct: "Are you sure you want to link the above document to all product(s) from it's Manufacturer in the list below?"
             }
         };
 
@@ -653,6 +661,31 @@
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchRevisionTitle, onDocumentSearchPopUpFieldKeyUp);
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchSupplierId, onCompanyIdFieldKeyUp);
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchPopUpFieldKeyUp);
+        };
+
+        var initializeProductAssociation = function () {
+            $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct).click(function (e) {
+                e.preventDefault();
+
+                DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to remove document from product' }, function () {
+                    //$.post(controllerCalls.RemoveProductDocumentsWithoutCheckDuplicate, { productId: pid, documentId: did }, function (data) {
+                    //    if (!data.Success) {
+                    //        $(this).displayError(data.Message);
+                    //        return;
+                    //    }
+                    //    //Remove the row instead of refresh grid, it's much faster
+                    //    var gView = $("#" + targetId).data("kendoGrid");
+                    //    gView.removeRow($(dataItem)); //just gives alert message
+                    //    gView.dataSource.remove(dataItem); //removes it actually from the grid
+
+                    //    debugger;
+                    //    var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
+                    //    gNonProduct.dataSource.page(1);
+                    //    gNonProduct.dataSource.read();
+                    //});
+                    alert("Under developement");
+                });
+            });
         };
 
         /******************************** New Document Methods ********************************/
@@ -2137,11 +2170,40 @@
             displayDocumentStatusNote(documentId, '');
         };
 
+        var UnlinkDocFromProudct = function (e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var pid = dataItem.id;
+
+            //dataItem.IsSelected = true;
+            var targetId = e.delegateTarget.id;
+            var did = targetId.substring(targetId.indexOf("_") + 1, targetId.length);
+
+            DisplayConfirmationModal({ message: documentMessages.warnings.UnlinkDocumentFromProudct, header: 'Confirm to remove document from product' }, function () {
+                $.post(controllerCalls.RemoveProductDocumentsWithoutCheckDuplicate, { productId: pid, documentId: did }, function (data) {
+                    if (!data.Success) {
+                        $(this).displayError(data.Message);
+                        return;
+                    }
+                    //Remove the row instead of refresh grid, it's much faster
+                    var gView = $("#" + targetId).data("kendoGrid");
+                    gView.removeRow($(dataItem)); //just gives alert message
+                    gView.dataSource.remove(dataItem); //removes it actually from the grid
+
+                    var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
+                    gNonProduct.dataSource.page(1);
+                    gNonProduct.dataSource.read();
+                    
+                });
+            });
+        };
+
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
+            initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
             onDocumentContainerClassificationTypeRequestStart: onDocumentContainerClassificationTypeRequestStart,
@@ -2161,8 +2223,8 @@
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
-            onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp
-
+            onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
+            UnlinkDocFromProudct: UnlinkDocFromProudct
         };
     };
 
