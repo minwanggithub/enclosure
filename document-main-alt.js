@@ -75,7 +75,7 @@
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchSupplierIdBtn",
-                DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts"
+                DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -176,7 +176,8 @@
         };
 
         var controllerCalls = {
-            RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate"
+            RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate",
+            AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts"
         }
 
         var documentMessages = {
@@ -663,27 +664,25 @@
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchPopUpFieldKeyUp);
         };
 
-        var initializeProductAssociation = function () {
-            $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct).click(function (e) {
+        var initializeProductAssociation = function (did) {
+            $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
+                DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                    $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
 
-                DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to remove document from product' }, function () {
-                    //$.post(controllerCalls.RemoveProductDocumentsWithoutCheckDuplicate, { productId: pid, documentId: did }, function (data) {
-                    //    if (!data.Success) {
-                    //        $(this).displayError(data.Message);
-                    //        return;
-                    //    }
-                    //    //Remove the row instead of refresh grid, it's much faster
-                    //    var gView = $("#" + targetId).data("kendoGrid");
-                    //    gView.removeRow($(dataItem)); //just gives alert message
-                    //    gView.dataSource.remove(dataItem); //removes it actually from the grid
+                        if (!data.Success) {
+                            $(this).displayError(data.Message);
+                            return;
+                        }
 
-                    //    debugger;
-                    //    var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
-                    //    gNonProduct.dataSource.page(1);
-                    //    gNonProduct.dataSource.read();
-                    //});
-                    alert("Under developement");
+                        var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
+                        gProudct.dataSource.page(1);
+                        gProudct.dataSource.read();
+
+                        var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
+                        gNonProduct.dataSource.page(1);
+                        gNonProduct.dataSource.read();
+                    });
                 });
             });
         };
