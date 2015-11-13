@@ -145,6 +145,7 @@
                 DocumentSearch: "#gdSearchDocument",
                 DocumentSearchPopUp: "#gdSearchDocumentPopUp",
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
+                DocumentProduct: "#gdDocumentProduct_",
                 NonDocumentProduct: "#gdNonDocumentProduct_"
             },
             hidden: {
