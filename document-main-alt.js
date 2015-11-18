@@ -669,6 +669,7 @@
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
                 DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                    kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
                     $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
 
                         if (!data.Success) {
@@ -683,6 +684,8 @@
                         var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
                         gNonProduct.dataSource.page(1);
                         gNonProduct.dataSource.read();
+
+                        kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), false);
                     });
                 });
             });
