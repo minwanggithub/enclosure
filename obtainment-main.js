@@ -121,7 +121,7 @@
         var messages = {
             successMessages: {
                 Saved: "Saved Successful",
-                SuperEmailDirection: "<br/><b>Please follow this link to submit your document. </b> <br/><br/>"
+                SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
             errorMessages: {
@@ -453,7 +453,9 @@
             //});
             //$(actionModals.SuperMail).css('height', '550px');
             $(actionModals.SuperMail).displayModal();
-            var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(messages.successMessages.SuperEmailDirection + supplierUrl);
+            
+            var message = messages.successMessages.SuperEmailDirection.replace("*", supplierUrl);
+            var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(message);
 
             RefreshSuperEmailDialog();          
         }
