@@ -47,6 +47,7 @@
 
                 },
                 textBoxes: {
+                    AccountId: "#txtAccountId",
                     NumberOfItemsTextBox: "#numberOfItems",
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
                     ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
@@ -253,6 +254,7 @@
             drpAssignedToType.select(0);
             drpNextStep.select(0);
             $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val('');
+            $(obtainmentObject.controls.textBoxes.AccountId).val('');
             $(obtainmentObject.controls.textBoxes.SupplierId).val('');
             $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
@@ -265,7 +267,7 @@
 
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
-            
+
             //Based on TRECOMPLI-1302, if supplier Id has value, then it will clear the rest filter and do super mail
             var supplierFilter = $(obtainmentObject.controls.textBoxes.SupplierId).val();
             if (supplierFilter != "")
@@ -291,6 +293,7 @@
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             obtainmentWorkLoadSearchResultModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val();
             obtainmentWorkLoadSearchResultModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            obtainmentWorkLoadSearchResultModel.AccountId = $(obtainmentObject.controls.textBoxes.AccountId).val();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
 
