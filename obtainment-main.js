@@ -1202,12 +1202,13 @@
             };
         }
 
+
         function ObtainmentDetailRoute(OWType, OSourceId, ProductId) {
             if (OWType == 'Revision') {
-                return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "', target='_blank'>" + OWType + "</a>";
+                return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
             }
             else {
-                return OWType
+                return '';
             }
         }
 
