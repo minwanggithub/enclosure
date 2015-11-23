@@ -303,7 +303,8 @@
                 + obtainmentWorkLoadSearchResultModel.LockTypeId
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
                 + obtainmentWorkLoadSearchResultModel.NextStepId
-                + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0";
+                + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0"
+                + obtainmentWorkLoadSearchResultModel.AccountId;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
                 DisableEnableButtons(false);
