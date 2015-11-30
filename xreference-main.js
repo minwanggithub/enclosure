@@ -35,6 +35,7 @@
                     SaveCustomerActionButton: "#btnSaveCustomerAction",
                     SavePendingButton: "#btnSavePending",
                     SaveQCFailButton: "#btnSaveQC",
+                    SaveRemoveWorkLoad: "#btnSaveRemoveWorkLoad",
                     RemoveRequestsButton: "#btnRemoveRequests"
                 },
                 textBoxes: {
@@ -44,7 +45,8 @@
                     FreeFieldTextBox: "#txtFreeField",
                     ProductIdTextBox: "#txtProductId",
                     NumberOfItemsTextBox: "#numberOfItems",
-                    SearchSupplierIdTextBox: "#txtSearchSupplierId"
+                    SearchSupplierIdTextBox: "#txtSearchSupplierId",
+                    RemoveWorkLoadTextBox: "#txtRemoveWorkLoadNotes"
                 },
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
@@ -77,9 +79,10 @@
             SaveNotFound: GetEnvironmentLocation() + "/Operations/XReference/SaveNotFound",
             SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
             SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
-            RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory"
+            RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory",
+            SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"
         };
-        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", QCFail: "#mdlQC", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory" };
+        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory" };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
@@ -95,6 +98,7 @@
                 NoRowSelected: "No row selected",
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
+                RemoveWorkLoadNotes: "Please type in a reason to remove item(s) from workload",
                 GeneralError: "Error Occurred"
             }
         };
@@ -160,7 +164,7 @@
        
         var hotKeyDisplay = function (btnObj, mdlObj) {
 
-            var xrefModals = [actionModals.Resolve, actionModals.Obtainment, actionModals.Pending, actionModals.CustomerAction, actionModals.QCFail];
+            var xrefModals = [actionModals.Resolve, actionModals.Obtainment, actionModals.Pending, actionModals.CustomerAction, actionModals.RemoveWorkLoad];
             for (var i = 0; i < xrefModals.length; i++) {
                 if (mdlObj != xrefModals[i])
                     $(xrefModals[i]).hideModal();
@@ -480,10 +484,24 @@
         //});
         
         
-        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.RemoveRequestsButton, function (e) {
-                e.preventDefault();
-                batchDeleteObjects(xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, null, false);
-       });
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveRemoveWorkLoad, function (e) {
+            debugger;
+            e.preventDefault();
+            if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                $(actionModals.RemoveWorkLoad).toggleModal();
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+                if ($(xreferenceObject.controls.textBoxes.RemoveWorkLoadTextBox).val().length > 0) {
+                           var data = {};
+                              data['ids'] = selectedRequests;
+                              data['notes'] = $(xreferenceObject.controls.textBoxes.RemoveWorkLoadTextBox).val();
+                              SaveRequest(controllerCalls.SaveRemoveWorkLoad, data, actionModals.RemoveWorkLoad);
+                        } else {
+                            $(actionModals.RemoveWorkLoad).toggleModal();
+                            $(this).displayError(messages.errorMessages.RemoveWorkLoadNotes);
+                        }
+                    }
+        });
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
@@ -630,18 +648,12 @@
 
         function EnableSideMenuItems() {
             $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
-            //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).removeAttr("disabled");
-            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(true);
-            //$(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(true);
-            $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
-            $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
-            $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
-            //ShowDisplayModal(xreferenceObject.controls.buttons.ObtainmentSideMenuButton, actionModals.Obtainment);
-            //ShowDisplayModal(xreferenceObject.controls.buttons.NotFoundSideMenuButton, actionModals.Obtainment);
-            //ShowDisplayModal(xreferenceObject.controls.buttons.PendingSideMenuButton, actionModals.Pending);
+            
+            $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
-            ShowDisplayModal(xreferenceObject.controls.buttons.QCFailSideMenuButton, actionModals.QCFail);
+            $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
+            ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
         }
 
         function EnableSideMenuItem(btnObj) {
