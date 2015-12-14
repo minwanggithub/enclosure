@@ -98,7 +98,52 @@
             //return getContainerSearchCriteria(container);
             return null;
         };
-  
+
+
+        var SearchBind = function () {
+            viewModel = kendo.observable({
+                NoticeNumber: "",
+                SupplierNameAndId: "",
+                SupplierId: 0,
+                SupplierName: "",
+                ShowCollapse: "none",
+                ResponseStatusId: "0",
+                ExistingInboundResponseId: 0,
+
+                SearchClick: function (e) {
+                    e.preventDefault();
+                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
+                    if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
+                        this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
+
+                    $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
+                           .success(function (data) {
+                               UIObject.sections.responseDetailGridSection().html(data);
+                           }).error(
+                           function () {
+                               $(this).displayError(UIObject.errorMessage.GeneralError);
+                           });
+
+                },
+
+                ClearClick: function (e) {
+                    e.preventDefault();
+                    this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
+                    this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
+                    this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
+                    this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
+
+                    var inboundGrid = UIObject.controls.grids.InboundResponse;
+
+                    if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
+                        inboundGrid().dataSource.data([]);
+                },
+            });
+
+            kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
+            kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
+        }
+
         return {
             SearchBind: SearchBind,
             loadRequests: loadRequests,
