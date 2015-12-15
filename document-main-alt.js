@@ -479,7 +479,7 @@
 
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
-
+            
             var container = $(documentElementSelectors.containers.NewDocument);
             if (container.length > 0) container.show(500);
         }
