@@ -15,7 +15,12 @@
         var hasNoticeNumbers = false;
         var selectedRows = new Array();
 
-        var obtainmentObject = {
+        var UIObject = {
+            sections: {
+                searchSection: function () { return $("#divSearchSection"); },
+                noticeDetailGridSection: function () { return $("#NotificationDetail"); }
+            },
+
             controls: {
                 grids: {
                     GridRequests: "#gdRequests", GridSupplierNotes: "#gdSupplierNotes", GridDetailRequests: "#gdDetailRequests"
@@ -23,19 +28,20 @@
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
                     SearchRequestsButton: "#searchRequestBtn",
-                    SaveSearchSettings: "#saveSearchSettingsBtn"
                 },
                 textBoxes: {
-                    AccountId: "#txtAccountId",
-                    NumberOfItemsTextBox: "#numberOfItems"
-
+                    AccountId: "#txtAccountId"
                 },
                 dateTime: {
-                    NextStepDueDate: "#dteNextStepDueDate",
-                    SuperEmailNextStepDueDate: "#dteSuperEmailNextStepDueDate"
+                    ScheduledDate: "#dteScheduledDate",
+                    ActualSendDate: "#dteScheduledSendDate"
                 },
                 dropdownlists: {
                     NextStepDropDownList: "#ddlNextStep",
+                    ObtainmentTypeDropDownList: "#mltDdlObtainmentType",
+                    EmailTemplateDropDownList: "#ddlEmailTemplate",
+                    NoticeStatus: "#ddlNoticeStatus"
+                    
                 
                 },
                 labels: { ContactName: "#lblContactName" },
@@ -44,17 +50,16 @@
         }
                 
         var controllerCalls = {
-            SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",        
+            SearchNoticfication: GetEnvironmentLocation() + "/Operations/Notification/SearchNotification",
         };
 
         var messages = {
             successMessages: {
                 Saved: "Saved Successful",
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
-            },
-            confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
+            },            
             errorMessages: {
-                SelectGroup: "Please select a group to assign request item(s)",
+                NoCriteria: "A filter must be seelcted to execute a search."
             }
         };
 
@@ -68,8 +73,7 @@
             IncludeInboundResponse: false
         };
 
-        var obtainmentMultipleWorkItemActionModel = {
-            OWID: null,
+        var obtainmentMultipleWorkItemActionModel = {            
             ObtainmentWorkItemIDs: null,
             ObtainmentActionLkpID: null,
             NextObtainmentStepLkpID: null,
@@ -112,36 +116,55 @@
 
                 SearchClick: function (e) {
                     e.preventDefault();
-                    kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
-                    if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
-                        this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
-
-                    $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
-                           .success(function (data) {
-                               UIObject.sections.responseDetailGridSection().html(data);
-                           }).error(
-                           function () {
-                               $(this).displayError(UIObject.errorMessage.GeneralError);
-                           });
-
+                    var noticeModel = {
+                        NextStepId: $("#divSearchSection " + UIObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList").value(),
+                        NotificationStatusId: $("#divSearchSection " + UIObject.controls.dropdownlists.NoticeStatus).data("kendoDropDownList").value(),
+                        EmailTemplateId: $("#divSearchSection " + UIObject.controls.dropdownlists.EmailTemplateDropDownList).data("kendoDropDownList").value(),
+                        ScheduledDate: $(UIObject.controls.dateTime.ScheduledDate).data("kendoDatePicker").value(),
+                        ActualSendDate: $(UIObject.controls.dateTime.ActualSendDate).data("kendoDatePicker").value(),
+                        ObtainmentList: $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value(),
+                        AccountId: $("#divSearchSection " + UIObject.controls.textBoxes.AccountId).val(),
+                        NoCriteria: function()
+                        {
+                            return (this.NextStepId == "") && (this.NotificationStatusId == "")
+                                && (this.EmailTemplateId == "") && (this.ScheduledDate == null)
+                                && (this.ActualSendDate == null) && (this.AccountId == "")
+                                && (this.ObtainmentList.length == 0);
+                        }
+                    };
+                    
+                    if (noticeModel.NoCriteria()) {
+                        $(this).displayError(messages.errorMessages.NoCriteria);
+                    }
+                    else {
+                        kendo.ui.progress(UIObject.sections.noticeDetailGridSection(), true);
+                        $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(noticeModel) })
+                               .success(function (data) {
+                                   UIObject.sections.noticeDetailGridSection().html(data);
+                               }).error(
+                               function () {
+                                   $(this).displayError(UIObject.errorMessage.GeneralError);
+                               });
+                    }
                 },
 
                 ClearClick: function (e) {
                     e.preventDefault();
-                    this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
-                    this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
-                    this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
-                    this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
 
-                    var inboundGrid = UIObject.controls.grids.InboundResponse;
-
-                    if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
-                        inboundGrid().dataSource.data([]);
+                    $("#divSearchSection " + UIObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList").select(0);
+                    $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
+                    $("#divSearchSection " + UIObject.controls.dropdownlists.EmailTemplateDropDownList).data("kendoDropDownList").select(0);
+                    $("#divSearchSection " + UIObject.controls.textBoxes.AccountId).val('');
+                    $("#divSearchSection " + UIObject.controls.dropdownlists.NoticeStatus).data("kendoDropDownList").select(0);
+                    $("#divSearchSection " + UIObject.controls.dateTime.ScheduledDate).data("kendoDatePicker").value('');
+                    $("#divSearchSection " + UIObject.controls.dateTime.ActualSendDate).data("kendoDatePicker").value('');
+                    
+                    //var inboundGrid = UIObject.controls.grids.InboundResponse;
+                    //if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
+                    //    inboundGrid().dataSource.data([]);
                 },
             });
-
-            kendo.bind(UIObject.sections.inboundResponseSearchSection(), viewModel);
-            kendo.bind(UIObject.sections.supplierSearchFootSection(), viewModel);
+            kendo.bind(UIObject.sections.searchSection(), viewModel);
         }
 
         return {
