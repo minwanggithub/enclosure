@@ -109,7 +109,7 @@
                         }
                         else {
                             kendo.ui.progress(UIObject.sections.searchResultSection(), true);
-                            $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this.viewModel) })
+                            $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
                                    .success(function (data) {
                                        UIObject.sections.searchResultSection().html(data);
                                    }).error(
