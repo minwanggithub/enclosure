@@ -9,7 +9,8 @@
         var UIObject = {
             sections: {
                 searchSection: function () { return $("#divSearchSection"); },
-                searchResultSection: function () { return $("#divSearchResult"); }
+                searchResultSection: function () { return $("#divSearchResult"); },
+                noticeDetailSection: function () { return $("#divNotificationDetail"); }
             },
 
             containers: {
@@ -18,27 +19,28 @@
 
             controls: {
                 grids: {
-                    GridRequests: "#gdRequests"
+                    GridSearchNoticeBatch: "#gdSearchNoticeBatch"
                 },
+
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
                     SearchRequestsButton: "#searchRequestBtn",
                 },
-                textBoxes: {
-                    AccountId: "#txtAccountId"
-                },
-                dateTime: {
-                    ScheduledDate: "#dteScheduledDate",
-                    ActualSendDate: "#dteScheduledSendDate"
-                },
-                dropdownlists: {
-                    NextStepDropDownList: "#ddlNextStep",
-                    ObtainmentTypeDropDownList: "#mltDdlObtainmentType",
-                    EmailTemplateDropDownList: "#ddlEmailTemplate",
-                    NoticeStatus: "#ddlNoticeStatus"
-                    
                 
-                }                                
+                dropdownlists: {
+                    ObtainmentTypeDropDownList: "#mltDdlObtainmentType"
+                }
+            },
+
+            observable: {
+                NextStepId: "NextStepId",
+                ObtainmentList: "ObtainmentList",                
+                ObtainmentIndex: "ObtainmentIndex",
+                AccountId: "AccountId",
+                EmailTemplateId: "EmailTemplateId",
+                NotificationStatusId: "NotificationStatusId",
+                ScheduledDate: "ScheduledDate",
+                ActualSendDate: "ActualSendDate",
             }
         }
                 
@@ -58,60 +60,85 @@
         
         var SearchBind = function () {
             viewModel = kendo.observable({
+                NextStepId: 0,
+                ObtainmentList: null,
+                ObtainmentIndex: null,
+                AccountId: "",
+                EmailTemplateId: 0,
+                NotificationStatusId: 0,
+                ScheduledDate: null,
+                ActualSendDate: null,
 
-                SearchClick: function (e) {
-                    e.preventDefault();
-                    var noticeModel = {
-                        NextStepId: Number($("#divSearchSection " + UIObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList").value()),
-                        NotificationStatusId: Number($("#divSearchSection " + UIObject.controls.dropdownlists.NoticeStatus).data("kendoDropDownList").value()),
-                        EmailTemplateId: Number($("#divSearchSection " + UIObject.controls.dropdownlists.EmailTemplateDropDownList).data("kendoDropDownList").value()),
-                        ScheduledDate: $(UIObject.controls.dateTime.ScheduledDate).data("kendoDatePicker").value(),
-                        ActualSendDate: $(UIObject.controls.dateTime.ActualSendDate).data("kendoDatePicker").value(),
-                        ObtainmentList: $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value(),
-                        AccountId: Number($("#divSearchSection " + UIObject.controls.textBoxes.AccountId).val()),
-                        NoCriteria: function () {
-                            return (this.NextStepId == 0) && (this.NotificationStatusId == 0)
-                                && (this.EmailTemplateId == 0) && (this.ScheduledDate == null)
-                                && (this.ActualSendDate == null) && (this.AccountId == 0)
-                                && (this.ObtainmentList.length == 0);
-                        }
-                    };
-
-                    if (noticeModel.NoCriteria()) {
-                        $(this).displayError(messages.errorMessages.NoCriteria);
-                    }
-                    else {
-                        kendo.ui.progress(UIObject.sections.noticeDetailGridSection(), true);
-                        $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(noticeModel) })
-                               .success(function (data) {
-                                   UIObject.sections.searchResultSection().html(data);
-                               }).error(
-                               function () {
-                                   $(this).displayError(UIObject.errorMessage.GeneralError);
-                               });
-                    }
+                HasCriteria: function (e) {
+                    var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0 
+                                        || (this.get(UIObject.observable.ObtainmentList)).length > 0
+                                        || this.get(UIObject.observable.AccountId) != ""
+                                        || this.get(UIObject.observable.EmailTemplateId) > 0
+                                        || this.get(UIObject.observable.NotificationStatusId) > 0
+                                        || this.get(UIObject.observable.ScheduledDate) != null
+                                        || this.get(UIObject.observable.ActualSendDate) != null)
+                    return fieldCheck;
                 },
+                SearchClick: function (e) {
+                        e.preventDefault();
+                        this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
+                            return parseInt(item, 10);
+                        }));
+
+                        
+                        //var submitModel = JSON.stringify(this);
+                        //var noticeModel = {
+                        //    NextStepId: this.get(UIObject.observable.NextStepId),
+                        //    NotificationStatusId: Number($("#divSearchSection " + UIObject.controls.dropdownlists.NoticeStatus).data("kendoDropDownList").value()),
+                        //    EmailTemplateId: Number($("#divSearchSection " + UIObject.controls.dropdownlists.EmailTemplateDropDownList).data("kendoDropDownList").value()),
+                        //    ScheduledDate: $(UIObject.controls.dateTime.ScheduledDate).data("kendoDatePicker").value(),
+                        //    ActualSendDate: $(UIObject.controls.dateTime.ActualSendDate).data("kendoDatePicker").value(),
+                        //    ObtainmentList: $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value(),
+                        //    AccountId: Number($("#divSearchSection " + UIObject.controls.textBoxes.AccountId).val()),
+                        //    NoCriteria: function () {
+                        //        return (this.NextStepId == 0) && (this.NotificationStatusId == 0)
+                        //            && (this.EmailTemplateId == 0) && (this.ScheduledDate == null)
+                        //            && (this.ActualSendDate == null) && (this.AccountId == 0)
+                        //            && (this.ObtainmentList.length == 0);
+                        //    }
+                        //};
+
+                        var nofield = this.HasCriteria();
+                        if (!this.HasCriteria()) {
+                            $(this).displayError(messages.errorMessages.NoCriteria);
+                        }
+                        else {
+                            kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                            $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this.viewModel) })
+                                   .success(function (data) {
+                                       UIObject.sections.searchResultSection().html(data);
+                                   }).error(
+                                   function () {
+                                       $(this).displayError(UIObject.errorMessage.GeneralError);
+                                   });
+                        }
+                    },
 
                 ClearClick: function (e) {
-                    e.preventDefault();
+                        e.preventDefault();
+                        this.set(UIObject.observable.NextStepId, 0);
+                        this.set(UIObject.observable.ObtainmentList, null);
+                        this.set(UIObject.observable.AccountId,"");
+                        this.set(UIObject.observable.EmailTemplateId, 0);
+                        this.set(UIObject.observable.NotificationStatusId, 0);
+                        this.set(UIObject.observable.ScheduledDate, null);
+                        this.set(UIObject.observable.ActualSendDate, null);
+                        $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
 
-                    $("#divSearchSection " + UIObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList").select(0);
-                    $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
-                    $("#divSearchSection " + UIObject.controls.dropdownlists.EmailTemplateDropDownList).data("kendoDropDownList").select(0);
-                    $("#divSearchSection " + UIObject.controls.textBoxes.AccountId).val('');
-                    $("#divSearchSection " + UIObject.controls.dropdownlists.NoticeStatus).data("kendoDropDownList").select(0);
-                    $("#divSearchSection " + UIObject.controls.dateTime.ScheduledDate).data("kendoDatePicker").value('');
-                    $("#divSearchSection " + UIObject.controls.dateTime.ActualSendDate).data("kendoDatePicker").value('');
-
-                    //var noticeGrid = UIObject.controls.grids.NoticeBatch;
-                    //if ((null != noticeGrid()) && (noticeGrid().dataSource.total() > 0))
-                    //    noticeGrid().dataSource.data([]);
+                        //var noticeGrid = UIObject.controls.grids.NoticeBatch;
+                        //if ((null != noticeGrid()) && (noticeGrid().dataSource.total() > 0))
+                        //    noticeGrid().dataSource.data([]);
                 },
 
                 AddNewClick: function (e) {
-                    e.preventDefault();
-                    var container = $(UIObject.containers.NewNotification);
-                    if (container.length > 0) container.show(500);
+                        e.preventDefault();
+                        var container = $(UIObject.containers.NewNotification);
+                        if (container.length > 0) container.show(500);
                 },
             });
             kendo.bind(UIObject.sections.searchSection(), viewModel);
@@ -148,9 +175,23 @@
             //}
         };
 
+        var InitializeSearchResultGrid = function () {
+
+            //InitializeSearch();
+
+            //// wire up event handlers
+            //UIObject.sections.responseDetailGridSection().on("change", UIObject.controls.dropdownlists.ResponseStatusAll, onDdlResponseStatusesChange);
+            //UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
+            //UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
+            //UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
+            //UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
+
+        };
+
         return {
             SearchBind: SearchBind,
-            onNewNotificationPanelActivate: onNewNotificationPanelActivate
+            onNewNotificationPanelActivate: onNewNotificationPanelActivate,
+            InitializeSearchResultGrid: InitializeSearchResultGrid
         };
     };
 })(jQuery);
