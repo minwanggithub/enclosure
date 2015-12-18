@@ -284,6 +284,9 @@
                                noticeModel.NoticeBatchId = Number(data.Id);
                                SearchNotification(JSON.stringify(noticeModel));
                            }
+                           else {
+                               $(this).displayError(data.message);
+                           }
                        }).error(
                        function () {
                            $(this).displayError(errorMessages.SearchFailure);
@@ -355,6 +358,12 @@
         };
 
 
+        function EditNotification(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            LoadNotificationPopUp(dataItem.NoticeBatchId);
+
+        };
+
         return {
             SearchBind: SearchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
@@ -362,7 +371,8 @@
             InitializeNotificationPopUpDetail: InitializeNotificationPopUpDetail,
             LoadNotificationPopUp: LoadNotificationPopUp,
             InitializePopUpDetailDynamic: InitializePopUpDetailDynamic,
-            displayNotificationPopUp: displayNotificationPopUp
+            displayNotificationPopUp: displayNotificationPopUp,
+            //EditNotification: EditNotification
         };
     };
 })(jQuery);
