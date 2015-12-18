@@ -56,7 +56,7 @@
                 NextStepId: "NextStepId",
                 ObtainmentList: "ObtainmentList",                
                 ObtainmentIndex: "ObtainmentIndex",
-                AccountId: "AccountId",
+                AccountIdArray: "AccountIdArray",
                 EmailTemplateId: "EmailTemplateId",
                 NotificationStatusId: "NotificationStatusId",
                 ScheduledDate: "ScheduledDate",
@@ -95,7 +95,7 @@
                 NextStepId: 0,
                 ObtainmentList: null,
                 ObtainmentIndex: null,
-                AccountId: "",
+                AccountIdArray: "",
                 EmailTemplateId: 0,
                 NotificationStatusId: 0,
                 ScheduledDate: null,
@@ -104,7 +104,7 @@
                 HasCriteria: function (e) {
                     var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0 
                                         || (this.get(UIObject.observable.ObtainmentList)).length > 0
-                                        || this.get(UIObject.observable.AccountId) != ""
+                                        || this.get(UIObject.observable.AccountIdArray) != ""
                                         || this.get(UIObject.observable.EmailTemplateId) > 0
                                         || this.get(UIObject.observable.NotificationStatusId) > 0
                                         || this.get(UIObject.observable.ScheduledDate) != null
@@ -116,7 +116,6 @@
                         this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
                             return parseInt(item, 10);
                         }));
-
                         var nofield = this.HasCriteria();
                         if (!this.HasCriteria()) {
                             $(this).displayError(messages.errorMessages.NoCriteria);
@@ -256,6 +255,7 @@
 
 
         function onEditSaveButtonClick(e) {
+            debugger;
             var noticeModel = {
                 NoticeBatchId: Number($(UIObject.controls.textbox.NoticeBatchId).val()),
                 NextStepId: Number($(UIObject.controls.dropdownlists.EditNextStep).data("kendoDropDownList").value()),
@@ -263,7 +263,7 @@
                 EmailTemplateId: Number($(UIObject.controls.dropdownlists.EditEmailTemplate).data("kendoDropDownList").value()),
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
-                AccountId: Number($(UIObject.controls.textbox.AccountId).val()),
+                AccountIdArray: Number($(UIObject.controls.textbox.AccountId).val()),
 
                 MissingRequired: function () {
                     return (this.NextStepId == 0) || (this.NotificationStatusId == 0)
