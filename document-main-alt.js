@@ -21,7 +21,8 @@
                 SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments",
                 UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
                 ClearSessionVariablesDocument: "ClearSessionsVariables",
-                GetSupplierName: "GetSupplierName"
+                GetSupplierName: "GetSupplierName",
+                VerifyProductManufacturer : "VerifyProductManufacturer"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -178,7 +179,8 @@
 
         var controllerCalls = {
             RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate",
-            AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts"
+            AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
+            IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid"
         }
 
         var documentMessages = {
@@ -227,7 +229,8 @@
             warnings: {
                 DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
-                LinkDocumentToAllMfrProudct: "Are you sure you want to link the above document to all product(s) from it's Manufacturer in the list below?"
+                LinkDocumentToAllMfrProudct: "Are you sure you want to link the above document to all product(s) from it's Manufacturer in the list below?",
+                InvalidManufacturerSelection : "Invalid Manufacturer Selection. Proceed nevertheless ?"
             }
         };
 
@@ -925,11 +928,52 @@
         }
 
         function onNewDocumentPopUpSaveBtnClick(e) {
+
             e.preventDefault();
-            saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
+
+            var formData = getNewDocumentData();
+
+            var data = new Object();
+            data.manufacturerId = formData.ManufacturerId;
+            data.productId = $(this).getQueryStringParameterByName("productid");
+            $(this).syncAjaxCall(controllerCalls.IsManufacturerProductionSelectionValid, data)
+                .success(function(response) {
+
+                    //console.log(response);
+
+                    var valid = true;
+                    if (!response.IsValid) valid = confirm("The selected manufacturer does not correspond to the product. Continue ?");
+                    //alert(valid);
+                    if (valid) saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
+
+                })
+                .error(function() {});
+
+
+        }
+
+        function isManufacturerSelectionValid() {
+
+            var formData = getNewDocumentData();
+
+            var data = new Object();
+            data.manufacturerId = formData.ManufacturerId;
+            data.productId = $(this).getQueryStringParameterByName("productid");
+            $(this).syncAjaxCall(controllerCalls.IsManufacturerProductionSelectionValid, data)
+                .success(function (response) {
+                    console.log(response);
+
+                    if (!response.IsValid) return confirm("The selected manufacturer does not correspond to the product. Continue ?");
+                    saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
+                    if (response.IsValid) return true;
+                    if (!response.IsValid) return confirm("The selected manufacturer does not correspond to the product. Continue ?");
+
+                })
+                .error(function() {});
         }
 
         function onNewDocumentSaveBtnClick(e) {
+           
             e.preventDefault();
             saveNewDocumentRevisionToDatabase(saveNewDocument, true, true);
         }
