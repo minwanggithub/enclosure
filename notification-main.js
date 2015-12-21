@@ -5,13 +5,15 @@
     }
     $.fn.complibNotification = function () {
         //Local variables
+        var notificatonAttachments = [];
 
         var UIObject = {
             sections: {
                 searchSection: function () { return $("#divSearchSection"); },
                 searchResultSection: function () { return $("#divSearchResult"); },
                 noticeDetailSection: function () { return $("#divNotificationDetail"); },
-                noticePopUpSection: function () { return $("#divNotificationModalPopup"); }
+                noticePopUpSection: function () { return $("#divNotificationModalPopup"); },
+                existFileSection: function () { return $("#divExistFileSection"); }
             },
 
             containers: {
@@ -67,8 +69,6 @@
             window: {
                 NotificationPopUpWindow: "#notificationPopUpWindow"
             },
-
-         
         }
         
                 
@@ -76,6 +76,7 @@
             SearchNoticfication: GetEnvironmentLocation() + "/Operations/Notification/SearchNotification",
             LoadNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationTemplate",
             SaveNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/SaveNotificationTemplate",
+            LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
         };
 
         var messages = {
@@ -86,6 +87,7 @@
             errorMessages: {
                 SearchFailure: "Search failure",
                 NoCriteria: "A filter must be seelcted to execute a search.",
+                ScheduledDateError: "Scheduled date has to be greater than today's date.",
                 LoadNewNotificationFailure: "Can't not load new notification template."
             }
         };
@@ -240,6 +242,17 @@
                          });
         };
 
+        var LoadNotificationAttachmentGrid = function (noticeBatchId) {
+            $(this).ajaxCall(controllerCalls.LoadNotificationAttachmentGrid, { noticeBatchId: noticeBatchId })
+                         .success(function (data) {
+                             UIObject.sections.existFileSection().html(data);
+                         }).error(
+                         function () {
+                             $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                         });
+        };
+
+
         var InitializePopUpDetailDynamic = function () {
             //var container = $("#divNotificationModalPopup");
             //UIObject.buttons.EditCancel, onEditCancelButtonClick);
@@ -255,7 +268,6 @@
 
 
         function onEditSaveButtonClick(e) {
-            debugger;
             var noticeModel = {
                 NoticeBatchId: Number($(UIObject.controls.textbox.NoticeBatchId).val()),
                 NextStepId: Number($(UIObject.controls.dropdownlists.EditNextStep).data("kendoDropDownList").value()),
@@ -264,35 +276,52 @@
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
                 AccountIdArray: Number($(UIObject.controls.textbox.AccountId).val()),
+                NotificationAttachment: [],
 
                 MissingRequired: function () {
                     return (this.NextStepId == 0) || (this.NotificationStatusId == 0)
                         || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)                        
                         || (this.ObtainmentList.length == 0);
+                },
+
+                InvalidSchedueDate: function () {
+                    var today = new Date();
+                    var selectedDate = new Date(noticeModel.ScheduledDate);
+                    return (selectedDate <= today);
                 }
             };
+            
+            //Add this attachment to model
             if (noticeModel.MissingRequired()) {
                 $(this).displayError(messages.errorMessages.NoCriteria);
+                return;
             }
-            else {
-                kendo.ui.progress(UIObject.sections.searchResultSection(), true);
-                $(this).ajaxCall(controllerCalls.SaveNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
-                       .success(function (data) {
-                           if (data.success){
-                               $(this).savedSuccessFully(data.message);
-                               hideNotificationPopUp();
-                               noticeModel.NoticeBatchId = Number(data.Id);
-                               SearchNotification(JSON.stringify(noticeModel));
-                           }
-                           else {
-                               $(this).displayError(data.message);
-                           }
-                       }).error(
-                       function () {
-                           $(this).displayError(errorMessages.SearchFailure);
-                       });
-                kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+            
+            if (noticeModel.InvalidSchedueDate()) {
+                $(this).displayError(messages.errorMessages.ScheduledDateError);
+                return;
             }
+            
+            noticeModel.NotificationAttachment = notificatonAttachments;
+
+            kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+            $(this).ajaxCall(controllerCalls.SaveNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
+                    .success(function (data) {
+                        if (data.success){
+                            $(this).savedSuccessFully(data.message);
+                            hideNotificationPopUp();
+                            noticeModel.NoticeBatchId = Number(data.Id);
+                            SearchNotification(JSON.stringify(noticeModel));
+                        }
+                        else {
+                            $(this).displayError(data.message);
+                        }
+                    }).error(
+                    function () {
+                        $(this).displayError(errorMessages.SearchFailure);
+                    });
+            kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+            
         };
 
 
@@ -364,15 +393,37 @@
 
         };
 
+        function onUploadSelect(e) {
+        };
+
+        //http://blog.raselahmmed.com/kendo-ui-image-upload-and-instant-preview-in-aspnet-mvc/
+        function onUploadSuccess(e) {
+            debugger;
+            var responseObject = jQuery.parseJSON(e.XMLHttpRequest.responseText);
+            //notificatonAttachments.push(responseTxt);
+
+            if (responseObject.AttchmentOperation == 1) {
+
+                var attachment = {
+                    OriginalFileName : responseObject.OriginalFileName,
+                    MappedFileName : responseObject.MappedFileName
+                };
+                notificatonAttachments.push(attachment);
+            }            
+        };
+
         return {
             SearchBind: SearchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
             InitializeSearchResultGrid: InitializeSearchResultGrid,
+            LoadNotificationAttachmentGrid: LoadNotificationAttachmentGrid,
             InitializeNotificationPopUpDetail: InitializeNotificationPopUpDetail,
             LoadNotificationPopUp: LoadNotificationPopUp,
             InitializePopUpDetailDynamic: InitializePopUpDetailDynamic,
             displayNotificationPopUp: displayNotificationPopUp,
-            //EditNotification: EditNotification
+            EditNotification: EditNotification,
+            onUploadSelect: onUploadSelect,
+            onUploadSuccess: onUploadSuccess
         };
     };
 })(jQuery);
