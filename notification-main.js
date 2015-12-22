@@ -23,7 +23,8 @@
 
             controls: {
                 grids: {
-                    GridSearchNoticeBatch: "#gdSearchNoticeBatch"
+                    GridSearchNoticeBatch: "#gdSearchNoticeBatch",
+                    GridNotificationAttachment: "#gdNotificationAttachment"
                 },
 
                 buttons: {
@@ -77,6 +78,8 @@
             LoadNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationTemplate",
             SaveNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/SaveNotificationTemplate",
             LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
+            DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
+            
         };
 
         var messages = {
@@ -84,11 +87,15 @@
                 Saved: "Saved Successful",
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },            
+            warningMessages:{
+                confirmAttachmentDelete : "Are you sure you want to delete the selected attachment?"
+            },
             errorMessages: {
                 SearchFailure: "Search failure",
                 NoCriteria: "A filter must be seelcted to execute a search.",
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
-                LoadNewNotificationFailure: "Can't not load new notification template."
+                LoadNewNotificationFailure: "Can't not load new notification template.",
+                DeleteAttachmentFailure: "Can't not delete attachment "
             }
         };
         
@@ -196,7 +203,7 @@
                                      UIObject.sections.searchResultSection().html(data);
                                  }).error(
                                  function () {
-                                     $(this).displayError(errorMessages.SearchFailure);
+                                     $(this).displayError(messages.errorMessages.SearchFailure);
                                  });
         }
 
@@ -378,6 +385,20 @@
             }
         };
 
+
+        function DifferentiateNewOrEdit(noticeBtachId)
+        {
+            if (noticeBtachId > 0)
+            {
+                $(".k-button.k-upload-button").hide();
+                notificationLib.LoadNotificationAttachmentGrid(noticeBtachId);
+            }
+            else{
+                $(".k-button.k-upload-button").show();
+                $("#existFileSection").hide();
+            }
+        };
+
         function hideNotificationPopUp() {
             var notificationModal = $(UIObject.window.NotificationPopUpWindow);
             if (notificationModal.length > 0) {                
@@ -390,6 +411,30 @@
         function EditNotification(e) {
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             LoadNotificationPopUp(dataItem.NoticeBatchId);
+
+        };
+
+        function DeleteAttachment(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var args = {
+                header: 'Confirm Attachment Deleteion',
+                message: messages.warningMessages.confirmAttachmentDelete
+            };
+
+            var NoticeBatchAttachmentId = dataItem.NoticeBatchAttachmentId;
+            DisplayConfirmationModal(args, function () {                
+                $(this).ajaxCall(controllerCalls.DeleteNotificationAttachment, { noticeBatchAttachmentId: NoticeBatchAttachmentId })
+                                .success(function (data) {
+                                    var attachmentGrid = $(UIObject.controls.grids.GridNotificationAttachment).data("kendoGrid");
+                                    if (attachmentGrid != null) {
+                                        attachmentGrid.dataSource.page(1);
+                                        attachmentGrid.dataSource.read();
+                                    }
+                                }).error(
+                                function () {
+                                    $(this).displayError(messages.errorMessages.DeleteAttachmentFailure);
+                                });
+            });
 
         };
 
@@ -412,6 +457,21 @@
             }            
         };
 
+        function onWindowOpen()
+        {
+        };
+
+        function onWindowClose() {
+            hideNotificationPopUp();
+        };
+
+
+        function onRowAttachmentBound(e) {
+            $(".k-grid-Edit").find("span").addClass("k-icon k-edit");
+            $(".k-grid-Delete").find("span").addClass("k-icon k-delete");
+            $(".k-grid-View").find("span").addClass("k-icon km-view");
+        }
+
         return {
             SearchBind: SearchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
@@ -422,8 +482,14 @@
             InitializePopUpDetailDynamic: InitializePopUpDetailDynamic,
             displayNotificationPopUp: displayNotificationPopUp,
             EditNotification: EditNotification,
+            DifferentiateNewOrEdit:DifferentiateNewOrEdit,
+            DeleteAttachment:DeleteAttachment,
             onUploadSelect: onUploadSelect,
-            onUploadSuccess: onUploadSuccess
+            onUploadSuccess: onUploadSuccess,
+            onWindowClose: onWindowClose,
+            onWindowOpen: onWindowOpen,
+            onRowAttachmentBound: onRowAttachmentBound
+
         };
     };
 })(jQuery);
