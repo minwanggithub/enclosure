@@ -95,7 +95,8 @@
                 NoCriteria: "A filter must be seelcted to execute a search.",
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
                 LoadNewNotificationFailure: "Can't not load new notification template.",
-                DeleteAttachmentFailure: "Can't not delete attachment "
+                DeleteAttachmentFailure: "Can't not delete attachment ",
+                ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send."
             }
         };
         
@@ -120,8 +121,8 @@
                                         || this.get(UIObject.observable.ActualSendDate) != null)
                     return fieldCheck;
                 },
-                SearchClick: function (e) {
-                        e.preventDefault();
+                SearchClick : function (e) {
+                        //e.preventDefault();
                         this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
                             return parseInt(item, 10);
                         }));
@@ -143,7 +144,7 @@
                     },
 
                 ClearClick: function (e) {
-                        e.preventDefault();
+                        //e.preventDefault();
                         this.set(UIObject.observable.NextStepId, 0);
                         this.set(UIObject.observable.ObtainmentList, null);
                         this.set(UIObject.observable.AccountId,"");
@@ -221,15 +222,6 @@
             });
 
             kendo.bind(UIObject.sections.noticeDetailSection(), viewModel);
-
-            // If we are within the popup window display the panel
-            //var addNewDocumentPopUp = $(documentElementSelectors.containers.NewDocument).parents(documentElementSelectors.containers.NewDocumentPopUp);
-            //if (addNewDocumentPopUp.length > 0) {
-            //    $(documentElementSelectors.containers.NewDocument).show(500);
-            //    $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentPopUpCancelBtnClick);
-            //} else {
-            //    $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentCancelBtnClick);
-            //}
         };
 
         var InitializeSearchResultGrid = function () {
@@ -240,9 +232,7 @@
         var LoadNotificationPopUp = function (noticeBatchId) {
             $(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: noticeBatchId })
                          .success(function (data) {
-                             //alert(UIObject.sections.noticeDetailSection().html());
                              UIObject.sections.noticeDetailSection().html(data);
-                             //alert(UIObject.sections.noticeDetailSection().html());
                          }).error(
                          function () {
                              $(this).displayError(errorMessages.LoadNewNotificationFailure);
@@ -295,6 +285,10 @@
                     var today = new Date();
                     var selectedDate = new Date(noticeModel.ScheduledDate);
                     return (selectedDate <= today);
+                },
+
+                DisallowInformationChange: function () {
+                    return (noticeModel.NotificationStatusId == 3 || noticeModel.NotificationStatusId == 4);
                 }
             };
             
@@ -302,13 +296,18 @@
             if (noticeModel.MissingRequired()) {
                 $(this).displayError(messages.errorMessages.NoCriteria);
                 return;
-            }
+            };
             
             if (noticeModel.InvalidSchedueDate()) {
                 $(this).displayError(messages.errorMessages.ScheduledDateError);
                 return;
-            }
+            };
             
+            if (noticeModel.DisallowInformationChange()){
+                $(this).displayError(messages.errorMessages.ReasonForNotAllowChange);
+                return;
+            };
+
             noticeModel.NotificationAttachment = notificatonAttachments;
 
             kendo.ui.progress(UIObject.sections.searchResultSection(), true);
@@ -318,7 +317,7 @@
                             $(this).savedSuccessFully(data.message);
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
-                            SearchNotification(JSON.stringify(noticeModel));
+                            SearchNotification(JSON.stringify(noticeModel));                            
                         }
                         else {
                             $(this).displayError(data.message);
@@ -470,7 +469,7 @@
             $(".k-grid-Edit").find("span").addClass("k-icon k-edit");
             $(".k-grid-Delete").find("span").addClass("k-icon k-delete");
             $(".k-grid-View").find("span").addClass("k-icon km-view");
-        }
+        };
 
         return {
             SearchBind: SearchBind,
