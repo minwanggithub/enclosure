@@ -79,7 +79,7 @@
             SaveNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/SaveNotificationTemplate",
             LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
             DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
-            
+            DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch"
         };
 
         var messages = {
@@ -88,15 +88,16 @@
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },            
             warningMessages:{
-                confirmAttachmentDelete : "Are you sure you want to delete the selected attachment?"
+                confirmAttachmentDelete : "Are you sure you want to delete the selected item?"
             },
             errorMessages: {
                 SearchFailure: "Search failure",
-                NoCriteria: "A filter must be seelcted to execute a search.",
+                NoCriteria: "All required filters must be seelcted to execute a search.",
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
                 LoadNewNotificationFailure: "Can't not load new notification template.",
                 DeleteAttachmentFailure: "Can't not delete attachment ",
-                ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send."
+                ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send.",
+                ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent."
             }
         };
         
@@ -413,6 +414,44 @@
 
         };
 
+        function DeleteNotificationBatch(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            
+            if (dataItem.NotificationStatusId == 4)
+            {
+                $(this).displayError(messages.errorMessages.ReasonForNotAllowDelete);
+                return;
+            }
+
+            var args = {
+                header: 'Confirm Notification Definition Deletion',
+                message: messages.warningMessages.confirmAttachmentDelete
+            };
+            DisplayConfirmationModal(args, function () {
+                $(this).ajaxCall(controllerCalls.DeleteNotificationBatch, { noticeBatchId: dataItem.NoticeBatchId })
+                                .success(function (data) {
+                                    //data.noticeBatchId
+                                    debugger;
+                                    var searchGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                                    if (searchGrid != null) {
+                                        var rawData = searchGrid.dataSource.data();
+                                        var length = rawData.length;
+                                        var item, index;
+                                        for (index = length - 1; index >= 0; index--)
+                                        {
+                                            item = rawData[index];
+                                            if (item.NoticeBatchId == data.Id)
+                                                searchGrid.dataSource.remove(item);
+                                        }
+                                    }
+                                }).error(
+                                function () {
+                                    $(this).displayError(messages.errorMessages.DeleteAttachmentFailure);
+                                });
+            });
+
+        };
+
         function DeleteAttachment(e) {
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             var args = {
@@ -465,7 +504,7 @@
         };
 
 
-        function onRowAttachmentBound(e) {
+        function onGridBound(e) {
             $(".k-grid-Edit").find("span").addClass("k-icon k-edit");
             $(".k-grid-Delete").find("span").addClass("k-icon k-delete");
             $(".k-grid-View").find("span").addClass("k-icon km-view");
@@ -482,12 +521,13 @@
             displayNotificationPopUp: displayNotificationPopUp,
             EditNotification: EditNotification,
             DifferentiateNewOrEdit:DifferentiateNewOrEdit,
-            DeleteAttachment:DeleteAttachment,
+            DeleteAttachment: DeleteAttachment,
+            DeleteNotificationBatch: DeleteNotificationBatch,
             onUploadSelect: onUploadSelect,
             onUploadSuccess: onUploadSuccess,
             onWindowClose: onWindowClose,
             onWindowOpen: onWindowOpen,
-            onRowAttachmentBound: onRowAttachmentBound
+            onGridBound: onGridBound
 
         };
     };
