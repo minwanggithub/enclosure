@@ -92,7 +92,8 @@
             },
             errorMessages: {
                 SearchFailure: "Search failure",
-                NoCriteria: "All required filters must be seelcted to execute a search.",
+                NoCriteria: "Filters must be selcted to execute a search.",
+                MissingRequiredFields: "All required fields must be filled.",
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
                 LoadNewNotificationFailure: "Can't not load new notification template.",
                 DeleteAttachmentFailure: "Can't not delete attachment ",
@@ -145,21 +146,21 @@
                     },
 
                 ClearClick: function (e) {
-                        //e.preventDefault();
+                    //e.preventDefault();
                         this.set(UIObject.observable.NextStepId, 0);
                         this.set(UIObject.observable.ObtainmentList, null);
-                        this.set(UIObject.observable.AccountId,"");
+                        this.set(UIObject.observable.AccountIdArray,"");
                         this.set(UIObject.observable.EmailTemplateId, 0);
                         this.set(UIObject.observable.NotificationStatusId, 0);
                         this.set(UIObject.observable.ScheduledDate, null);
                         this.set(UIObject.observable.ActualSendDate, null);
                         $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
 
-                        debugger;
                         var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
-                        if (searchResultGrid.dataSource.total() != 0) {
-                            searchResultGrid.dataSource.filter([]);
+                        if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
+                            //searchResultGrid.dataSource.filter([]);
                             searchResultGrid.dataSource.data([]);
+                            //searchResultGrid.dataSource.read();
                         }
                         //if ((null != noticeGrid()) && (noticeGrid().dataSource.total() > 0))
                         //    noticeGrid().dataSource.data([]);
@@ -273,7 +274,7 @@
                 EmailTemplateId: Number($(UIObject.controls.dropdownlists.EditEmailTemplate).data("kendoDropDownList").value()),
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
-                AccountIdArray: Number($(UIObject.controls.textbox.AccountId).val()),
+                AccountIdArray: $(UIObject.controls.textbox.AccountId).val(),
                 NotificationAttachment: [],
 
                 MissingRequired: function () {
@@ -318,7 +319,16 @@
                             $(this).savedSuccessFully(data.message);
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
-                            SearchNotification(JSON.stringify(noticeModel));                            
+                            debugger;
+                            if (data.isNew)
+                                SearchNotification(JSON.stringify(noticeModel));
+                            else {
+                                var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                                if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
+                                    searchResultGrid.dataSource.filter([]);
+                                    searchResultGrid.dataSource.data([]);
+                                }
+                            }
                         }
                         else {
                             $(this).displayError(data.message);
