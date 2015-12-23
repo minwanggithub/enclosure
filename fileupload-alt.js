@@ -79,7 +79,7 @@
         function confirmFileUploadWindowClose() {
             
             if (uploadStake.length > 0) {
-                var settings = { message: 'You have attachments ready to be linked to a revision. Are you sure you would like to cancel?', header: 'Confirm Attachment Upload Cancel' };
+                var settings = { message: 'You have attachments ready to be linked. Are you sure you would like to cancel?', header: 'Confirm Attachment Upload Cancel' };
                 displayConfirmation(settings, clearAttachmentSessionCache);
             } else
                 closeFileUploadModal();

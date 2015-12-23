@@ -13,7 +13,8 @@
                 searchResultSection: function () { return $("#divSearchResult"); },
                 noticeDetailSection: function () { return $("#divNotificationDetail"); },
                 noticePopUpSection: function () { return $("#divNotificationModalPopup"); },
-                existFileSection: function () { return $("#divExistFileSection"); }
+                existFileSection: function () { return $("#divExistFileSection"); },
+                embedFileUploadSection: function () { return $("#NotificationAttachFiles"); }
             },
 
             containers: {
@@ -45,7 +46,7 @@
                 
                 textbox: {
                     AccountId: "#txtEditAccountId",
-                    NoticeBatchId: "#txtEditNoticeBatchId"
+                    NoticeBatchId: "#txtEditNoticeBatchId"                    
                 },
 
                 datepickers: {
@@ -77,6 +78,7 @@
             SearchNoticfication: GetEnvironmentLocation() + "/Operations/Notification/SearchNotification",
             LoadNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationTemplate",
             SaveNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/SaveNotificationTemplate",
+            SaveExistingNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/SaveExistingNotificationAttachment",
             LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
             DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
             DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch"
@@ -97,6 +99,7 @@
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
                 LoadNewNotificationFailure: "Can't not load new notification template.",
                 DeleteAttachmentFailure: "Can't not delete attachment ",
+                SaveAttachmentFailure: "Can't not save attachment ",
                 ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send.",
                 ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent."
             }
@@ -319,7 +322,6 @@
                             $(this).savedSuccessFully(data.message);
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
-                            debugger;
                             if (data.isNew)
                                 SearchNotification(JSON.stringify(noticeModel));
                             else {
@@ -400,12 +402,14 @@
         {
             if (noticeBtachId > 0)
             {
-                $(".k-button.k-upload-button").hide();
+                var embedFileUpload = UIObject.sections.embedFileUploadSection().parent();
+                if (embedFileUpload.length > 0)
+                    embedFileUpload.hide();
                 notificationLib.LoadNotificationAttachmentGrid(noticeBtachId);
             }
             else{
                 $(".k-button.k-upload-button").show();
-                $("#existFileSection").hide();
+                UIObject.sections.existFileSection().hide();
             }
         };
 
@@ -440,8 +444,7 @@
             DisplayConfirmationModal(args, function () {
                 $(this).ajaxCall(controllerCalls.DeleteNotificationBatch, { noticeBatchId: dataItem.NoticeBatchId })
                                 .success(function (data) {
-                                    //data.noticeBatchId
-                                    debugger;
+                                    //data.noticeBatchId                                    
                                     var searchGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
                                     if (searchGrid != null) {
                                         var rawData = searchGrid.dataSource.data();
@@ -520,6 +523,66 @@
             $(".k-grid-View").find("span").addClass("k-icon km-view");
         };
 
+        function onAddNewFileBtnClick(e) {
+            if (displayUploadModal) {
+                //var container = $(this).parents(documentElementSelectors.containers.DocumentNewRevisionDetails + ":first");
+                //if (container.length > 0) {
+                //    var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
+                var revisionId = 0;
+                var documentId = 0;
+
+                    displayUploadModal(function () {
+                        return { documentId: documentId, revisionId: revisionId };
+                    }, function (data) {
+                        var attachmentMapping = [];
+                        var item, index;
+                        for (index = 0; index < data.length; index++) {
+                            item = data[index];
+                            var attachment = {
+                                OriginalFileName: item.filename,
+                                MappedFileName: item.physicalPath
+                            };
+                            attachmentMapping.push(attachment);
+                        }
+                        var attachmentModel = new Object();
+                        attachmentModel.NoticeBatchId = $(UIObject.controls.textbox.NoticeBatchId).val();
+                        attachmentModel.NotificationAttachment = attachmentMapping;
+                        $(this).ajaxCall(controllerCalls.SaveExistingNotificationAttachment, { searchCriteria: JSON.stringify(attachmentModel) })
+                            .success(function (data) {
+                                var attachmentGrid = $(UIObject.controls.grids.GridNotificationAttachment).data("kendoGrid");
+                                if (attachmentGrid != null) {
+                                    attachmentGrid.dataSource.page(1);
+                                    attachmentGrid.dataSource.read();
+                                }
+                            
+                        }).error(
+                        function () {
+                            $(this).displayError(messages.errorMessages.SaveAttachmentFailure);
+                        });
+                        
+                        
+                        //var parentContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
+                        //var attachmentGrid = (parentContainer.length > 0) ? parentContainer.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid') : null;
+                        //if (attachmentGrid) {
+                        //    for (var i = 0; i < data.length; i++) {
+                        //        attachmentGrid.dataSource.add({
+                        //            DocumentInfoId: 0,
+                        //            DocumentId: documentId,
+                        //            RevisionId: revisionId,
+                        //            DocumentInfoDescription: '',
+                        //            DocumentElink: data[i].elink,
+                        //            FileName: data[i].filename,
+                        //            PhysicalPath: data[i].physicalPath
+                        //        });
+                        //    }
+                        //}
+
+                    }, false);
+            }
+            else
+               displayError(documentMessages.errors.DocumentRevisionAttachmentData);            
+        };
+
         return {
             SearchBind: SearchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
@@ -532,13 +595,13 @@
             EditNotification: EditNotification,
             DifferentiateNewOrEdit:DifferentiateNewOrEdit,
             DeleteAttachment: DeleteAttachment,
+            onAddNewFileBtnClick: onAddNewFileBtnClick,
             DeleteNotificationBatch: DeleteNotificationBatch,
             onUploadSelect: onUploadSelect,
             onUploadSuccess: onUploadSuccess,
             onWindowClose: onWindowClose,
             onWindowOpen: onWindowOpen,
             onGridBound: onGridBound
-
         };
     };
 })(jQuery);
