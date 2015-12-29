@@ -190,7 +190,7 @@
                     //});
 
 
-                    //LoadNotificationPopUp(0);
+                    LoadNotificationPopUp(0);
                     //$("#ddlEditNextStep").data("kendoDropDownList").select(2);
                     //if (displayNotificationPopUp) {
                     //    //displaySupplierPopUp(function (data) {});  //With Call back
