@@ -6,15 +6,18 @@
     $.fn.complibNotification = function () {
         //Local variables
         var notificatonAttachments = [];
+        var itemsChecked = 0;
+        var selectedRequests = new Array();         // ids selected in the grid
+        var selectedRows = new Array();
 
         var UIObject = {
             sections: {
-                searchSection: function () { return $("#divSearchSection"); },
-                searchResultSection: function () { return $("#divSearchResult"); },
-                noticeDetailSection: function () { return $("#divNotificationDetail"); },
-                noticePopUpSection: function () { return $("#divNotificationModalPopup"); },
-                existFileSection: function () { return $("#divExistFileSection"); },
-                embedFileUploadSection: function () { return $("#NotificationAttachFiles"); }
+                searchSection: function() { return $("#divSearchSection"); },
+                searchResultSection: function() { return $("#divSearchResult"); },
+                noticeDetailSection: function() { return $("#divNotificationDetail"); },
+                noticePopUpSection: function() { return $("#divNotificationModalPopup"); },
+                existFileSection: function() { return $("#divExistFileSection"); },
+                embedFileUploadSection: function() { return $("#NotificationAttachFiles"); }
             },
 
             containers: {
@@ -25,7 +28,8 @@
             controls: {
                 grids: {
                     GridSearchNoticeBatch: "#gdSearchNoticeBatch",
-                    GridNotificationAttachment: "#gdNotificationAttachment"
+                    GridNotificationAttachment: "#gdNotificationAttachment",
+                    GridNotificationBatchItems: "#gdNoticeBatchItems"
                 },
 
                 buttons: {
@@ -34,7 +38,7 @@
                     EditSave: "#btnEditSaveNotification",
                     EditCancel: "#btnEditCancelNotification"
                 },
-                
+
                 dropdownlists: {
                     ObtainmentTypeDropDownList: "#mltDdlObtainmentType",
                     ObtainmentEditTypeDropDownList: "#mltDdlEditObtainmentType",
@@ -43,22 +47,24 @@
                     EditNoticeStatus: "#ddlEditNoticeStatus",
 
                 },
-                
+
                 textbox: {
                     AccountId: "#txtEditAccountId",
-                    NoticeBatchId: "#txtEditNoticeBatchId"                    
+                    NoticeBatchId: "#txtEditNoticeBatchId",
+                    NumberOfItemsTextBox: "#numberOfItems"
                 },
 
                 datepickers: {
                     EditScheduledDate: "#dteEditScheduledDate"
                 },
 
-                
+                div: { EmailTemplateBodyDiv: "#emailTemplateBody" }
+
             },
 
             observable: {
                 NextStepId: "NextStepId",
-                ObtainmentList: "ObtainmentList",                
+                ObtainmentList: "ObtainmentList",
                 ObtainmentIndex: "ObtainmentIndex",
                 AccountIdArray: "AccountIdArray",
                 EmailTemplateId: "EmailTemplateId",
@@ -66,12 +72,14 @@
                 ScheduledDate: "ScheduledDate",
                 ActualSendDate: "ActualSendDate",
             },
-            
-            
+
+
             window: {
                 NotificationPopUpWindow: "#notificationPopUpWindow"
             },
-        }
+
+            notificationModals: { EmailTemplatePreview: "#mdlEmailTemplatePreview" }
+    }
         
                 
         var controllerCalls = {
@@ -81,7 +89,9 @@
             SaveExistingNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/SaveExistingNotificationAttachment",
             LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
             DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
-            DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch"
+            DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch",
+            EmailTemplatePreview: GetEnvironmentLocation() + "/Configuration/EmailTemplate/Preview",
+            RemoveNoticeBatchItems: GetEnvironmentLocation() + "/Operations/Notification/RemoveNoticeBatchItems"
         };
 
         var messages = {
@@ -101,7 +111,9 @@
                 DeleteAttachmentFailure: "Can't not delete attachment ",
                 SaveAttachmentFailure: "Can't not save attachment ",
                 ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send.",
-                ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent."
+                ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent.",
+                LoadEmailPreviewError: "Unable to load email template preview.",
+                NoItemsSelected: "No items have been selected"
             }
         };
         
@@ -202,6 +214,22 @@
             kendo.bind(UIObject.sections.searchSection(), viewModel);
         };
 
+        $("#NotificationGrid").on("click", "#btnRemoveItems", function () {
+            if (typeof selectedRequests !== 'undefined' && selectedRequests.length > 0) {
+                $(this).ajaxCall(controllerCalls.RemoveNoticeBatchItems, { ids: selectedRequests })
+                               .success(function (data) {
+                                LoadNotificationBatchItems();
+                            }).error(
+                               function () {
+                                   $(this).displayError(messages.errorMessages.SearchFailure);
+                               });
+
+            } else
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            return false;
+        });
+
+
         function SearchNotification(searchCriteria)
         {
             $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: searchCriteria })
@@ -263,6 +291,12 @@
             $(UIObject.controls.buttons.EditSave).click(function () { onEditSaveButtonClick(); });
         };
 
+        var LoadNotificationBatchItems = function()
+        {
+            var grid = $(UIObject.controls.grids.GridNotificationBatchItems).data("kendoGrid");
+            grid.dataSource.read();
+            initializeMultiSelectCheckboxes($("#NotificationGrid"));
+        }
 
         function onEditCancelButtonClick(e) {
             hideNotificationPopUp();
@@ -583,6 +617,104 @@
                displayError(documentMessages.errors.DocumentRevisionAttachmentData);            
         };
 
+       var PreviewEmail = function (id) {
+           $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+            $(this).ajaxCall(controllerCalls.EmailTemplatePreview, { emailTemplateId: id })
+                .success(function (data) {
+                    $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.message));
+                }).error(
+                    function () {
+                        $(this).displayError(messages.errorMessages.LoadEmailPreviewError);
+                    });
+        }
+
+       function initializeMultiSelectCheckboxes(obj) {
+           obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+               selectedRequests = new Array();
+               var checked = $(this).is(':checked');
+               var grid = $(this).parents('.k-grid:first');
+               if (grid) {
+                   var kgrid = grid.data().kendoGrid;
+                   var selectedRow = $(this).parent().parent();
+                   var dataItem = kgrid.dataItem($(this).closest('tr'));
+                   if (dataItem) {
+                       dataItem.set('IsSelected', !checked);
+                       if (selectedRow.length > 0) {
+                           if ($(this).is(':checked')) {
+                               var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
+                               if (indexUid > -1)
+                                   selectedRows.splice(indexUid, 1);
+                           } else
+                               selectedRows.push(selectedRow.attr('data-uid'));
+                       }
+                   }
+
+                   itemsChecked = 0;
+                   $.each(kgrid._data, function () {
+                       if (this['IsSelected']) {
+                           selectedRequests.push(this["NoticeBatchDetailId"]);
+                           itemsChecked++;
+                       } else {
+                           var index = selectedRequests.indexOf(this["NoticeBatchDetailId"]);
+                           if (index > -1)
+                               selectedRequests.splice(index, 1);
+                       }
+                       
+                       if (selectedRows.indexOf(this["uid"]) > -1)
+                           grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                       else
+                           grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                   });
+
+                   UpdateNumberOfItemsChecked(itemsChecked);
+                   e.stopImmediatePropagation();
+               }
+           });
+
+           obj.on("click", ".chkMasterMultiSelect", function () {
+               var checked = $(this).is(':checked');
+               var grid = $(this).parents('.k-grid:first');
+               selectedRequests = new Array();
+               itemsChecked = 0;
+
+               if (grid) {
+                   var kgrid = grid.data().kendoGrid;
+                   if (kgrid._data.length > 0) {
+                       $.each(kgrid._data, function () {
+                           this['IsSelected'] = checked;
+                           if (this['IsSelected']) {
+                               selectedRequests.push(this["NoticeBatchDetailId"]);
+                               itemsChecked++;
+                           } else {
+                               var index = selectedRequests.indexOf(this["NoticeBatchDetailId"]);
+                               if (index > -1)
+                                   selectedRequests.splice(index, 1);
+                           }
+                          
+                       });
+                       kgrid.refresh();
+                       UpdateNumberOfItemsChecked(itemsChecked);
+
+                       $('tr', grid).each(function () {
+                           var tr = $(this);
+                           var cked = $('.chkMultiSelect', tr).is(':checked');
+                           if (cked)
+                               tr.addClass('k-state-selected');
+                           else
+                               tr.removeClass('k-state-selected');
+                       });
+                   } else {
+                       return false;
+                   }
+               }
+
+           });
+       }
+
+       function UpdateNumberOfItemsChecked(numberOfItems) {
+           $(UIObject.controls.textbox.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+       }
+
         return {
             SearchBind: SearchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
@@ -591,6 +723,8 @@
             InitializeNotificationPopUpDetail: InitializeNotificationPopUpDetail,
             LoadNotificationPopUp: LoadNotificationPopUp,
             InitializePopUpDetailDynamic: InitializePopUpDetailDynamic,
+            LoadNotificationBatchItems: LoadNotificationBatchItems,
+            PreviewEmail : PreviewEmail,
             displayNotificationPopUp: displayNotificationPopUp,
             EditNotification: EditNotification,
             DifferentiateNewOrEdit:DifferentiateNewOrEdit,
