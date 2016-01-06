@@ -606,16 +606,16 @@
                     });
         };
 
-       var PreviewMergedEmail = function (noticeBatchDetailId) {
+       var PreviewMergedEmail = function (emailTemplateId, noticeBatchDetailId) {
            $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
 
            //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
-           $(this).ajaxCall(controllerCalls.FinalMergedEmail, { noticeBatchDetailId: noticeBatchDetailId })
-                       .success(function (data) {                           
-                           $(UIObject.controls.div.EmailTemplateBodyDiv).html(data);
+           $(this).ajaxCall(controllerCalls.FinalMergedEmail, {emailTemplateId: emailTemplateId, noticeBatchDetailId: noticeBatchDetailId })
+                       .success(function (data) {
+                           $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
                        }).error(
-                       function () {
-                           $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                       function (e) {
+                           $(this).displayError(e);
                        });
 
            //$(this).ajaxCall(controllerCalls.FinalMergedEmail, { noticeBatchDetailId: noticeBatchDetailId })
