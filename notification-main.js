@@ -606,27 +606,17 @@
                     });
         };
 
-       var PreviewMergedEmail = function (emailTemplateId, noticeBatchDetailId) {
+       var PreviewMergedEmail = function (emailTemplateId, noticeBatchDetailId, companyId) {
            $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
 
            //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
-           $(this).ajaxCall(controllerCalls.FinalMergedEmail, {emailTemplateId: emailTemplateId, noticeBatchDetailId: noticeBatchDetailId })
+           $(this).ajaxCall(controllerCalls.FinalMergedEmail, { emailTemplateId: emailTemplateId, noticeBatchDetailId: noticeBatchDetailId, companyId: companyId })
                        .success(function (data) {
                            $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
                        }).error(
                        function (e) {
                            $(this).displayError(e);
                        });
-
-           //$(this).ajaxCall(controllerCalls.FinalMergedEmail, { noticeBatchDetailId: noticeBatchDetailId })
-           //    .success(function (data) {
-           //        //var templateData = decodeURIComponent(data.message);
-           //        //$(UIObject.controls.div.EmailTemplateBodyDiv).html(templateData + "<div><h5>Manufacturer</h5></div>");
-           //        $(UIObject.controls.div.EmailTemplateBodyDiv).html(data);
-           //    }).error(
-           //        function () {
-           //            $(this).displayError(messages.errorMessages.LoadEmailPreviewError);
-           //        });
        }
 
        function initializeMultiSelectCheckboxes(obj) {
