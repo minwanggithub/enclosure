@@ -91,6 +91,7 @@
             DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
             DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch",
             EmailTemplatePreview: GetEnvironmentLocation() + "/Configuration/EmailTemplate/Preview",
+            FinalMergedEmail: GetEnvironmentLocation() + "/Operations/Notification/FinalMergedEmail",
             RemoveNoticeBatchItems: GetEnvironmentLocation() + "/Operations/Notification/RemoveNoticeBatchItems"
         };
 
@@ -559,14 +560,9 @@
 
         function onAddNewFileBtnClick(e) {
             if (displayUploadModal) {
-                //var container = $(this).parents(documentElementSelectors.containers.DocumentNewRevisionDetails + ":first");
-                //if (container.length > 0) {
-                //    var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
-                var revisionId = 0;
-                var documentId = 0;
-
+                var notictBatchId = 0;                
                     displayUploadModal(function () {
-                        return { documentId: documentId, revisionId: revisionId };
+                        return { noticeBatchId: notictBatchId};
                     }, function (data) {
                         var attachmentMapping = [];
                         var item, index;
@@ -593,40 +589,45 @@
                         function () {
                             $(this).displayError(messages.errorMessages.SaveAttachmentFailure);
                         });
-                        
-                        
-                        //var parentContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
-                        //var attachmentGrid = (parentContainer.length > 0) ? parentContainer.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid') : null;
-                        //if (attachmentGrid) {
-                        //    for (var i = 0; i < data.length; i++) {
-                        //        attachmentGrid.dataSource.add({
-                        //            DocumentInfoId: 0,
-                        //            DocumentId: documentId,
-                        //            RevisionId: revisionId,
-                        //            DocumentInfoDescription: '',
-                        //            DocumentElink: data[i].elink,
-                        //            FileName: data[i].filename,
-                        //            PhysicalPath: data[i].physicalPath
-                        //        });
-                        //    }
-                        //}
-
                     }, false);
             }
             else
                displayError(documentMessages.errors.DocumentRevisionAttachmentData);            
         };
 
-       var PreviewEmail = function (id) {
-           $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
-            $(this).ajaxCall(controllerCalls.EmailTemplatePreview, { emailTemplateId: id })
+        var PreviewEmail = function (id) {
+            $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+            $(this).ajaxCall(controllerCalls.FinalMergedEmail, { emailTemplateId: id })
                 .success(function (data) {
                     $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.message));
                 }).error(
                     function () {
                         $(this).displayError(messages.errorMessages.LoadEmailPreviewError);
                     });
-        }
+        };
+
+       var PreviewMergedEmail = function (noticeBatchDetailId) {
+           $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+
+           //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
+           $(this).ajaxCall(controllerCalls.FinalMergedEmail, { noticeBatchDetailId: noticeBatchDetailId })
+                       .success(function (data) {                           
+                           $(UIObject.controls.div.EmailTemplateBodyDiv).html(data);
+                       }).error(
+                       function () {
+                           $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                       });
+
+           //$(this).ajaxCall(controllerCalls.FinalMergedEmail, { noticeBatchDetailId: noticeBatchDetailId })
+           //    .success(function (data) {
+           //        //var templateData = decodeURIComponent(data.message);
+           //        //$(UIObject.controls.div.EmailTemplateBodyDiv).html(templateData + "<div><h5>Manufacturer</h5></div>");
+           //        $(UIObject.controls.div.EmailTemplateBodyDiv).html(data);
+           //    }).error(
+           //        function () {
+           //            $(this).displayError(messages.errorMessages.LoadEmailPreviewError);
+           //        });
+       }
 
        function initializeMultiSelectCheckboxes(obj) {
            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -724,7 +725,8 @@
             LoadNotificationPopUp: LoadNotificationPopUp,
             InitializePopUpDetailDynamic: InitializePopUpDetailDynamic,
             LoadNotificationBatchItems: LoadNotificationBatchItems,
-            PreviewEmail : PreviewEmail,
+            PreviewEmail: PreviewEmail,
+            PreviewMergedEmail:PreviewMergedEmail,
             displayNotificationPopUp: displayNotificationPopUp,
             EditNotification: EditNotification,
             DifferentiateNewOrEdit:DifferentiateNewOrEdit,
