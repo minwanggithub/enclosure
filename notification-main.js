@@ -597,7 +597,7 @@
 
         var PreviewEmail = function (id) {
             $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
-            $(this).ajaxCall(controllerCalls.FinalMergedEmail, { emailTemplateId: id })
+            $(this).ajaxCall(controllerCalls.EmailTemplatePreview, { emailTemplateId: id })
                 .success(function (data) {
                     $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.message));
                 }).error(
