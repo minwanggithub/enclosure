@@ -22,21 +22,23 @@
 
             containers: {
                 NewNotification: "#pnlNewNotification",
-                NotificationModalPopup: "#NotificationModalPopup"
+                NotificationModalPopup: "#NotificationModalPopup",
+                NotificationGrid: "#NotificationGrid"
             },
 
             controls: {
                 grids: {
                     GridSearchNoticeBatch: "#gdSearchNoticeBatch",
                     GridNotificationAttachment: "#gdNotificationAttachment",
-                    GridNotificationBatchItems: "#gdNoticeBatchItems"
+                    GridNotificationBatchItems: "#gdNoticeBatchItems",
                 },
 
                 buttons: {
                     ClearRequestSearchButton: "#clearRequestSearchBtn",
                     SearchRequestsButton: "#searchRequestBtn",
                     EditSave: "#btnEditSaveNotification",
-                    EditCancel: "#btnEditCancelNotification"
+                    EditCancel: "#btnEditCancelNotification",
+                    RemoveNotificationBatchItemsButton: "#btnRemoveItems"
                 },
 
                 dropdownlists: {
@@ -101,7 +103,7 @@
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },            
             warningMessages:{
-                confirmAttachmentDelete : "Are you sure you want to delete the selected item?"
+                confirmAttachmentDelete : "Are you sure you want to delete the selected item(s)?"
             },
             errorMessages: {
                 SearchFailure: "Search failure",
@@ -215,16 +217,22 @@
             kendo.bind(UIObject.sections.searchSection(), viewModel);
         };
 
-        $("#NotificationGrid").on("click", "#btnRemoveItems", function () {
+        $(UIObject.containers.NotificationGrid).on("click", UIObject.controls.buttons.RemoveNotificationBatchItemsButton, function () {
+            var args = {
+                header: 'Confirm Notification Remove Batch Items',
+                message: messages.warningMessages.confirmAttachmentDelete
+            };
+           
             if (typeof selectedRequests !== 'undefined' && selectedRequests.length > 0) {
-                $(this).ajaxCall(controllerCalls.RemoveNoticeBatchItems, { ids: selectedRequests })
-                               .success(function (data) {
-                                LoadNotificationBatchItems();
-                            }).error(
-                               function () {
-                                   $(this).displayError(messages.errorMessages.SearchFailure);
-                               });
-
+                DisplayConfirmationModal(args, function () {
+                    $(this).ajaxCall(controllerCalls.RemoveNoticeBatchItems, { ids: selectedRequests })
+                        .success(function() {
+                            LoadNotificationBatchItems();
+                        }).error(
+                            function() {
+                                $(this).displayError(messages.errorMessages.SearchFailure);
+                            });
+                });
             } else
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             return false;
