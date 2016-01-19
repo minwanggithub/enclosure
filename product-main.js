@@ -54,7 +54,13 @@
                     HiddenStatusNotes: "#hdnStatusNotes"
 
                 },
-                dropdownlists: { ProductStatus: "#ddlProductStatus", PhysicalState: "#ddlPhysicalState"},
+                dropdownlists: {
+                    ProductStatus: "#ddlProductStatus",
+                    PhysicalState: "#ddlPhysicalState",
+                    ProductScope: "#ddlProductScope"
+                    
+                },
+
                 divs: {NewProductDetail: "#divNewProductDetail"}
             }
         }
@@ -296,6 +302,7 @@
                 selectedSuppilerId = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().substring(0, $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(','));
             var selectedSuppilerName = $(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().substring($(productObject.controls.textBoxes.SupplierId + "_" + activeSaveButton).val().indexOf(',') + 1);
             var selectedStatusId = $(productObject.controls.dropdownlists.ProductStatus + "_" + activeSaveButton).data('kendoDropDownList').value();
+            var selectedProductScopeId = $(productObject.controls.dropdownlists.ProductScope + "_" + activeSaveButton).data('kendoDropDownList').value();
             var selectedPhysicalStateId = $(productObject.controls.dropdownlists.PhysicalState + "_" + activeSaveButton).data('kendoDropDownList').value();
             var selectedPhysicalStateText = selectedPhysicalStateId ? $(productObject.controls.dropdownlists.PhysicalState + "_" + activeSaveButton).data('kendoDropDownList').text() : 'Unknown';
             var productId = $(productObject.controls.textBoxes.ProductId + "_" + activeSaveButton).val();
@@ -307,6 +314,7 @@
                         ObtainmentNote: $(productObject.controls.textBoxes.ObtainmentNote + "_" + activeSaveButton).val(),
                         XReferenceNote: $(productObject.controls.textBoxes.ReferenceNote + "_" + activeSaveButton).val(),
                         SelectedStatusId: selectedStatusId,
+                        SelectedProductScopeId: selectedProductScopeId,
                         StatusNotes: $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton).val(),
                         SelectedPhysicalStateId: selectedPhysicalStateId,
                         PhysicalStateText: selectedPhysicalStateText
@@ -843,6 +851,7 @@
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
             onProductStatusChange: onProductStatusChange,
             onProductStatusGridChange: onProductStatusGridChange,
+            onProductScopeChange:onProductScopeChange,
             panelbar_activated: panelbar_activated,
             panelbar_collapse: panelbar_collapse,
             panelbar_expand: panelbar_expand,
