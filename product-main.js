@@ -465,6 +465,13 @@
             BindingSaveCancel(elemId);
         };
 
+
+        var onProductScopeChange = function () {
+            var elemId = this.element.attr('id');
+            elemId = elemId.replace('ddlProductScope_', '');
+            BindingSaveCancel(elemId);
+        };
+
         var onProductPhysicalStateChange = function() {
             var elemId = this.element.attr('id');
             elemId = elemId.replace('ddlPhysicalState_', '');
