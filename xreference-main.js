@@ -91,7 +91,7 @@
                 UserRequiredToAssign: "User required to assign selected request item(s)",
                 SelectFilter: "A filter must be selected to execute a search",
                 NoItemsSelected: "No items have been selected",
-                NoProductSelected: "No product has been selected",
+                NoProductSelected: "Invalid Product",
                 NoSupplierSelected: "No supplier has been selected",
                 NoCustomerActionSelected: "No customer action has been specified",
                 NoPendingActionSelected: "No action has been specified",
@@ -371,7 +371,7 @@
                  $(actionModals.Resolve).toggleModal();
                  $(this).displayError(messages.errorMessages.NoItemsSelected);
              } else {
-                if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0) {
+                if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0 && $("#lblProductName").text().length > 0 && $("#lblSupplierName").text().length > 0) {
                      var data = { };
                      data['ids'] = selectedRequests;
                      data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
@@ -733,7 +733,8 @@
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
                                 $("#hdnSupplier").val("").trigger('change');
-
+                                $("#lblProductName").text("");
+                                $("#lblSupplierName").text("");
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
