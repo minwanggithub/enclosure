@@ -53,7 +53,8 @@
                 textbox: {
                     AccountId: "#txtEditAccountId",
                     NoticeBatchId: "#txtEditNoticeBatchId",
-                    NumberOfItemsTextBox: "#numberOfItems"
+                    NumberOfItemsTextBox: "#numberOfItems",
+                    EmailSubject:"#txtEditEmailSubject"
                 },
 
                 datepickers: {
@@ -70,6 +71,7 @@
                 ObtainmentIndex: "ObtainmentIndex",
                 AccountIdArray: "AccountIdArray",
                 EmailTemplateId: "EmailTemplateId",
+                EmailSubject: "EmailSubject",
                 NotificationStatusId: "NotificationStatusId",
                 ScheduledDate: "ScheduledDate",
                 ActualSendDate: "ActualSendDate",
@@ -116,7 +118,9 @@
                 ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send.",
                 ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent.",
                 LoadEmailPreviewError: "Unable to load email template preview.",
-                NoItemsSelected: "No items have been selected"
+                NoItemsSelected: "No items have been selected",
+                EmailSubjectMissing: "Email subject missing.",
+                MissingNoticeNumber: "Notice number token missing from email subject line."
             }
         };
         
@@ -130,6 +134,7 @@
                 NotificationStatusId: 0,
                 ScheduledDate: null,
                 ActualSendDate: null,
+                EmailSubject:"",
 
                 HasCriteria: function (e) {
                     var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0 
@@ -138,12 +143,14 @@
                                         || this.get(UIObject.observable.EmailTemplateId) > 0
                                         || this.get(UIObject.observable.NotificationStatusId) > 0
                                         || this.get(UIObject.observable.ScheduledDate) != null
+                                        || this.get(UIObject.observable.EmailSubject) != ""
                                         || this.get(UIObject.observable.ActualSendDate) != null)
                     return fieldCheck;
                 },
                 SearchClick : function (e) {
                         //e.preventDefault();
-                        this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
+                    this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " +
+                            UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
                             return parseInt(item, 10);
                         }));
                         var nofield = this.HasCriteria();
@@ -152,6 +159,7 @@
                         }
                         else {
                             kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                            
                             SearchNotification(JSON.stringify(this));
                             //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
                             //       .success(function (data) {
@@ -169,6 +177,7 @@
                         this.set(UIObject.observable.ObtainmentList, null);
                         this.set(UIObject.observable.AccountIdArray,"");
                         this.set(UIObject.observable.EmailTemplateId, 0);
+                        this.set(UIObject.observable.EmailSubject, "");
                         this.set(UIObject.observable.NotificationStatusId, 0);
                         this.set(UIObject.observable.ScheduledDate, null);
                         this.set(UIObject.observable.ActualSendDate, null);
@@ -318,6 +327,7 @@
                 NextStepId: Number($(UIObject.controls.dropdownlists.EditNextStep).data("kendoDropDownList").value()),
                 NotificationStatusId: Number($(UIObject.controls.dropdownlists.EditNoticeStatus).data("kendoDropDownList").value()),
                 EmailTemplateId: Number($(UIObject.controls.dropdownlists.EditEmailTemplate).data("kendoDropDownList").value()),
+                EmailSubject: $(UIObject.controls.textbox.EmailSubject).val(),
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
                 AccountIdArray: $(UIObject.controls.textbox.AccountId).val(),
@@ -325,7 +335,8 @@
 
                 MissingRequired: function () {
                     return (this.NextStepId == 0) || (this.NotificationStatusId == 0)
-                        || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)                        
+                        || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)
+                        || (this.EmailSubject == "")
                         || (this.ObtainmentList.length == 0);
                 },
 
@@ -337,12 +348,19 @@
 
                 DisallowInformationChange: function () {
                     return (noticeModel.NotificationStatusId == 3 || noticeModel.NotificationStatusId == 4);
+                },
+
+                MissingNoticeNumber : function() {
+                    var subject = (this.EmailSubject + "").toUpperCase();
+                    return (subject.indexOf("||NOTICENUMBER||") < 0);
                 }
             };
-            
+
+            //alert(JSON.stringify(noticeModel));
+
             //Add this attachment to model
             if (noticeModel.MissingRequired()) {
-                $(this).displayError(messages.errorMessages.NoCriteria);
+                $(this).displayError(messages.errorMessages.MissingRequiredFields);
                 return;
             };
             
@@ -355,6 +373,12 @@
                 $(this).displayError(messages.errorMessages.ReasonForNotAllowChange);
                 return;
             };
+
+            if (noticeModel.MissingNoticeNumber()) {
+                $(this).displayError(messages.errorMessages.MissingNoticeNumber);
+                return;
+            };
+
 
             noticeModel.NotificationAttachment = notificatonAttachments;
 
@@ -395,6 +419,7 @@
                 ObtainmentIndex: null,
                 AccountId: "",
                 EmailTemplateId: 0,
+                EmailSubject : "",
                 NotificationStatusId: 0,
                 ScheduledDate: null,
                 ActualSendDate: null,
@@ -402,7 +427,8 @@
                 RequiredCheck: function (e) {
                     var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0 
                                         && (this.get(UIObject.observable.ObtainmentIndex)).length > 0                                        
-                                        && this.get(UIObject.observable.EmailTemplateId) > 0                                        
+                                        && this.get(UIObject.observable.EmailTemplateId) > 0
+                                        && this.get(UIObject.observable.EmailSubject) != ""
                                         && this.get(UIObject.observable.ScheduledDate) != null);
                                         
                     return fieldCheck;
