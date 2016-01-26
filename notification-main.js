@@ -248,8 +248,7 @@
         });
 
 
-        function SearchNotification(searchCriteria)
-        {
+        function SearchNotification(searchCriteria) {
             $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: searchCriteria })
                                  .success(function (data) {
                                      UIObject.sections.searchResultSection().html(data);
