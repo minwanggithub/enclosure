@@ -159,7 +159,17 @@
                         }
                         else {
                             kendo.ui.progress(UIObject.sections.searchResultSection(), true);
-                            
+                           
+                            //need to verify that dropdowns are set back to 0 instead of empty string if not selected this causes a Object Reference Exception
+                            if (this.NextStepId == "")
+                                this.NextStepId = 0;
+
+                            if (this.EmailTemplateId == "")
+                                this.EmailTemplateId = 0;
+
+                            if (this.NotificationStatusId == "")
+                                this.NotificationStatusId = 0;
+
                             SearchNotification(JSON.stringify(this));
                             //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
                             //       .success(function (data) {
