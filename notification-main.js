@@ -148,7 +148,7 @@
                     return fieldCheck;
                 },
                 SearchClick : function (e) {
-                        //e.preventDefault();
+                    //e.preventDefault();
                     this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " +
                             UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
                             return parseInt(item, 10);
