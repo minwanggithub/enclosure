@@ -930,25 +930,20 @@
         function onNewDocumentPopUpSaveBtnClick(e) {
 
             e.preventDefault();
-
-            var formData = getNewDocumentData();
-
-            var data = new Object();
-            data.manufacturerId = formData.ManufacturerId;
-            data.productId = $(this).getQueryStringParameterByName("productid");
-            $(this).syncAjaxCall(controllerCalls.IsManufacturerProductionSelectionValid, data)
-                .success(function(response) {
-
-                    //console.log(response);
-
-                    var valid = true;
-                    if (!response.IsValid) valid = confirm("The selected manufacturer does not correspond to the product. Continue ?");
-                    //alert(valid);
-                    if (valid) saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
-
-                })
-                .error(function() {});
-
+            if ($(this).getQueryStringParameterByName("productid") != "") {
+                var formData = getNewDocumentData();
+                var data = new Object();
+                data.manufacturerId = formData.ManufacturerId;
+                data.productId = $(this).getQueryStringParameterByName("productid");
+                $(this).syncAjaxCall(controllerCalls.IsManufacturerProductionSelectionValid, data)
+                    .success(function(response) {
+                        var valid = true;
+                        if (!response.IsValid) valid = confirm("The selected manufacturer does not correspond to the product. Continue ?");
+                        if (valid) saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
+                    })
+                    .error(function() {});
+            } else
+                saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
 
         }
 
