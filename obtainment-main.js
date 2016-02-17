@@ -43,7 +43,9 @@
                     CloseRequestCancelButton: "#btnCancelCloseRequest",
                     SuperSupplierEmailButton: "#btnSuperMail",
                     btnCancelSuperEmailButton: "#btnCancelSuperEmail",
-                    btnSendSuperEmailButton: "#btnSendSuperEmail"
+                    btnSendSuperEmailButton: "#btnSendSuperEmail",
+                    btnCancelConfirmNotAvailable: "#btnCancelConfirmNotAvailable",
+                    btnSaveConfirmNotAvailable: "#btnSaveConfirmNotAvailable"
 
                 },
                 textBoxes: {
@@ -95,7 +97,8 @@
             CloseRequest: "#mdlCloseRequest",
             ViewHistory: "#mdlViewHistory",
             AccountInfo: "#mdlViewAccount",
-            SuperMail: "#mdlSuperEmail"
+            SuperMail: "#mdlSuperEmail",
+            ConfirmNotAvailable: "#mdlConfirmNotAvailable"
         };
 
         var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
@@ -115,10 +118,11 @@
             GetContactList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactList",
             GetContactPhoneList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactPhoneList",
             GetSupplierPortalUrl: GetEnvironmentLocation() + "/Operations/Company/GetCompliSupplierPortalUrl",
+            SaveConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveConfirmNotAvailable",
 
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
-        var obtainmentActions = { Empty: "", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var obtainmentActions = { Empty: "", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             successMessages: {
                 Saved: "Saved Successful",
@@ -358,6 +362,11 @@
             $(actionModals.FollowUp).toggleModal();
         });
 
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnCancelConfirmNotAvailable, function () {
+            $(actionModals.ConfirmNotAvailable).toggleModal();
+
+        });
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogWebSearchCancelButton, function () {
             $(actionModals.LogWebSearch).toggleModal();
         });
@@ -434,6 +443,10 @@
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "NotRequired", actionModals.NotRequired);
         });
 
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnSaveConfirmNotAvailable, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "ConfirmNotAvailable", actionModals.ConfirmNotAvailable);
+        });
+
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
             ShowHistory(this.id, null);
@@ -448,7 +461,6 @@
             e.preventDefault();
             ShowAccount(this.id, null);
         });
-
 
         function SetSuperEmailDefault(supplierUrl)
         {
@@ -824,8 +836,15 @@
                     $("#dvCustomerAction").show();
                     $(actionModals.CloseRequest).displayModal();
                     break;
-                    }
-                    }
+
+                case obtainmentActions.ConfirmNotAvailable:
+                    SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
+                    $("#lblTitle").text("Confirm not available");
+                    $("#dvConfirmNotAvailable").show();
+                    $(actionModals.ConfirmNotAvailable).displayModal();
+                    break;
+               }
+        }
 
         function onChangeContactName() {
 
@@ -952,7 +971,7 @@
 
         var onLoadChanged =  function (e) {
             var count = $("#gdRequests").data("kendoGrid").dataSource.total();
-            alert(count);
+            //alert(count);
 
             var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
@@ -1055,6 +1074,11 @@
             if (actionName == "CustomerAction") {
                 actionName = "CloseRequest";
                 customerAction = true;
+            }
+
+            if (actionName == "ConfirmNotAvailable") {
+                alert("Save ConfirmNotAvailable");
+                return;
             }
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
