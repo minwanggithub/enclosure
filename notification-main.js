@@ -292,6 +292,7 @@
         var LoadNotificationPopUp = function (noticeBatchId) {
             $(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: noticeBatchId })
                          .success(function (data) {
+                             notificatonAttachments =[];
                              UIObject.sections.noticeDetailSection().html(data);
                          }).error(
                          function () {
