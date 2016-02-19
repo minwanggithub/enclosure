@@ -19,9 +19,11 @@
         var updateStatusLayoutCallback;
         var productObject = {
             controls: {
-                grids: { GridProductDocuments: "#gdProductDocuments", GridSearchProduct: "#gdSearchProduct", GridProductStatusHistory: "#grdProductStatusHistory", GridSearchSupplier: "#gdSearchSupplier" },
+                grids: { GridProductDocuments: "#gdProductDocuments", GridSearchProduct: "#gdSearchProduct", GridProductStatusHistory: "#grdProductStatusHistory", GridSearchSupplier: "#gdSearchSupplier", GridNotAvailable: "#gdNotAvailable" },
                 buttons: {
                     AddDocToProduct: "#btnAddDocToProduct",
+                    AddNotAvailable: "#btnAddNotAvailable",
+                    SaveNotAvailable: "#btnSaveNotAvailable",
                     ClearProductBtn: "#clearProductBtn",
                     SearchSupplier: "#searchSupplierIdSelect",
                     CancelSupplierSearch: "#btnCancelSupplierSearch",
@@ -48,6 +50,9 @@
                     ProductSearchProductId: "#txtSearchProductId",
                     ProductSearchProductName: "#txtProductSearchProductName"
                 },
+                checkBox: {
+                    Obsolete: "#chkIsObsolete"
+                },
                 hiddenTextBoxes: {
                     HiddenSupplierName: "#hdnSupplierName",
                     HiddenProductName: "#hdnProductName",
@@ -57,11 +62,12 @@
                 dropdownlists: {
                     ProductStatus: "#ddlProductStatus",
                     PhysicalState: "#ddlPhysicalState",
-                    ProductScope: "#ddlProductScope"
-                    
+                    ProductScope: "#ddlProductScope",
+                    ObtainmentType: "#ddlObtainmentType"
                 },
 
-                divs: {NewProductDetail: "#divNewProductDetail"}
+                divs: { NewProductDetail: "#divNewProductDetail" },
+                labels: { ProductFull: "#lblProductName"}
             }
         }
         var controllerCalls = {
@@ -74,12 +80,15 @@
             GetStatusAction: GetEnvironmentLocation() + "/Configuration/ProductManager/GetStatusAction",
             SaveProduct: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveProduct",
             AttachDocRevToProd: GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd',
-            IfExistsDocRev: GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev'
+            IfExistsDocRev: GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev',
+            SaveObtainmentNotAvailable: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveObtainmentNotAvailable"
         }
+        var actionModals = { NotAvailable: "#mdlNotAvailable" }
         var messages = {
             confirmationMessages: {
                 RemoveThisDocument: "Are you sure you want to delete this document from product?",
-                ProductChangesReverted: "All product changes will be reverted. Are you sure you would like to reload the product?"
+                ProductChangesReverted: "All product changes will be reverted. Are you sure you would like to reload the product?",
+                ObtainmentTypeSaved: "Obtainment Type Not Avaialbe Saved Succesfully"
             },
             errorMessages:{
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
@@ -91,9 +100,18 @@
                 SelectDocumentsToDelete: 'Please select document(s) to delete.',
                 CompletedAttachDocToProd: 'Finish attaching existing document to product.',
                 ErrorAttachDocToProd: 'Cannot attach Document to product.',
-                ErrorAtIfExistsDocRev: 'Error at action IfExistsDocRev.'
+                ErrorAtIfExistsDocRev: 'Error at action IfExistsDocRev.',
+                ObtainmentTypeError: "Obtainment Type needs to be selected.",
+                ObtianmentTypeAlreadyAdded: "Obtainment Type has already been added"
             }
         }
+
+        var notAvailableModel = {
+            ObtainmentLkpID: 0,
+            ProductID: 0,
+            Obsolete: false
+        };
+
 
         function deactivateLayout(productId) {
             // Sanity check!
@@ -165,6 +183,15 @@
 
         function displaySingleDocument(documentObj) {
             window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");
+        }
+
+        var ModifyNotAvailable = function(e) {
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var pKey = dataItem["ProductID"];
+            $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Save Obtainment Type");
+            $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+            var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList").value(dataItem["ObtainmentLkpID"]);
+            $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", dataItem["Obsolete"]);
         }
 
         var DeleteDoc = function (e) {
@@ -549,6 +576,15 @@
 
             UnBindingSaveCancel(pKey);
 
+            $(productObject.controls.buttons.AddNotAvailable + "_" + pKey).on("click", function () {
+                $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Add Obtainment Type");
+                var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
+                ddlObtainmentType.select(0);
+               $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", false);
+               $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+            });
+
+
             $(productObject.controls.buttons.RefreshProduct + '_' + pKey).on('click', function () {
                 var tabId = "#" + pKey + "_tbProductDetail";
 
@@ -579,6 +615,36 @@
                     });
                 }
             });
+
+            $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).on("click", function () {
+                var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
+
+                notAvailableModel.ProductID = pKey;
+                notAvailableModel.ObtainmentLkpID = ddlObtainmentType.value() === "" ? 0 : ddlObtainmentType.value();
+                notAvailableModel.Obsolete = $(productObject.controls.checkBox.Obsolete + "_" + pKey).is(":checked");
+                if (notAvailableModel.ObtainmentLkpID > 0) {
+                    $(this).ajaxCall(controllerCalls.SaveObtainmentNotAvailable, { jsnotAvailableModel: JSON.stringify(notAvailableModel) })
+                   .success(function (data) {
+                       if (data == 0) {
+                           $(this).savedSuccessFully(messages.confirmationMessages.ObtainmentTypeSaved);
+                           var grid1 = $(productObject.controls.grids.GridNotAvailable + "_" + pKey).data("kendoGrid");
+                           grid1.dataSource.read();
+                           grid1.dataSource.page(1);
+                           $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                       } else {
+                           $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                           $(this).displayError(messages.errorMessages.ObtianmentTypeAlreadyAdded);
+                       }
+                               
+                        }).error(
+                   function () {
+                       $(this).displayError(messages.errorMessages.GeneralError);
+                   });
+                } else
+                    $(this).displayError(messages.errorMessages.ObtainmentTypeError);
+
+            });
+
 
             //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function () {
@@ -845,6 +911,7 @@
         return {
             BindingSaveCancel: BindingSaveCancel,
             DeleteDoc: DeleteDoc,
+            ModifyNotAvailable:ModifyNotAvailable,
             displaySingleDocument: displaySingleDocument,
             initializeProductDetailControls: initializeProductDetailControls,
             intializeSearchHistoryControls: intializeSearchHistoryControls,
