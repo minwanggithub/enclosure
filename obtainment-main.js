@@ -838,7 +838,7 @@
                     break;
 
                 case obtainmentActions.ConfirmNotAvailable:
-                    SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
+                    SetNextStep(nextStepsValues.Completed, "ConfirmNotAvailable", false);
                     $("#lblTitle").text("Confirm not available");
                     $("#dvConfirmNotAvailable").show();
                     $(actionModals.ConfirmNotAvailable).displayModal();
@@ -1076,10 +1076,10 @@
                 customerAction = true;
             }
 
-            if (actionName == "ConfirmNotAvailable") {
-                alert("Save ConfirmNotAvailable");
-                return;
-            }
+            //if (actionName == "ConfirmNotAvailable") {
+            //    alert("Save ConfirmNotAvailable");
+            //    return;
+            //}
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
