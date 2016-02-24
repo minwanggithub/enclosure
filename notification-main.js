@@ -96,7 +96,9 @@
             DeleteNotificationBatch: GetEnvironmentLocation() + "/Operations/Notification/DeleteNotificationBatch",
             EmailTemplatePreview: GetEnvironmentLocation() + "/Configuration/EmailTemplate/Preview",
             FinalMergedEmail: GetEnvironmentLocation() + "/Operations/Notification/FinalMergedEmail",
-            RemoveNoticeBatchItems: GetEnvironmentLocation() + "/Operations/Notification/RemoveNoticeBatchItems"
+            RemoveNoticeBatchItems: GetEnvironmentLocation() + "/Operations/Notification/RemoveNoticeBatchItems",
+            AddNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/AddNewBatchAttachments",
+            RemoveNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/RemoveAttachmentsAlt",
         };
 
         var messages = {
@@ -603,11 +605,22 @@
         };
 
         function onAddNewFileBtnClick(e) {
+
+            // reset the kendo upload ajax call handler
+            $("#files").data("kendoUpload").options.async.saveUrl = controllerCalls.AddNewBatchAttachments;
+            $("#files").data("kendoUpload").options.async.removeUrl = controllerCalls.RemoveNewBatchAttachments;
+
             if (displayUploadModal) {
                 var notictBatchId = 0;                
-                    displayUploadModal(function () {
+                    displayUploadModal(
+
+                    /* argsCallbackFunc */
+                    function () {
                         return { noticeBatchId: notictBatchId};
-                    }, function (data) {
+                        },
+
+                    /* callbackFunc */    
+                    function (data) {
                         var attachmentMapping = [];
                         var item, index;
                         for (index = 0; index < data.length; index++) {
@@ -633,7 +646,8 @@
                         function () {
                             $(this).displayError(messages.errorMessages.SaveAttachmentFailure);
                         });
-                    }, false);
+                        },
+                        /* clearCacheOnConfirm */ false);
             }
             else
                displayError(documentMessages.errors.DocumentRevisionAttachmentData);            
