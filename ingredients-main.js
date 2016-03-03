@@ -82,7 +82,6 @@
             var form = $('#ingredientForm');
             var validator = retrieveIngredientValidator();
             if (validator.validate()) {
-                debugger;
                 var url = form.attr("action");
                 var formdata = {};
                 formdata['overrideDuplicate'] = overrideDuplicate;
