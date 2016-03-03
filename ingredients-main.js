@@ -124,9 +124,13 @@
         }
 
         var onIngredientGeneralReady = function () {            
+            readonlyKendoDropDownList('IngredientTypeLkpID');
+
+            //Min Wang Changed on 3/3/2016
+            //Following cause an issue and not reusable, not sure why use it here
             //var ddl = ingredientDetailObj.find('#IngredientTypeLkpID');
             //if (ddl) {
-            //    //ddl.data("kendoDropDownList").readonly(true);
+            //    ddl.data("kendoDropDownList").readonly(true);
             //    ddl.data("kendoDropDownList")._inputWrapper.css({
             //        "background-color": "#eeeeee",
             //        "cursor": "not-allowed"
