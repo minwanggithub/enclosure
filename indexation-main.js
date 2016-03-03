@@ -445,7 +445,7 @@
             // Are any menu items selected?
             if (menu.find('a.idx-selected-section').length == 0) {
                 menu.find('a:first').addClass('idx-selected-section');
-        }
+            }
 
             menu.on("click", "a", onMenuItemClick);
         }
@@ -554,7 +554,6 @@
 
             indexationDetailObj.on("click", "#btnSaveIngredient", function (e) {
                 e.preventDefault();
-
                 var validator = retrieveIngredientValidator();
                 if (validator.validate()) {
                     var form = $("#ingredientForm");
@@ -651,9 +650,10 @@
                     // Initialize all button events
                     editorWindow.on("click", "#btnSaveIngredient", function(e) {
                         e.preventDefault();
-
                         var url = editorForm.attr("action");
+                        //formdata['overrideDuplicate'] = false;
                         var formData = editorForm.serialize();
+                        formData = formData + '&overrideDuplicate=false';
 
                         // Check if the form is valid
                         var validator = editorForm.kendoValidator().data("kendoValidator");
@@ -889,7 +889,7 @@
                 var editorWindow = $('#ingredientEditorWindow');
                 var url = "../Ingredient/GetIngredient";
                 var data = { ingredientId: 0 };
-
+                
                 if (editorWindow) {
 
                     $.ajax({

@@ -74,16 +74,15 @@
         };
 
         ingredientDetailObj.on("click", "#btnSaveIngredient", function (e) {
-            e.preventDefault();
+            e.preventDefault();            
             saveIngredient(false);
         });
 
         function saveIngredient(overrideDuplicate) {
-            
             var form = $('#ingredientForm');
             var validator = retrieveIngredientValidator();
             if (validator.validate()) {
-
+                debugger;
                 var url = form.attr("action");
                 var formdata = {};
                 formdata['overrideDuplicate'] = overrideDuplicate;
@@ -125,15 +124,15 @@
             }
         }
 
-        var onIngredientGeneralReady = function() {
-            var ddl = ingredientDetailObj.find('#IngredientTypeLkpID');
-            if (ddl) {
-                ddl.data("kendoDropDownList").readonly(true);
-                ddl.data("kendoDropDownList")._inputWrapper.css({
-                    "background-color": "#eeeeee",
-                    "cursor": "not-allowed"
-                });
-            }
+        var onIngredientGeneralReady = function () {            
+            //var ddl = ingredientDetailObj.find('#IngredientTypeLkpID');
+            //if (ddl) {
+            //    //ddl.data("kendoDropDownList").readonly(true);
+            //    ddl.data("kendoDropDownList")._inputWrapper.css({
+            //        "background-color": "#eeeeee",
+            //        "cursor": "not-allowed"
+            //    });
+            //}
         };
 
         // CAS Validation Methods
