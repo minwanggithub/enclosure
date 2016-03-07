@@ -90,6 +90,7 @@
             SearchNoticfication: GetEnvironmentLocation() + "/Operations/Notification/SearchNotification",
             LoadNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationTemplate",
             SaveNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/SaveNotificationTemplate",
+            ReDefineNotificationTemplate: GetEnvironmentLocation() + "/Operations/Notification/ReDefineNotificationTemplate",
             SaveExistingNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/SaveExistingNotificationAttachment",
             LoadNotificationAttachmentGrid: GetEnvironmentLocation() + "/Operations/Notification/LoadNotificationAttachmentGrid",
             DeleteNotificationAttachment: GetEnvironmentLocation() + "/Operations/Notification/DeleteAttachment",
@@ -107,7 +108,8 @@
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },            
             warningMessages:{
-                confirmAttachmentDelete : "Are you sure you want to delete the selected item(s)?"
+                confirmAttachmentDelete: "Are you sure you want to delete the selected item(s)?",
+                PromptForInformationChange: "Batch is ready to Send. If you modify any related informtion, the batch will be regenerated. Are you sure?",
             },
             errorMessages: {
                 SearchFailure: "Search failure",
@@ -117,8 +119,8 @@
                 LoadNewNotificationFailure: "Can't not load new notification template.",
                 DeleteAttachmentFailure: "Can't not delete attachment ",
                 SaveAttachmentFailure: "Can't not save attachment ",
-                ReasonForNotAllowChange: "Batch can't be modified if the status is Sent or Ready to Send.",
-                ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent.",
+                ReasonForNotAllowChange: "Batch can't be modified if the status is Sent.",                
+                ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent.",                
                 LoadEmailPreviewError: "Unable to load email template preview.",
                 NoItemsSelected: "No items have been selected",
                 EmailSubjectMissing: "Email subject missing.",
@@ -126,8 +128,8 @@
             }
         };
         
-        var SearchBind = function () {
-            viewModel = kendo.observable({
+        var searchBind = function () {
+            var viewModel = kendo.observable({
                 NextStepId: 0,
                 ObtainmentList: null,
                 ObtainmentIndex: null,
@@ -139,70 +141,70 @@
                 EmailSubject:"",
 
                 HasCriteria: function (e) {
-                    var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0 
-                                        || (this.get(UIObject.observable.ObtainmentList)).length > 0
-                                        || this.get(UIObject.observable.AccountIdArray) != ""
-                                        || this.get(UIObject.observable.EmailTemplateId) > 0
-                                        || this.get(UIObject.observable.NotificationStatusId) > 0
-                                        || this.get(UIObject.observable.ScheduledDate) != null
-                                        || this.get(UIObject.observable.EmailSubject) != ""
-                                        || this.get(UIObject.observable.ActualSendDate) != null)
+                    var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0
+                        || (this.get(UIObject.observable.ObtainmentList)).length > 0
+                        || this.get(UIObject.observable.AccountIdArray) !== ""
+                        || this.get(UIObject.observable.EmailTemplateId) > 0
+                        || this.get(UIObject.observable.NotificationStatusId) > 0
+                        || this.get(UIObject.observable.ScheduledDate) != null
+                        || this.get(UIObject.observable.EmailSubject) !== ""
+                        || this.get(UIObject.observable.ActualSendDate) != null);
                     return fieldCheck;
                 },
                 SearchClick : function (e) {
                     //e.preventDefault();
                     this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " +
-                            UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
-                            return parseInt(item, 10);
-                        }));
-                        var nofield = this.HasCriteria();
-                        if (!this.HasCriteria()) {
-                            $(this).displayError(messages.errorMessages.NoCriteria);
-                        }
-                        else {
-                            kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                        UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
+                        return parseInt(item, 10);
+                    }));
+                    var nofield = this.HasCriteria();
+                    if (!this.HasCriteria()) {
+                        $(this).displayError(messages.errorMessages.NoCriteria);
+                    }
+                    else {
+                        kendo.ui.progress(UIObject.sections.searchResultSection(), true);
                            
-                            //need to verify that dropdowns are set back to 0 instead of empty string if not selected this causes a Object Reference Exception
-                            if (this.NextStepId == "")
-                                this.NextStepId = 0;
+                        //need to verify that dropdowns are set back to 0 instead of empty string if not selected this causes a Object Reference Exception
+                        if (this.NextStepId == "")
+                            this.NextStepId = 0;
 
-                            if (this.EmailTemplateId == "")
-                                this.EmailTemplateId = 0;
+                        if (this.EmailTemplateId == "")
+                            this.EmailTemplateId = 0;
 
-                            if (this.NotificationStatusId == "")
-                                this.NotificationStatusId = 0;
+                        if (this.NotificationStatusId == "")
+                            this.NotificationStatusId = 0;
 
-                            SearchNotification(JSON.stringify(this));
-                            //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
-                            //       .success(function (data) {
-                            //           UIObject.sections.searchResultSection().html(data);
-                            //       }).error(
-                            //       function () {
-                            //           $(this).displayError(errorMessages.SearchFailure);
-                            //       });
-                        }
-                    },
+                        SearchNotification(JSON.stringify(this));
+                        //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
+                        //       .success(function (data) {
+                        //           UIObject.sections.searchResultSection().html(data);
+                        //       }).error(
+                        //       function () {
+                        //           $(this).displayError(errorMessages.SearchFailure);
+                        //       });
+                    }
+                },
 
                 ClearClick: function (e) {
                     //e.preventDefault();
-                        this.set(UIObject.observable.NextStepId, 0);
-                        this.set(UIObject.observable.ObtainmentList, null);
-                        this.set(UIObject.observable.AccountIdArray,"");
-                        this.set(UIObject.observable.EmailTemplateId, 0);
-                        this.set(UIObject.observable.EmailSubject, "");
-                        this.set(UIObject.observable.NotificationStatusId, 0);
-                        this.set(UIObject.observable.ScheduledDate, null);
-                        this.set(UIObject.observable.ActualSendDate, null);
-                        $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
+                    this.set(UIObject.observable.NextStepId, 0);
+                    this.set(UIObject.observable.ObtainmentList, null);
+                    this.set(UIObject.observable.AccountIdArray,"");
+                    this.set(UIObject.observable.EmailTemplateId, 0);
+                    this.set(UIObject.observable.EmailSubject, "");
+                    this.set(UIObject.observable.NotificationStatusId, 0);
+                    this.set(UIObject.observable.ScheduledDate, null);
+                    this.set(UIObject.observable.ActualSendDate, null);
+                    $("#divSearchSection " + UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value([]);
 
-                        var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
-                        if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
-                            //searchResultGrid.dataSource.filter([]);
-                            searchResultGrid.dataSource.data([]);
-                            //searchResultGrid.dataSource.read();
-                        }
-                        //if ((null != noticeGrid()) && (noticeGrid().dataSource.total() > 0))
-                        //    noticeGrid().dataSource.data([]);
+                    var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                    if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
+                        //searchResultGrid.dataSource.filter([]);
+                        searchResultGrid.dataSource.data([]);
+                        //searchResultGrid.dataSource.read();
+                    }
+                    //if ((null != noticeGrid()) && (noticeGrid().dataSource.total() > 0))
+                    //    noticeGrid().dataSource.data([]);
                 },
 
                 AddNewClick: function (e) {
@@ -216,13 +218,13 @@
                     //var buttonElement = $(e.currentTarget);
 
                     //Dynamically load the popup
-                   // $(this).ajaxCall(controllerCalls.LoadNewNotification, { noticeBatchId: 0 })
-                   //             .success(function (data) {
-                   //                 UIObject.sections.noticeDetailSection().html(data);
-                   //                 displayNotificationPopUp();
-                   //             }).error(
-                   //             function () {
-                   //                 $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                    // $(this).ajaxCall(controllerCalls.LoadNewNotification, { noticeBatchId: 0 })
+                    //             .success(function (data) {
+                    //                 UIObject.sections.noticeDetailSection().html(data);
+                    //                 displayNotificationPopUp();
+                    //             }).error(
+                    //             function () {
+                    //                 $(this).displayError(errorMessages.LoadNewNotificationFailure);
                     //});
 
 
@@ -233,7 +235,7 @@
                     //    displayNotificationPopUp();
                     //}
 
-                },
+                }
             });
             kendo.bind(UIObject.sections.searchSection(), viewModel);
         };
@@ -358,8 +360,12 @@
                     return (selectedDate <= today);
                 },
 
-                DisallowInformationChange: function () {
-                    return (noticeModel.NotificationStatusId == 3 || noticeModel.NotificationStatusId == 4);
+                DisallowInformationChangeAfterSent: function () {
+                    return (noticeModel.NotificationStatusId == 4);
+                },
+
+                ConfirmOnInformationChange: function () {
+                    return (noticeModel.NotificationStatusId == 3);
                 },
 
                 MissingNoticeNumber : function() {
@@ -381,8 +387,44 @@
                 return;
             };
             
-            if (noticeModel.DisallowInformationChange()){
+            if (noticeModel.DisallowInformationChangeAfterSent()) {
                 $(this).displayError(messages.errorMessages.ReasonForNotAllowChange);
+                return;
+            };
+
+            if (noticeModel.ConfirmOnInformationChange()) {
+                var args = {
+                    header: 'Confirm to regenerate batch on information change',
+                    message: messages.warningMessages.PromptForInformationChange
+                };
+                           
+                DisplayConfirmationModal(args, function () {
+                    kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                    $(this).ajaxCall(controllerCalls.ReDefineNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
+                            .success(function (data) {
+                                if (data.success) {
+                                    $(this).savedSuccessFully(data.message);
+                                    hideNotificationPopUp();
+                                    noticeModel.NoticeBatchId = Number(data.Id);
+                                    if (data.isNew)
+                                        SearchNotification(JSON.stringify(noticeModel));
+                                    else {
+                                        var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                                        if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
+                                            searchResultGrid.dataSource.filter([]);
+                                            searchResultGrid.dataSource.data([]);
+                                        }
+                                    }
+                                }
+                                else {
+                                    $(this).displayError(data.message);
+                                }
+                            }).error(
+                            function () {
+                                $(this).displayError(errorMessages.SearchFailure);
+                            });
+                    kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+                });
                 return;
             };
 
@@ -765,7 +807,7 @@
        }
 
         return {
-            SearchBind: SearchBind,
+            SearchBind: searchBind,
             onNewNotificationPanelActivate: onNewNotificationPanelActivate,
             InitializeSearchResultGrid: InitializeSearchResultGrid,
             LoadNotificationAttachmentGrid: LoadNotificationAttachmentGrid,
