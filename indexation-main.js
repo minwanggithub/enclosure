@@ -12,12 +12,14 @@
         var indexationDetailObj = $("#IndexationDetail");
         var ingredientValidator = null;
         var settings = null;
+        var validationGeneral = true;
+        var validationMessage = "Validation failed for following sections:<br />";
+        var generalSave = false;
 
         // General indexation methods
         var loadIndexationPlugin = function(callbackSettings) {
             settings = callbackSettings;
             initializeMenu();
-
             $("#IndexationDetailPanel").kendoPanelBar({
                 select: function(e) {
                     setTimeout(function() {
@@ -80,8 +82,8 @@
             var currentNameOrNumber = e.model.NameOrNumber;
             var data = this.dataSource.data();
             $.each(data, function(i, row) {
-                if (row.NameNumberId != e.model.NameNumberId && currentNameOrNumber == row.NameOrNumber) {
-                    alert("Duplicates not allowed");
+                if (row.NameNumberId !== e.model.NameNumberId && currentNameOrNumber === row.NameOrNumber) {
+                    $(this).displayError("Duplicates not allowed");
                     e.preventDefault();
                     return false;
                 }
@@ -93,8 +95,8 @@
             var currentNameOrNumber = e.model.ReachUse;
             var data = this.dataSource.data();
             $.each(data, function(i, row) {
-                if (row.ReachUseId != e.model.ReachUseId && currentNameOrNumber == row.ReachUse) {
-                    alert("Duplicates not allowed");
+                if (row.ReachUseId !== e.model.ReachUseId && currentNameOrNumber === row.ReachUse) {
+                    $(this).displayError("Duplicates not allowed");
                     e.preventDefault();
                     return false;
                 }
@@ -102,7 +104,7 @@
             });
         };
 
-        var onSaveNonSdsIndexation = function(e) {
+        var onSaveNonSdsIndexation = function() {
             var nonIndexationObj = $('#NonSdsIndexingContent');
             nonIndexationObj.on("click", "#btnSaveNonSdsIndexing", function (e) {
                 e.preventDefault();
@@ -111,27 +113,23 @@
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    if (data.substring(0, 5) == "Error") {                        
+                    if (data.substring(0, 5) === "Error")
                         DisplayErrorNotification(data);
-                    }
-                    else {
-                        displaySavedMessage("NonSdsIndexation Saved.");
-                    }
+                    else
+                        $(this).displaySavedMessage("NonSdsIndexation Saved.");
+
                 });
             });
         }
 
         // Helper Methods
-        function displaySavedMessage(message) {
-            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(message);
-        }
-
+        
         function displayErrorMessage(message) {
-            if (settings && settings.onErrorCallback) {
+            if (settings && settings.onErrorCallback)
                 settings.onErrorCallback(message);
-            } else {
-                alert(message);
-            }
+            else
+                $(this).displayError(message);
+
         };
 
         function displaySuccessMessage(message) {
@@ -143,11 +141,10 @@
         };
 
         function displayKendoPopup(element) {
-            if (settings && settings.popupCallback && element) {
+            if (settings && settings.popupCallback && element)
                 settings.popupCallback(element);
-            } else {
-                displayErrorMessage('An error occurred displaying the popup');
-            }
+            else
+                $(this).displayError('An error occurred displaying the popup');
         }
 
         function confirmUserSelection(header, message, yesFunc, noFunc) {
@@ -160,9 +157,9 @@
         function operatorDropdownChange(selectedValue, fromDdl, toDdl, moreNeeded) {
             $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
 
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);
-            } else if (selectedValue == 8) {
+            } else if (selectedValue === 8) {
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", false);
             } else {
                 $("#" + fromDdl).prop("disabled", false);
@@ -177,37 +174,34 @@
 
         function concentrationTypeDropdownChange(selectedValue, affectedFields, moreNeeded) {
 
-            if (!affectedFields) {
+            if (!affectedFields)
                 return false;
-            }
 
-            var fieldEnabled = selectedValue == 4;
+
+            var fieldEnabled = selectedValue === 4;
             for (var idx = 0; idx < affectedFields.length; idx++) {
 
                 var currentDdl = $('#' + affectedFields[idx]).data("kendoDropDownList");
-                if (fieldEnabled == false) {
+                if (fieldEnabled === false)
                     currentDdl.select(0);
-                }
 
                 currentDdl.enable(fieldEnabled);
             }
 
-            if (moreNeeded) {
+            if (moreNeeded)
                 moreNeeded(selectedValue);
-            }
         }
 
         function onElementDisable(index, oldPropertyValue) {
-            if (oldPropertyValue == false) {
+            if (oldPropertyValue === false)
                 removeValidationToolTips(this);
-            }
         }
 
         function removeValidationToolTips(element) {
             var self = $(element);
 
             var parentValue = self.parents('.controls:first');
-            if (!parentValue || parentValue.length != 1) {
+            if (!parentValue || parentValue.length !== 1) {
                 if (self.is('[data-role="dropdownlist"]')) {
                     parentValue = self.parents('.k-dropdown');
                 } else if (self.parent().is('[class^="span"]')) {
@@ -235,7 +229,7 @@
 
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
-            return decimalVal == val;
+            return decimalVal === val;
         }
 
         function parseErrorMessage(data) {
@@ -263,10 +257,6 @@
             }
         }
 
-        function displayCreatedMessage(message) {
-            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(message);
-        }
-
         function initializeMultiSelectCheckboxes() {
             
             indexationDetailObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -278,9 +268,8 @@
                     var dataItem = kgrid.dataItem($(this).closest('tr'));
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
-                        if (selectedRow.length > 0) {
+                        if (selectedRow.length > 0)
                             grid.find('tr[data-uid="' + selectedRow.attr('data-uid') + '"]').addClass('k-state-selected');
-                        }
                     }
                 }
 
@@ -288,7 +277,7 @@
                 e.stopImmediatePropagation();
             });
 
-            indexationDetailObj.on("click", ".chkMasterMultiSelect", function(e) {
+            indexationDetailObj.on("click", ".chkMasterMultiSelect", function() {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
@@ -299,20 +288,18 @@
                         });
 
                         kgrid.refresh();
-
-                        // No items were found in the datasource, return from the function and cancel the current event
-                    } else {
+                    } else
                         return false;
-                    }
+
                 }
             });
         }
 
         function batchDeleteObjects(targetGrid, objName, url, data, completeCallback) {
 
-            if (!targetGrid || !objName || !url) {
+            if (!targetGrid || !objName || !url)
                 return false;
-            }
+
 
             var targetGridSelector = '#' + targetGrid;
             var grid = $(targetGridSelector).data("kendoGrid");
@@ -320,15 +307,13 @@
 
                 var selectedIds = new Array();
                 $.each(grid.dataSource.data(), function () {
-                    if (this.IsSelected == true) {
+                    if (this.IsSelected === true)
                         selectedIds.push(this.id);
-                    }
                 });
 
                 if (selectedIds.length > 0) {
-                    if (!data) {
+                    if (!data)
                         data = {};
-                    }
 
                     data['ids'] = selectedIds;
 
@@ -346,7 +331,7 @@
                                 onDisplayError('Deleting ' + objName + ' could not be completed');
                             }, success: function (successData) {
 
-                                if (successData.success == true) {
+                                if (successData.success === true) {
 
                                     // Uncheck the master select checkbox if checked
                                     var checkbox = $(grid.element).find('.chkMasterMultiSelect');
@@ -357,10 +342,10 @@
                                     grid = $(targetGridSelector).data("kendoGrid");
                                     grid.dataSource.read();
 
-                                    displayCreatedMessage('Delete Successful');
+                                    $(this).savedSuccessFully('Delete Successful');
 
                                 } else {
-                                    onDisplayError(successData.message);
+                                    $(this).displayError(successData.message);
                                 }
 
                             }, complete: function (compData) {
@@ -393,12 +378,12 @@
             },
             clearCache: function(tableName) {
                 this.cache[tableName] = {};
-            },
+            }
         };
 
         var onMultiDeleteGridDataBinding = function (e) {
             // Set the checkbox style only on rebind of the grid
-            if (e.action == "rebind") {
+            if (e.action === "rebind") {
                 var grid = $(e.sender.table.context);
                 if (grid.length > 0) {
                     var kgrid = grid.data("kendoGrid");
@@ -443,47 +428,106 @@
             });
 
             // Are any menu items selected?
-            if (menu.find('a.idx-selected-section').length == 0) {
+            if (menu.find('a.idx-selected-section').length === 0) {
                 menu.find('a:first').addClass('idx-selected-section');
             }
 
             menu.on("click", "a", onMenuItemClick);
         }
 
+        $("#btnIndexationGeneralSave").on("click", function() {
+            validationGeneral = true;
+            generalSave = true;
+            validationMessage = "";
+            //expand Identification Tab
+            var panelBarMain = $("#IndexationDetailPanel").data("kendoPanelBar");
+            panelBarMain.select(panelBarMain.element.children("li").eq(0));
+            var itemIdentification = panelBarMain.select();
+            panelBarMain.expand(itemIdentification);
+
+            //expand Physical
+            panelBarMain.select(panelBarMain.element.children("li").eq(2));
+            var itemPhysical = panelBarMain.select();
+            panelBarMain.expand(itemPhysical);
+
+            //expand Regulatory
+            panelBarMain.select(panelBarMain.element.children("li").eq(4));
+            var itemRegulatory = panelBarMain.select();
+            panelBarMain.expand(itemRegulatory);
+
+            //expand Fire Fighting
+            panelBarMain.select(panelBarMain.element.children("li").eq(7));
+            var itemFireFight = panelBarMain.select();
+            panelBarMain.expand(itemFireFight);
+
+            //Expand Regulatory American
+            var panelBarRegulatory = $("#IndexationRegPanel").data("kendoPanelBar");
+            panelBarRegulatory.select(panelBarRegulatory.element.children("li").eq(0));
+            var itemAmerican = panelBarRegulatory.select();
+            panelBarRegulatory.expand(itemAmerican);
+
+            //Expand Regulatory GHS
+            panelBarRegulatory.select(panelBarRegulatory.element.children("li").eq(3));
+            var itemGHS = panelBarRegulatory.select();
+            panelBarRegulatory.expand(itemGHS);
+
+
+            $("#btnSaveIdentification").click();
+            if (validationGeneral)
+                $("#btnSavePhyChemProperties").click();
+            if (validationGeneral)
+                $("#btnSaveRegAmerican").click();
+            if (validationGeneral)
+                $("#btnSaveRegulatoryGhs").click();
+            if (validationGeneral)
+                $("#btnSaveFireFighting").click();
+
+            //SaveGeneral();
+            if (!validationGeneral)
+                $(this).displayError(validationMessage + "" + "<br />Please navigate to the section(s) above to correct validation.");
+            else
+                $(this).savedSuccessFully("Indexation Saved");
+
+
+        });
+
         function onMenuItemClick(e) {
-            e.preventDefault();
+            if (e.currentTarget.id !== "btnIndexationGeneralSave") {
+                e.preventDefault();
+                // Reset all CSS class references
+                var self = $(this);
+                self.addClass("idx-selected-section");
+                self.parents('tr')
+                    .find('a')
+                    .not(self)
+                    .removeClass("idx-selected-section");
 
-            // Reset all CSS class references
-            var self = $(this);
-            self.addClass("idx-selected-section");
-            self.parents('tr')
-                .find('a')
-                .not(self)
-                .removeClass("idx-selected-section");
-
-            var menu = $(name);
-            var section = $('#IndexationDetailPanel').find('.k-header[name="' + self.data('section') + '"]');
-            if (section && menu) {
-                var yScrollTop = section[0].offsetTop - menu.height() - 15;
-                window.scrollTo(0, yScrollTop);
+                var menu = $(name);
+                var section = $('#IndexationDetailPanel').find('.k-header[name="' + self.data('section') + '"]');
+                if (section && menu) {
+                    var yScrollTop = section[0].offsetTop - menu.height() - 15;
+                    window.scrollTo(0, yScrollTop);
+                }
             }
         }
 
+      
         // Identification section methods
         function initializeIdentificationControls() {
-
             indexationDetailObj.on("click", "#btnSaveIdentification", function (e) {
                 e.preventDefault();
-
                 var validator = $("#FormIndexIdentification").kendoValidator().data("kendoValidator");
                 if (validator.validate()) {
                     var form = $("#FormIndexIdentification");
                     var url = form.attr("action");
                     var formData = form.serialize();
-                    $.post(url, formData, function(data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $.post(url, formData, function () {
+                        if (!generalSave)
+                            $(this).savedSuccessFully("Identification Saved");
                     });
                 } else {
+                    validationGeneral = false;
+                    validationMessage = "Identification<br />";
                     return false;
                 }
             });
@@ -504,8 +548,9 @@
             });
         };
 
+
         var onAttachmentRequestEnd = function (e) {
-            if (!e.response || e.response.length == 0) {
+            if (!e.response || e.response.length === 0) {
                 $('#AvailableAttachments').prev('span').find('.k-input').text('No attachments are available to view.');
                 $('#AvailableAttachments').data('kendoDropDownList').enable(false);
             }
@@ -526,7 +571,7 @@
                     window.destroy();
                 }
                 var indexationId = $("#IndexationId").val();
-                var url = '../Indexation/AddIngredient';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/AddIngredient';
                 $.post(url, { indexationId: indexationId },
                     function (data) {
                         $('#EditIngredient').html(data);
@@ -537,7 +582,7 @@
                 e.preventDefault();
                 batchDeleteObjects("GridIngredients"
                     , "ingredients"
-                    , "../Indexation/BatchDeleteIngredients"
+                    , GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteIngredients"
                     , null
                     , function () { $('#EditIngredient').empty(); });
             });
@@ -560,8 +605,8 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        if (data.result == "success") {
-                            displayCreatedMessage(data.message);
+                        if (data.result === "success") {
+                            $(this).savedSuccessFully(data.message);
                             $('#EditIngredient').empty();
                             if ($("#SearchIngredientWindow").length > 0) {
                                 var window = $("#SearchIngredientWindow").data("kendoWindow");
@@ -571,7 +616,12 @@
                             grid.dataSource.read();
                             return true;
                         } else {
-                            onDisplayError(data.message);
+                            $('#EditIngredient').empty();
+                            if ($("#SearchIngredientWindow").length > 0) {
+                                var window = $("#SearchIngredientWindow").data("kendoWindow");
+                                window.destroy();
+                            }
+                            $(this).displayErrorr(data.message);
                             return false;
                         }
                     });
@@ -582,36 +632,34 @@
 
             indexationDetailObj.on("keyup", "#CasNumber", function (e) {
                 var code = (e.keyCode ? e.keyCode : e.which);
-                if (code == 13) { //Search only on enter
-                    var url = '../Indexation/LookUpIngredientOnKeyEnter';
+                if (code === 13) { //Search only on enter
+                    var url = GetEnvironmentLocation() + '/Operations/Indexation/LookUpIngredientOnKeyEnter';
 
                     // Double check user input is an 'signed integer'
                     var ingCasNo = $("#CasNumber").val();
                     if (isValidInteger(ingCasNo)) {
                         var indexationId = $("#IndexationId").val();
-                        if (ingCasNo != '') {
+                        if (ingCasNo !== '') {
                             $.ajax({
                                 url: url,
                                 data: { ingCasNo: ingCasNo, indexationId: indexationId },
                                 type: "POST",
                                 success: function(data) {
-                                    if (data != '') {
+                                    if (data !== '') {
                                         onIngredientSelection(data);
                                     } else {
-                                        alert('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
+                                        $(this).displayError('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
                                         $('#CasNumber').val("");
                                     }
                                 }, 
                                 error: function () {
-                                    alert('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
+                                    $(this).displayError('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
                                     $('#CasNumber').val("");
                                 }
-
                             });
                         }
-                    } else {
-                        alert('Use a valid CasNumber to search.');
-                    }
+                    } else
+                        $(this).displayError('Use a valid CasNumber to search.');
                 }
             });
 
@@ -620,16 +668,14 @@
             });
 
             $(document).on("keyup", "#SearchIngredientWindow input", function(e) {
-                if (e.keyCode == 13) {
+                if (e.keyCode === 13)
                     $('#btnSearchIngredient').click();
-                }
             });
         }
 
         function initializeIngredientCreationControls(editorWindow) {
-            if (!editorWindow) {
+            if (!editorWindow)
                 return false;
-            }
 
             var editorForm = editorWindow.find("#ingredientForm");
             if (editorForm) {
@@ -643,9 +689,8 @@
                     });
 
                     var row = container.find(".row-fluid:first");
-                    if (row) {
+                    if (row)
                         container.append(row);
-                    }
 
                     // Initialize all button events
                     editorWindow.on("click", "#btnSaveIngredient", function(e) {
@@ -662,14 +707,14 @@
                             $.post(url, formData, function(data) {
                                 if (!data.Errors) {
                                     editorWindow.data('kendoWindow').close();
-                                    displayCreatedMessage("Ingredient Saved");
+                                    $(this).savedSuccessFully("Ingredient Saved");
 
                                     var grid = $('#gdIngredientsSearch').data("kendoGrid");
                                     grid.dataSource.read();
 
                                     return true;
                                 } else {
-
+                                    editorWindow.data('kendoWindow').close();
                                     var errorMessage = 'Error occured while saving the ingredient details';
                                     var keys = Object.keys(data.Errors);
                                     for (var idx = 0; idx < keys.length; idx++) {
@@ -679,8 +724,7 @@
                                             break;
                                         }
                                     }
-
-                                    displayErrorMessage(errorMessage);
+                                    $(this).displayError(errorMessage);
                                     return false;
                                 }
                             });
@@ -709,20 +753,18 @@
                         }
                     },
                     tovaluerequired: function(input) {
-                        if (!input.val()) {
+                        if (!input.val())
                             return ingredientToRequired;
-                        } else {
+                        else
                             return input.data('valNumber');
-                        }
                     },
                     ingredientsearch: function () {
                         var ingredientId = $('#ingredientForm').find('#IngredientId').val();
                         var cacheObj = ingredientCache.cache[ingredientId];
-                        if (cacheObj.searching) {
+                        if (cacheObj.searching)
                             return ingredientSearching;
-                        } else {
+                        else
                             return cacheObj.valid ? '' : ingredientMissing;
-                        }
                     },
                     validnumber: function (input) {
                         return input.data('valNumber');
@@ -731,22 +773,16 @@
                 rules: {
                     fromvaluerequired: function (input) {
                         if (input.is('[id="OperatorFrom"]')) {
-                            if (isValidDecimal(input.val())) {
+                            if (isValidDecimal(input.val()))
                                 return input.val() >= input.data('valRangeMin') || input.val() <= input.data('valRangeMax');
-                            } else {
+                            else
                                 return false;
-                            }
                         }
-
-                        // Nothing to see here
                         return true;
                     },
                     tovaluerequired: function (input) {
-                        if (input.is('[id="OperatorTo"]')) {
+                        if (input.is('[id="OperatorTo"]'))
                             return isValidDecimal(input.val());
-                        }
-
-                        // Nothing to see here
                         return true;
                     },
                     ingredientsearch: function (input) {
@@ -763,11 +799,10 @@
                                  url: validationUrl
                             };
 
-                            if (cacheObj.value == settings.ingredientId && cacheObj.valid) {
+                            if (cacheObj.value === settings.ingredientId && cacheObj.valid)
                                 return true;
-                            }
 
-                            if (cacheObj.value == settings.ingredientId && !cacheObj.valid) {
+                            if (cacheObj.value === settings.ingredientId && !cacheObj.valid) {
                                 cacheObj.searching = false;
                                 return false;
                             }
@@ -777,17 +812,13 @@
                             // Automatically set to false to display searching ingredient
                             return false;
                         }
-
-                        // Nothing to see here
                         return true;
                     },
                     validnumber: function (input) {
                         if (input.is('[id="AuthorizationNumber"]') || input.is('[id="RegistrationNumber"]')) {
-                            if (input.val()) {
+                            if (input.val())
                                 return isValidInteger(input.val());
-                            }
                         } 
-                        
                         return true;
                     }
                 }
@@ -851,21 +882,21 @@
                 e.preventDefault();
 
                 var grid = $("#gdIngredientsSearch").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    displayErrorMessage("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
 
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    displayErrorMessage("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
 
                 var window = $("#SearchIngredientWindow").data("kendoWindow");
                 window.close();
 
-                var url = '../Indexation/GetIndexationIngredient';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/GetIndexationIngredient';
                 var indexationId = $("#IndexationId").val();
                 var data = { ingredientId: selectedData.IngredientId, indexationId: indexationId };
                 $.post(url, data, onIngredientSelection);
@@ -887,7 +918,7 @@
                 e.preventDefault();
 
                 var editorWindow = $('#ingredientEditorWindow');
-                var url = "../Ingredient/GetIngredient";
+                var url = GetEnvironmentLocation() + "/Operations/Ingredient/GetIngredient";
                 var data = { ingredientId: 0 };
                 
                 if (editorWindow) {
@@ -906,15 +937,18 @@
                     });
 
                 } else {
-                    displayErrorMessage('An error occurred adding a new ingredient');
+                    editorWindow.data('kendoWindow').close();
+                    $(this).displayError('An error occurred adding a new ingredient');
                 }
+                    
+
             });
         };
 
         var onGridIngredientChange = function(e) {
             e.preventDefault();
             var selectedData = this.dataItem(this.select());
-            var url = '../Indexation/GetIngredientDetail';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/GetIngredientDetail';
             if ($("#SearchIngredientWindow").length > 0) {
                 var window = $("#SearchIngredientWindow").data("kendoWindow");
                 window.destroy();
@@ -927,16 +961,16 @@
         };
         
         var onGridIngredientRemove = function(e) {
-            if (e.type == "destroy") {
+            if (e.type === "destroy") {
                 $("#EditIngredient").html("");
             }
         };
 
         var onIngredientConcentrationChange = function(e) {
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue > 0) {
+            if (selectedValue > 0)
                 $("#SelectIngOperator").data("kendoDropDownList").enable(true);
-            } else {
+            else {
                 $("#SelectIngOperator").data("kendoDropDownList").select(0);
                 $("#SelectIngOperator").data("kendoDropDownList").enable(false);
 
@@ -984,7 +1018,6 @@
             // Overall PhyChem section
             indexationDetailObj.on("click", "#btnSavePhyChemProperties", function (e) {
                 e.preventDefault();
-
                 initializePhysicalChemicalValidator();
                 if(physicalChemicalValidator.validate()) {
                     var form = $("#FormPhyChemProperties");
@@ -992,28 +1025,30 @@
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
                         var errorMessage = parseErrorMessage(data);
-                        if (errorMessage) {
-                            onDisplayError(errorMessage);
-                        } else {
-                            displayCreatedMessage('Physical & Chemical Properties Saved');
+                        if (errorMessage)
+                            $(this).displayError(errorMessage);
+                        else {
+                            if (!generalSave)
+                                $(this).savedSuccessFully('Physical & Chemical Properties Saved');
                         }
                     });
                     return true;
                 } else {
+                    validationGeneral = false;
+                    validationMessage = validationMessage + "Physical & Chemical Properties<br />";
                     return false;
                 }
             });
 
             indexationDetailObj.on("change", "input[type=radio][name=SelectCoeffDistrib]", function () {
                 var selectedItem = $(this).val();
-                if (selectedItem == 3) {
+                if (selectedItem === 3)
                     $("#CoeffDistribEquals").prop("disabled", false);
-                } else {
+                else
                     $("#CoeffDistribEquals").val("").prop("disabled", true);
-                }
             });
 
-            indexationDetailObj.on("change", "#MiscibilityType", function (e) {
+            indexationDetailObj.on("change", "#MiscibilityType", function () {
                 var selectedValue = $(this).data("kendoDropDownList").value();
                 var affectedFields = ["MiscibilityWeight", "MiscibilityVolume"];
 
@@ -1022,7 +1057,7 @@
                 });
             });
 
-            indexationDetailObj.on("change", "#SolubilityWaterType", function (e) {
+            indexationDetailObj.on("change", "#SolubilityWaterType", function () {
                 var selectedValue = $(this).data("kendoDropDownList").value();
                 var affectedFields = ["SolubilityWaterWeight", "SolubilityWaterVolume"];
                 concentrationTypeDropdownChange(selectedValue, affectedFields, function(val) {
@@ -1030,7 +1065,7 @@
                 });
             });
 
-            indexationDetailObj.on("change", "#SolubilityOtherType", function (e) {
+            indexationDetailObj.on("change", "#SolubilityOtherType", function () {
                 var selectedValue = $(this).data("kendoDropDownList").value();
                 var affectedFields = ["SolubilityOtherWeight", "SolubilityOtherVolume"];
                 concentrationTypeDropdownChange(selectedValue, affectedFields, function (val) {
@@ -1080,21 +1115,19 @@
         }
 
         function boilingPointMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").select(0);
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").enable(false);
-            } else {
+            } else
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").enable(true);
-            }
         }
 
         function volatilityMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $('#SelectFromToVolatility').data("kendoDropDownList").select(0);
                 $('#SelectFromToVolatility').data("kendoDropDownList").enable(false);
-            } else {
+            } else
                 $('#SelectFromToVolatility').data("kendoDropDownList").enable(true);
-            }
         }
 
         function viscosity2MoreNeeded(selectedValue) {
@@ -1109,7 +1142,7 @@
                 $("#SelectAtViscosity").data("kendoDropDownList").enable(true);
                 $("#AtViscosity").prop("disabled", false);
 
-                if (selectedValue == 7) {
+                if (selectedValue === 7) {
                     $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
                     $("#SelectFromToViscosity").data("kendoDropDownList").enable(false);
                 }
@@ -1117,30 +1150,29 @@
         }
 
         function vocOperatorMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $('#SelectMuType').data("kendoDropDownList").select(0);
                 $('#SelectMuType').data("kendoDropDownList").enable(false);
                 $("#SelectWeightMu").data("kendoDropDownList").select(0);
                 $("#SelectWeightMu").data("kendoDropDownList").enable(false);
                 $("#SelectVolumeMu").data("kendoDropDownList").select(0);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
-            } else {
+            } else
                 $('#SelectMuType').data("kendoDropDownList").enable(true);
-            }
         }
 
         function onConcentrationChangeCallback(concentrationValue, valueField) {
             
             var textField = $('#' + valueField);
-            if (concentrationValue != 0) {
+            if (concentrationValue !== 0) {
                 var minValue = 0;
-                var maxValue = (concentrationValue == 4 || concentrationValue == 5) ? 999 : 100;
+                var maxValue = (concentrationValue === 4 || concentrationValue === 5) ? 999 : 100;
                 var errorMessage = 'The numeric value must be between ' + minValue + ' and ' + maxValue;
 
                 textField.attr({
                     'data-val-range-message': errorMessage,
                     'data-val-range-min': minValue,
-                    'data-val-range-max': maxValue,
+                    'data-val-range-max': maxValue
                 });
 
                 initializePhysicalChemicalValidator();
@@ -1167,9 +1199,9 @@
 
         var onViscosity1Change = function(e) {
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue == 1) {
+            if (selectedValue === 1)
                 $("#SelectViscosity2").data("kendoDropDownList").enable(true);
-            } else {
+            else {
                 $("#SelectViscosity2").data("kendoDropDownList").select(0);
                 $("#SelectViscosity2").data("kendoDropDownList").enable(false);
                 $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
@@ -1187,7 +1219,7 @@
 
         var onVocCodeChange = function (e) {
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue != 1) {
+            if (selectedValue !== 1) {
                 $("#SelectOperator").data("kendoDropDownList").select(0);
                 $("#SelectOperator").data("kendoDropDownList").enable(false);
                 $("#SelectParticularity").data("kendoDropDownList").select(0);
@@ -1212,7 +1244,7 @@
 
         var onVocMuTypeChange = function (e) {
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue == 4) {
+            if (selectedValue === 4) {
                 $("#SelectWeightMu").data("kendoDropDownList").enable(true);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(true);
 
@@ -1256,7 +1288,7 @@
 
                 batchDeleteObjects("GridTransportMode"
                     , "transport modes"
-                    , "../Indexation/BatchDeleteTransportModes"
+                    , GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteTransportModes"
                     , null
                     , function () { hideEditorSection("AddEditTransportMode"); });
             });
@@ -1268,22 +1300,19 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        var errorMessage = parseErrorMessage(data);
-                        if (errorMessage) {
-                            onDisplayError(errorMessage);
-                        } else {
-                            displayCreatedMessage('Transport Model Saved');
+                        if (data && data.Errors)
+                            $(this).displayError(parseErrorMessage(data));
+                        else {
+                            $(this).savedSuccessFully('Transport Model Saved');
                             hideEditorSection('AddEditTransportMode');
 
                             var grid = $('#GridTransportMode').data("kendoGrid");
                             grid.dataSource.read();
                         }
-
-                        return !errorMessage;
+                        return true;
                     });
-                } else {
+                } else
                     return false;
-                }
             });
 
             indexationDetailObj.on("click", "#btnDiscardTransportMode", function (e) {
@@ -1292,7 +1321,7 @@
             });
         }
 
-        var onGridTransportModeChange = function (e) {
+        var onGridTransportModeChange = function () {
             var selectedrows = this.select();
             if (selectedrows && selectedrows.length > 0) {
 
@@ -1300,7 +1329,7 @@
                 var transClass = this.dataSource.getByUid($(selectedrows[0]).data("uid"));
                 if (transClass) {
                     var ajaxdata = { indexationId: indexationObj.IndexationId, indexationTransportModeId: transClass.IndexationTransportModeId };
-                    var url = '../Indexation/EditTransportMode';
+                    var url = GetEnvironmentLocation() + '/Operations/Indexation/EditTransportMode';
 
                     $.ajax({
                         type: "POST",
@@ -1309,38 +1338,38 @@
                         success: function(data) {
                             $('#AddEditTransportMode').html(data).show();
                         },
-                        error: function(data) {
-                            onDisplayError('An error occurred retrieving transport classification information');
+                        error: function() {
+                            $(this).displayError('An error occurred retrieving transport classification information');
                         }
                     });
-                } else {
+                } else
                     hideEditorSection('AddEditTransportMode');
-                }
-            } else {
+            } else
                 hideEditorSection('AddEditTransportMode');
-            }
         };
 
         var onGridTransportModeRequestComplete = function(e) {
-            if(e.type == "destroy") {
+            if(e.type === "destroy")
                 hideEditorSection('AddEditTransportMode');
-            }
         };
 
+       
         // American regulatory section methods
         function initializeAmericanControls() {
-
             indexationDetailObj.on("click", "#btnSaveRegAmerican", function (e) {
                 e.preventDefault();
                 var form = $("#FormRegAmerican");
                 if (form.valid()) {
                     var url = form.attr("action");
                     var formData = form.serialize();
-                    $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $.post(url, formData, function () {
+                        if (!generalSave)
+                            $(this).savedSuccessFully("Regulatory American Saved");
                     });
                     return true;
                 } else {
+                    validationGeneral = false;
+                    validationMessage = "Regulatory American<br />";
                     return false;
                 }
             });
@@ -1362,13 +1391,13 @@
             indexationDetailObj.on("click", "#btnSelectAmericanClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchAmericanClass").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -1392,24 +1421,24 @@
         }
 
         function addAmericaClassification(reference) {
-            var url = '../Indexation/AmericanClass_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/AmericanClass_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupAmericanClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var americanClassGrid = $("#GridRegAmerican").data("kendoGrid");
                     americanClassGrid.dataSource.read();
                 });
         }
 
         function addAmericaClassificationList(americaclasslists) {
-            var urlmultiple = '../Indexation/AmericanClass_CreateList';
+            var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/AmericanClass_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { classificationList: JSON.stringify(americaclasslists), indexationId: indexationId },
                 function (data) {
                     $("#popupAmericanClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var americanClassGrid = $("#GridRegAmerican").data("kendoGrid");
                     americanClassGrid.dataSource.read();
                 });
@@ -1418,10 +1447,8 @@
         var getSelectedPpe = function () {
             var selectedPpe = 0;
             var dropdownlist = $('#SelectHmisppe').data("kendoDropDownList");
-            if (dropdownlist) {
+            if (dropdownlist)
                 selectedPpe = dropdownlist.select();
-            }
-
             return { selectedPpe: selectedPpe };
         };
 
@@ -1450,19 +1477,19 @@
 
             indexationDetailObj.on("click", "#ancCanadaClassBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridRegCanadian", "Canadian classification", "../Indexation/BatchDeleteCanadianClassification");
+                batchDeleteIndexationObjects("GridRegCanadian", "Canadian classification", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteCanadianClassification");
             });
 
             indexationDetailObj.on("click", "#btnSelectCanadaClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchCanadaClass").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -1480,30 +1507,30 @@
                 addCanadaClassification(selectedData.Reference);
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchCanadaClass table tr", function (e) {
+            indexationDetailObj.on("dblclick", "#GridSearchCanadaClass table tr", function () {
                 searchGridDoubleClick("#GridSearchCanadaClass", "#btnSelectCanadaClass");
             });
         }
 
         function addCanadaClassification(reference) {
-            var url = '../Indexation/RegCanadian_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/RegCanadian_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupCanadaClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var canadaClassGrid = $("#GridRegCanadian").data("kendoGrid");
                     canadaClassGrid.dataSource.read();
                 });
         }
 
         function addCanadaClassificationList(canadaclasslists) {
-            var urlmultiple = '../Indexation/RegCanadian_CreateList';
+            var urlmultiple = GetEnvironmentLocation()  + '/Operations/Indexation/RegCanadian_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { classificationList: JSON.stringify(canadaclasslists), indexationId: indexationId },
                 function (data) {
                     $("#popupCanadaClassSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var canadaClassGrid = $("#GridRegCanadian").data("kendoGrid");
                     canadaClassGrid.dataSource.read();
                 });
@@ -1523,19 +1550,19 @@
 
             indexationDetailObj.on("click", "#ancReachUsesBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridReachUse", "reach uses", "../Indexation/BatchDeleteReachUses");
+                batchDeleteObjects("GridReachUse", "reach uses", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteReachUses");
             });
 
             indexationDetailObj.on("click", "#btnSelectRSPhrase", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchRSPhrase").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -1555,25 +1582,25 @@
 
             indexationDetailObj.on("click", "#ancRSPhraseBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridRegEuropeRSPhrase", "risk and safety phrases", "../Indexation/BatchDeleteRsPhrases"
+                batchDeleteIndexationObjects("GridRegEuropeRSPhrase", "risk and safety phrases", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteRsPhrases"
                     , function () {
                         var europeClassGrid = $("#GridRegEuropeClassification").data("kendoGrid");
                         europeClassGrid.dataSource.read();
                     });
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchRSPhrase table tr", function (e) {
+            indexationDetailObj.on("dblclick", "#GridSearchRSPhrase table tr", function () {
                 searchGridDoubleClick("#GridSearchRSPhrase", "#btnSelectRSPhrase");
             });
         }
 
         function addRsPhrase(reference) {
-            var url = '../Indexation/RSPhrase_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/RSPhrase_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupRSPhraseSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var rsPhraseGrid = $("#GridRegEuropeRSPhrase").data("kendoGrid");
                     var europeClassGrid = $("#GridRegEuropeClassification").data("kendoGrid");
                     rsPhraseGrid.dataSource.read();
@@ -1582,12 +1609,12 @@
         }
 
         function addRsPhraseList(rsphraselists) {
-            var urlmultiple = '../Indexation/RSPhrase_CreateList';
+            var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RSPhrase_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { rsPhraseList: JSON.stringify(rsphraselists), indexationId: indexationId },
                 function (data) {
                     $("#popupRSPhraseSearch").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var rsPhraseGrid = $("#GridRegEuropeRSPhrase").data("kendoGrid");
                     var europeClassGrid = $("#GridRegEuropeClassification").data("kendoGrid");
                     rsPhraseGrid.dataSource.read();
@@ -1604,9 +1631,9 @@
             var grid = popup.find('#GridSearchRSPhrase');
             if (grid) {
                 var datasource = grid.data('kendoGrid').dataSource;
-                if (clearGrid == true) {
+                if (clearGrid === true)
                     datasource.data([]);
-                } else {
+                else {
                     datasource.data([]);
                     datasource.read();
                     datasource.page(1);
@@ -1644,9 +1671,8 @@
                     popup.find("#searchRSPhrases").click();
                 });
             });
-
-            var url = '../Indexation/GetSearchRsPhrase';
-            $.post(url, function (data) {
+            
+            $.post(GetEnvironmentLocation() + '/Operations/Indexation/GetSearchRsPhrase', function (data) {
                 $("#dgRSPhrasePlugIn").html(data);
             });
         };
@@ -1682,12 +1708,15 @@
                     var form = $("#FormRegulatoryGHS");
                     var url = form.attr("action");
                     var formData = form.serialize();
-                    $.post(url, formData, function (data) {
-                        $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $.post(url, formData, function () {
+                        if (!generalSave)
+                            $(this).savedSuccessFully("Regulatory GHS Saved");
                     });
                     return true;
 
                 } else {
+                    validationGeneral = false;
+                    validationMessage = "GHS<br />";
                     return false;
                 }
             });
@@ -1698,18 +1727,18 @@
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridHazardClass"
                     , "hazard classes"
-                    , "../Indexation/BatchDeleteHazardClasses"
+                    , GetEnvironmentLocation() + "/Indexation/BatchDeleteHazardClasses"
                     , function () { hideEditorSection("AddEditHazardClass"); });
             });
 
             indexationDetailObj.on("change", "#HClassNotProvided", function () {
-                var url = '../Indexation/SaveHClassNotProvided';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/SaveHClassNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
                     $('#AddEditHazardClass').empty();
                     $.post(url, { hClassNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             var hClassGrid = $("#GridHazardClass").data("kendoGrid");
                             hClassGrid.dataSource.read();
                             $("#btnAddHazardClass, #ancHazardClassBatchDelete").addClass("k-state-disabled");
@@ -1718,7 +1747,7 @@
                 } else {
                     $.post(url, { hClassNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             $("#btnAddHazardClass, #ancHazardClassBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
                         });
@@ -1745,13 +1774,13 @@
             indexationDetailObj.on("click", "#btnSelectHazardClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchHazardClass").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 $("#popupHazardClass").modal("hide");
@@ -1768,7 +1797,7 @@
                 }
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchHazardClass table tr", function (e) {
+            indexationDetailObj.on("dblclick", "#GridSearchHazardClass table tr", function () {
                 searchGridDoubleClick("#GridSearchHazardClass", "#btnSelectHazardClass");
             });
 
@@ -1792,13 +1821,13 @@
             indexationDetailObj.on("click", "#btnSelectHazardCategory", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchHazardCategory").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 $("#popupHazardCategory").modal("hide");
@@ -1815,7 +1844,7 @@
                 }
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchHazardCategory table tr", function (e) {
+            indexationDetailObj.on("dblclick", "#GridSearchHazardCategory table tr", function () {
                 searchGridDoubleClick("#GridSearchHazardCategory", "#btnSelectHazardCategory");
             });
 
@@ -1828,22 +1857,19 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        if (data.result == "success") {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
+                        if (data.result === "success") {
+                            $(this).savedSuccessFully(data.message);
                             $('#AddEditHazardClass').empty();
                             var grid = $("#GridHazardClass").data("kendoGrid");
                             grid.dataSource.read();
                         } else {
-                            if (data.popupMessage) {
-                                onDisplayError(data.popupMessage);
-                            }
+                            if (data.popupMessage)
+                                $(this).displayError(data.popupMessage);
                         }
                     });
                     return true;
-
-                } else {
+                } else
                     return false;
-                }
             });
 
             indexationDetailObj.on("click", "#btnDiscardHazardClass", function (e) {
@@ -1855,16 +1881,16 @@
 
             indexationDetailObj.on("click", "#ancGhsPictogramBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridRegGHSPic", "pictograms", "../Indexation/BatchDeleteGhsPictograms");
+                batchDeleteObjects("GridRegGHSPic", "pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteGhsPictograms");
             });
 
             indexationDetailObj.on("change", "#PictNotProvided", function () {
-                var url = '../Indexation/SavePictNotProvided';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/SavePictNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
                     $.post(url, { pictNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
                             pictGrid.dataSource.read();
                             $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").addClass("k-state-disabled");
@@ -1873,7 +1899,7 @@
                 } else {
                     $.post(url, { pictNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
                         });
@@ -1883,13 +1909,13 @@
             indexationDetailObj.on("click", "#btnSelectGhsPictograms", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchGhsPictograms").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -1907,7 +1933,7 @@
                 addGhsPictogram(selectedData.Reference);
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchGhsPictograms table tr", function (e) {
+            indexationDetailObj.on("dblclick", "#GridSearchGhsPictograms table tr", function () {
                 searchGridDoubleClick("#GridSearchGhsPictograms", "#btnSelectGhsPictograms");
             });
 
@@ -1929,8 +1955,8 @@
             indexationDetailObj.on("click", "#btnSelectGhsSignalWord", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchSignalWord").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
@@ -1953,18 +1979,18 @@
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridHazardStatement"
                     , "hazard statements"
-                    , "../Indexation/BatchDeleteHazardStatements"
+                    , GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteHazardStatements"
                     , function() { hideEditorSection("AddEditHazardStatement"); });
             });
 
             indexationDetailObj.on("change", "#HStatementNotProvided", function () {
-                var url = '../Indexation/SaveHStatementNotProvided';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/SaveHStatementNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
                     $('#AddEditHazardStatement').empty();
                     $.post(url, { hStatementNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFullytedMessage(data);
                             var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
                             hStatementGrid.dataSource.read();
                             $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").addClass("k-state-disabled");
@@ -1973,7 +1999,7 @@
                 } else {
                     $.post(url, { hStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
                         });
@@ -1986,7 +2012,7 @@
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val();
                 if ($("#popupHazardStatement").length > 0) {
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");
-                    var singleSelection = !(referenceId && referenceId != "0");
+                    var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
                     grid.dataSource.read();
                 }
@@ -2009,21 +2035,21 @@
             indexationDetailObj.on("click", "#btnSelectHazardStatement", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchHazardStatement").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    onDisplayError("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
 
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
-                    onDisplayError("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
 
-                if (selectedItems.length == 1 || referenceId != "0") {
+                if (selectedItems.length === 1 || referenceId !== "0") {
                     $("#popupHazardStatement").modal("hide");
 
                     var selectedData = grid.dataItem(selectedItems[0]);
@@ -2057,23 +2083,19 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        
-                        if (data.result == "success") {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
+                        if (data.result === "success") {
+                            $(this).savedSuccessFully(data.message);
                             $('#AddEditHazardStatement').empty();
                             var grid = $("#GridHazardStatement").data("kendoGrid");
                             grid.dataSource.read();
                         } else {
-                            if (data.popupMessage) {
-                                onDisplayError(data.popupMessage);
-                            }
+                            if (data.popupMessage)
+                                $(this).displayError(data.popupMessage);
                         }
                     });
                     return true;
-
-                } else {
+                } else
                     return false;
-                }
             });
 
             indexationDetailObj.on("click", "#btnDiscardHazardStatement", function (e) {
@@ -2098,7 +2120,7 @@
                     $('#AddEditPrecautionaryStatement').empty();
                     $.post(url, { pStatementNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
                             hClassGrid.dataSource.read();
                             $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
@@ -2107,7 +2129,7 @@
                 } else {
                     $.post(url, { pStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
-                            displayCreatedMessage(data);
+                            $(this).savedSuccessFully(data);
                             $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
                         });
@@ -2120,7 +2142,7 @@
                 var referenceId = $('#AddEditPrecautionaryStatement').find('#Reference').val();
                 if ($("#popupPStatement").length > 0) {
                     var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
-                    var singleSelection = !(referenceId && referenceId != "0");
+                    var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
                     grid.dataSource.read();
                 }
@@ -2143,21 +2165,21 @@
             indexationDetailObj.on("click", "#btnSelectPStatement", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    onDisplayError("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
-                    onDisplayError("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
 
-                if (selectedItems.length == 1 || referenceId != "0") {
+                if (selectedItems.length === 1 || referenceId !== "0") {
                     $("#popupPStatement").modal("hide");
 
                     var selectedData = grid.dataItem(selectedItems[0]);
@@ -2192,22 +2214,20 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        if (data.result == "success") {
-                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data.message);
+                        if (data.result === "success") {
+                            $(this).savedSuccessFully(data.message);
                             $('#AddEditPrecautionaryStatement').empty();
                             var grid = $("#GridPrecautionaryStatement").data("kendoGrid");
                             grid.dataSource.read();
                         } else {
-                            if (data.popupMessage) {
-                                onDisplayError(data.popupMessage);
-                            }
+                            if (data.popupMessage)
+                                $(this).displayError(data.popupMessage);
                         }
                     });
                     return true;
 
-                } else {
+                } else
                     return false;
-                }
             });
 
             indexationDetailObj.on("click", "#btnDiscardPrecautionaryStatement", function (e) {
@@ -2325,24 +2345,24 @@
         }
 
         function addGhsPictogram(reference) {
-            var url = '../Indexation/RegGHSPic_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/RegGHSPic_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupGhsPictograms").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var pictogramGrid = $("#GridRegGHSPic").data("kendoGrid");
                     pictogramGrid.dataSource.read();
                 });
         }
 
         function addGhsPictogramList(ghspictogramlists) {
-            var urlmultiple = '../Indexation/RegGHSPic_CreateList';
+            var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RegGHSPic_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { pictogramList: JSON.stringify(ghspictogramlists), indexationId: indexationId },
                 function (data) {
                     $("#popupGhsPictograms").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var pictogramGrid = $("#GridRegGHSPic").data("kendoGrid");
                     pictogramGrid.dataSource.read();
                 });
@@ -2350,12 +2370,12 @@
 
         function batchSaveHazardStatements(ids) {
 
-            if (!ids || ids.length == 0) {
-                onDisplayError("No hazard statements were selected to be created.");
+            if (!ids || ids.length === 0) {
+                $(this).displayError("No hazard statements were selected to be created.");
                 return false;
             }
 
-            var url = "../Indexation/BatchCreateHazardStatements";
+            var url = GetEnvironmentLocation() +  "/Operations/Indexation/BatchCreateHazardStatements";
             var indexationId = getIndexationId();
 
             var data = { indexationId: indexationId.IndexationId, ids: ids };
@@ -2365,7 +2385,7 @@
                 type: "POST",
                 contentType: 'application/json; charset=utf-8',
                 error: function() {
-                    onDisplayError("Batch hazard statement creation could not be completed");
+                    $(this).displayError("Batch hazard statement creation could not be completed");
                 },
                 success: function (response) {
 
@@ -2377,7 +2397,8 @@
                         $("#popupHazardStatement").modal("hide");
 
                     } else {
-                        onDisplayError("Batch hazard statement creation could not be completed");
+                        $("#popupHazardStatement").modal("hide");
+                        $(this).displayError("Batch hazard statement creation could not be completed");
                     }
                 }
             });
@@ -2385,12 +2406,12 @@
 
         function batchSavePrecautionaryStatements(ids) {
             
-            if (!ids || ids.length == 0) {
-                onDisplayError("No precautionary statements were selected to be created.");
+            if (!ids || ids.length === 0) {
+                $(this).displayError("No precautionary statements were selected to be created.");
                 return false;
             }
 
-            var url = "../Indexation/BatchCreatePrecautionaryStatements";
+            var url = GetEnvironmentLocation() + "/Operations/Indexation/BatchCreatePrecautionaryStatements";
             var indexationId = getIndexationId();
 
             var data = { indexationId: indexationId.IndexationId, ids: ids };
@@ -2400,7 +2421,8 @@
                 type: "POST",
                 contentType: 'application/json; charset=utf-8',
                 error: function () {
-                    onDisplayError("Batch precautionary statement creation could not be completed");
+                    $("#popupPStatement").modal("hide");
+                    $(this).displayError("Batch precautionary statement creation could not be completed");
                 },
                 success: function (response) {
 
@@ -2412,7 +2434,7 @@
                         $("#popupPStatement").modal("hide");
 
                     } else {
-                        onDisplayError("Batch precautionary statement creation could not be completed");
+                        $(this).displayError("Batch precautionary statement creation could not be completed");
                     }
                 }
             });
@@ -2438,7 +2460,7 @@
         function onAddHazardClassButtonClick(e) {
             e.preventDefault();
             var indexationId = $("#IndexationId").val();
-            var url = '../Indexation/HazardClass_Edit';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/HazardClass_Edit';
             $.post(url, { indexationId: indexationId, iReference: 0 },
                 function (data) {
                     $('#AddEditHazardClass').html(data).show();
@@ -2449,7 +2471,7 @@
             e.preventDefault();
 
             var indexation = getIndexationId();
-            var url = '../Indexation/HazardStatement_Edit';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/HazardStatement_Edit';
             $.post(url, { indexationId: indexation.IndexationId, iReference: 0 },
                 function (data) {
                     $('#AddEditHazardStatement').html(data).show();
@@ -2468,7 +2490,7 @@
         function onAddPrecautionaryStatementButtonClick(e) {
             e.preventDefault();
             var indexationId = $("#IndexationId").val();
-            var url = '../Indexation/PrecautionaryStatement_Edit';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/PrecautionaryStatement_Edit';
             $.post(url, { indexationId: indexationId, iReference: 0 },
                 function (data) {
                     $('#AddEditPrecautionaryStatement').html(data).show();
@@ -2480,12 +2502,12 @@
             $("#popupGhsSignalWord").modal("show");
         }
 
-        var gridPrecautionaryStatementChange = function (e) {
+        var gridPrecautionaryStatementChange = function () {
             var selectedData = this.dataItem(this.select());
             var indexationId = $("#IndexationId").val();
 
             if (selectedData) {
-                var url = '../Indexation/PrecautionaryStatement_Edit';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/PrecautionaryStatement_Edit';
                 $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
                     function (data) {
                         $('#AddEditPrecautionaryStatement').html(data).show();
@@ -2495,12 +2517,12 @@
             }
         };
 
-        var onGridHazardClassChange = function (e) {
+        var onGridHazardClassChange = function () {
             var selectedData = this.dataItem(this.select());
             var indexationId = $("#IndexationId").val();
 
             if (selectedData) {
-                var url = '../Indexation/HazardClass_Edit';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/HazardClass_Edit';
                 $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
                     function(data) {
                         $('#AddEditHazardClass').html(data).show();
@@ -2511,18 +2533,18 @@
         };
 
         var onGridHazardClassRequestComplete = function (e) {
-            if (e.type == "destroy") {
+            if (e.type === "destroy") {
                 hideEditorSection('AddEditHazardClass');
             }
         };
 
-        var onGridHazardStatementChange = function(e) {
+        var onGridHazardStatementChange = function() {
             var selectedData = this.dataItem(this.select());
             var indexation = getIndexationId();
 
             if (selectedData) {
 
-                var url = '../Indexation/HazardStatement_Edit';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/HazardStatement_Edit';
                 $.post(url, { indexationId: indexation.IndexationId, iReference: selectedData.Reference },
                     function (data) {
                         $('#AddEditHazardStatement').html(data).show();
@@ -2534,7 +2556,7 @@
         };
 
         var onGridHazardStatementRequestComplete = function (e) {
-            if (e.type == "destroy") {
+            if (e.type === "destroy") {
                 hideEditorSection('AddEditHazardStatement');
             }
         };
@@ -2552,24 +2574,24 @@
                 backdrop: true
             });
 
-            var url = '../Indexation/GetSearchGhsPictograms';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/GetSearchGhsPictograms';
             $.post(url, function (data) {
                 $("#dgGhsPictogramsPlugIn").html(data);
             });
-            var urlSignalWord = '../Indexation/GetSearchSignalWord';
+            var urlSignalWord = GetEnvironmentLocation() + '/Operations/Indexation/GetSearchSignalWord';
             $.post(urlSignalWord, function (data) {
                 $("#dgGhsSignalWordPlugIn").html(data);
             });
         };
 
         var onGridPrecautionaryStatementRequestComplete = function (e) {
-            if (e.type == "destroy") {
+            if (e.type === "destroy") {
                 hideEditorSection('AddEditPrecautionaryStatement');
             }
         };
 
         var onRegulatoryGhsActivate = function (e) {
-            if ($(e.item).find("> .k-link").text() == "GHS") {
+            if ($(e.item).find("> .k-link").text() === "GHS") {
 
                 setTimeout(function () {
                     if ($("#btnAddHazardClass").hasClass("k-state-disabled")) {
@@ -2605,19 +2627,19 @@
 
             indexationDetailObj.on("click", "#ancOtherClassificationBatchDelete", function (e) {
                 e.preventDefault();
-                batchDeleteIndexationObjects("GridRegOthers", "other classification", "../Indexation/BatchDeleteOtherClassification");
+                batchDeleteIndexationObjects("GridRegOthers", "other classification", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteOtherClassification");
             });
 
             indexationDetailObj.on("click", "#btnSelectOtherClass", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchOtherClass").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -2641,12 +2663,12 @@
         }
 
         function addOtherClassification(reference) {
-            var url = '../Indexation/RegOthers_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/RegOthers_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupOtherClass").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var otherClassGrid = $("#GridRegOthers").data("kendoGrid");
                     otherClassGrid.dataSource.read();
                 });
@@ -2685,7 +2707,7 @@
                 var url = '../Indexation/HandlingStorage_Insert';
                 var indexationId = $("#IndexationId").val();
                 $.post(url, { indexationId: indexationId },
-                    function (data) {
+                    function () {
                         var pStatementGrid = $("#GridHandlingStorage").data("kendoGrid");
                         pStatementGrid.dataSource.read();
                     });
@@ -2701,10 +2723,10 @@
         function initializeFirstAidControls() {
             indexationDetailObj.on("click", "#btnAddFirstAid", function (e) {
                 e.preventDefault();
-                var url = '../Indexation/FirstAid_Insert';
+                var url = GetEnvironmentLocation() +  '/Operations/Indexation/FirstAid_Insert';
                 var indexationId = $("#IndexationId").val();
                 $.post(url, { indexationId: indexationId },
-                    function (data) {
+                    function () {
                         var pStatementGrid = $("#GridFirstAid").data("kendoGrid");
                         pStatementGrid.dataSource.read();
                     });
@@ -2712,16 +2734,14 @@
 
             indexationDetailObj.on("click", "#ancFirstAidBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridFirstAid", "first aid indexation", "../Indexation/BatchDeleteSafetyIndexation");
+                batchDeleteObjects("GridFirstAid", "first aid indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
         }
 
         // Fire fighting section methods
         function initializeFireFightingControls() {
-
             indexationDetailObj.on("click", "#btnSaveFireFighting", function(e) {
                 e.preventDefault();
-
                 var form = $("#FormFireFighting");
                 var validator = form.kendoValidator().data("kendoValidator");
                 if (validator.validate()) {
@@ -2730,10 +2750,15 @@
                     $.post(url, formData, function (data) {
 
                         if (!data.Errors) {
-                            displayCreatedMessage("Fire Fighting Saved");
+                            if(!generalSave)
+                                $(this).savedSuccessFully("Fire Fighting Saved");
+
+                            //this is to reset the general save flag DO NOT CHANGE THIS
+                            generalSave = false;
                             return true;
                         } else {
-
+                            validationGeneral = false;
+                            validationMessage = "Fire Fighting<br />";
                             var errorMessage = 'Error occured while saving the fire fighting details';
                             var keys = Object.keys(data.Errors);
                             for (var idx = 0; idx < keys.length; idx++) {
@@ -2744,7 +2769,7 @@
                                 }
                             }
 
-                            onDisplayError(errorMessage);
+                            $(this).displayError(errorMessage);
                             return false;
                         }
                     });
@@ -2753,21 +2778,19 @@
         }
 
         function flashPointMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $('#SelectFlashPointTempUnit').data("kendoDropDownList").select(0);
                 $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(false);
-            } else {
+            } else
                 $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(true);
-            }
         }
 
         function flameExtensionMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").select(0);
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(false);
-            } else {
+            } else
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(true);
-            }
         }
 
         var onFlashPointOperatorChange = function (e) {
@@ -2782,10 +2805,10 @@
         function initializePpeControls() {
             indexationDetailObj.on("click", "#btnAddPpe", function (e) {
                 e.preventDefault();
-                var url = '../Indexation/Ppe_Insert';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/Ppe_Insert';
                 var indexationId = $("#IndexationId").val();
                 $.post(url, { indexationId: indexationId },
-                    function (data) {
+                    function () {
                         var pStatementGrid = $("#GridPPE").data("kendoGrid");
                         pStatementGrid.dataSource.read();
                     });
@@ -2793,7 +2816,7 @@
 
             indexationDetailObj.on("click", "#ancPpeBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridPPE", "ppe indexation", "../Indexation/BatchDeleteSafetyIndexation");
+                batchDeleteObjects("GridPPE", "ppe indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
 
             indexationDetailObj.on("click", "#btnAddPpePictograms", function (e) {
@@ -2807,19 +2830,19 @@
 
             indexationDetailObj.on("click", "#ancPpePictogramBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridPPEPictogram", "ppe pictograms", "../Indexation/BatchDeletePpePictograms");
+                batchDeleteObjects("GridPPEPictogram", "ppe pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeletePpePictograms");
             });
 
             indexationDetailObj.on("click", "#btnSelectPpePictograms", function (e) {
                 e.preventDefault();
                 var grid = $("#GridSearchPpePictograms").data("kendoGrid");
-                if (grid.dataSource.total() == 0) {
-                    alert("No rows selected");
+                if (grid.dataSource.total() === 0) {
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 if (grid.select().length > 1) {
@@ -2843,30 +2866,30 @@
         }
 
         function addPpePictogram(reference) {
-            var url = '../Indexation/RegPPEPic_Create';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/RegPPEPic_Create';
             var indexationId = $("#IndexationId").val();
             $.post(url, { iReference: reference, indexationId: indexationId },
                 function (data) {
                     $("#popupPpePictograms").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var pictogramGrid = $("#GridPPEPictogram").data("kendoGrid");
                     pictogramGrid.dataSource.read();
                 });
         }
 
         function addPpePictogramList(ppepictogramlists) {
-            var urlmultiple = '../Indexation/RegPPEPic_CreateList';
+            var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RegPPEPic_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { pictogramList: JSON.stringify(ppepictogramlists), indexationId: indexationId },
                 function (data) {
                     $("#popupPpePictograms").modal("hide");
-                    $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
+                    $(this).savedSuccessFully(data);
                     var pictogramGrid = $("#GridPPEPictogram").data("kendoGrid");
                     pictogramGrid.dataSource.read();
                 });
         }
 
-        function onPpeHmisChange(e) {
+        function onPpeHmisChange() {
             var ppeHmisPictogramGrid = $("#GridPPEHMISPictograms").data("kendoGrid");
             ppeHmisPictogramGrid.dataSource.read();
         }
@@ -2874,9 +2897,8 @@
         function getSelectedPpeHmisReference() {
             var selectedPpe = 0;
             var dropdownlist = $('#PpeHmisReference').data("kendoDropDownList");
-            if (dropdownlist) {
+            if (dropdownlist)
                 selectedPpe = dropdownlist.select();
-            }
 
             return { selectedPpe: selectedPpe };
         }
@@ -2888,7 +2910,7 @@
                 backdrop: true
             });
 
-            var url = '../Indexation/GetSearchPpePictograms';
+            var url = GetEnvironmentLocation() + '/Operations/Indexation/GetSearchPpePictograms';
             $.post(url, function (data) {
                 $("#dgPpePictogramsPlugIn").html(data);
             });
@@ -2911,13 +2933,12 @@
 
                             // Keep track of the initial indexing values
                             var form = frameContents.find('#NonSdsIndexingContent');
-                            if (form.length > 0) {
+                            if (form.length > 0)
                                 initialNonSdsValues = form.serialize();
-                            }
 
                             setiFrameHeight(nonSdsContentFrame, frameContents);
 
-                            frameContents.on('click', '#btnSaveNonSdsIndexing', function (e) {
+                            frameContents.on('click', '#btnSaveNonSdsIndexing', function () {
                                 form = $(this).parents('#NonSdsIndexingContent');
                                 form.submit();
                             });
@@ -2929,7 +2950,7 @@
                                 if (form.length > 0) {
 
                                         // Check if any changes are found
-                                    if (initialNonSdsValues != form.serialize()) {
+                                    if (initialNonSdsValues !== form.serialize()) {
                                         confirmUserSelection('Confirm Indexing Cancel', 'All indexing changes will be reverted. Are you sure you would like to cancel indexing?', function () {
                                             nonSdsContentFrame.attr('src', nonSdsContentFrame.attr('src'));
                                         });
@@ -2940,7 +2961,7 @@
                             var contentContainer = frameContents.find('.nethub-container');
                             if (contentContainer.length > 0) {
 
-                                var observer = new MutationObserver(function (m) {
+                                var observer = new MutationObserver(function () {
                                     setiFrameHeight();
                                 });
 
