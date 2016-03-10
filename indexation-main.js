@@ -524,6 +524,10 @@
                     $.post(url, formData, function () {
                         if (!generalSave)
                             $(this).savedSuccessFully("Identification Saved");
+                        else
+                            $(this).savedSuccessFully("Indexation Saved");
+
+                        
                     });
                 } else {
                     validationGeneral = false;
@@ -1030,6 +1034,8 @@
                         else {
                             if (!generalSave)
                                 $(this).savedSuccessFully('Physical & Chemical Properties Saved');
+                            else
+                                $(this).savedSuccessFully("Indexation Saved");
                         }
                     });
                     return true;
@@ -1365,6 +1371,8 @@
                     $.post(url, formData, function () {
                         if (!generalSave)
                             $(this).savedSuccessFully("Regulatory American Saved");
+                        else
+                            $(this).savedSuccessFully("Indexation Saved");
                     });
                     return true;
                 } else {
@@ -1711,6 +1719,8 @@
                     $.post(url, formData, function () {
                         if (!generalSave)
                             $(this).savedSuccessFully("Regulatory GHS Saved");
+                        else
+                            $(this).savedSuccessFully("Indexation Saved");
                     });
                     return true;
 
@@ -2752,6 +2762,8 @@
                         if (!data.Errors) {
                             if(!generalSave)
                                 $(this).savedSuccessFully("Fire Fighting Saved");
+                            else
+                                $(this).savedSuccessFully("Indexation Saved");
 
                             //this is to reset the general save flag DO NOT CHANGE THIS
                             generalSave = false;
