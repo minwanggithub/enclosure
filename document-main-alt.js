@@ -1498,7 +1498,7 @@
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
-                setDocumentRevisionDetailsDefaultValues(newRevisionContainer);
+                setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
                 newRevisionContainer.show(650);
             }
         }
@@ -1559,7 +1559,7 @@
 
                                     if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
                                         displayError(documentMessages.warnings.DocumentRevisionAttachments);
-
+                                    
                                     if (currentGrid.dataSource.data().length == 0)
                                         $('[id*=addNewFilesBtn]', attachmentGridParent).removeClass('k-state-disabled');
                                 });
@@ -1891,7 +1891,7 @@
         }
 
     
-        function setDocumentRevisionDetailsDefaultValues(container) {
+        function setDocumentRevisionDetailsDefaultValues(container, documentId) {
             if (container && container.length > 0) {
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsDocumentVersion).val('');
@@ -1905,6 +1905,8 @@
                 container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val('');
                 container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val('');
                 container.find(documentElementSelectors.buttons.DocumentRevisionNewFile).removeClass('k-state-disabled');
+                var pnl = documentElementSelectors.containers.DocumentNewRevisionDetailsExact.substr(1, documentElementSelectors.containers.DocumentNewRevisionDetailsExact.length - 1) + documentId;
+                $(documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, $("[id*=" + pnl + "]")).removeClass("k-state-disabled");
             }
         }
 
