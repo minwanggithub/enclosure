@@ -229,7 +229,7 @@
 
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
-            return decimalVal === val;
+            return decimalVal == val;
         }
 
         function parseErrorMessage(data) {
