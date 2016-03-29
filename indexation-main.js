@@ -2193,10 +2193,10 @@
                     $("#popupPStatement").modal("hide");
 
                     var selectedData = grid.dataItem(selectedItems[0]);
-                    $("#StatementPCode").val(selectedData.Statement + ", " + selectedData.PCode);
+                    $("#StatementPCode").val(selectedData.PCode + ", " + selectedData.Statement);
                     $("#OtherPCode").val(selectedData.PCode).prop("disabled", true);
                     $("#OtherPStatement").val(selectedData.Statement).prop("disabled", true);
-                    $("#PrecautionaryStatementId").val(selectedData.Reference);
+                    $("#PrecautionaryStatementId").val(selectedData.PrecautionaryStatementId);
 
                     if (ghsPrecautionaryStatementValidator) {
                         ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
