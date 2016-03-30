@@ -2043,7 +2043,6 @@
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardStatement", function (e) {
-                debugger;
                 e.preventDefault();
                 var grid = $("#GridSearchHazardStatement").data("kendoGrid");
                 if (grid.dataSource.total() === 0) {
@@ -2380,7 +2379,6 @@
         }
 
         function batchSaveHazardStatements(ids) {
-            debugger;
             if (!ids || ids.length === 0) {
                 $(this).displayError("No hazard statements were selected to be created.");
                 return false;
