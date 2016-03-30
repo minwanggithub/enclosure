@@ -2000,7 +2000,7 @@
                     $('#AddEditHazardStatement').empty();
                     $.post(url, { hStatementNotProvided: true, indexationId: indexationId },
                         function (data) {
-                            $(this).savedSuccessFullytedMessage(data);
+                            $(this).savedSuccessFully(data);
                             var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
                             hStatementGrid.dataSource.read();
                             $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").addClass("k-state-disabled");
@@ -2032,7 +2032,7 @@
 
             indexationDetailObj.on("click", "#btnEnableOtherHCode", function (e) {
                 e.preventDefault();
-                $("#StatementHCode, #HazardStatementId").val("");
+                $("#StatementHCode, #HCodePhraseID").val("");
                 $("#OtherHCode, #OtherHStatement").val("").prop("disabled", false);
 
                 if (ghsHazardStatementValidator) {
@@ -2043,6 +2043,7 @@
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardStatement", function (e) {
+                debugger;
                 e.preventDefault();
                 var grid = $("#GridSearchHazardStatement").data("kendoGrid");
                 if (grid.dataSource.total() === 0) {
@@ -2066,7 +2067,7 @@
                     $("#StatementHCode").val(selectedData.Statement + ", " + selectedData.HCode);
                     $("#OtherHCode").val(selectedData.HCode).prop("disabled", true);
                     $("#OtherHStatement").val(selectedData.Statement).prop("disabled", true);
-                    $("#HazardStatementId").val(selectedData.Reference);
+                    $("#HCodePhraseID").val(selectedData.Reference);
 
                     if (ghsHazardStatementValidator) {
                         ghsHazardStatementValidator.validateInput($('#StatementHCode'));
@@ -2307,9 +2308,9 @@
                 },
                 rules: {
                     codevalid: function(input) {
-                        if (input.is('[id="StatementHCode"]') && !$('#HazardStatementId').val() && $('#OtherHCode').is(':disabled')) {
+                        if (input.is('[id="StatementHCode"]') && !$('#HCodePhraseID').val() && $('#OtherHCode').is(':disabled')) {
                             return false;
-                        } else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HazardStatementId').val()) {
+                        } else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
                             return false;
                         } else {
                             return true;
@@ -2379,7 +2380,7 @@
         }
 
         function batchSaveHazardStatements(ids) {
-
+            debugger;
             if (!ids || ids.length === 0) {
                 $(this).displayError("No hazard statements were selected to be created.");
                 return false;
