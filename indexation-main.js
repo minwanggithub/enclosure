@@ -1797,9 +1797,9 @@
 
                 $("#OtherClass").val("");
                 $("#OtherClass").prop("disabled", true);
-
+               
                 $("#Class").val(selectedData.Description);
-                $("#ClassId").val(selectedData.Reference);
+                $("#ClassPhraseId").val(selectedData.Reference);
 
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Class'));
@@ -1846,7 +1846,7 @@
                 $("#OtherCategory").prop("disabled", true);
 
                 $("#Category").val(selectedData.Description);
-                $("#CategoryId").val(selectedData.Reference);
+                $("#CategoryPhraseId").val(selectedData.Reference);
 
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
@@ -1860,7 +1860,6 @@
 
             indexationDetailObj.on("click", "#btnSaveHazardClass", function (e) {
                 e.preventDefault();
-
                 initializeGhsHazardClassValidator();
                 if (ghsHazardClassValidator.validate()) {
                     var form = $("#FormEditHazardClass");
@@ -2252,14 +2251,14 @@
                 messages: {
                     codevalid: function(input) {
                         if (input.is('[id="Class"]')) {
-                            return "Class/Code is required";
+                                return "Class/Code is required";
                         } else {
                             return "Other Class is required";
                         }
                     },
                     categoryvalid: function (input) {
                         if (input.is('[id="Category"]')) {
-                            return "Category is required";
+                                return "Category is required";
                         } else {
                             return "Other Category is required";
                         }
