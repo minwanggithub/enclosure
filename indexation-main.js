@@ -1860,8 +1860,8 @@
 
             indexationDetailObj.on("click", "#btnSaveHazardClass", function (e) {
                 e.preventDefault();
-                initializeGhsHazardClassValidator();
-                if (ghsHazardClassValidator.validate()) {
+             //   initializeGhsHazardClassValidator();
+             //   if (ghsHazardClassValidator.validate()) {
                     var form = $("#FormEditHazardClass");
                     var url = form.attr("action");
                     var formData = form.serialize();
@@ -1877,8 +1877,8 @@
                         }
                     });
                     return true;
-                } else
-                    return false;
+             //   } else
+             //       return false;
             });
 
             indexationDetailObj.on("click", "#btnDiscardHazardClass", function (e) {
@@ -2249,16 +2249,20 @@
             
             ghsHazardClassValidator = $("#FormRegulatoryGHS").kendoValidator({
                 messages: {
-                    codevalid: function(input) {
+                    codevalid: function (input) {
                         if (input.is('[id="Class"]')) {
+                            if (input.val().length <= 0) {
                                 return "Class/Code is required";
+                            }
                         } else {
                             return "Other Class is required";
                         }
                     },
                     categoryvalid: function (input) {
                         if (input.is('[id="Category"]')) {
+                            if (input.val().length <= 0) {
                                 return "Category is required";
+                            }
                         } else {
                             return "Other Category is required";
                         }
