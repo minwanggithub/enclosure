@@ -209,6 +209,7 @@
                 SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again."
             },
             modals: {
+                GeneralConfirm: "Confirmation Required",
                 DocumentDeleteContainerComponentHeader: "Delete Container Component Confirmation",
                 DocumentDeleteContainerComponentMessage: "Are you sure you want to delete this container component?",
                 DocumentDiscardChangesHeader: "Discard Document Changes",
@@ -219,6 +220,7 @@
                 DocumentRevisionDeleteAttachmentMessage: "Are you sure you want to delete this file?",
                 DocumentRevisionDiscardChangesHeader: "Discard Revision Changes",
                 DocumentRevisionDiscardChangesMessage: "You are going to discard your revision changes. Are you sure you would like to continue?",
+                SaveRevisionWothoutAttachment: "Are you sure you want to save revision without attachment?"
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -1788,7 +1790,6 @@
 
         function onDocumentRevisionSaveBtnClick(e) {
             e.preventDefault();
-            
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
             var formData = {
                 model: getDocumentRevisionDetailsData(form),
@@ -1842,7 +1843,6 @@
         function onDocRevSaveForInboundResponseBtnClick(e) {
             e.preventDefault();
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
-         
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
             var formData = {
                 model: getDocRevDetailsDataForInboundResponse(form, documentId, 0),
@@ -1852,22 +1852,26 @@
             if (formData.model) {
 
                 if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
-                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
-                    return false;
+                    var settings = {
+                        header: documentMessages.modals.GeneralConfirm,
+                        message: documentMessages.modals.SaveRevisionWothoutAttachment,
+                    };
+                    displayConfirmationModal(settings, function () {
+                        var url = form.attr("action");
+                        $(this).ajaxCall(url, formData)
+                            .success(function (data) {
+                                var errorMessage = parseErrorMessage(data);
+                                if (!errorMessage) {
+                                    parent.window.opener.location.reload();
+                                    window.close();
+                                } else
+                                    displayError(errorMessage);
+                            })
+                            .error(function () { displayError(documentMessages.errors.SaveDocumentRevisionError); });
+                    });
                 }
               
-                var url = form.attr("action");
-                $(this).ajaxCall(url, formData)
-                    .success(function (data) {
-                        
-                        var errorMessage = parseErrorMessage(data);
-                        if (!errorMessage) {
-                            parent.window.opener.location.reload();
-                            window.close();
-                        } else
-                            displayError(errorMessage);
-                    })
-                    .error(function () { displayError(documentMessages.errors.SaveDocumentRevisionError); });
+              
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
