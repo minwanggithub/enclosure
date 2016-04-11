@@ -1772,7 +1772,7 @@
             indexationDetailObj.on("click", "#btnEnableOtherHClass", function (e) {
                 e.preventDefault();
                 $("#Class").val("");
-                $("#ClassId").val("");
+                $("#ClassPhraseId").val("");
                 $("#OtherClass").prop("disabled", false);
 
                 if (ghsHazardClassValidator) {
@@ -1819,7 +1819,7 @@
             indexationDetailObj.on("click", "#btnEnableOtherHCatagory", function (e) {
                 e.preventDefault();
                 $("#Category").val("");
-                $("#CategoryId").val("");
+                $("#CategoryPhraseId").val("");
                 $("#OtherCategory").prop("disabled", false);
 
                 if (ghsHazardClassValidator) {
