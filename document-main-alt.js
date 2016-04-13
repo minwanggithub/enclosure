@@ -901,6 +901,7 @@
                                 RevisionId: revisionId,
                                 DocumentInfoDescription: '',
                                 DocumentElink: data[i].elink,
+                                OriginalFileName: data[i].filename,
                                 FileName: data[i].filename,
                                 PhysicalPath: data[i].physicalPath
                             });
@@ -1396,6 +1397,7 @@
                                     RevisionId: revisionId,
                                     DocumentInfoDescription: '',
                                     DocumentElink: data[i].elink,
+                                    OriginalFileName: data[i].filename,
                                     FileName: data[i].filename,
                                     PhysicalPath: data[i].physicalPath
                                 });
@@ -1915,6 +1917,7 @@
         }
 
         var onDocumentRevisionAttachmentSave = function (e) {
+
             // When revision id is 0 the controller is not hit, we force this action to occur here
             if (e.model.RevisionId == 0) {
                 var attachment = {
@@ -1925,6 +1928,8 @@
                     PhysicalPath: e.model.PhysicalPath,
                     RevisionId: e.model.RevisionId,
                 };
+
+                // alert(JSON.stringyfy(attachment));
 
                 $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription),attachment)
                     .success(function (data) {
