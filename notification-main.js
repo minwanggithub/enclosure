@@ -617,7 +617,7 @@
 
         //http://blog.raselahmmed.com/kendo-ui-image-upload-and-instant-preview-in-aspnet-mvc/
         function onUploadSuccess(e) {
-            debugger;
+            //debugger;
             var responseObject = jQuery.parseJSON(e.XMLHttpRequest.responseText);
             //notificatonAttachments.push(responseTxt);
 
