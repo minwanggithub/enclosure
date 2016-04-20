@@ -72,7 +72,9 @@
                 LoadSupplierPlugIn: GetEnvironmentLocation() + "/Operations/Document/PlugInSupplierSearchAlt",
                 NoticeAutoComplete: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetNoticeNumberSelect",
                 IfExistEmailOrDomain: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/IfExistEmailOrDomain",
-                ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail"
+                ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail",
+                GetObtainmentResponseContentBody: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetObtainmentResponseContentBody",
+
             },
                 warnings: {
                     NoRowSelected: "No row selected, please try again.",
@@ -271,6 +273,7 @@
 
         var MasterExpand = function () {
             viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'inherit');
+ 
         };
 
         var MasterCollapse = function() {
@@ -459,11 +462,41 @@
             var detailRow = e.detailRow.find('[id="InboundResponseSection"]');
             if(detailRow.length > 0) {
                 var searchButton = detailRow.find(UIObject.controls.buttons.EditSupplierAll);
+
                 if (searchButton.length > 0 && typeof detailRow.attr('data-mvvm-bound') == 'undefined') {
+
                     detailRow.attr('data-mvvm-bound', true);
                     kendo.bind(detailRow, viewModel);
+
+                    // get inbound response id
+                    var inboundResponseId = e.sender.dataItem(e.masterRow).InboundResponseId;
+
+                    $(this).ajaxCall(UIObject.controllerCalls.GetObtainmentResponseContentBody, { inboundResponseId: inboundResponseId })
+                          .success(function (data) {
+                              
+                              data = data.Content;
+
+                              if (e.sender.dataItem(e.masterRow).HtmlFormat)
+                                    $("#html_mail_body_" + inboundResponseId).attr("srcdoc", "<html><body>" + data + "</body></html>");
+                              else
+                                    $("#text_mail_body_" + inboundResponseId).val(data);
+
+                              /*var target = "#html_mail_body_" + inboundResponseId;
+                              if ($(target).size[0] == 0) {
+                                  target = "#text_mail_body_" + inboundResponseId;
+                                  $(target).val(data);
+                              }
+                              else
+                                  $(target).attr("srcdoc", "<html><body>" + data + "</body></html>");*/
+
+                          }).error(
+                          function () {
+                              
+                          });
                 }
+
             }
+
         }
 
         function onInputFieldChange(e) {
