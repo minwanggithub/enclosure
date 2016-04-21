@@ -1852,30 +1852,48 @@
             };
           
             if (formData.model) {
+  
+                // save always
+                var proceedWithSave = true;
 
+                // if there are no attachments, prompt for a save confirmation
                 if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
+
                     var settings = {
                         header: documentMessages.modals.GeneralConfirm,
                         message: documentMessages.modals.SaveRevisionWothoutAttachment,
                     };
+
+                    // no attachment
+                    proceedWithSave = false;
                     displayConfirmationModal(settings, function () {
-                        var url = form.attr("action");
-                        $(this).ajaxCall(url, formData)
-                            .success(function (data) {
-                                var errorMessage = parseErrorMessage(data);
-                                if (!errorMessage) {
-                                    parent.window.opener.location.reload();
-                                    window.close();
-                                } else
-                                    displayError(errorMessage);
-                            })
-                            .error(function () { displayError(documentMessages.errors.SaveDocumentRevisionError); });
+                        proceedWithSave = true;
                     });
+
                 }
-              
-              
-            } else
+
+                if (proceedWithSave) {
+
+                    var url = form.attr("action");
+                    $(this).ajaxCall(url, formData)
+                        .success(function (data) {
+                            var errorMessage = parseErrorMessage(data);
+                            if (!errorMessage) {
+                                parent.window.opener.location.reload();
+                                window.close();
+                            } else
+                                displayError(errorMessage);
+                        })
+                        .error(function () {
+                            displayError(documentMessages.errors.SaveDocumentRevisionError);
+                        });
+
+                }
+
+            } else {
+                // something wrong with the form data
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
+            }
         }
 
         function onDocumentRevisionSetUnknownCompanyBtnClick(e) {
