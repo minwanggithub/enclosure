@@ -1733,7 +1733,8 @@
 
             indexationDetailObj.on("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
 
-            indexationDetailObj.on("click", "#ancHazardClassBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancHazardClassBatchDelete", function (e) {
+        
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridHazardClass"
                     , "hazard classes"
@@ -2712,16 +2713,15 @@
             });
         };
 
-        // Handling and storage section methodsbtnAddPpePictograms
+        // Handling and storage section 
         function initializeHandlingStorageControls() {
             indexationDetailObj.on("click", "#btnAddHandlingStorage", function (e) {
                 e.preventDefault();
-                var url = '../Indexation/HandlingStorage_Insert';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/HandlingStorage_Edit';
                 var indexationId = $("#IndexationId").val();
-                $.post(url, { indexationId: indexationId },
-                    function () {
-                        var pStatementGrid = $("#GridHandlingStorage").data("kendoGrid");
-                        pStatementGrid.dataSource.read();
+                $.post(url, { indexationId: indexationId, iReference: 0 },
+                    function (data) {
+                        $('#AddHandlingStorage').html(data).show();
                     });
             });
 
@@ -2729,7 +2729,36 @@
                 e.preventDefault();
                 batchDeleteObjects("GridHandlingStorage", "handling storage indexation", "../Indexation/BatchDeleteSafetyIndexation");
             });
+
+            indexationDetailObj.on("click", "#btnDiscardHandlingStorage", function (e) {
+                e.preventDefault();
+                $('#AddHandlingStorage').empty();
+            });
+
+            indexationDetailObj.on("click", "#btnSaveHandlingStorage", function (e) {
+                e.preventDefault();
+             
+                var form = $("#FormEditHandlingStorage");
+                var url = form.attr("action");
+                var formData = form.serialize();
+                $.post(url, formData, function (data) {
+                    if(data.result === "success") {
+                          $(this).savedSuccessFully(data.message);
+                          $('#AddHandlingStorage').empty();
+                          var grid = $("#GridHandlingStorage").data("kendoGrid");
+                         grid.dataSource.read();
+                    } else {
+                         if (data.popupMessage)
+                         $(this).displayError(data.popupMessage);
+                    }
+               });
+                  return true;
+            });
+
+
         }
+
+        
 
         // First aid section methods
         function initializeFirstAidControls() {
