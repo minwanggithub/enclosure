@@ -2719,7 +2719,7 @@
                 e.preventDefault();
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/HandlingStorage_Edit';
                 var indexationId = $("#IndexationId").val();
-                $.post(url, { indexationId: indexationId, iReference: 0 },
+                $.post(url, { indexationId: indexationId, iReference: 0, section: "HandlingStorage" },
                     function (data) {
                         $('#AddHandlingStorage').html(data).show();
                     });
@@ -2764,12 +2764,11 @@
         function initializeFirstAidControls() {
             indexationDetailObj.on("click", "#btnAddFirstAid", function (e) {
                 e.preventDefault();
-                var url = GetEnvironmentLocation() +  '/Operations/Indexation/FirstAid_Insert';
+                var url = GetEnvironmentLocation() +  '/Operations/Indexation/FirstAid_Edit';
                 var indexationId = $("#IndexationId").val();
-                $.post(url, { indexationId: indexationId },
-                    function () {
-                        var pStatementGrid = $("#GridFirstAid").data("kendoGrid");
-                        pStatementGrid.dataSource.read();
+                $.post(url, { indexationId: indexationId, iReference: 0, section: "FirstAid" },
+                    function (data) {
+                        $('#AddFirstAid').html(data).show();
                     });
             });
 
@@ -2777,6 +2776,33 @@
                 e.preventDefault();
                 batchDeleteObjects("GridFirstAid", "first aid indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
+
+            indexationDetailObj.on("click", "#btnDiscardFirstAid", function (e) {
+                e.preventDefault();
+                $('#AddFirstAid').empty();
+            });
+
+            indexationDetailObj.on("click", "#btnSaveFirstAid", function (e) {
+                e.preventDefault();
+                debugger;
+                var form = $("#FormEditFirstAid");
+                var url = form.attr("action");
+                var formData = form.serialize();
+                $.post(url, formData, function (data) {
+                    debugger;
+                    if (data.result === "success") {
+                        $(this).savedSuccessFully(data.message);
+                        $('#AddFirstAid').empty();
+                        var grid = $("#GridFirstAid").data("kendoGrid");
+                        grid.dataSource.read();
+                    } else {
+                        if (data.popupMessage)
+                            $(this).displayError(data.popupMessage);
+                    }
+                });
+                return true;
+            });
+
         }
 
         // Fire fighting section methods
