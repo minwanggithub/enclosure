@@ -2626,6 +2626,25 @@
             }
         };
 
+        var onGridPPEChange = function () {
+            debugger;
+            var selectedData = this.dataItem(this.select());
+            var indexation = getIndexationId();
+
+            if (selectedData) {
+
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/Ppe_Edit';
+                $.post(url, { indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "PPE" },
+                    function (data) {
+                        $('#AddPPE').html(data).show();
+                    });
+
+            } else {
+                hideEditorSection('AddPPE');
+            }
+        };
+
+
         // Others regulatory section methods
         function initializeOthersControls() {
 
@@ -2727,7 +2746,7 @@
 
             indexationDetailObj.on("click", "#ancHandlingStorageBatchDelete", function(e) {
                 e.preventDefault();
-                batchDeleteObjects("GridHandlingStorage", "handling storage indexation", "../Indexation/BatchDeleteSafetyIndexation");
+                batchDeleteObjects("GridHandlingStorage", "handling storage indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
 
             indexationDetailObj.on("click", "#btnDiscardHandlingStorage", function (e) {
@@ -2874,13 +2893,37 @@
         function initializePpeControls() {
             indexationDetailObj.on("click", "#btnAddPpe", function (e) {
                 e.preventDefault();
-                var url = GetEnvironmentLocation() + '/Operations/Indexation/Ppe_Insert';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/Ppe_Edit';
                 var indexationId = $("#IndexationId").val();
-                $.post(url, { indexationId: indexationId },
-                    function () {
-                        var pStatementGrid = $("#GridPPE").data("kendoGrid");
-                        pStatementGrid.dataSource.read();
-                    });
+                $.post(url, { indexationId: indexationId, iReference: 0, section: "PPE" },
+                     function (data) {
+                         $('#AddPPE').html(data).show();
+                     });
+            });
+
+            indexationDetailObj.on("click", "#btnDiscardPPE", function (e) {
+                e.preventDefault();
+                $('#AddPPE').empty();
+            });
+
+            indexationDetailObj.on("click", "#btnSavePPE", function (e) {
+                e.preventDefault();
+
+                var form = $("#FormEditPPE");
+                var url = form.attr("action");
+                var formData = form.serialize();
+                $.post(url, formData, function (data) {
+                    if (data.result === "success") {
+                        $(this).savedSuccessFully(data.message);
+                        $('#AddPPE').empty();
+                        var grid = $("#GridPPE").data("kendoGrid");
+                        grid.dataSource.read();
+                    } else {
+                        if (data.popupMessage)
+                            $(this).displayError(data.popupMessage);
+                    }
+                });
+                return true;
             });
 
             indexationDetailObj.on("click", "#ancPpeBatchDelete", function(e) {
@@ -2888,6 +2931,9 @@
                 batchDeleteObjects("GridPPE", "ppe indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
 
+
+
+            //Pictograms
             indexationDetailObj.on("click", "#btnAddPpePictograms", function (e) {
                 e.preventDefault();
                 if ($("#popupPpePictograms").length > 0) {
@@ -3086,6 +3132,7 @@
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onGridTransportModeRequestComplete: onGridTransportModeRequestComplete,
+            onGridPPEChange: onGridPPEChange,
             onHmisPpeChange: onHmisPpeChange,
             onIngredientSearchReady: onIngredientSearchReady,
             onRegEuropePartialReady: onRegEuropePartialReady,
