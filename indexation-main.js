@@ -155,18 +155,22 @@
         }
 
         function operatorDropdownChange(selectedValue, fromDdl, toDdl, moreNeeded) {
-            $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
 
-            if (!selectedValue || selectedValue === 7) {
-                $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);
-            } else if (selectedValue === 8) {
+            // <, <=, >, >=, =, approx, trace, range
+            
+            // disable by default
+            $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
+            
+            if (!selectedValue || selectedValue == 7) {
+                $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);    // trace
+            } else if (selectedValue == 8) {                                        // range
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", false);
             } else {
                 $("#" + fromDdl).prop("disabled", false);
                 $("#" + toDdl).val("").prop("disabled", true);
             }
 
-            // If a function was passed to complete the task continue with that
+            // if a function was passed to complete the task continue with that
             if (moreNeeded) {
                 moreNeeded(selectedValue);
             }
@@ -1048,7 +1052,7 @@
 
             indexationDetailObj.on("change", "input[type=radio][name=SelectCoeffDistrib]", function () {
                 var selectedItem = $(this).val();
-                if (selectedItem === 3)
+                if (selectedItem == 3)
                     $("#CoeffDistribEquals").prop("disabled", false);
                 else
                     $("#CoeffDistribEquals").val("").prop("disabled", true);
@@ -1085,6 +1089,7 @@
             physicalChemicalValidator = $('#FormPhyChemProperties').kendoValidator({
                 messages: {
                     decimalvalidate: function (input) {
+                        //return "Value must be numeric.";
                         return input.data('valNumber');
                     },
                     rangeValidation: function (input) {
@@ -1092,6 +1097,9 @@
                     }
                 },
                 rules: {
+
+                   
+
                     decimalvalidate: function (input) {
                         if (input.is('[class="val-decimal"]') && input.val()) {
                             return isValidDecimal(input.val());
@@ -1120,6 +1128,7 @@
             return physicalChemicalValidator;
         }
 
+        // temparature unit
         function boilingPointMoreNeeded(selectedValue) {
             if (!selectedValue || selectedValue === 7) {
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").select(0);
@@ -1128,6 +1137,7 @@
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").enable(true);
         }
 
+        // temparature unit
         function volatilityMoreNeeded(selectedValue) {
             if (!selectedValue || selectedValue === 7) {
                 $('#SelectFromToVolatility').data("kendoDropDownList").select(0);
