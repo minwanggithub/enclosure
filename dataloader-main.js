@@ -54,13 +54,8 @@
                     $(this).displayError("You need to select the data source before preceeding.");
                     return;
                 }
-                if (selectedTable === 3 || selectedTable === 6 || selectedTable === 7) {
+                if (selectedTable == 3 || selectedTable == 6 || selectedTable == 7) {
                     $(this).displayError("The current version can not process selected table. The feature is still under development.");
-                    return;
-                }
-
-                if (selectedTable === 3 || selectedTable === 6 || selectedTable === 7) {
-                    $(this).displayError("Be patient, it's on the way.");
                     return;
                 }
 
@@ -83,7 +78,7 @@
                                 tabStrip.reload(tabStrip.items()[item.index]);
                             }
                         }
-                        $(this).savedSuccessFully(data.message); //Regardless of fail or success
+                        $(this).savedSuccessFully(data.message); 
                     }).error(
                         function () {
                             $(this).displayError("Error Occurred");
@@ -105,25 +100,15 @@
             if (item.index() > -1)
                 tabStrip.remove(tabStrip.select());
 
-            tabStrip.insertAfter({ text: stampTitle, contentUrl: targetUrl }, tabStrip.tabGroup.children("li:last"));
-            //$(".k-first > .k-link").append("<button class='btn btn-mini' style='margin-bottom:5px;margin-left:5px;' onClick='closeTab($(this).closest(\"li\"));'>x</button>");
+            tabStrip.insertAfter({ text: stampTitle, contentUrl: targetUrl }, tabStrip.tabGroup.children("li:last"));            
             $(".k-last > .k-link").append("<button class='btn btn-mini' style='margin-left:5px; margin-right:-5px;' onClick='dataloadlib.CloseTab($(this).closest(\"li\"));'>x</button>");
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
-
-            //Having issue
-            //tabStrip.insertBefore({ text: stampTitle, contentUrl: targetUrl}, tabStrip.tabGroup.children("li:first"));
-            ////$(".k-first > .k-link").append("<button class='btn btn-mini' style='margin-bottom:5px;margin-left:5px;' onClick='closeTab($(this).closest(\"li\"));'>x</button>");
-            //$(".k-first > .k-link").append("<button class='btn btn-mini' style='margin-left:5px; margin-right:-5px;' onClick='closeTab($(this).closest(\"li\"));'>x</button>");
-            //tabStrip.select(0);
-            //tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
         }
 
         var CloseTab =  function CloseTab(tab) {
             var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
-            tabStrip.remove(tabStrip.select());
-            //tabStrip.remove(tab);
-            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
-            //tabStrip.select(0);
+            tabStrip.remove(tabStrip.select());         
+            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));            
         }
 
         Init();
