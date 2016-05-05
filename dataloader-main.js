@@ -31,16 +31,16 @@
         };
 
 
-        function Init() {
+        function init() {
             $(controls.buttons.btnLoadDataPreview).on("click", function () {
                 var selectedTable = $(controls.dropdownlists.ddSqlTables).data("kendoDropDownList").value();
-                if (selectedTable == 0) {
+                if (selectedTable === '') {
                     $(this).displayError("You need to select the data source before preceeding.");
                     return;
                 }
 
                 var url = generateLocationUrl("Configuration/DataLoader/GetWaitingProcessItems?tableId=" + selectedTable);
-                dataloadlib.AddTab(selectedTable, url);
+                window.dataloadlib.AddTab(selectedTable, url);
             });
 
             $(controls.buttons.btnRefreshDatasource).on("click", function () {
@@ -50,11 +50,11 @@
             $(controls.buttons.btnLoadDataSql).on("click", function () {
                 //Filter any tables which will not be supported for this version
                 var selectedTable = $(controls.dropdownlists.ddSqlTables).data("kendoDropDownList").value();
-                if (selectedTable === 0) {
+                if (selectedTable === "") {
                     $(this).displayError("You need to select the data source before preceeding.");
                     return;
                 }
-                if (selectedTable == 3 || selectedTable == 6 || selectedTable == 7) {
+                if (selectedTable === "3" || selectedTable === "6" || selectedTable === "7") {
                     $(this).displayError("The current version can not process selected table. The feature is still under development.");
                     return;
                 }
@@ -87,7 +87,7 @@
         }
 
 
-        var AddTab = function AddTab(tableIndex, targetUrl) {
+        var addTab = function(tableIndex, targetUrl) {
 
             var title = tableList[tableIndex];
 
@@ -105,17 +105,17 @@
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
         }
 
-        var CloseTab =  function CloseTab(tab) {
+        var closeTab =  function(tab) {
             var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
-            tabStrip.remove(tabStrip.select());         
+            tabStrip.remove(tab);         
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));            
         }
 
-        Init();
+        init();
 
         return {           
-            AddTab: AddTab,
-            CloseTab: CloseTab
+            AddTab: addTab,
+            CloseTab: closeTab
         };
     };
 
