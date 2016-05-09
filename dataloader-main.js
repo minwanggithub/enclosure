@@ -113,7 +113,8 @@
 
         init();
 
-        return {           
+        return {
+            PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             AddTab: addTab,
             CloseTab: closeTab
         };
