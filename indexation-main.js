@@ -321,47 +321,56 @@
 
                     data['ids'] = selectedIds;
 
-                    var args = { message: 'Are you sure you would like to delete the selected ' + objName + '?', header: 'Confirm Delete Selected' };
-                    DisplayConfirmationModal(args, function () {
+                    var args = {
+                        message: 'Are you sure you would like to delete the selected ' + objName + '?',
+                        header: 'Confirm Delete Selected'
+                    };
+                    DisplayConfirmationModal(args,
+                        function() {
 
-                        $.ajax({
-                            url: url,
-                            data: JSON.stringify(data),
-                            type: "POST",
-                            contentType: 'application/json; charset=utf-8',
-                            beforeSend: function () {
-                                kendo.ui.progress($('#IndexationDetail'), true);
-                            }, error: function() {
-                                onDisplayError('Deleting ' + objName + ' could not be completed');
-                            }, success: function (successData) {
+                            $.ajax({
+                                url: url,
+                                data: JSON.stringify(data),
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                beforeSend: function() {
+                                    kendo.ui.progress($('#IndexationDetail'), true);
+                                },
+                                error: function() {
+                                    onDisplayError('Deleting ' + objName + ' could not be completed');
+                                },
+                                success: function(successData) {
 
-                                if (successData.success === true) {
+                                    if (successData.success === true) {
 
-                                    // Uncheck the master select checkbox if checked
-                                    var checkbox = $(grid.element).find('.chkMasterMultiSelect');
-                                    if (checkbox && checkbox.is(':checked')) {
-                                        checkbox.attr('checked', false);
+                                        // Uncheck the master select checkbox if checked
+                                        var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                                        if (checkbox && checkbox.is(':checked')) {
+                                            checkbox.attr('checked', false);
+                                        }
+
+                                        grid = $(targetGridSelector).data("kendoGrid");
+                                        grid.dataSource.read();
+
+                                        $(this).savedSuccessFully('Delete Successful');
+
+                                    } else {
+                                        $(this).displayError(successData.message);
                                     }
 
-                                    grid = $(targetGridSelector).data("kendoGrid");
-                                    grid.dataSource.read();
+                                },
+                                complete: function(compData) {
 
-                                    $(this).savedSuccessFully('Delete Successful');
+                                    kendo.ui.progress($('#IndexationDetail'), false);
 
-                                } else {
-                                    $(this).displayError(successData.message);
+                                    if (completeCallback) {
+                                        completeCallback(compData);
+                                    }
                                 }
-
-                            }, complete: function (compData) {
-                                
-                                kendo.ui.progress($('#IndexationDetail'), false);
-
-                                if (completeCallback) {
-                                    completeCallback(compData);
-                                }
-                            }
+                            });
                         });
-                    });
+                } else {
+                    $(this).displayError("No rows selected");
                 }
             }
         };
@@ -608,6 +617,13 @@
             indexationDetailObj.on("click", "#btnSaveIngredient", function (e) {
                 e.preventDefault();
                 var validator = retrieveIngredientValidator();
+
+                var registrationNumber =  $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
+                if (!isRegistrationNumberValid(registrationNumber.value())) {
+                    $(this).displayError("Registration Number invalid format");
+                    return false;
+                }
+
                 if (validator.validate()) {
                     var form = $("#ingredientForm");
                     var url = form.attr("action");
@@ -679,6 +695,15 @@
                 if (e.keyCode === 13)
                     $('#btnSearchIngredient').click();
             });
+        }
+
+        function isRegistrationNumberValid(registrationNumber) {
+            if (registrationNumber == "")
+                return true;
+            else {
+                var pattern = new RegExp(/^[\d]{2}-[\d]{10}-[\d]{2}(-([xX]{4}|[\d]{4}))?$/);
+                return pattern.test(registrationNumber);
+            }
         }
 
         function initializeIngredientCreationControls(editorWindow) {
@@ -766,14 +791,15 @@
                         else
                             return input.data('valNumber');
                     },
-                    ingredientsearch: function () {
-                        var ingredientId = $('#ingredientForm').find('#IngredientId').val();
-                        var cacheObj = ingredientCache.cache[ingredientId];
-                        if (cacheObj.searching)
-                            return ingredientSearching;
-                        else
-                            return cacheObj.valid ? '' : ingredientMissing;
-                    },
+                    //ingredientsearch: function () {
+                    //    debugger;
+                    //    var ingredientId = $('#ingredientForm').find('#IngredientId').val();
+                    //    var cacheObj = ingredientCache.cache[ingredientId];
+                    //    if (cacheObj.searching)
+                    //        return ingredientSearching;
+                    //    else
+                    //        return cacheObj.valid ? '' : ingredientMissing;
+                    //},
                     validnumber: function (input) {
                         return input.data('valNumber');
                     }
@@ -792,43 +818,43 @@
                         if (input.is('[id="OperatorTo"]'))
                             return isValidDecimal(input.val());
                         return true;
-                    },
-                    ingredientsearch: function (input) {
-                        var validationUrl = input.data("valRemoteUrl");
-                        if (typeof validationUrl !== 'undefined' && validationUrl) {
+                    }//,
+                    //ingredientsearch: function (input) {
+                    //    var validationUrl = input.data("valRemoteUrl");
+                    //    if (typeof validationUrl !== 'undefined' && validationUrl) {
 
-                            // Attempt to check if we have already checked this value
-                            var ingredientId = $('#ingredientForm').find('#IngredientId').val();
-                            var cacheObj = ingredientCache.cache[ingredientId] = ingredientCache.cache[ingredientId] || {};
-                            cacheObj.searching = true;
+                    //        // Attempt to check if we have already checked this value
+                    //        var ingredientId = $('#ingredientForm').find('#IngredientId').val();
+                    //        var cacheObj = ingredientCache.cache[ingredientId] = ingredientCache.cache[ingredientId] || {};
+                    //        cacheObj.searching = true;
 
-                            var settings = {
-                                 ingredientId: ingredientId,
-                                 url: validationUrl
-                            };
+                    //        var settings = {
+                    //             ingredientId: ingredientId,
+                    //             url: validationUrl
+                    //        };
 
-                            if (cacheObj.value === settings.ingredientId && cacheObj.valid)
-                                return true;
+                    //        if (cacheObj.value === settings.ingredientId && cacheObj.valid)
+                    //            return true;
 
-                            if (cacheObj.value === settings.ingredientId && !cacheObj.valid) {
-                                cacheObj.searching = false;
-                                return false;
-                            }
+                    //        if (cacheObj.value === settings.ingredientId && !cacheObj.valid) {
+                    //            cacheObj.searching = false;
+                    //            return false;
+                    //        }
 
-                            ingredientCache.check(input, settings);
+                    //        ingredientCache.check(input, settings);
 
-                            // Automatically set to false to display searching ingredient
-                            return false;
-                        }
-                        return true;
-                    },
-                    validnumber: function (input) {
-                        if (input.is('[id="AuthorizationNumber"]') || input.is('[id="RegistrationNumber"]')) {
-                            if (input.val())
-                                return isValidInteger(input.val());
-                        } 
-                        return true;
-                    }
+                    //        // Automatically set to false to display searching ingredient
+                    //        return false;
+                    //    }
+                    //    return true;
+                    //},
+                    //validnumber: function (input) {
+                    //    if (input.is('[id="AuthorizationNumber"]') || input.is('[id="RegistrationNumber"]')) {
+                    //        if (input.val())
+                    //            return isValidInteger(input.val());
+                    //    } 
+                    //    return true;
+                    //}
                 }
 
             }).data("kendoValidator");
@@ -1981,7 +2007,7 @@
                 }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
-                    alert("No rows selected");
+                    $(this).displayError("No rows selected");
                     return;
                 }
                 $("#popupGhsSignalWord").modal("hide");
