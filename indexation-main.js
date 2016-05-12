@@ -1542,13 +1542,14 @@
                     rows.each(
                         function (index, row) {
                             var selectedItem = grid.dataItem(row);
-                            canadaclasslists.push(selectedItem.Reference);
+                            canadaclasslists.push(selectedItem.WhmisClassificationID);
                         }
                     );
+                   
                     addCanadaClassificationList(canadaclasslists);
                     return;
                 }
-                addCanadaClassification(selectedData.Reference);
+                addCanadaClassification(selectedData.WhmisClassificationID);
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchCanadaClass table tr", function () {
@@ -1556,10 +1557,10 @@
             });
         }
 
-        function addCanadaClassification(reference) {
+        function addCanadaClassification(whmisClassificationID) {
             var url = GetEnvironmentLocation() + '/Operations/Indexation/RegCanadian_Create';
             var indexationId = $("#IndexationId").val();
-            $.post(url, { iReference: reference, indexationId: indexationId },
+            $.post(url, { iReference: whmisClassificationID, indexationId: indexationId },
                 function (data) {
                     $("#popupCanadaClassSearch").modal("hide");
                     $(this).savedSuccessFully(data);
