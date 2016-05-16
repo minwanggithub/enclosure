@@ -1588,7 +1588,7 @@
                 e.preventDefault();
 
                 if ($("#popupRSPhraseSearch").length > 0) {
-                    clearRsPhraseSearchFields(false);
+                    //clearRsPhraseSearchFields(false);
                 }
                 $("#popupRSPhraseSearch").modal("show");
             });
@@ -1599,6 +1599,7 @@
             });
 
             indexationDetailObj.on("click", "#btnSelectRSPhrase", function (e) {
+
                 e.preventDefault();
                 var grid = $("#GridSearchRSPhrase").data("kendoGrid");
                 if (grid.dataSource.total() === 0) {
@@ -1619,10 +1620,15 @@
                             rsphraselists.push(selectedItem.Reference);
                         }
                     );
+
+                    console.log(rsphraselists);
                     addRsPhraseList(rsphraselists);
+
                     return;
                 }
+
                 addRsPhrase(selectedData.Reference);
+
             });
 
             indexationDetailObj.on("click", "#ancRSPhraseBatchDelete", function (e) {
@@ -1654,6 +1660,7 @@
         }
 
         function addRsPhraseList(rsphraselists) {
+            debugger;
             var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RSPhrase_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { rsPhraseList: JSON.stringify(rsphraselists), indexationId: indexationId },
@@ -1708,7 +1715,7 @@
 
             popup.on('click', '#clearRSPhrases', function (e) {
                 e.preventDefault();
-                clearRsPhraseSearchFields(true);
+                //clearRsPhraseSearchFields(true);
             });
 
             popup.on('keyup', '#txtRSPhraseSearch', function (e) {
@@ -2664,7 +2671,7 @@
         };
 
         var onGridPPEChange = function () {
-            debugger;
+            //debugger;
             var selectedData = this.dataItem(this.select());
             var indexation = getIndexationId();
 
@@ -2840,12 +2847,12 @@
 
             indexationDetailObj.on("click", "#btnSaveFirstAid", function (e) {
                 e.preventDefault();
-                debugger;
+                //debugger;
                 var form = $("#FormEditFirstAid");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    debugger;
+                    //debugger;
                     if (data.result === "success") {
                         $(this).savedSuccessFully(data.message);
                         $('#AddFirstAid').empty();

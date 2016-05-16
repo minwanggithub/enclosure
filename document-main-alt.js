@@ -1852,12 +1852,30 @@
             };
           
             if (formData.model) {
-  
-                // save always
-                var proceedWithSave = true;
+
+                var url = form.attr("action");
+
+                if (formData.attachments.length > 0) {
+
+                    $(this).ajaxCall(url, formData)
+                    .success(function(data) {
+                        var errorMessage = parseErrorMessage(data);
+                        if(!errorMessage) {
+                            parent.window.opener.location.reload();
+                            window.close();
+                            } else
+                            displayError(errorMessage);
+                            })
+                    .error(function() {
+                        displayError(documentMessages.errors.SaveDocumentRevisionError);
+                    });
+
+                    return;
+
+                 }
 
                 // if there are no attachments, prompt for a save confirmation
-                if (/*formData.model.RevisionId == 0 && */formData.attachments.length == 0) {
+                if (formData.attachments.length == 0) {
 
                     var settings = {
                         header: documentMessages.modals.GeneralConfirm,
@@ -1868,7 +1886,6 @@
                     proceedWithSave = false;
                     displayConfirmationModal(settings, function () {
 
-                        var url = form.attr("action");
                         $(this).ajaxCall(url, formData)
                         .success(function(data) {
                             var errorMessage = parseErrorMessage(data);
@@ -1886,7 +1903,8 @@
 
                 }
 
- 
+
+
             } else {
                 // something wrong with the form data
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
