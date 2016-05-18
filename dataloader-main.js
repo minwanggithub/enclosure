@@ -74,8 +74,8 @@
                             var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
                             var item = tabStrip.tabGroup.find(':contains("In Queue")');
                             if (item.index() > -1) {
-                                tabStrip.select(item.index);
-                                tabStrip.reload(tabStrip.items()[item.index]);
+                                tabStrip.select(item.index());
+                                tabStrip.reload(tabStrip.items()[item.index()]);
                             }
                         }
                         $(this).savedSuccessFully(data.message); 
