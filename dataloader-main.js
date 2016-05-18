@@ -61,7 +61,7 @@
 
                 var selectedTableRows = $(controls.dropdownlists.ddSqlTables).data("kendoDropDownList").text();
 
-                if (selectedTableRows.indexOf("0 rows") > -1) {
+                if (selectedTableRows.indexOf("(0 rows)") > -1) {
                     $(this).displayError("Nothing to process. Please refresh your datasource if you know there are some data waiting on the queue.");
                     return;
                 }
@@ -84,7 +84,7 @@
                             $(this).displayError("Error Occurred");
                         });
             });
-        }
+        };
 
 
         var addTab = function(tableIndex, targetUrl) {
@@ -100,21 +100,61 @@
             if (item.index() > -1)
                 tabStrip.remove(tabStrip.select());
 
-            tabStrip.insertAfter({ text: stampTitle, contentUrl: targetUrl }, tabStrip.tabGroup.children("li:last"));            
+            tabStrip.insertAfter({ text: stampTitle, contentUrl: targetUrl }, tabStrip.tabGroup.children("li:last"));
             $(".k-last > .k-link").append("<button class='btn btn-mini' style='margin-left:5px; margin-right:-5px;' onClick='dataloadlib.CloseTab($(this).closest(\"li\"));'>x</button>");
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
-        }
+        };
 
-        var closeTab =  function(tab) {
+        var closeTab = function(tab) {
             var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
-            tabStrip.remove(tab);         
-            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));            
-        }
+            tabStrip.remove(tab);
+            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
+        };
+
+        var  updateBatchStatus = function (dataLoadQueueId) {
+            $(this).ajaxCall(GetEnvironmentLocation() + "/Configuration/DataLoader/GetBatchStatusById", { dataLoadQueueId: dataLoadQueueId })
+                .success(function(data) {
+                    $("#queueProgressbar_" + data.BatchQueueID).data("kendoProgressBar").value(data.PercentCompleted);
+                    $("#batchCompletedRow_" + data.BatchQueueID).text(data.TotalCompleted);
+                    $("#batchErrorRow_" + data.BatchQueueID).text(data.TotalErrors);
+                    $("#batchTotalRow_" + data.BatchQueueID).text(data.TotalRows);
+
+                    if (data.Continue) {
+                        setTimeout(function() {
+                            updateBatchStatus(dataLoadQueueId);
+                        }, 1000);
+
+                    }
+                }).error(
+                    function() {
+                        $(this).displayError("Error Occurred");
+                    });
+
+        };
+
+        var initializePregressBar = function (queueId) {
+            $("#queueProgressbar_" + queueId).kendoProgressBar({
+                min: 1,
+                max: 100,
+                value: 100,
+                type: "percent",
+                //complete: function (e) {
+                //    console.log("Progress completed");
+                //},
+                animation: {
+                    duration: 900
+                }
+            });
+
+            updateBatchStatus(queueId);
+        };
 
         init();
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
+            InitializePregressBar: initializePregressBar,
+            UpdateBatchStatus:updateBatchStatus,
             AddTab: addTab,
             CloseTab: closeTab
         };
