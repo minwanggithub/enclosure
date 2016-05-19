@@ -150,10 +150,13 @@
         };
 
 
-        var onGridQueueDataBound = function (e) {
-            var detailRow = this.tbody.find("tr.k-master-row");
-            if (detailRow != null)
-                this.expandRow(this.tbody.find("tr.k-master-row"));
+        var onGridQueueDataBound = function (e) {            
+            var dataItems = e.sender.dataSource.view();
+            for (var j = 0; j < dataItems.length; j++) {
+                var row = dataItems[j];
+                if (dataItems[j].get("DataSource") === 2)                
+                  this.expandRow("tr[data-uid='" + row.uid + "']"); // expands the row with the specific uid
+            }
         };
 
         init();
