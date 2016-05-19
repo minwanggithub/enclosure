@@ -149,12 +149,20 @@
             updateBatchStatus(queueId);
         };
 
+
+        var onGridQueueDataBound = function (e) {
+            var detailRow = this.tbody.find("tr.k-master-row");
+            if (detailRow != null)
+                this.expandRow(this.tbody.find("tr.k-master-row"));
+        };
+
         init();
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             InitializePregressBar: initializePregressBar,
-            UpdateBatchStatus:updateBatchStatus,
+            UpdateBatchStatus: updateBatchStatus,
+            OnGridQueueDataBound: onGridQueueDataBound,
             AddTab: addTab,
             CloseTab: closeTab
         };
