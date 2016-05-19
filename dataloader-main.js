@@ -143,13 +143,13 @@
         function BatchStatusUpdates(status) {
             if (status != null) {
                 var qpb = $("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar");
-                if (qpb != null)
+                if (qpb != null) {     //Kendo progress bar may not be ready yet
                     qpb.value(status.PercentCompleted);
-
-                $("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar").value(status.PercentCompleted);
-                $("#batchCompletedRow_" + status.BatchQueueID).text(status.TotalCompleted);
-                $("#batchErrorRow_" + status.BatchQueueID).text(status.TotalErrors);
-                $("#batchTotalRow_" + status.BatchQueueID).text(status.TotalRows);
+                    //$("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar").value(status.PercentCompleted);
+                    $("#batchCompletedRow_" + status.BatchQueueID).text(status.TotalCompleted);
+                    $("#batchErrorRow_" + status.BatchQueueID).text(status.TotalErrors);
+                    $("#batchTotalRow_" + status.BatchQueueID).text(status.TotalRows);
+                }
             }
         }
 
