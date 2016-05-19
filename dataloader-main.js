@@ -111,27 +111,6 @@
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
         };
 
-        var  updateBatchStatus = function (dataLoadQueueId) {
-            $(this).ajaxCall(GetEnvironmentLocation() + "/Configuration/DataLoader/GetBatchStatusById", { dataLoadQueueId: dataLoadQueueId })
-                .success(function(data) {
-                    $("#queueProgressbar_" + data.BatchQueueID).data("kendoProgressBar").value(data.PercentCompleted);
-                    $("#batchCompletedRow_" + data.BatchQueueID).text(data.TotalCompleted);
-                    $("#batchErrorRow_" + data.BatchQueueID).text(data.TotalErrors);
-                    $("#batchTotalRow_" + data.BatchQueueID).text(data.TotalRows);
-
-                    if (data.Continue) {
-                        setTimeout(function() {
-                            updateBatchStatus(dataLoadQueueId);
-                        }, 1000);
-
-                    }
-                }).error(
-                    function() {
-                        $(this).displayError("Error Occurred");
-                    });
-
-        };
-
         var initializePregressBar = function (queueId) {
             $("#queueProgressbar_" + queueId).kendoProgressBar({
                 min: 1,
@@ -146,9 +125,33 @@
                 }
             });
 
-            updateBatchStatus(queueId);
+
+            $.when(BatchRequestAll(queueId)).then(
+                 function (status) {  
+                     $(this).savedSuccessFully("Batch with Id=" + status.BatchQueueID + " has completed.");                     
+                     BatchStatusUpdates(status);
+                 },
+                 function (status) {  
+                     $(this).displayError("Batch with Id=" + status.BatchQueueID + " has failed.");
+                 },
+                 function (status) {  
+                     BatchStatusUpdates(status);
+                 }
+            );
         };
 
+        function BatchStatusUpdates(status) {
+            if (status != null) {
+                var qpb = $("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar");
+                if (qpb != null)
+                    qpb.value(status.PercentCompleted);
+
+                $("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar").value(status.PercentCompleted);
+                $("#batchCompletedRow_" + status.BatchQueueID).text(status.TotalCompleted);
+                $("#batchErrorRow_" + status.BatchQueueID).text(status.TotalErrors);
+                $("#batchTotalRow_" + status.BatchQueueID).text(status.TotalRows);
+            }
+        }
 
         var onGridQueueDataBound = function (e) {            
             var dataItems = e.sender.dataSource.view();
@@ -159,12 +162,35 @@
             }
         };
 
+
+        function BatchPromiseEvent(dataLoadQueueId, dfd ) {          
+            $(this).ajaxCall(GetEnvironmentLocation() + "/Configuration/DataLoader/GetBatchStatusById", { dataLoadQueueId: dataLoadQueueId })
+                .success(function (data) {
+                    if (dfd.state() === "pending" && data.Continue) {
+                        dfd.notify(data);
+                        setTimeout(BatchPromiseEvent(dataLoadQueueId, dfd), 1000);
+                    }
+                    else if (!data.Continue) {
+                        dfd.resolve(data);
+                    }
+                }).error(
+                function () { dfd.reject("Error"); }
+                );
+        };
+
+
+        function BatchRequestAll(dataLoadQueueId) {
+            var deferred = jQuery.Deferred();
+            BatchPromiseEvent(dataLoadQueueId, deferred);
+            return deferred.promise();
+        }
+
+
         init();
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             InitializePregressBar: initializePregressBar,
-            UpdateBatchStatus: updateBatchStatus,
             OnGridQueueDataBound: onGridQueueDataBound,
             AddTab: addTab,
             CloseTab: closeTab
