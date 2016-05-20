@@ -168,7 +168,8 @@
                 .success(function (data) {
                     if (dfd.state() === "pending" && data.Continue) {
                         dfd.notify(data);
-                        setTimeout(BatchPromiseEvent(dataLoadQueueId, dfd), 1000);
+                        //setTimeout(BatchPromiseEvent(dataLoadQueueId, dfd), 1000);
+                        $.wait(1000).then(BatchPromiseEvent(dataLoadQueueId, dfd));
                     }
                     else if (!data.Continue) {
                         dfd.resolve(data);
