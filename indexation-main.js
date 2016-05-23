@@ -1239,9 +1239,14 @@
             operatorDropdownChange(e.sender._selectedValue, "FromSpecificGravity", "ToSpecificGravity");
         };
 
+        // VISCOSITY-LOGIC
+
         var onViscosity1Change = function(e) {
+
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue === 1)
+           
+            // "value"
+            if (selectedValue == 1)
                 $("#SelectViscosity2").data("kendoDropDownList").enable(true);
             else {
                 $("#SelectViscosity2").data("kendoDropDownList").select(0);
@@ -1261,7 +1266,9 @@
 
         var onVocCodeChange = function (e) {
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue !== 1) {
+
+            
+            if (selectedValue != 1) {
                 $("#SelectOperator").data("kendoDropDownList").select(0);
                 $("#SelectOperator").data("kendoDropDownList").enable(false);
                 $("#SelectParticularity").data("kendoDropDownList").select(0);
@@ -1284,11 +1291,58 @@
             operatorDropdownChange(e.sender._selectedValue, "FromVoc", "ToVoc", vocOperatorMoreNeeded);
         };
 
-        var onVocMuTypeChange = function (e) {
+        var onVocWeightMuChange = function (e) {
+
             var selectedValue = e.sender._selectedValue;
-            if (selectedValue === 4) {
+
+            // enable by default
+            $("#SelectParticularity").data("kendoDropDownList").enable(true);
+            $("#Warning").prop("disabled", false).prop("checked", false);
+            $("#SelectVolumeMu").data("kendoDropDownList").enable(true);
+
+            // ppb, ppm, ppt
+            if (selectedValue >= 26 && selectedValue <= 29) {
+                $("#SelectParticularity").data("kendoDropDownList").enable(false);
+                $("#Warning").prop("disabled", true).prop("checked", false);
+                $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
+            }
+
+        }
+
+        var onVocVolumeMuChange = function (e) {
+
+            var selectedValue = e.sender._selectedValue;
+
+            // default to disabled
+            $("#SelectParticularity").data("kendoDropDownList").enable(true);
+            $("#Warning").prop("disabled", false).prop("checked", false);
+            $("#SelectWeightMu").data("kendoDropDownList").enable(true);
+
+            // %, %v, %w
+            if (selectedValue >= 33 && selectedValue <= 35) {
+                $("#SelectParticularity").data("kendoDropDownList").enable(false);
+                $("#Warning").prop("disabled", true).prop("checked", false);
+                $("#SelectWeightMu").data("kendoDropDownList").enable(false);
+            }
+            
+        }
+
+        var onVocMuTypeChange = function (e) {
+
+            var selectedValue = e.sender._selectedValue;
+
+            // disable always
+            $("#SelectParticularity").data("kendoDropDownList").enable(false);
+            $("#Warning").prop("disabled", true);
+
+            if (selectedValue == 4) {
+
+                // weight by volume
                 $("#SelectWeightMu").data("kendoDropDownList").enable(true);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(true);
+
+                $("#SelectParticularity").data("kendoDropDownList").enable(true);
+                $("#Warning").prop("disabled", false);
 
             } else {
                 $("#SelectWeightMu").data("kendoDropDownList").select(0);
@@ -3198,6 +3252,8 @@
             onViscosity2Change: onViscosity2Change,
             onVocCodeChange: onVocCodeChange,
             onVocMuTypeChange: onVocMuTypeChange,
+            onVocWeightMuChange: onVocWeightMuChange,
+            onVocVolumeMuChange: onVocVolumeMuChange,
             onVocOperatorChange: onVocOperatorChange,
             onVolatilityChange: onVolatilityChange,
             onSaveNonSdsIndexation: onSaveNonSdsIndexation
