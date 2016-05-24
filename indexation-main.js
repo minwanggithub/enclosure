@@ -2737,11 +2737,15 @@
                         $('#AddPPE').html(data).show();
                     });
 
-            } else {
+            } else
                 hideEditorSection('AddPPE');
-            }
         };
 
+
+        var onGridPPERequestComplete = function (e) {
+            if(e.type === "destroy")
+                hideEditorSection('AddPPE');
+        };
 
         // Others regulatory section methods
         function initializeOthersControls() {
@@ -2875,7 +2879,27 @@
 
         }
 
-        
+        var onGridHandlingStorageRequestComplete = function (e) {
+            if (e.type === "destroy")
+                hideEditorSection('AddHandlingStorage');
+        };
+
+        var onGridHandlingStorageChange = function () {
+            var selectedData = this.dataItem(this.select());
+            var indexation = getIndexationId();
+
+            if (selectedData) {
+               var url = GetEnvironmentLocation() + '/Operations/Indexation/HandlingStorage_Edit';
+                $.post(url, { indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "HandlingStorage" },
+                    function (data) {
+                        $('#AddHandlingStorage').html(data).show();
+                    });
+
+            } else
+                hideEditorSection('AddHandlingStorage');
+        };
+
+
 
         // First aid section methods
         function initializeFirstAidControls() {
@@ -2921,6 +2945,29 @@
             });
 
         }
+
+          var onGridFirstAidRequestComplete = function (e) {
+            if(e.type === "destroy")
+                hideEditorSection('AddFirstAid');
+                };
+
+        var onGridFirstAidChange = function () {
+            var selectedData = this.dataItem(this.select());
+            var indexation = getIndexationId();
+
+                    if (selectedData) {
+                        var url = GetEnvironmentLocation() + '/Operations/Indexation/FirstAid_Edit';
+                        $.post(url, {
+                            indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "FirstAid"
+                        },
+                    function (data) {
+                        $('#AddFirstAid').html(data).show();
+                    });
+
+                    } else
+                hideEditorSection('AddFirstAid');
+                };
+
 
         // Fire fighting section methods
         function initializeFireFightingControls() {
@@ -3127,9 +3174,13 @@
             $.post(url, function (data) {
                 $("#dgPpePictogramsPlugIn").html(data);
             });
+
         };
 
-        var initialNonSdsValues = '';
+  
+
+    
+           var initialNonSdsValues = '';
 
         // Non Sds Indexing Methods
         function initializeNonSdsControls() {
@@ -3205,6 +3256,11 @@
             parentFrame.height(nethubContent.height() +(htmlPadding * 2) + 'px');
         }
 
+
+
+        
+
+
         // Exposed methods
         return {
             getDocRevisionId: getDocRevisionId,
@@ -3226,10 +3282,14 @@
             onGridHazardStatementChange: onGridHazardStatementChange,
             onGridHazardStatementRequestComplete: onGridHazardStatementRequestComplete,
             onGridIngredientChange: onGridIngredientChange,
-            onGridIngredientRemove: onGridIngredientRemove,
+            onGridFirstAidChange: onGridFirstAidChange,
+            onGridFirstAidRequestComplete:onGridFirstAidRequestComplete,
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onGridTransportModeRequestComplete: onGridTransportModeRequestComplete,
+            onGridHandlingStorageChange: onGridHandlingStorageChange,
+            onGridHandlingStorageRequestComplete: onGridHandlingStorageRequestComplete,
+            onGridPPERequestComplete: onGridPPERequestComplete,
             onGridPPEChange: onGridPPEChange,
             onHmisPpeChange: onHmisPpeChange,
             onIngredientSearchReady: onIngredientSearchReady,
