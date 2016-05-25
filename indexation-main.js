@@ -60,6 +60,13 @@
             initializeOthersControls();
         };
 
+        var getIndexLevelParam = function () {
+            var revisionId = $("#RevisionId").val();
+            var ehsChecked = $('#IndexLevelEHS').prop('checked');
+            var saftyHandlingChecked = $('#IndexLevelSaftyHandling').prop('checked');
+            return { revisionId: revisionId, ehsLevel: ehsChecked, saftyHandlingLevel: saftyHandlingChecked };
+        };
+
         var getDocRevisionId = function() {
             var revisionId = $("#RevisionId").val();
             var documentId = $("#DocumentId").val();
@@ -496,6 +503,8 @@
                 $("#btnSaveFireFighting").click();
 
             //SaveGeneral();
+            saveIndexationLevel();
+
             if (!validationGeneral)
                 $(this).displayError(validationMessage + "" + "<br />Please navigate to the section(s) above to correct validation.");
             else
@@ -2511,6 +2520,22 @@
                         $("#popupHazardStatement").modal("hide");
                         $(this).displayError("Batch hazard statement creation could not be completed");
                     }
+                }
+            });
+        }
+
+        function saveIndexationLevel() {
+            var url = GetEnvironmentLocation() + "/Operations/Indexation/SaveIndexationLevel";
+            var param = getIndexLevelParam();
+            $.ajax({
+                url: url,
+                data: JSON.stringify(param),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {                    
+                    $(this).displayError("Can not save indexation level information.");
+                },
+                success: function (response) {
                 }
             });
         }
