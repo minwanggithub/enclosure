@@ -188,14 +188,12 @@
             if (!affectedFields)
                 return false;
 
-
-            var fieldEnabled = selectedValue === 4;
+            var fieldEnabled = (selectedValue == 4);
             for (var idx = 0; idx < affectedFields.length; idx++) {
 
                 var currentDdl = $('#' + affectedFields[idx]).data("kendoDropDownList");
-                if (fieldEnabled === false)
+                if (fieldEnabled == false)
                     currentDdl.select(0);
-
                 currentDdl.enable(fieldEnabled);
             }
 
@@ -204,7 +202,7 @@
         }
 
         function onElementDisable(index, oldPropertyValue) {
-            if (oldPropertyValue === false)
+            if (oldPropertyValue == false)
                 removeValidationToolTips(this);
         }
 
@@ -212,7 +210,7 @@
             var self = $(element);
 
             var parentValue = self.parents('.controls:first');
-            if (!parentValue || parentValue.length !== 1) {
+            if (!parentValue || parentValue.length != 1) {
                 if (self.is('[data-role="dropdownlist"]')) {
                     parentValue = self.parents('.k-dropdown');
                 } else if (self.parent().is('[class^="span"]')) {
@@ -1215,9 +1213,9 @@
         function onConcentrationChangeCallback(concentrationValue, valueField) {
             
             var textField = $('#' + valueField);
-            if (concentrationValue !== 0) {
+            if (concentrationValue != 0) {
                 var minValue = 0;
-                var maxValue = (concentrationValue === 4 || concentrationValue === 5) ? 999 : 100;
+                var maxValue = (concentrationValue == 4 || concentrationValue == 5) ? 999 : 100;
                 var errorMessage = 'The numeric value must be between ' + minValue + ' and ' + maxValue;
 
                 textField.attr({
