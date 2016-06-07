@@ -1721,7 +1721,6 @@
         }
 
         function addRsPhraseList(rsphraselists) {
-            debugger;
             var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RSPhrase_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { rsPhraseList: JSON.stringify(rsphraselists), indexationId: indexationId },
@@ -2748,7 +2747,6 @@
         };
 
         var onGridPPEChange = function () {
-            //debugger;
             var selectedData = this.dataItem(this.select());
             var indexation = getIndexationId();
 
@@ -2948,12 +2946,10 @@
 
             indexationDetailObj.on("click", "#btnSaveFirstAid", function (e) {
                 e.preventDefault();
-                //debugger;
                 var form = $("#FormEditFirstAid");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    //debugger;
                     if (data.result === "success") {
                         $(this).savedSuccessFully(data.message);
                         $('#AddFirstAid').empty();

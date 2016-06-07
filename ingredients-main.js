@@ -142,7 +142,6 @@
         var ingredientValidator = null;
 
         function retrieveIngredientValidator() {
-            debugger;
             ingredientValidator = $('#ingredientForm').kendoValidator({
                 messages: {
                     isnumber: function (input) {
@@ -152,7 +151,6 @@
                 },
                 rules: {
                     isnumber: function (input) {
-                        debugger;
                         if (input.is('#CASNumber') && input.val()) {
                             return isValidInteger(input.val());
                         }

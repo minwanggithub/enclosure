@@ -485,7 +485,6 @@
         
         
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveRemoveWorkLoad, function (e) {
-            //debugger;
             e.preventDefault();
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
                 $(actionModals.RemoveWorkLoad).toggleModal();
