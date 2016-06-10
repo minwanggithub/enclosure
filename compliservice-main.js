@@ -10,7 +10,8 @@
         var controls = {
             buttons: {                
                 btnAddTestCase: "#btnAddTestCase",
-                btnTestRevisionTitleChain: "#btnTestRevisionTitleChain"
+                btnTestRevisionTitleChain: "#btnTestRevisionTitleChain",
+                btnTestGetDocumentFamilyTree: "#btnTestGetDocumentFamilyTree"
             },
             division: {
                 divDataLoadTabs: "#divDataLoadTabs"
@@ -24,11 +25,13 @@
             },
             textbox: {
                 txtTestResult: "#txtTestResult",
-                txtRevisionId: "#txtRevisionId"
+                txtRevisionId: "#txtRevisionId",
+                txtDocumentId: "#txtDocumentId"
             },
             actionmethod: {
                 TestAreaNotes: "Configuration/CompliServiceTest/TestAreaNotes",
-                GetRevisionTitleChainByRevisionId: "Configuration/CompliServiceTest/GetRevisionTitleChainByRevisionId?revisionId="
+                GetRevisionTitleChainByRevisionId: "Configuration/CompliServiceTest/GetRevisionTitleChainByRevisionId?revisionId=",
+                GetDocumentFamilyTreeByDocumentId: "Configuration/CompliServiceTest/GetDocumentFamilyTreeByDocumentId?"
             }
 
         };
@@ -94,7 +97,7 @@
         var initializeRevisionTitleChangeModule = function () {
             $(controls.buttons.btnTestRevisionTitleChain).on("click", function () {
                 var revisionId = $(controls.textbox.txtRevisionId).val();
-                if (revisionId == "") {
+                if (revisionId === "") {
                     $(controls.textbox.txtTestResult).val("***** Revision Id can not be null value *****");
                     return;
                 }
@@ -108,15 +111,40 @@
                         }
                     }).error(
                         function () {
-                            $(controls.textbox.txtTestResult).val("Error Occurred when getting revision title chain.");
+                            $(controls.textbox.txtTestResult).val("Error Occurred while getting revision title chain.");
                         });
             });
         }
 
+        var initializeFamilyTreeModule = function () {
+            $(controls.buttons.btnTestGetDocumentFamilyTree).on("click", function () {
+                var documentId = $(controls.textbox.txtDocumentId).val();
+                if (documentId === "") {
+                    $(controls.textbox.txtTestResult).val("***** Document Id can not be null value *****");
+                    return;
+                }
+
+                $(controls.textbox.txtTestResult).val("");
+                var isParent = $("#relation-parent").is(":checked");
+                debugger;
+                var params = { documentId: documentId, relation: isParent ? 'parent' : 'children'};
+                var url = generateLocationUrl(controls.actionmethod.GetDocumentFamilyTreeByDocumentId);
+                $(this).ajaxCall(url, params)
+                    .success(function (data) {
+                        if (data.success) {
+                            $(controls.textbox.txtTestResult).val(data.result);
+                        }
+                    }).error(
+                        function () {
+                            $(controls.textbox.txtTestResult).val("Error Occurred while getting document relationship.");
+                        });
+            });
+        }
         init();
 
         return {
-            initializeRevisionTitleChangeModule: initializeRevisionTitleChangeModule
+            initializeRevisionTitleChangeModule: initializeRevisionTitleChangeModule,
+            initializeFamilyTreeModule: initializeFamilyTreeModule
         };
     };
 
