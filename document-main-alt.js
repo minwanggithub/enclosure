@@ -1846,7 +1846,9 @@
             e.preventDefault();
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
+
             var formData = {
+                inboundResponseId : $(this).getQueryStringParameterByName("inboundresponseid"),
                 model: getDocRevDetailsDataForInboundResponse(form, documentId, 0),
                 attachments: getDocRevAttachmentsForInboundResponse(form, documentId, 0)
             };
