@@ -80,7 +80,6 @@
         }
 
         function createNewTab(title, targetUrl) {
-            debugger;
             $(controls.tabstrip.DataLoadTabs).kendoTabStrip({
                 animation: {
                     open: {
@@ -143,7 +142,6 @@
 
                 $(controls.textbox.txtTestResult).val("");
                 var isParent = $("#relation-parent").is(":checked");
-                debugger;
                 var params = { documentId: documentId, relation: isParent ? 'parent' : 'children'};
                 var url = generateLocationUrl(controls.actionmethod.GetDocumentFamilyTreeByDocumentId);
                 $(this).ajaxCall(url, params)
