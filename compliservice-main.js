@@ -62,7 +62,25 @@
         }
 
         function reInitializeTab(title, targetUrl) {
-            $(controls.division.divDataLoadTabs).html("<div id='DataLoadTabs'></div>");
+            //$(controls.division.divDataLoadTabs).html("<div id='DataLoadTabs'></div>");
+            
+            var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
+            tabStrip.append({ text: title, contentUrl: targetUrl });            
+            $(".k-last > .k-link").append("<button class='btn btn-mini' style='margin-left:5px; margin-right:-5px;' onClick='compliservicetestlib.closeTab($(this).closest(\"li\"));'>x</button>");
+            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
+            //tabStrip.select(0);
+            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
+        }
+
+
+        var closeTab = function(tab) {
+            var tabStrip = $("#DataLoadTabs").kendoTabStrip().data("kendoTabStrip");
+            tabStrip.remove(tab);
+            tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
+        }
+
+        function createNewTab(title, targetUrl) {
+            debugger;
             $(controls.tabstrip.DataLoadTabs).kendoTabStrip({
                 animation: {
                     open: {
@@ -76,7 +94,6 @@
             tabStrip.append({ text: title, contentUrl: targetUrl });
             tabStrip.select(0);
         }
-
 
         function init() {
             initTabStrip();
@@ -144,7 +161,8 @@
 
         return {
             initializeRevisionTitleChangeModule: initializeRevisionTitleChangeModule,
-            initializeFamilyTreeModule: initializeFamilyTreeModule
+            initializeFamilyTreeModule: initializeFamilyTreeModule,
+            closeTab: closeTab
         };
     };
 
