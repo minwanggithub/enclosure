@@ -54,10 +54,6 @@
                     $(this).displayError("You need to select the data source before preceeding.");
                     return;
                 }
-                if (selectedTable === "3" || selectedTable === "6" || selectedTable === "7") {
-                    $(this).displayError("The current version can not process selected table. The feature is still under development.");
-                    return;
-                }
 
                 var selectedTableRows = $(controls.dropdownlists.ddSqlTables).data("kendoDropDownList").text();
 
