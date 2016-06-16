@@ -24,9 +24,10 @@
                 ddServiceModule: "#ddServiceModule"
             },
             textbox: {
-                txtTestResult: "#txtTestResult",
-                txtRevisionId: "#txtRevisionId",
-                txtDocumentId: "#txtDocumentId"
+                txtTitleChainTestResult: "#txtTitleChainTestResult",
+                txtFamilyTreeTestResult: "#txtFamilyTreeTestResult",
+                txtRevisionId_TitleChain: "#txtRevisionId_TitleChain",
+                txtDocumentId_FamilyTree: "#txtDocumentId_FamilyTree"
             },
             actionmethod: {
                 TestAreaNotes: "Configuration/CompliServiceTest/TestAreaNotes",
@@ -63,7 +64,6 @@
 
         function reInitializeTab(title, targetUrl) {
             //$(controls.division.divDataLoadTabs).html("<div id='DataLoadTabs'></div>");
-            
             var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
             tabStrip.append({ text: title, contentUrl: targetUrl });            
             $(".k-last > .k-link").append("<button class='btn btn-mini' style='margin-left:5px; margin-right:-5px;' onClick='compliservicetestlib.closeTab($(this).closest(\"li\"));'>x</button>");
@@ -74,7 +74,7 @@
 
 
         var closeTab = function(tab) {
-            var tabStrip = $("#DataLoadTabs").kendoTabStrip().data("kendoTabStrip");
+            var tabStrip = $(controls.tabstrip.DataLoadTabs).kendoTabStrip().data("kendoTabStrip");
             tabStrip.remove(tab);
             tabStrip.select((tabStrip.tabGroup.children("li").length - 1));
         }
@@ -112,46 +112,46 @@
 
         var initializeRevisionTitleChangeModule = function () {
             $(controls.buttons.btnTestRevisionTitleChain).on("click", function () {
-                var revisionId = $(controls.textbox.txtRevisionId).val();
+                var revisionId = $(controls.textbox.txtRevisionId_TitleChain).val();
                 if (revisionId === "") {
-                    $(controls.textbox.txtTestResult).val("***** Revision Id can not be null value *****");
+                    $(controls.textbox.txtTitleChainTestResult).val("***** Revision Id can not be null value *****");
                     return;
                 }
 
-                $(controls.textbox.txtTestResult).val("");
+                $(controls.textbox.txtTitleChainTestResult).val("");
                 var url = generateLocationUrl(controls.actionmethod.GetRevisionTitleChainByRevisionId + revisionId);
                 $(this).ajaxCall(url)
                     .success(function (data) {
                         if (data.success) {
-                            $(controls.textbox.txtTestResult).val(data.result);
+                            $(controls.textbox.txtTitleChainTestResult).val(data.result);
                         }
                     }).error(
                         function () {
-                            $(controls.textbox.txtTestResult).val("Error Occurred while getting revision title chain.");
+                            $(controls.textbox.txtTitleChainTestResult).val("Error Occurred while getting revision title chain.");
                         });
             });
         }
 
         var initializeFamilyTreeModule = function () {
             $(controls.buttons.btnTestGetDocumentFamilyTree).on("click", function () {
-                var documentId = $(controls.textbox.txtDocumentId).val();
+                var documentId = $(controls.textbox.txtDocumentId_FamilyTree).val();
                 if (documentId === "") {
-                    $(controls.textbox.txtTestResult).val("***** Document Id can not be null value *****");
+                    $(controls.textbox.txtTestRetxtFamilyTreeTestResultsult).val("***** Document Id can not be null value *****");
                     return;
                 }
 
-                $(controls.textbox.txtTestResult).val("");
+                $(controls.textbox.txtFamilyTreeTestResult).val("");
                 var isParent = $("#relation-parent").is(":checked");
                 var params = { documentId: documentId, relation: isParent ? 'parent' : 'children'};
                 var url = generateLocationUrl(controls.actionmethod.GetDocumentFamilyTreeByDocumentId);
                 $(this).ajaxCall(url, params)
                     .success(function (data) {
                         if (data.success) {
-                            $(controls.textbox.txtTestResult).val(data.result);
+                            $(controls.textbox.txtFamilyTreeTestResult).val(data.result);
                         }
                     }).error(
                         function () {
-                            $(controls.textbox.txtTestResult).val("Error Occurred while getting document relationship.");
+                            $(controls.textbox.txtFamilyTreeTestResult).val("Error Occurred while getting document relationship.");
                         });
             });
         }
