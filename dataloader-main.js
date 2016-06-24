@@ -14,6 +14,7 @@
                          "DocumentNote_",
                          "CompliFolder_",
                          "CompliFolderDocument_",
+                         "KitsGroupContainer_",
                          "ObtainmentWorkItemHistory_"];
 
         var controls = {
@@ -136,6 +137,12 @@
             );
         };
 
+
+        var loadSingleDocument = function (documentId) {            
+            var url = GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?documentId=" + documentId + "&revisionId=0";
+            window.open(url, "_blank");
+        };
+
         function BatchStatusUpdates(status) {
             if (status != null) {
                 var qpb = $("#queueProgressbar_" + status.BatchQueueID).data("kendoProgressBar");
@@ -188,6 +195,7 @@
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" + e.item.id; $(selector).parent().find("li").remove(); },
             InitializePregressBar: initializePregressBar,
+            loadSingleDocument:loadSingleDocument,
             OnGridQueueDataBound: onGridQueueDataBound,
             AddTab: addTab,
             CloseTab: closeTab
