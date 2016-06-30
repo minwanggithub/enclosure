@@ -174,6 +174,8 @@
                         if (this.NotificationStatusId == "")
                             this.NotificationStatusId = 0;
 
+                        this.EmailSubject = encodeURIComponent(this.EmailSubject);
+
                         SearchNotification(JSON.stringify(this));
                         //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
                         //       .success(function (data) {
@@ -406,10 +408,12 @@
                                     $(this).savedSuccessFully(data.message);
                                     hideNotificationPopUp();
                                     noticeModel.NoticeBatchId = Number(data.Id);
-                                    if (data.isNew)
+                                    if (data.isNew) {
+                                        noticeModel.EmailSubject = encodeURIComponent(noticeModel.EmailSubject);
                                         SearchNotification(JSON.stringify(noticeModel));
-                                    else {
-                                        var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                                    } else {
+                                        var searchResultGrid =
+                                            $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
                                         if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
                                             searchResultGrid.dataSource.filter([]);
                                             searchResultGrid.dataSource.data([]);
@@ -443,10 +447,12 @@
                             $(this).savedSuccessFully(data.message);
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
-                            if (data.isNew)
+                            if (data.isNew) {
+                                noticeModel.EmailSubject = encodeURIComponent(noticeModel.EmailSubject);
                                 SearchNotification(JSON.stringify(noticeModel));
-                            else {
-                                var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch).data("kendoGrid");
+                            } else {
+                                var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch)
+                                    .data("kendoGrid");
                                 if (searchResultGrid != null && searchResultGrid.dataSource.total() != 0) {
                                     searchResultGrid.dataSource.filter([]);
                                     searchResultGrid.dataSource.data([]);
