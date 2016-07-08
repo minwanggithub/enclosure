@@ -1138,10 +1138,10 @@
         function FillCloseRequest(actionName) {
             var strCustomerAction = "";
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
-            obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.value();
+            obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.text().substring(0, ddlCustomerActions.text().indexOf("-") - 1);
             obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() != "" ? $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() : null;
             if (actionName == "CustomerAction")
-                strCustomerAction = "Customer Action:" + ddlCustomerActions.text() + "\n" + "Reason Code:" + obtainmentActionCloseRequest.ReasonCode + "\n";
+                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "\n" + "Reason Code:" + obtainmentActionCloseRequest.ReasonCode + "\n";
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
             return obtainmentActionCloseRequest;
         }

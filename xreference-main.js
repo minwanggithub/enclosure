@@ -420,7 +420,7 @@
 
         //Save Request for Customer Action
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveCustomerActionButton, function () {
-            if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+            if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
                 $(actionModals.CustomerAction).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
@@ -429,7 +429,7 @@
                     var data = { };
                     data['ids']= selectedRequests;
                     data['customerAction']= "Customer Action";
-                    data['notes'] = selCustomerAction.text();
+                    data['notes'] = selCustomerAction.value();
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
                     $(actionModals.CustomerAction).toggleModal();
