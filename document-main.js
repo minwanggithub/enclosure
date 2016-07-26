@@ -1975,8 +1975,8 @@
 
             dlgDocumentSearch.on('click', "#addNewDocumentBtn2", function (e) {
                 var currenturl = window.location.href;
-                var indexArea = currenturl.substring(0, currenturl.indexOf('Document/DocumentMain'));
-                var url = indexArea + "/Document/LoadSingleDocument?documentId=0&revisionId=0";
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Document/'));
+                var url = indexArea + "Document/LoadSingleDocument?documentId=0&revisionId=0";
                 window.open(url, "_blank");
             });
 
