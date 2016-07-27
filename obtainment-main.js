@@ -146,7 +146,8 @@
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
                 UnderCoonstruction: "This option is still under construction.",
-                CannotRetrieveSentEmail: "Unable to retrieve sent email."
+                CannotRetrieveSentEmail: "Unable to retrieve sent email.",
+                NoCustomerActionNotesProvided: "Customer action notes required."
             }
         };
 
@@ -1111,6 +1112,18 @@
                     if (actionName == "CloseRequest" || actionName == "CustomerAction")
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
 
+                    // if this is a customer action - make sure that a not has been entered.
+                    // no saving without a note.
+
+                    if (customerAction) {
+
+                        var closingNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val() + "";
+                        if (closingNotes.replace(/g/, "").length == 0) {
+                            $(this).displayError(messages.errorMessages.NoCustomerActionNotesProvided);
+                            return;
+                        }
+
+                    }
 
                     if (selectedRequests.length > 0) {
                         $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
@@ -1139,9 +1152,14 @@
             var strCustomerAction = "";
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
             obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.text().substring(0, ddlCustomerActions.text().indexOf("-") - 1);
-            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() != "" ? $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() : null;
+
+            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() != "" ?
+                     $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() : null;
+
+            var reasonCode = obtainmentActionCloseRequest.ReasonCodeId == null ? "" : $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).text();
+
             if (actionName == "CustomerAction")
-                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "\n" + "Reason Code:" + obtainmentActionCloseRequest.ReasonCode + "\n";
+                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + reasonCode + "<br>Notes:";
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
             return obtainmentActionCloseRequest;
         }
