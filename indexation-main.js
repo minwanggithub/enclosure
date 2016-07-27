@@ -1083,7 +1083,7 @@
                 }
             });
 
-            indexationDetailObj.on("change", "input[type=radio][name=SelectCoeffDistrib]", function () {
+            indexationDetailObj.on("change", "[name=SelectCoeffDistrib]", function () {
                 var selectedItem = $(this).val();
                 if (selectedItem == 3)
                     $("#CoeffDistribEquals").prop("disabled", false);
