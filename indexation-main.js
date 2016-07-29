@@ -621,11 +621,15 @@
                 $("#SearchIngredientWindow").data("kendoWindow").open();
             });
 
+
             indexationDetailObj.on("click", "#btnSaveIngredient", function (e) {
                 e.preventDefault();
                 var validator = retrieveIngredientValidator();
 
-                var registrationNumber =  $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
+              
+
+                var registrationNumber = $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
+
                 if (!isRegistrationNumberValid(registrationNumber.value())) {
                     $(this).displayError("Registration Number invalid format");
                     return false;
@@ -635,8 +639,9 @@
                     var form = $("#ingredientForm");
                     var url = form.attr("action");
                     var formData = form.serialize();
+
                     $.post(url, formData, function (data) {
-                        if (data.result === "success") {
+                        if (data.result == "success") {
                             $(this).savedSuccessFully(data.message);
                             $('#EditIngredient').empty();
                             if ($("#SearchIngredientWindow").length > 0) {
@@ -647,13 +652,15 @@
                             grid.dataSource.read();
                             return true;
                         } else {
+                            $(this).displayError(data.message);
                             $('#EditIngredient').empty();
+                            return false;
+
                             if ($("#SearchIngredientWindow").length > 0) {
                                 var window = $("#SearchIngredientWindow").data("kendoWindow");
                                 window.destroy();
                             }
-                            $(this).displayErrorr(data.message);
-                            return false;
+                            
                         }
                     });
                 } else {
@@ -662,11 +669,15 @@
             });
 
             indexationDetailObj.on("keyup", "#CasNumber", function (e) {
+
                 var code = (e.keyCode ? e.keyCode : e.which);
-                if (code === 13) { //Search only on enter
+
+                // search on enter
+                if (code == 13) { //Search only on enter
+
+                    // url for data
                     var url = GetEnvironmentLocation() + '/Operations/Indexation/LookUpIngredientOnKeyEnter';
 
-                    // Double check user input is an 'signed integer'
                     var ingCasNo = $("#CasNumber").val();
                     if (isValidInteger(ingCasNo)) {
                         var indexationId = $("#IndexationId").val();
@@ -714,6 +725,7 @@
         }
 
         function initializeIngredientCreationControls(editorWindow) {
+
             if (!editorWindow)
                 return false;
 
@@ -746,6 +758,7 @@
 
                             $.post(url, formData, function(data) {
                                 if (!data.Errors) {
+
                                     editorWindow.data('kendoWindow').close();
                                     $(this).savedSuccessFully("Ingredient Saved");
 
@@ -753,8 +766,12 @@
                                     grid.dataSource.read();
 
                                     return true;
+
                                 } else {
-                                    editorWindow.data('kendoWindow').close();
+
+                                    // do not close window
+                                    //editorWindow.data('kendoWindow').close();
+
                                     var errorMessage = 'Error occured while saving the ingredient details';
                                     var keys = Object.keys(data.Errors);
                                     for (var idx = 0; idx < keys.length; idx++) {
@@ -764,6 +781,7 @@
                                             break;
                                         }
                                     }
+
                                     $(this).displayError(errorMessage);
                                     return false;
                                 }
@@ -959,6 +977,21 @@
                 e.preventDefault();
 
                 var editorWindow = $('#ingredientEditorWindow');
+                var loadedContents = editorWindow.find("#ingredientEditorContents").html();
+                if (loadedContents.length != 0) {
+
+                    // reset all inut controls
+                    editorWindow.find("#IngredientName, #CASNumber").val("");
+
+                    // center and display
+                    editorWindow.data('kendoWindow').open();
+                    editorWindow.data('kendoWindow').center();
+
+                    return;
+                }
+
+                // load window contents once only
+
                 var url = GetEnvironmentLocation() + "/Operations/Ingredient/GetIngredient";
                 var data = { ingredientId: 0 };
                 
@@ -971,7 +1004,8 @@
                             editorWindow.find("#ingredientEditorContents").html(layout);
                         },
                         complete: function() {
-                            initializeIngredientCreationControls(editorWindow);
+
+                            initializeIngredientCreationControls(editorWindow); // getting wired twice
                             editorWindow.data('kendoWindow').open();
                             editorWindow.data('kendoWindow').center();
                         }
