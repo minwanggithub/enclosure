@@ -19,6 +19,8 @@
                     ObtainmentSideMenuButton: "#btnObtainment",
                     NotFoundSideMenuButton: "#btnNotFound",
                     ResolveSideMenuButton: "#btnResolve",
+                    OnHoldSideMenuButton: "#btnOnHold",
+                    RemoveHoldSideMenuButton: "#btnRemoveHold",
                     CustomerActionSideMenuButton: "#btnCustomerAction",
                     PendingSideMenuButton: "#btnPending",
                     QCFailSideMenuButton: "#btnQC",
@@ -82,7 +84,7 @@
             RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory",
             SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"
         };
-        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory" };
+        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory", OnHold: "On Hold", RemoveOnHold: "Remove Hold"};
         var messages = {
             successMessages: { Saved: "Saved Successful" },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
@@ -643,16 +645,23 @@
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveRequestsButton);
             $(xreferenceObject.controls.buttons.QCFailSideMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.QCFailSideMenuButton);
+            $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(false);
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.OnHoldSideMenuButton);
+            $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(false);
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
         }
 
         function EnableSideMenuItems() {
             $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
-            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
-            
+            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);            
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
+            $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(true);
+            ShowDisplayModal(xreferenceObject.controls.buttons.OnHoldSideMenuButton, actionModals.OnHold);
+            $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(true);
+            ShowDisplayModal(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton, actionModals.RemoveOnHold);
         }
 
         function EnableSideMenuItem(btnObj) {
