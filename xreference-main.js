@@ -1,19 +1,21 @@
 ﻿; (function ($) {
     if ($.fn.complibXReference == null) {
         $.fn.complibXReference = {};
-        
+
     }
-    $.fn.complibXReference = function() {
+    $.fn.complibXReference = function () {
         var xreferenceDetailObj = $("#DetailXreference");
         var xreferenceSearchObj = $("#XReferenceGrid");
         var itemsChecked = 0;
+        var newRequestCount = 0;
+        var onHoldCount = 0;
         var requestSearchModel = {};
         var selectedRequests = new Array();
         var selectedRows = new Array();
         var radioButtonSelected = "Group";
         var xreferenceObject = {
-            controls : {
-                grids: { GridRequests: "#gdRequests", SearchSupplierNewGrid: "#gdSearchSupplierNew"},
+            controls: {
+                grids: { GridRequests: "#gdRequests", SearchSupplierNewGrid: "#gdSearchSupplierNew" },
                 buttons: {
                     CancelSupplierSearch: "#btnCancelSupplierSearch",
                     ObtainmentSideMenuButton: "#btnObtainment",
@@ -38,7 +40,8 @@
                     SavePendingButton: "#btnSavePending",
                     SaveQCFailButton: "#btnSaveQC",
                     SaveRemoveWorkLoad: "#btnSaveRemoveWorkLoad",
-                    RemoveRequestsButton: "#btnRemoveRequests"
+                    RemoveRequestsButton: "#btnRemoveRequests",
+                    SaveOnHoldWorkLoadButton: "#btnSaveOnHoldWorkLoad",
                 },
                 textBoxes: {
                     IndividualTextBox: "#txtIndividual",
@@ -48,7 +51,8 @@
                     ProductIdTextBox: "#txtProductId",
                     NumberOfItemsTextBox: "#numberOfItems",
                     SearchSupplierIdTextBox: "#txtSearchSupplierId",
-                    RemoveWorkLoadTextBox: "#txtRemoveWorkLoadNotes"
+                    RemoveWorkLoadTextBox: "#txtRemoveWorkLoadNotes",
+                    OnHoldWorkLoadTextBox: "#txtOnHoldWorkLoadNotes",
                 },
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
@@ -82,13 +86,13 @@
             SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
             SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
             RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory",
-            SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"
+            SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"            
         };
-        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory", OnHold: "On Hold", RemoveOnHold: "Remove Hold"};
+        var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory", OnHold: "#mdlOnHold", RemoveOnHold: "#mdlRemoveOnHold" };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
             confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
-            errorMessages : {
+            errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
                 UserRequiredToAssign: "User required to assign selected request item(s)",
                 SelectFilter: "A filter must be selected to execute a search",
@@ -101,6 +105,7 @@
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 RemoveWorkLoadNotes: "Please type in a reason to remove item(s) from workload",
+                OnHoldWorkLoadNotes: "Please type in a reason to hold the item(s) frmo workload",
                 GeneralError: "Error Occurred"
             }
         };
@@ -139,7 +144,7 @@
             $("#atlwdg-trigger").css({ top: '100px' });
             DisableSideMenuItems();
         };
-       
+
         var loadSupplierPlugIn = function () {
             $.post(controllerCalls.SupplierSearch, { supplierId: 0 }, function (data) {
                 $("#dgSupplierPlugIn").html(data);
@@ -163,7 +168,7 @@
             });
 
         }
-       
+
         var hotKeyDisplay = function (btnObj, mdlObj) {
 
             var xrefModals = [actionModals.Resolve, actionModals.Obtainment, actionModals.Pending, actionModals.CustomerAction, actionModals.RemoveWorkLoad];
@@ -201,7 +206,7 @@
             AssignUnassignRequest(xreferenceObject.controls.buttons.AssignMeButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.AssignRequests, controllerCalls.SaveAssignedItems, true, "x a");
             AssignUnassignRequest(xreferenceObject.controls.buttons.UnAssignButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, false, "x u");
         }
-        
+
 
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
             var url = controllerCalls.SearchXReferenceContent;
@@ -210,7 +215,7 @@
             });
         });
 
-   
+
         xreferenceDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
             radioButtonSelected = $(this).val();
             if ($(this).val() == "Group") {
@@ -223,7 +228,7 @@
                 $(xreferenceObject.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").hide();
             }
         });
-        
+
         xreferenceDetailObj.on("click", xreferenceObject.controls.buttons.SaveAssignButton, function (e) {
             e.preventDefault();
             var userName = $(xreferenceObject.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete");
@@ -246,7 +251,7 @@
                 else
                     errorMessage = messages.errorMessages.UserRequiredToAssign;
 
-               $(this).displayError(errorMessage);
+                $(this).displayError(errorMessage);
             }
 
         });
@@ -255,10 +260,10 @@
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
             xreferenceDetailObj.html("");
         });
-        
+
         //Show Supplier
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchSupplierButton, function () {
-           // var activeSupplier = "txtSearchSupplierId";
+            // var activeSupplier = "txtSearchSupplierId";
             $("#supplierSearchWindow").data("kendoWindow").center().open();
             $(actionModals.Obtainment).toggleModal();
         });
@@ -278,14 +283,14 @@
         //Toggle Pending Option for Notes
         xreferenceSearchObj.on("change", xreferenceObject.controls.dropdownlists.PendingDropDownList, function () {
             var selPending = $(xreferenceObject.controls.dropdownlists.PendingDropDownList).data("kendoDropDownList");
-            if(selPending.text() == "Other") {
+            if (selPending.text() == "Other") {
                 $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "inline");
                 $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "inline");
             } else {
                 $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
                 $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             }
-            });
+        });
 
         //Does search and displays search results 
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchRequestsButton, function () {
@@ -311,43 +316,43 @@
 
             //create filter array
             for (var indexRows = 0; indexRows < numberOfRows; indexRows++) {
-               initialRow++;
-               var drpFields = $("div #row #middle " + xreferenceObject.controls.dropdownlists.FieldsDropDownList + "_" + initialRow).data("kendoDropDownList");
-               var drpCriteria = $("div #row #right " + xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + initialRow).data("kendoDropDownList");
-               var criteria = { };
-               criteria.FieldName = drpFields.value();
-               criteria.WhereOperator = drpCriteria.text();
-               var valueAssigned;
-               if ($("div #row #right " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).is(":hidden")) {
-                   if (drpFields.text() == "Language") {
-                       var drpLanguage = $("div #row #right " + xreferenceObject.controls.dropdownlists.LanguageDropDownList + "_" + initialRow).data("kendoDropDownList");
-                       var language = drpLanguage.value();
-                       criteria.SearchFor = language.replace("flag-", "");
-                   }
+                initialRow++;
+                var drpFields = $("div #row #middle " + xreferenceObject.controls.dropdownlists.FieldsDropDownList + "_" + initialRow).data("kendoDropDownList");
+                var drpCriteria = $("div #row #right " + xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + initialRow).data("kendoDropDownList");
+                var criteria = {};
+                criteria.FieldName = drpFields.value();
+                criteria.WhereOperator = drpCriteria.text();
+                var valueAssigned;
+                if ($("div #row #right " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).is(":hidden")) {
+                    if (drpFields.text() == "Language") {
+                        var drpLanguage = $("div #row #right " + xreferenceObject.controls.dropdownlists.LanguageDropDownList + "_" + initialRow).data("kendoDropDownList");
+                        var language = drpLanguage.value();
+                        criteria.SearchFor = language.replace("flag-", "");
+                    }
 
 
-                   if (drpFields.text() == "Document Type") {
-                       var drpDocType = $("div #row #right " + xreferenceObject.controls.dropdownlists.DocumentTypeDropDownList + "_" + initialRow).data("kendoDropDownList");
-                       criteria.SearchFor = drpDocType.value();
-                   }
+                    if (drpFields.text() == "Document Type") {
+                        var drpDocType = $("div #row #right " + xreferenceObject.controls.dropdownlists.DocumentTypeDropDownList + "_" + initialRow).data("kendoDropDownList");
+                        criteria.SearchFor = drpDocType.value();
+                    }
 
 
-                   if (drpFields.text() == "Country") {
-                       var drpCountry = $("div #row #right  " + xreferenceObject.controls.dropdownlists.CountryDropDownList + "_" + initialRow).data("kendoDropDownList");
-                       criteria.SearchFor = drpCountry.value();
-                   }
+                    if (drpFields.text() == "Country") {
+                        var drpCountry = $("div #row #right  " + xreferenceObject.controls.dropdownlists.CountryDropDownList + "_" + initialRow).data("kendoDropDownList");
+                        criteria.SearchFor = drpCountry.value();
+                    }
 
-                   if(criteria.SearchFor.length>0)
-                    criteriaList.push(criteria);
+                    if (criteria.SearchFor.length > 0)
+                        criteriaList.push(criteria);
 
-               } else {
-                   valueAssigned = $("div #row " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val().replace(/'/g, "''");
-                   criteria.SearchFor = valueAssigned;
+                } else {
+                    valueAssigned = $("div #row " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val().replace(/'/g, "''");
+                    criteria.SearchFor = valueAssigned;
 
-                   if (valueAssigned.length > 0)
-                    criteriaList.push(criteria);
-               }
-               
+                    if (valueAssigned.length > 0)
+                        criteriaList.push(criteria);
+                }
+
             }
 
             if (dteDateAssigned.value() != null || drpStatus.value() != "" || drpDays.value() != "" || intCategoryValue > 0 || criteriaList.length > 0) {
@@ -357,52 +362,52 @@
                 requestSearchModel.Criterias = criteriaList;
                 kendo.ui.progress(xreferenceDetailObj, true);
                 $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(requestSearchModel) })
-                    .success(function(data) {
+                    .success(function (data) {
                         xreferenceDetailObj.html(data);
-                    }).done(function() {
+                    }).done(function () {
                         $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(true);
                         $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
                     });
             } else
                 $(this).displayError(messages.errorMessages.SelectFilter);
-         });
+        });
 
         //Save Request to be Resolved
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveResolveButton, function () {
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
-                 $(actionModals.Resolve).toggleModal();
-                 $(this).displayError(messages.errorMessages.NoItemsSelected);
-             } else {
+                $(actionModals.Resolve).toggleModal();
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
                 if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0 && $("#lblProductName").text().length > 0 && $("#lblSupplierName").text().length > 0) {
-                     var data = { };
-                     data['ids'] = selectedRequests;
-                     data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
-                     SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
-                 } else {
-                     $(actionModals.Resolve).toggleModal();
-                     $(this).displayError(messages.errorMessages.NoProductSelected);
-                 }
-             }
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
+                    SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
+                } else {
+                    $(actionModals.Resolve).toggleModal();
+                    $(this).displayError(messages.errorMessages.NoProductSelected);
+                }
+            }
         });
 
         //Not Found
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton, function () {
             $(this).displayError("This feature has been obsolted based on the TRECOMPLI-1271");
-             //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
-             //    $(this).displayError(messages.errorMessages.NoItemsSelected);
-             //} else {
-             //    var data = {};
-             //    data['ids'] = selectedRequests;
-             //    var args = { message: 'Are you sure you would like to proceed?', header: 'Save Not Found Items'};
-             //    DisplayConfirmationModal(args, function () {
-             //        SaveRequest(controllerCalls.SaveNotFound, data, null);
-             //    });
-             //}
-         });
+            //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+            //    $(this).displayError(messages.errorMessages.NoItemsSelected);
+            //} else {
+            //    var data = {};
+            //    data['ids'] = selectedRequests;
+            //    var args = { message: 'Are you sure you would like to proceed?', header: 'Save Not Found Items'};
+            //    DisplayConfirmationModal(args, function () {
+            //        SaveRequest(controllerCalls.SaveNotFound, data, null);
+            //    });
+            //}
+        });
 
         //Save Request for Obtainment
-         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
-             
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
+
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0 || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "0" || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
                 $(actionModals.Obtainment).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -426,11 +431,12 @@
                 $(actionModals.CustomerAction).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
-                  var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
                 if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
-                    var data = { };
-                    data['ids']= selectedRequests;
-                    data['customerAction']= "Customer Action";
+                    debugger;
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction.value();
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
@@ -484,8 +490,8 @@
         //    }
 
         //});
-        
-        
+
+
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveRemoveWorkLoad, function (e) {
             e.preventDefault();
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
@@ -493,16 +499,39 @@
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
                 if ($(xreferenceObject.controls.textBoxes.RemoveWorkLoadTextBox).val().length > 0) {
-                           var data = {};
-                              data['ids'] = selectedRequests;
-                              data['notes'] = $(xreferenceObject.controls.textBoxes.RemoveWorkLoadTextBox).val();
-                              SaveRequest(controllerCalls.SaveRemoveWorkLoad, data, actionModals.RemoveWorkLoad);
-                        } else {
-                            $(actionModals.RemoveWorkLoad).toggleModal();
-                            $(this).displayError(messages.errorMessages.RemoveWorkLoadNotes);
-                        }
-                    }
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['notes'] = $(xreferenceObject.controls.textBoxes.RemoveWorkLoadTextBox).val();
+                    SaveRequest(controllerCalls.SaveRemoveWorkLoad, data, actionModals.RemoveWorkLoad);
+                } else {
+                    $(actionModals.RemoveWorkLoad).toggleModal();
+                    $(this).displayError(messages.errorMessages.RemoveWorkLoadNotes);
+                }
+            }
         });
+
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveOnHoldWorkLoadButton, function (e) {
+            e.preventDefault();
+            if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                $(actionModals.OnHold).toggleModal();
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+                if ($(xreferenceObject.controls.textBoxes.OnHoldWorkLoadTextBox).val().length > 0) {
+                    var data = {
+                    };
+                    data['ids'] = selectedRequests;
+                    data['customerAction']= "On Hold";
+                    data['notes'] = $(xreferenceObject.controls.textBoxes.OnHoldWorkLoadTextBox).val();
+                    SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.OnHold);
+                } else {
+                    $(actionModals.OnHold).toggleModal();
+                    $(this).displayError(messages.errorMessages.OnHoldWorkLoadNotes);
+                }
+            }
+        });
+
+
+
 
         //Display Modal Pop Up for History of Requests
         xreferenceSearchObj.on("click", ".showHistory", function (e) {
@@ -520,7 +549,7 @@
 
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
             var drpContains;
-            if(this.id.length > 0) {
+            if (this.id.length > 0) {
                 var elementId = $(this).attr("id");
                 var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
@@ -536,15 +565,15 @@
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
-                } 
-                    if (ddlName == xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#","")) {
-                        $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
-                        $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).val("");
-                        $("#dvDropDown_" + index).css("display", "none");
-                        if(drpContains!=null)
-                            drpContains.select(criteriaCondition.StartsWith);
-                        } 
-                } 
+                }
+                if (ddlName == xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#", "")) {
+                    $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
+                    $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).val("");
+                    $("#dvDropDown_" + index).css("display", "none");
+                    if (drpContains != null)
+                        drpContains.select(criteriaCondition.StartsWith);
+                }
+            }
 
         });
 
@@ -573,7 +602,7 @@
             if (selectedRequests.length > 0) {
                 kendo.ui.progress(xreferenceDetailObj, true);
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
-                    .success(function(successData) {
+                    .success(function (successData) {
                         if (modalId != null)
                             $(modalId).hideModal();
 
@@ -586,7 +615,7 @@
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                         }
                     })
-                    .error(function() {
+                    .error(function () {
                         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                     })
                     .done(function () {
@@ -594,9 +623,9 @@
                         var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
                         grid.dataSource.read();
                     });
-               //kendo.ui.progress(xreferenceDetailObj, false);
-               //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
-               //grid.dataSource.read();
+                //kendo.ui.progress(xreferenceDetailObj, false);
+                //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+                //grid.dataSource.read();
             }
         }
 
@@ -608,10 +637,10 @@
                 else
                     batchDeleteObjects(gridObj, message, url, null, isAssigned, null);
             });
-           // Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
+            // Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
         }
 
-        
+
         xreferenceDetailObj.on('hide', actionModals.Resolve, function () {
             EnableSideMenuItems();
         });
@@ -653,7 +682,7 @@
 
         function EnableSideMenuItems() {
             $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
-            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);            
+            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
@@ -666,6 +695,10 @@
 
         function EnableSideMenuItem(btnObj) {
             $(btnObj).enableControl(true);
+        }
+
+        function DisableSideMenuItem(btnObj) {
+            $(btnObj).enableControl(false);
         }
 
         function HotKeyDisplayModal(btnObj, mdlObj) {
@@ -682,11 +715,11 @@
             //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
             //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             //}
-         
+
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
             $(mdlObj).displayModal();
-            
+
         }
 
         function ShowDisplayModal(btnObj, mdlObj) {
@@ -717,13 +750,35 @@
 
 
         xreferenceSearchObj.on("change", xreferenceObject.controls.textBoxes.NumberOfItemsTextBox, function () {
-            if (itemsChecked > 0)
+            if (itemsChecked > 0) {
                 EnableSideMenuItems();
-            else
+                //Consider Supervisor Security Here before enable the menu
+                if (selectedRequests.length != newRequestCount)
+                    DisableSideMenuItem(xreferenceObject.controls.buttons.OnHoldSideMenuButton);
+                if (selectedRequests.length != onHoldCount)
+                    DisableSideMenuItem(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
+
+            } else
                 DisableSideMenuItems();
+
+
+            ////If not supervisor, then disable exit
+            //var item = selectedRows.length;
+
+
+            //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+            //    //var dataItem = $("#Grid").data("kendoGrid").dataSource.get(itemID);
+            //    //var row = $("#Grid").data("kendoGrid").tbody.find("tr[data-uid='" +dataItem.uid + "']");
+            ////var row = grid.tbody.find("tr[data-uid='" + selectedRows[0]+ "']");
+
+            //var row = grid.tbody.find("tr[data-uid='" + selectedRows[0]+ "']");
+
+            //var dataitem = grid.dataItem(row);
+
+
         });
-       
-       
+
+
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 selectedRequests = new Array();
@@ -757,37 +812,37 @@
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
                                     $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
 
-                                    if (typeof performXrefProductSearch != "undefined") 
+                                    if (typeof performXrefProductSearch != "undefined")
                                         performXrefProductSearch();
                                 }
                                 selectedRows.push(selectedRow.attr('data-uid'));
                             }
-                                
+
                         }
                     }
 
                     itemsChecked = 0;
+                    newRequestCount = 0;
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["RequestWorkItemID"]);
                             itemsChecked++;
+                            LogHoldStatus(this['Status']);
                         } else {
-                           var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                            var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
                             if (index > -1)
                                 selectedRequests.splice(index, 1);
                         }
-                        
+
                         if (selectedRows.indexOf(this["uid"]) > -1)
                             grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                        else 
+                        else
                             grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                     });
-                    
+
                     UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
                 }
-
-              
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
@@ -795,30 +850,31 @@
                 var grid = $(this).parents('.k-grid:first');
                 selectedRequests = new Array();
                 itemsChecked = 0;
-               
+
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
                     if (kgrid._data.length > 0) {
                         $.each(kgrid._data, function () {
+                            LogHoldStatus(this['Status']);
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["RequestWorkItemID"]);
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                                if (index > -1) 
+                                if (index > -1)
                                     selectedRequests.splice(index, 1);
                             }
                         });
                         kgrid.refresh();
                         UpdateNumberOfItemsChecked(itemsChecked);
-                          
+
                         $('tr', grid).each(function () {
                             var tr = $(this);
                             var cked = $('.chkMultiSelect', tr).is(':checked');
-                            if (cked) 
+                            if (cked)
                                 tr.addClass('k-state-selected');
-                             else 
+                            else
                                 tr.removeClass('k-state-selected');
                         });
                     } else
@@ -837,7 +893,7 @@
             if (grid && grid.dataSource._total > 0) {
                 var selectedIds = new Array();
                 $.each(grid.dataSource.data(), function () {
-                    if(this.IsSelected == true)
+                    if (this.IsSelected == true)
                         selectedIds.push(this.id);
                 });
 
@@ -849,54 +905,63 @@
                 if (isAssign)
                     $(actionModals.Assign).displayModal();
 
-                    if (!data)
-                        data = {};
+                if (!data)
+                    data = {};
 
-                    data['ids'] = selectedIds;
-                    data["searchCriteria"] = $("#SearchCriteria").val();
-                    data["isAssign"] = isAssign;
+                data['ids'] = selectedIds;
+                data["searchCriteria"] = $("#SearchCriteria").val();
+                data["isAssign"] = isAssign;
 
-                    if (typeof (assignTo) != "undefined") {
-                        data["assignedTo"] = assignTo;
-                        $(actionModals.Assign).hideModal();
+                if (typeof (assignTo) != "undefined") {
+                    data["assignedTo"] = assignTo;
+                    $(actionModals.Assign).hideModal();
 
-                        var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
-                        DisplayConfirmationModal(args, function () {
+                    var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
+                    DisplayConfirmationModal(args, function () {
 
-                            $(this).ajaxJSONCall(url, JSON.stringify(data))
-                                .success(function(successData) {
-                                    if (successData.success == true) {
-                                        // Uncheck the master select checkbox if checked
-                                        var checkbox = $(grid.element).find('.chkMasterMultiSelect');
-                                        if (checkbox && checkbox.is(':checked'))
-                                            checkbox.attr('checked', false);
+                        $(this).ajaxJSONCall(url, JSON.stringify(data))
+                            .success(function (successData) {
+                                if (successData.success == true) {
+                                    // Uncheck the master select checkbox if checked
+                                    var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                                    if (checkbox && checkbox.is(':checked'))
+                                        checkbox.attr('checked', false);
 
 
-                                        grid = $(targetGridSelector).data("kendoGrid");
-                                        grid.dataSource.read();
-                                    } else
-                                        $(this).displayError(messages.errorMessages.GeneralError);
-                                })
-                                .error(function() {$(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned);})
-                                .complete(function(compData) {
+                                    grid = $(targetGridSelector).data("kendoGrid");
+                                    grid.dataSource.read();
+                                } else
+                                    $(this).displayError(messages.errorMessages.GeneralError);
+                            })
+                            .error(function () { $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned); })
+                            .complete(function (compData) {
 
-                                    kendo.ui.progress(xreferenceDetailObj, false);
-                                    $(this).savedSuccessFully(messages.successMessages.Saved);
-                                    if (completeCallback)
-                                        completeCallback(compData);
-                                });
-                        });
-                    }
-                
+                                kendo.ui.progress(xreferenceDetailObj, false);
+                                $(this).savedSuccessFully(messages.successMessages.Saved);
+                                if (completeCallback)
+                                    completeCallback(compData);
+                            });
+                    });
+                }
+
             }
             return false;
         };
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
-            if (numberOfItems==0)
+            if (numberOfItems == 0)
                 $("#hdnSupplier").val("").trigger('change');
 
             $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+        }
+
+
+        function LogHoldStatus(status) {
+            if (status == 'New Request')
+                newRequestCount++;
+
+            if (status == 'On Hold')
+                onHoldCount++;
         }
 
         return {
