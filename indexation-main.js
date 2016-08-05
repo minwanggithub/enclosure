@@ -168,9 +168,9 @@
             // disable by default
             $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
             
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);    // trace
-            } else if (selectedValue === 8) {                                        // range
+            } else if (selectedValue == 8) {                                        // range
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", false);
             } else {
                 $("#" + fromDdl).prop("disabled", false);
@@ -188,11 +188,11 @@
             if (!affectedFields)
                 return false;
 
-            var fieldEnabled = (selectedValue === 4);
+            var fieldEnabled = (selectedValue == 4);
             for (var idx = 0; idx < affectedFields.length; idx++) {
 
                 var currentDdl = $('#' + affectedFields[idx]).data("kendoDropDownList");
-                if (fieldEnabled === false)
+                if (fieldEnabled == false)
                     currentDdl.select(0);
                 currentDdl.enable(fieldEnabled);
             }
@@ -202,7 +202,7 @@
         }
 
         function onElementDisable(index, oldPropertyValue) {
-            if (oldPropertyValue === false)
+            if (oldPropertyValue == false)
                 removeValidationToolTips(this);
         }
 
@@ -210,7 +210,7 @@
             var self = $(element);
 
             var parentValue = self.parents('.controls:first');
-            if (!parentValue || parentValue.length !== 1) {
+            if (!parentValue || parentValue.length != 1) {
                 if (self.is('[data-role="dropdownlist"]')) {
                     parentValue = self.parents('.k-dropdown');
                 } else if (self.parent().is('[class^="span"]')) {
@@ -238,7 +238,7 @@
 
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
-            return decimalVal === val;
+            return decimalVal == val;
         }
 
         function parseErrorMessage(data) {
@@ -315,7 +315,7 @@
 
                 var selectedIds = new Array();
                 $.each(grid.dataSource.data(), function () {
-                    if (this.IsSelected === true)
+                    if (this.IsSelected == true)
                         selectedIds.push(this.id);
                 });
 
