@@ -131,21 +131,21 @@
 
         // Helper Methods
         
-        function displayErrorMessage(message) {
-            if (settings && settings.onErrorCallback)
-                settings.onErrorCallback(message);
-            else
-                $(this).displayError(message);
+        //function displayErrorMessage(message) {
+        //    if (settings && settings.onErrorCallback)
+        //        settings.onErrorCallback(message);
+        //    else
+        //        $(this).displayError(message);
 
-        };
+        //};
 
-        function displaySuccessMessage(message) {
-            if (settings && settings.onSuccessCallback) {
-                settings.onSuccessCallback(message);
-            } else {
-                alert(message);
-            }
-        };
+        //function displaySuccessMessage(message) {
+        //    if (settings && settings.onSuccessCallback) {
+        //        settings.onSuccessCallback(message);
+        //    } else {
+        //        alert(message);
+        //    }
+        //};
 
         function displayKendoPopup(element) {
             if (settings && settings.popupCallback && element)
@@ -168,9 +168,9 @@
             // disable by default
             $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
             
-            if (!selectedValue || selectedValue == 7) {
+            if (!selectedValue || selectedValue === 7) {
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);    // trace
-            } else if (selectedValue == 8) {                                        // range
+            } else if (selectedValue === 8) {                                        // range
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", false);
             } else {
                 $("#" + fromDdl).prop("disabled", false);
@@ -188,11 +188,11 @@
             if (!affectedFields)
                 return false;
 
-            var fieldEnabled = (selectedValue == 4);
+            var fieldEnabled = (selectedValue === 4);
             for (var idx = 0; idx < affectedFields.length; idx++) {
 
                 var currentDdl = $('#' + affectedFields[idx]).data("kendoDropDownList");
-                if (fieldEnabled == false)
+                if (fieldEnabled === false)
                     currentDdl.select(0);
                 currentDdl.enable(fieldEnabled);
             }
@@ -202,7 +202,7 @@
         }
 
         function onElementDisable(index, oldPropertyValue) {
-            if (oldPropertyValue == false)
+            if (oldPropertyValue === false)
                 removeValidationToolTips(this);
         }
 
@@ -210,7 +210,7 @@
             var self = $(element);
 
             var parentValue = self.parents('.controls:first');
-            if (!parentValue || parentValue.length != 1) {
+            if (!parentValue || parentValue.length !== 1) {
                 if (self.is('[data-role="dropdownlist"]')) {
                     parentValue = self.parents('.k-dropdown');
                 } else if (self.parent().is('[class^="span"]')) {
@@ -238,7 +238,7 @@
 
         function isValidDecimal(val) {
             var decimalVal = parseFloat(val);
-            return decimalVal == val;
+            return decimalVal === val;
         }
 
         function parseErrorMessage(data) {
@@ -299,7 +299,6 @@
                         kgrid.refresh();
                     } else
                         return false;
-
                 }
             });
         }
@@ -1849,6 +1848,11 @@
             indexationDetailObj.on("click", "#btnSaveRegulatoryGhs", function (e) {
                 e.preventDefault();
 
+                if ($("#SWOtherBit").is(":checked") && $("#SWOther").val() === "") {
+                    $(this).displayError("Other field cannot be empty if Other checkbox is checked.");
+                    return false;
+                }
+
                 var validator = $("#FormRegulatoryGHS").kendoValidator().data("kendoValidator");
                 if (validator.validate()) {
                     var form = $("#FormRegulatoryGHS");
@@ -2090,11 +2094,28 @@
             indexationDetailObj.on("change", "#SWordNotProvided", function () {
                 if ($(this).is(":checked")) {
                     $("#SignalWord").val("").prop("disabled", true);
+                    $("#SWOther").val("").prop("disabled", true);
+                    $("#SWOtherBit").prop('checked', false); 
                     $("#SearchBySignalWord").addClass("k-state-disabled");
                     $("#SignalWordId").val(null);
                     indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 } else {
-                    $("#SignalWord").prop("disabled", false);
+                   $("#SearchBySignalWord").removeClass("k-state-disabled");
+                    indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+                }
+            });
+
+            indexationDetailObj.on("change", "#SWOtherBit", function () {
+                if ($(this).is(":checked")) {
+                    $("#SignalWord").val("").prop("disabled", true);
+                    $("#SWOther").val("").prop("disabled", true);
+                    $("#SWOther").prop("disabled", false);
+                    $("#SWordNotProvided").prop('checked', false);
+                    $("#SearchBySignalWord").addClass("k-state-disabled");
+                    $("#SignalWordId").val(null);
+                    indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+                } else {
+                    $("#SWOther").val("").prop("disabled", true);
                     $("#SearchBySignalWord").removeClass("k-state-disabled");
                     indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 }
