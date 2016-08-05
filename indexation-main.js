@@ -63,8 +63,8 @@
         var getIndexLevelParam = function () {
             var revisionId = $("#RevisionId").val();
             var ehsChecked = $('#IndexLevelEHS').prop('checked');
-            var saftyHandlingChecked = $('#IndexLevelSaftyHandling').prop('checked');
-            return { revisionId: revisionId, ehsLevel: ehsChecked, saftyHandlingLevel: saftyHandlingChecked };
+            var saftyHandlingChecked = $('#IndexLevelSafetyHandling').prop('checked');
+            return { revisionId: revisionId, ehsLevel: ehsChecked, safetyHandlingLevel: saftyHandlingChecked };
         };
 
         var getDocRevisionId = function() {
@@ -2579,6 +2579,9 @@
         function saveIndexationLevel() {
             var url = GetEnvironmentLocation() + "/Operations/Indexation/SaveIndexationLevel";
             var param = getIndexLevelParam();
+
+            alert(JSON.stringify(param));
+
             $.ajax({
                 url: url,
                 data: JSON.stringify(param),
