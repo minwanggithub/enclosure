@@ -2580,8 +2580,6 @@
             var url = GetEnvironmentLocation() + "/Operations/Indexation/SaveIndexationLevel";
             var param = getIndexLevelParam();
 
-            alert(JSON.stringify(param));
-
             $.ajax({
                 url: url,
                 data: JSON.stringify(param),
