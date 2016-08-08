@@ -751,13 +751,11 @@
 
         xreferenceSearchObj.on("change", xreferenceObject.controls.textBoxes.NumberOfItemsTextBox, function () {
             if (itemsChecked > 0) {
-                EnableSideMenuItems();
-                //Consider Supervisor Security Here before enable the menu
+                EnableSideMenuItems();                
                 if (selectedRequests.length != newRequestCount)
                     DisableSideMenuItem(xreferenceObject.controls.buttons.OnHoldSideMenuButton);
                 if (selectedRequests.length != onHoldCount)
                     DisableSideMenuItem(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
-
             } else
                 DisableSideMenuItems();
 
@@ -823,6 +821,7 @@
 
                     itemsChecked = 0;
                     newRequestCount = 0;
+                    onHoldCount = 0;
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["RequestWorkItemID"]);
@@ -849,6 +848,7 @@
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 selectedRequests = new Array();
+                onHoldCount = 0;
                 itemsChecked = 0;
 
                 if (grid) {
