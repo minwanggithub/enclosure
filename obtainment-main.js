@@ -69,7 +69,7 @@
                 },
                 dropdownlists: {
                     TeamsDropDownList: "#ddlTeams",
-                    PrefLangDropDownList: "#ddlDocumentLanguage",
+                    PrefLangDropDownList: "#ddlContactPreferredLanguage",
                     DocumentTypeDropDownList: "#ddlDocumentType",
                     LockTypeDropDownList: "#ddlLockType",
                     OSAssignedToId: "#ddlAssignedToId",
@@ -153,7 +153,7 @@
 
         var obtainmentWorkLoadSearchResultModel = {
             TeamID: 0,
-            DocumentLanguageId: 0,
+            ContactPreferredLanguageId: 0,
             DocumentTypeId: 0,
             LockTypeId: 0,
             AssignedToId: 0,
@@ -226,7 +226,7 @@
             var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
 
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
-            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
+            obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
@@ -291,7 +291,7 @@
 
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
-            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
+            obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
@@ -303,7 +303,7 @@
 
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
-                + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
+                + obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
                 + obtainmentWorkLoadSearchResultModel.LockTypeId
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
