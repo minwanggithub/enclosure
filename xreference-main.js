@@ -42,6 +42,7 @@
                     SaveRemoveWorkLoad: "#btnSaveRemoveWorkLoad",
                     RemoveRequestsButton: "#btnRemoveRequests",
                     SaveOnHoldWorkLoadButton: "#btnSaveOnHoldWorkLoad",
+                    SaveRemoveOnHoldWorkLoadButton: "#btnSaveRemoveOnHoldWorkLoad"
                 },
                 textBoxes: {
                     IndividualTextBox: "#txtIndividual",
@@ -53,6 +54,7 @@
                     SearchSupplierIdTextBox: "#txtSearchSupplierId",
                     RemoveWorkLoadTextBox: "#txtRemoveWorkLoadNotes",
                     OnHoldWorkLoadTextBox: "#txtOnHoldWorkLoadNotes",
+                    RemoveOnHoldWorkLoadTextBox: "#txtRemoveOnHoldWorkLoadNotes"
                 },
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
@@ -86,7 +88,7 @@
             SaveActionRequests: GetEnvironmentLocation() + "/Operations/XReference/SaveCustomerActionRequests",
             SavePendingRequests: GetEnvironmentLocation() + "/Operations/XReference/SavePendingRequests",
             RequestWorkLoadHistory: GetEnvironmentLocation() + "/Operations/Xreference/RequestWorkLoadHistory",
-            SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"            
+            SaveRemoveWorkLoad: GetEnvironmentLocation() + "/Operations/Xreference/SaveRemoveWorkLoad"
         };
         var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory", OnHold: "#mdlOnHold", RemoveOnHold: "#mdlRemoveOnHold" };
         var messages = {
@@ -105,7 +107,7 @@
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 RemoveWorkLoadNotes: "Please type in a reason to remove item(s) from workload",
-                OnHoldWorkLoadNotes: "Please type in a reason to hold the item(s) frmo workload",
+                OnHoldWorkLoadNotes: "Please type in a reason to hold or remove the item(s) frmo workload",
                 GeneralError: "Error Occurred"
             }
         };
@@ -520,7 +522,7 @@
                     var data = {
                     };
                     data['ids'] = selectedRequests;
-                    data['customerAction']= "On Hold";
+                    data['customerAction'] = "On Hold";
                     data['notes'] = $(xreferenceObject.controls.textBoxes.OnHoldWorkLoadTextBox).val();
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.OnHold);
                 } else {
@@ -530,6 +532,26 @@
             }
         });
 
+
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveRemoveOnHoldWorkLoadButton, function (e) {
+            e.preventDefault();
+            if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
+                $(actionModals.RemoveOnHold).toggleModal();
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+                if ($(xreferenceObject.controls.textBoxes.RemoveOnHoldWorkLoadTextBox).val().length > 0) {
+                    var data = {
+                    };
+                    data['ids'] = selectedRequests;
+                    data['customerAction'] = "Remove On Hold";
+                    data['notes'] = $(xreferenceObject.controls.textBoxes.RemoveOnHoldWorkLoadTextBox).val();
+                    SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.RemoveOnHold);
+                } else {
+                    $(actionModals.RemoveOnHold).toggleModal();
+                    $(this).displayError(messages.errorMessages.OnHoldWorkLoadNotes);
+                }
+            }
+        });
 
 
 
@@ -751,7 +773,7 @@
 
         xreferenceSearchObj.on("change", xreferenceObject.controls.textBoxes.NumberOfItemsTextBox, function () {
             if (itemsChecked > 0) {
-                EnableSideMenuItems();                
+                EnableSideMenuItems();
                 if (selectedRequests.length != newRequestCount)
                     DisableSideMenuItem(xreferenceObject.controls.buttons.OnHoldSideMenuButton);
                 if (selectedRequests.length != onHoldCount)
