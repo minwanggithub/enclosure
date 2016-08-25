@@ -696,9 +696,13 @@
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveRequestsButton);
             $(xreferenceObject.controls.buttons.QCFailSideMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.QCFailSideMenuButton);
+
             $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(false);
+            //$(xreferenceObject.controls.buttons.OnHoldSideMenuButton).addClass("disabled-link");
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.OnHoldSideMenuButton);
+
             $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(false);
+            //$(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).addClass("disabled-link");
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
         }
 
@@ -709,9 +713,13 @@
             ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
+
             $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.OnHoldSideMenuButton).removeClass("disabled-link");
             ShowDisplayModal(xreferenceObject.controls.buttons.OnHoldSideMenuButton, actionModals.OnHold);
+           
             $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).removeClass("disabled-link");
             ShowDisplayModal(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton, actionModals.RemoveOnHold);
         }
 
@@ -721,6 +729,7 @@
 
         function DisableSideMenuItem(btnObj) {
             $(btnObj).enableControl(false);
+            xreferenceSearchObj.off("click", btnObj);
         }
 
         function HotKeyDisplayModal(btnObj, mdlObj) {
