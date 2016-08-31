@@ -56,6 +56,11 @@
                         SupplierNameAndIdObj: function() { return $("#SupplierNameAndId"); },
                         SupplierNameAndIdObjField: "SupplierNameAndId",
                         SupplierIdObjField: "SupplierId",
+                        ResponseNotesField: "txtStatusNotes",
+                        StatusNotesFieldAll: "[id^=txtStatusNotes]"
+                    },
+                    checkBoxes: {
+                        chkHasNotes: "HasNotes"
                     }
             },
             popWindow: {
@@ -95,6 +100,7 @@
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
             UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
+            UIObject.sections.responseDetailGridSection().on("keyup", UIObject.controls.textBoxes.StatusNotesFieldAll, onStatusesNotesChange);
 
         };
 
@@ -107,7 +113,7 @@
                 ShowCollapse: "none",
                 ResponseStatusId: "0",
                 ExistingInboundResponseId: 0,
-
+                HasNotes: false,
                 SearchClick: function (e) {
                     e.preventDefault();
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
@@ -136,7 +142,8 @@
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
 
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
-                         inboundGrid().dataSource.data([]);
+                        inboundGrid().dataSource.data([]);
+                    this.set(UIObject.controls.checkBoxes.chkHasNotes, false);
                 },
 
                 CloseSupplierClick: function (e) {
@@ -425,6 +432,11 @@
             changeLayoutOnInputChange(this.id.substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length));
         }
 
+        function onStatusesNotesChange(e) {
+            $(e.currentTarget).attr('data-is-dirty', true);
+            changeLayoutOnInputChange(this.id.substring(UIObject.controls.textBoxes.ResponseNotesField.length));
+        }
+
         function onDisabledButtonClick(e) {
             e.preventDefault();
         }
@@ -548,6 +560,12 @@
                             var field = $('#' + UIObject.controls.textBoxes.Description + inboundResponseId);
                             if (field.length > 0) {
                                 field.text(successData.Description);
+                            }
+
+
+                            var field = $('#' + UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
+                            if (field.length > 0) {                                
+                                field.val(successData.ResponseNotes);
                             }
 
                             changeLayoutOnInputChange(inboundResponseId);
