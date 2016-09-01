@@ -56,7 +56,7 @@
                         SupplierNameAndIdObj: function() { return $("#SupplierNameAndId"); },
                         SupplierNameAndIdObjField: "SupplierNameAndId",
                         SupplierIdObjField: "SupplierId",
-                        ResponseNotesField: "txtStatusNotes",
+                        ResponseNotesField: "#txtStatusNotes",
                         StatusNotesFieldAll: "[id^=txtStatusNotes]"
                     },
                     checkBoxes: {
@@ -355,17 +355,20 @@
                 var responseStatusSelector = '#' + UIObject.controls.dropdownlists.ResponseStatusSpecific + inboundResponseId;
                 var responseStatusElem = $(responseStatusSelector).data('kendoDropDownList');
                 var responseStatusId = responseStatusElem ? responseStatusElem.value() : null;
+                var responseNoteElem = $(UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
 
                 var formData = {};
                 formData['InboundResponseId'] = inboundResponseId;
                 formData['SupplierId']= supplierId;
-                formData['ResponseStatusId']= responseStatusId;
+                formData['ResponseStatusId'] = responseStatusId;
+                formData['ResponseNotes'] = responseNoteElem.val();
 
-                saveResponse(formData, function() {
+                saveResponse(formData, function () {
                     var supplierAttached = supplierElem.attr('data-is-dirty');
                     if (supplierElem.length > 0) resetFieldDefaultValue(supplierElem[0]);
                     if (responseStatusElem) resetFieldDefaultValue(responseStatusElem.element[0]);
-
+                    if (responseNoteElem) responseNoteElem.removeAttr('data-is-dirty');
+                    
                     var hdnStatusNotes = $('#' + UIObject.controls.textBoxes.StatusNotes + formData.InboundResponseId);
                     if (hdnStatusNotes.length > 0 && hdnStatusNotes.val()) {
                         var descElem = $('#' + UIObject.controls.textBoxes.Description + inboundResponseId);
@@ -434,7 +437,7 @@
 
         function onStatusesNotesChange(e) {
             $(e.currentTarget).attr('data-is-dirty', true);
-            changeLayoutOnInputChange(this.id.substring(UIObject.controls.textBoxes.ResponseNotesField.length));
+            changeLayoutOnInputChange(this.id.substring(UIObject.controls.textBoxes.ResponseNotesField.length - 1));
         }
 
         function onDisabledButtonClick(e) {
@@ -563,7 +566,7 @@
                             }
 
 
-                            var field = $('#' + UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
+                            var field = $(UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
                             if (field.length > 0) {                                
                                 field.val(successData.ResponseNotes);
                             }
