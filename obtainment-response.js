@@ -8,19 +8,19 @@
         var supplierSearchViewModel = {};
         var notesModalSettings;
 
-        var UIObject = {
-            sections: {
+            var UIObject = {
+                sections: {
                     inboundResponseSearchSection: function() { return $("#divObtainmentResponseSearchSection"); },
                     responseDetailGridSection: function() { return $("#ReponseDetail"); },
                     supplierSearchFootSection: function() { return $("#supplierSearchFootSection"); },
                     customerActionSection: function() { return $("#customerActionSection"); },
-            },
+                },
                 classes: {
                     CancelIcon: 'k-i-cancel',
                     DisabledLink: 'disabled-link',
                     RefreshIcon: 'k-i-refresh'
                 },
-            controls: {
+                controls: {
                     buttons: {
                         CancelResponseAll: "[id^=btnResponseCancel]",
                         CancelResponseSpecific: "btnResponseCancel",
@@ -47,7 +47,8 @@
                     labels: {
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                         UnprocessedResponsesCount: "lblUnprocessedCount",
-                    },
+                        LblFlagBy: "#lblFlagBy"
+        },
                     textBoxes: {
                         Description: "divDescription",
                         NoticeNumberObj: function() { return $("#NoticeNumber"); },
@@ -376,7 +377,7 @@
                         hdnStatusNotes.val(null);
                     }
 
-                    changeLayoutOnInputChange(inboundResponseId);
+                    refreshResponseLayout(inboundResponseId);
 
                     // Only attempt to check email and domain of supplier when attempting to attach a new one
                     if (supplierAttached == "true") {
@@ -566,10 +567,16 @@
                             }
 
 
-                            var field = $(UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
-                            if (field.length > 0) {                                
+                            field = $(UIObject.controls.textBoxes.ResponseNotesField + inboundResponseId);
+                            if (field.length > 0) {
                                 field.val(successData.ResponseNotes);
                             }
+
+                            label = $(UIObject.controls.labels.LblFlagBy + inboundResponseId);
+                            if (label.length > 0) {
+                                label.text('By ' + successData.ResponseNotesBy);
+                            }
+                            
 
                             changeLayoutOnInputChange(inboundResponseId);
 
