@@ -272,7 +272,7 @@
 
         function clearContainerDirtyFlags(container, setValueFunc, changeLayoutFunc) {
             if (container) {
-                
+
                 container.find('input[data-is-dirty=true]').each(function () {
                     var field = this;
                     if (setValueFunc) setValueFunc(field);
@@ -393,9 +393,9 @@
         function revertContainerFieldValues(container, changeLayoutFunc) {
             clearContainerDirtyFlags(container, revertFieldValue, changeLayoutFunc);
         }
-        
+
         function revertFieldValue(field) {
-            if (field.getAttribute('type') == 'checkbox') 
+            if (field.getAttribute('type') == 'checkbox')
                 field.checked = field.defaultChecked;
             else if (field.getAttribute('type') == 'radio') {
                 $(field).parents('form').find('input[name="' + field.getAttribute('name') + '"]').each(function (index, data) {
@@ -405,7 +405,7 @@
             } else if (field.getAttribute('data-role') == 'dropdownlist') {
                 var ddl = $(field).data('kendoDropDownList');
                 if (ddl) {
-                    
+
                     var fieldDefault = field.defaultValue.length == 0 ? "0" : field.defaultValue;
                     ddl.select(function (dataItem) {
                         var dvalue = dataItem.Value.length == 0 ? "0" : dataItem.Value;
@@ -414,14 +414,14 @@
 
                     ddl.trigger("change");
                 }
-            } else 
+            } else
                 field.value = field.defaultValue;
         }
 
         function setContainerFieldDefaultValues(container, changeLayoutFunc) {
             clearContainerDirtyFlags(container, setFieldDefaultValue, changeLayoutFunc);
         }
-        
+
         function setFieldDefaultValue(field) {
             if (field.getAttribute('type') == 'checkbox' || field.getAttribute('type') == 'radio')
                 field.defaultChecked = field.checked;
@@ -476,15 +476,16 @@
 
         function performDocumentSearch() {
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
-            if (searchGrid && searchGrid.dataSource) {
+            searchGrid.dataSource.read();
+            /*if (searchGrid && searchGrid.dataSource) {
                 searchGrid.dataSource.page(1);
-                searchGrid.dataSource.read();
-            }
+
+            }*/
         }
 
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
-            
+
             var container = $(documentElementSelectors.containers.NewDocument);
             if (container.length > 0) container.show(500);
         }
@@ -558,7 +559,7 @@
 
         /******************************** Search Methods (Pop-Up) ********************************/
         function displayAddNewDocumentPopUp(pKey) {
-            
+
             if (generateLocationUrl) {
                 var url = documentAjaxSettings.controllers.Home + '/' + documentAjaxSettings.actions.OpenWindowVariable;
                 var locationUrl = generateLocationUrl(url);
@@ -578,7 +579,7 @@
                         }
                         else
                             requestUrl = generateLocationUrl(requestUrl);
-                       
+
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
                         requestWindow.onload = function () {
                             var doc = this.document;
@@ -592,7 +593,7 @@
 
                     })
                     .error(function () {displayError(documentMessages.errors.AddNewDocumentPopUp);});
-                
+
             } else
                 displayError(documentMessages.errors.AddNewDocumentPopUp);
         }
@@ -698,7 +699,7 @@
 
         /******************************** New Document Methods ********************************/
         function cancelNewDocumentForm(callbackFunc, clearFields, clearAttachments) {
-            
+
             var container = $(documentElementSelectors.containers.NewDocument);
             if (isContainerFieldsDirty(container) == true) {
 
@@ -767,12 +768,12 @@
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
                 };
-                
+
                 if (extractCompanyIdFromTemplate) {
                     result.ManufacturerId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val());
                     result.SupplierId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val());
                 }
-                
+
                 return result;
             }
 
@@ -811,7 +812,7 @@
                             displayError(documentMessages.errors.SaveNewDocumentAttachmentError);
                             return false;
                         }
-                    }   
+                    }
                 }
 
                 url = form.attr('action');
@@ -864,7 +865,7 @@
         function saveNewDocumentPopUp(documentId) {
             if ($(this).getQueryStringParameterByName("docGuid") == "") {
                 if (window.opener) {
-                    
+
                     var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
                     if (parentSearchWindow.length > 0) {
                         parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
@@ -879,7 +880,7 @@
 
         function onNewDocumentAddAttachmentBtnClick(e) {
             e.preventDefault();
-            
+
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
@@ -909,13 +910,13 @@
                     }
 
                 }, false);
-                
+
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
         }
 
         function onNewDocumentCancelBtnClick(e) {
-            
+
             e.preventDefault();
             cancelNewDocumentForm(closeNewDocument, true, true);
         }
@@ -971,7 +972,7 @@
         }
 
         function onNewDocumentSaveBtnClick(e) {
-           
+
             e.preventDefault();
             saveNewDocumentRevisionToDatabase(saveNewDocument, true, true);
         }
@@ -1002,19 +1003,19 @@
             var yyyy = today.getFullYear();
             if (dd < 10) {
                 dd = '0' + dd;
-            } 
+            }
             if (mm < 10) {
                 mm = '0' + mm;
             }
             return mm + '/' + dd + '/' + yyyy;
-            
+
         }
 
         var onNewRevisionPanelActivate = function (e) {
-            
+
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
-            
+
             $(this).ajaxCall(generateActionUrl("../../" + documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.GetSupplierName), {supplierId: supplierId})
             .success(function (result) {
                 if (result.message == "Error" || result.success == false) {
@@ -1038,12 +1039,12 @@
             $("[id*=revisionMfgIdBtn_" + documentId + "]").hide();
             $("[id*=revisionSupplierIdBtn_" + documentId + "]").hide();
             $("[id*=viewRevisionManufacturerIdBtn_" + documentId + "]").on("conlick", onDocumentRevisionCompanyViewBtnClick);
-            $("[id*=viewRevisionSupplierIdBtn_" + documentId + "]").on("click", onDocumentRevisionCompanyViewBtnClick); 
+            $("[id*=viewRevisionSupplierIdBtn_" + documentId + "]").on("click", onDocumentRevisionCompanyViewBtnClick);
             $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
             $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
-            $("[id*=RevisionDate_" + documentId + "]").val(getTodayDate()); 
+            $("[id*=RevisionDate_" + documentId + "]").val(getTodayDate());
             $("[id*=VerifyDate_" + documentId + "]").val(getTodayDate());
-            
+
             // If we are within the popup window display the panel
             var addNewRevisionPopUp = $(documentElementSelectors.containers.NewRevision).parents(documentElementSelectors.containers.NewRevisionPopUp);
             if (addNewRevisionPopUp.length > 0) {
@@ -1126,7 +1127,7 @@
                         displayCreatedMessage(documentMessages.success.DocumentSaved);
 
                         var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentLastUpdatePopOver);
-                        if (lastUpdatePopOver.length > 0) 
+                        if (lastUpdatePopOver.length > 0)
                             lastUpdatePopOver.data('popover').options.content = data.LastUpdatedDescription;
 
                         // Check if the status history table needs to be repopulated
@@ -1181,7 +1182,7 @@
 
         function onDocumentDetailsSaveBtnClick(e) {
             e.preventDefault();
-            
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var form = $(documentElementSelectors.containers.DocumentDetailsFormExact + documentId);
             if (form.length > 0) {
@@ -1337,7 +1338,7 @@
 
         function getDocRevDetailsDataForInboundResponse(container, documentId, revisionId) {
 
-         if (!container && documentId & revisionId) { 
+         if (!container && documentId & revisionId) {
                 container =((revisionId || 0) == 0) ? $(documentElementSelectors.containers.DocumentNewRevision +documentId): $(documentElementSelectors.containers.DocumentRevision +documentId);
          }
 
@@ -1371,7 +1372,7 @@
         }
 
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
-            e.preventDefault();                      
+            e.preventDefault();
 
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
@@ -1415,7 +1416,7 @@
 
         function onDocumentNewRevisionDetailsCancelBtnClick(e) {
             e.preventDefault();
-           
+
             var container = $(e.currentTarget).parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails + ':first');
             if (container.length > 0) {
 
@@ -1438,7 +1439,7 @@
         function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {
             e.preventDefault();
             window.opener = self;
-                    
+
             var container = $(e.currentTarget).parents('ul[id^=pnlNewRevision]');
             if (container.length > 0) {
 
@@ -1455,12 +1456,12 @@
                 } else {
                     window.close();
                 }
-            } 
+            }
         }
 
         function onDocumentNewRevisionDetailsDeleteAttachmentBtnClick(e) {
             e.preventDefault();
-          
+
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
                 header: documentMessages.modals.DocumentRevisionDeleteAttachmentHeader
@@ -1482,7 +1483,7 @@
                                 displayError(errorMessage);
                             else {
                                 attachmentGrid.dataSource.remove(dataItem);
-                                //only one attachment allowed for the Single container. After remove this file, should allow add file.                             
+                                //only one attachment allowed for the Single container. After remove this file, should allow add file.
                                 if (dataItem.DocumentId == 0) {
                                     $('#addNewFilesBtn_New').removeClass('k-state-disabled');
                                 }
@@ -1498,7 +1499,7 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-            
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
@@ -1535,9 +1536,9 @@
         }
 
         function onDocumentRevisionDetailsDeleteAttachmentBtnClick(e) {
-            
-            e.preventDefault();            
-            
+
+            e.preventDefault();
+
             var settings = {
                 message: documentMessages.modals.DocumentRevisionDeleteAttachmentMessage,
                 header: documentMessages.modals.DocumentRevisionDeleteAttachmentHeader
@@ -1563,7 +1564,7 @@
 
                                     if (!currentGrid.dataSource || currentGrid.dataSource.data().length == 0)
                                         displayError(documentMessages.warnings.DocumentRevisionAttachments);
-                                    
+
                                     if (currentGrid.dataSource.data().length == 0)
                                         $('[id*=addNewFilesBtn]', attachmentGridParent).removeClass('k-state-disabled');
                                 });
@@ -1632,7 +1633,7 @@
         }
 
         function onDocumentRevisionCompanySearchBtnClick(e) {
-            
+
             e.preventDefault();
 
             var buttonElement = $(e.currentTarget);
@@ -1649,9 +1650,9 @@
         }
 
         function onDocumentRevisionCompanyViewBtnClick(e) {
-            
+
             e.preventDefault();
-            
+
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -1666,12 +1667,12 @@
         }
 
         function onDocumentRevisionDetailsAddAttachmentBtnClick(e) {
-            
+
             e.preventDefault();
-           
+
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
-            }                       
+            }
 
             if (displayUploadModal) {
 
@@ -1743,8 +1744,8 @@
 
                                 //            displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsSaved);
                                 //            deferred.resolve();
-                                           
-                                //            $(e.currentTarget).addClass('k-state-disabled');                                                                                    
+
+                                //            $(e.currentTarget).addClass('k-state-disabled');
                                 //        }
                                 //    }
                                 //});
@@ -1799,7 +1800,7 @@
             };
 
             if (formData.model) {
-            
+
                 if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
                     displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
@@ -1852,7 +1853,7 @@
                 model: getDocRevDetailsDataForInboundResponse(form, documentId, 0),
                 attachments: getDocRevAttachmentsForInboundResponse(form, documentId, 0)
             };
-          
+
             if (formData.model) {
 
                 var url = form.attr("action");
@@ -1915,7 +1916,7 @@
 
         function onDocumentRevisionSetUnknownCompanyBtnClick(e) {
             e.preventDefault();
-            
+
             var buttonElement = $(e.currentTarget);
             var siblingField = getCompanyTextFieldSibling(buttonElement);
             if (!siblingField) return;
@@ -1931,7 +1932,7 @@
                 .error(function(xhr, textStatus, error) { displayError(error); });
         }
 
-    
+
         function setDocumentRevisionDetailsDefaultValues(container, documentId) {
             if (container && container.length > 0) {
                 container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).prop("checked", false);
@@ -1973,7 +1974,7 @@
                     })
                     .error(function () {displayError(documentMessages.errors.DocumentRevisionAttachmentDescriptionUpdate);});
             }
-        };       
+        };
 
         var onDocumentRevisionConfirmationDateChange = function (e) {
             if (this.value() == null || this.value().length <= 0)
@@ -2153,7 +2154,7 @@
                         ClassificationTypeId: classificationTypeId,
                         ParentDocumentId: classificationTypeText.indexOf("Parents") >= 0 ? data.ReferenceId : currentDocumentId,
                     };
-                    
+
                     $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentContainerComponent), model)
                         .success(function (result) {
                             var errorMessage = parseErrorMessage(result);
@@ -2281,7 +2282,7 @@
                     var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
                     gNonProduct.dataSource.page(1);
                     gNonProduct.dataSource.read();
-                    
+
                 });
             });
         };
@@ -2302,7 +2303,7 @@
             onDocumentNoteChange: onDocumentNoteChange,
             onDocumentNoteDataBound: onDocumentNoteDataBound,
             onDocumentNoteEdit: onDocumentNoteEdit,
-            onDocumentRevisionAttachmentSave: onDocumentRevisionAttachmentSave,            
+            onDocumentRevisionAttachmentSave: onDocumentRevisionAttachmentSave,
             onDocumentRevisionConfirmationDateChange: onDocumentRevisionConfirmationDateChange,
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
