@@ -44,6 +44,29 @@
             initializeFirstAidControls();
             initializeFireFightingControls();
             initializePpeControls();
+
+
+            indexationDetailObj.on("click", "#btnDocumentAddressSave", function (e) {
+                e.preventDefault();
+                //alert("btn clicked");
+                debugger;
+                var form = $("#FormDocumentContactAddress");
+                var url = form.attr("action");
+                var formData = form.serialize();
+                $.post(url, formData, function (data) {
+                    if (data.result === "success") {
+                        $(this).savedSuccessFully(data.message);
+                        //$('#AddEditHazardClass').empty();
+                        //var grid = $("#GridHazardClass").data("kendoGrid");
+                        //grid.dataSource.read();
+                    } else {
+                        if (data.popupMessage)
+                            $(this).displayError(data.popupMessage);
+                    }
+                });
+                return true;                
+            });
+
         };
 
         var loadNonSdsIndexationPlugin = function (callbackSettings) {
