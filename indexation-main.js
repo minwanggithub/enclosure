@@ -48,12 +48,16 @@
 
             indexationDetailObj.on("click", "#btnDocumentAddressSave", function (e) {
                 e.preventDefault();
-                debugger;
                 var form = $("#FormDocumentContactAddress");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
                     if (data.result === "success") {
+                        var url = "../Indexation/GetDocumentContactAddress";
+                        $.post(url, { indexationId: data.indexationId}, function (result) {
+                            $("#DocERContactAddress").html($(result));
+                        });
+
                         $(this).savedSuccessFully(data.message);
                     } else {
                         if (data.popupMessage)
