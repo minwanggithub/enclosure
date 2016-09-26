@@ -16,7 +16,7 @@
         var validationMessage = "Validation failed for following sections:<br />";
         var generalSave = false;
 
-        // General indexation methods
+        // General indexation methodsa
         var loadIndexationPlugin = function(callbackSettings) {
             settings = callbackSettings;
             initializeMenu();
@@ -69,12 +69,17 @@
 
             indexationDetailObj.on("click", "#btnDocumentPhoneSave", function (e) {
                 e.preventDefault();
-                debugger;
                 var form = $("#FormDocumentContactPhone");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
                     if (data.result === "success") {
+                        var url = "../Indexation/GetDocumentContactPhone";
+                        $.post(url, {
+                        indexationId: data.indexationId
+                        }, function (result) {
+                            $("#DocERContactPhone").html($(result));
+                       });
                         $(this).savedSuccessFully(data.message);
                     } else {
                         if (data.popupMessage)
