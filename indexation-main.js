@@ -108,8 +108,8 @@
         var getIndexLevelParam = function () {
             var revisionId = $("#RevisionId").val();
             var ehsChecked = $('#IndexLevelEHS').prop('checked');
-            var saftyHandlingChecked = $('#IndexLevelSafetyHandling').prop('checked');
-            return { revisionId: revisionId, ehsLevel: ehsChecked, safetyHandlingLevel: saftyHandlingChecked };
+            var safetyHandlingChecked = $('#IndexLevelSafetyHandling').prop('checked');
+            return { revisionId: revisionId, ehsLevel: ehsChecked, safetyHandlingLevel: safetyHandlingChecked };
         };
 
         var getDocRevisionId = function() {
