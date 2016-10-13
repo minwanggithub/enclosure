@@ -2448,6 +2448,47 @@
                 e.preventDefault();
                 $('#AddEditPrecautionaryStatement').empty();
             });
+
+            // NONE ----
+
+            indexationDetailObj.on("change", "#NoHazardCategory", function () {
+                if ($(this).is(":checked")) {
+
+                    $("#btnEnableOtherHCatagory").addClass("k-state-disabled");//.prop("disabled", true);
+                    $("#SearchByCategory").addClass("k-state-disabled");//.prop("disabled", true);
+                    $("#Category").val("").prop("disabled", true);
+
+                } else {
+
+                    $("#btnEnableOtherHCatagory").removeClass("k-state-disabled");//.prop("disabled", true);
+                    $("#SearchByCatagory").removeClass("k-state-disabled");//.prop("disabled", true);
+                    $("#Category").val("").prop("disabled", false);
+
+                }
+            });
+
+            indexationDetailObj.on("change", "#NoHazardClass", function () {
+                if ($(this).is(":checked")) {
+
+                    $("#btnEnableOtherHClass").addClass("k-state-disabled");
+                    $("#SearchByClass").addClass("k-state-disabled");
+                    $("#Class").val("").prop("disabled", true);
+
+                    indexationDetailObj.off("click", "#SearchByClass", onSearchByClassButtonClick);
+
+                } else {
+
+                    $("#btnEnableOtherHClass").removeClass("k-state-disabled");
+                    $("#SearchByClass").removeClass("k-state-disabled");
+                    $("#Class").val("").prop("disabled", false);
+
+                    //$("#SearchBySignalWord").removeClass("k-state-disabled");
+                    indexationDetailObj.on("click", "#SearchByClass", onSearchByClassButtonClick);
+                }
+            });
+
+
+            // NONE ----
         }
 
         function initializeGhsHazardClassValidator() {
