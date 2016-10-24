@@ -600,6 +600,13 @@
                 }
             });
 
+            //See TRECOMPLI-2216 - change the cancel to close
+            indexationDetailObj.on("click", "#btnDiscardIdentification", function (e) {
+                e.preventDefault();                
+                window.close();
+            });
+
+
             indexationDetailObj.on("click", "#ancSynBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects('Gridsynonyms', 'synonyms', '../Indexation/BatchDeleteNameNumbers');
