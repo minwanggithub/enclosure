@@ -147,7 +147,8 @@
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
                 UnderCoonstruction: "This option is still under construction.",
                 CannotRetrieveSentEmail: "Unable to retrieve sent email.",
-                NoCustomerActionNotesProvided: "Customer action notes required."
+                NoCustomerActionNotesProvided: "Customer action notes required.",
+                NoNoticeNumberInSuperEmailSubject: "A ||NoticeNumber|| token is mandatory in the super email subject.",
             }
         };
 
@@ -485,13 +486,26 @@
 
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () { $(actionModals.SuperMail).toggleModal(); });
             $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).click(function () {
-                if ($(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == '' || $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val() == 'Select One') {
+
+                // recepient selected ?
+                var recepient = $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val();
+                var hasRecepient = !(recepient == '' || recepient == 'Select One')
+
+                // notice number selected ?
+                var subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val() + "";
+                var hasNoticeNumber = (subject.toUpperCase().indexOf("||NOTICENUMBER||") >= 0); 
+                
+                if (!hasRecepient || !hasNoticeNumber){
                     $(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
                         $(actionModals.SuperMail).show();
                         $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
                     })
-                    SubError(messages.errorMessages.EmailAddressMissing);
+
+                    if (!hasRecepient)
+                        SubError(messages.errorMessages.EmailAddressMissing);
+                    else
+                        SubError(messages.errorMessages.NoNoticeNumberInSuperEmailSubject);
                 }
                 else {
                     DeliverSuperMain();
