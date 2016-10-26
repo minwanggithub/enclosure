@@ -1163,17 +1163,24 @@
         }
 
         function FillCloseRequest(actionName) {
+
             var strCustomerAction = "";
+
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
+            var ddlReasonCodes = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).data("kendoDropDownList");
+
+            // customer action
             obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.text().substring(0, ddlCustomerActions.text().indexOf("-") - 1);
 
-            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() != "" ?
-                     $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val() : null;
+            // customer reason code text
+            obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val();
+            if (obtainmentActionCloseRequest.ReasonCodeId == "") obtainmentActionCloseRequest.ReasonCodeId = null;
+            var reasonCode = ddlReasonCodes.text();
 
-            var reasonCode = obtainmentActionCloseRequest.ReasonCodeId == null ? "" : $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).text();
+            if (actionName == "CustomerAction") {
+                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + ddlReasonCodes.text() + "<br>Notes:";
+            }
 
-            if (actionName == "CustomerAction")
-                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + reasonCode + "<br>Notes:";
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
             return obtainmentActionCloseRequest;
         }
