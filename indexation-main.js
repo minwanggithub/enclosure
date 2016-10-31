@@ -114,7 +114,7 @@
                         $('#CountryLkpId').val(phoneSplitArr[0]);
                         $('#CityOrAreaCode').val(phoneSplitArr[1]);
                         $('#LocalNumber').val(phoneSplitArr[2]);
-                        $('#Extension').val((typeof phoneSplitArr[3] === 'undefined') ? 0 : phoneSplitArr[3]);
+                        $('#Extension').val((typeof phoneSplitArr[3] === 'undefined') ? null : phoneSplitArr[3]);
                     }
 
                 }
