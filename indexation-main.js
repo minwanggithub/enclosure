@@ -89,6 +89,52 @@
                 return true;
             });
 
+            function PrePopulatePhone(arr) {
+            
+                $('#CountryLkpId').val('');
+                $('#CityOrAreaCode').val('');
+                $('#LocalNumber').val('');
+                $('#Extension').val('');
+
+                if (arr.length >= 1) {
+                    var phone = arr[0].trim();
+                    phone = phone.replace(/\(/g, '-');
+                    phone = phone.replace(/\)/g, '-');
+                    phone = phone.replace(/\./g, '-');
+
+                    var firstDigit = phone.match(/\d/);
+                    var indexed = phone.indexOf(firstDigit);
+                    if (indexed < 0) return;
+
+                    phone = phone.substring(indexed, phone.length);
+                    var phoneSplitArr = phone.split('-');
+                    if (phoneSplitArr.length == 1) {
+                        $('#LocalNumber').val(phoneSplitArr[0]);
+                    } else if (phoneSplitArr.length >= 3) {
+                        $('#CountryLkpId').val(phoneSplitArr[0]);
+                        $('#CityOrAreaCode').val(phoneSplitArr[1]);
+                        $('#LocalNumber').val(phoneSplitArr[2]);
+                        $('#Extension').val((typeof phoneSplitArr[3] === 'undefined') ? 0 : phoneSplitArr[3]);
+                    }
+
+                }
+            }
+
+            indexationDetailObj.on("paste", "#OriginalPhoneLabel", function (e) {
+                var e = this;
+
+                setTimeout(function () {
+                    var arr = e.value.split('\n');
+                    PrePopulatePhone(arr);
+                }, 4);
+
+            });
+
+            indexationDetailObj.on("click", "#btnERPhonePrePopulate", function (e) {
+                var arr = $('#OriginalPhoneLabel').val().split('\n');
+                PrePopulatePhone(arr);
+            });
+
         };
 
         var loadNonSdsIndexationPlugin = function (callbackSettings) {
