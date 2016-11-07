@@ -874,7 +874,7 @@
                 };
 
                 //validation to check before saving
-                if (data.internationalDialingCode != null && data.phoneType != null) {
+                if (data.phoneType != null) {
                     if (isNaN(data.areaCode) || data.areaCode == null)
                         validationMessage = "Area Code must be numeric";
 
@@ -890,7 +890,7 @@
                         return;
                     }
                 } else {
-                    onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                    onDisplayError("Area Code, Local Number and Type are required");
                     return;
                 }
 
@@ -905,13 +905,13 @@
                             saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                         });
                     } else {
-                        if (data.internationalDialingCode != null && data.phoneType != null) {
+                        if (data.phoneType != null) {
                             if (IsNumeric(data.localNo) && IsNumeric(data.areaCode))
                                 saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityPhone'));
                             else
                                 onDisplayError("Area Code and Local Number must be numeric");
                         } else
-                            onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                            onDisplayError("Area Code, Local Number and Type are required");
                     }
                 });
             });
@@ -938,7 +938,7 @@
 
                
                //validation to check before saving
-               if (data.internationalDialingCode != null && data.phoneType != null) {
+               if (data.phoneType != null) {
                    if (isNaN(data.areaCode) || data.areaCode == null)
                        validationMessage = "Area Code must be numeric";
 
@@ -954,7 +954,7 @@
                        return;
                    }
                } else {
-                   onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                   onDisplayError("Area Code, Local Number and Type are required");
                    return;
                }
 
@@ -970,13 +970,13 @@
                        });
                    }
                    else {
-                       if (data.internationalDialingCode != null && data.phoneType != null) {
+                       if (data.phoneType != null) {
                            if (IsNumeric(data.localNo) && IsNumeric(data.areaCode))
                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                            else
                                onDisplayError("Area Code and Local Number must be numeric");
                        } else
-                           onDisplayError("Area Code, Local Number, Country Code and Type are required");
+                           onDisplayError("Area Code, Local Number and Type are required");
                    }
                });
 
