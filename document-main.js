@@ -1376,6 +1376,7 @@
             resetDropDown("#ddlDocumentRegion");
             resetDropDown("#ddlDocumentType");
             resetDropDown('#ddlDocumentPhysicalState');
+            resetDropDown('#ddlDocumentStatus');
 
             //Remove document search grid result
             var grid = getHandle("#gdSearchDocument").data("kendoGrid");
@@ -1811,8 +1812,9 @@
                 RevisionTitle: getHandle("#txtRevisionTitle").val(),
                 SearchOption: getHandle("input[name=radiogroupTitleSearchOption]:checked").val(),
                 LatestRevisionOnly: getHandle("#chkLatestRevision:checked").length == 1,
-                PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val()
-            };
+                PhysicalStateId: getHandle("#ddlDocumentPhysicalState").val(),
+                DocumentStatusId: getHandle("#ddlDocumentStatus").val()
+        };
             return {
                 searchText: JSON.stringify(queryText)
             };

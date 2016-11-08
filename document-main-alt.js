@@ -128,7 +128,7 @@
                 DocumentSearchLanguage: "[id^=ddlDocumentLanguage]",
                 DocumentSearchPhysicalState: "[id^=ddlDocumentPhysicalState]",
                 DocumentSearchRegion: "[id^=ddlDocumentRegion]",
-                DocumentSearchStatus: "[id^=DocumentStatusId]"
+                DocumentSearchStatus: "[id^=ddlDocumentStatus]"
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
