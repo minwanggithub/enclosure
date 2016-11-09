@@ -602,7 +602,10 @@
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
             if (grid && grid.dataSource) {
-                grid.dataSource.page(1);
+                
+                if (grid.dataSource.view().length > 0) { 
+                    grid.dataSource.page(1);
+                }
                 grid.dataSource.read();
             }
         }

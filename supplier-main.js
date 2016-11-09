@@ -1752,10 +1752,12 @@
         };
 
         var refreshSupplierSearchResultGrid = function (gridid) {
-            alert('refresh2');
             var grid = $("#" + gridid).data("kendoGrid");
+
+            if (grid.dataSource.view().length > 0) {                       
+                grid.dataSource.page(1);
+            }
             grid.dataSource.read();
-            grid.dataSource.page(1);
         };
 
 
