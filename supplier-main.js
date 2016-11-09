@@ -1752,6 +1752,7 @@
         };
 
         var refreshSupplierSearchResultGrid = function (gridid) {
+            alert('refresh2');
             var grid = $("#" + gridid).data("kendoGrid");
             grid.dataSource.read();
             grid.dataSource.page(1);
