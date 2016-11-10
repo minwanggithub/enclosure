@@ -1015,23 +1015,26 @@
             }
         };
 
-        var onIngredientSearchReady = function() {
+        var onIngredientSearchReady = function () {
 
             var searchwindow = $("#IndexationSearchWindow");
 
-            searchwindow.on("click", "#btnSearchIngredient", function(e) {
+            searchwindow.on("click", "#btnSearchIngredient", function (e) {
                 e.preventDefault();
 
                 var grid = $("#gdIngredientsSearch").data("kendoGrid");
-                grid.dataSource.data([]);
 
                 grid.bind("dataBound", function ingredientBind() {
                     displayKendoPopup($('#SearchIngredientWindow'));
                     grid.unbind("dataBound", ingredientBind);
                 });
 
+                if (grid.dataSource.view().length > 0) {
+                    grid.dataSource.page(1);
+                }
+
                 grid.dataSource.read();
-                grid.dataSource.page(1);
+
             });
 
             searchwindow.on("click", "#btnSelectIngredient", function(e) {
