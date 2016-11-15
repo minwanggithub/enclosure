@@ -538,7 +538,6 @@
         ////////////non publuc / public/////////////
         var refreshProductSearchResultGrid = function () {
             var grid = $(productObject.controls.grids.GridSearchProduct).data("kendoGrid");
-            grid.dataSource.filter([]);
             
             if (grid.dataSource.view().length > 0) {
                 grid.dataSource.page(1);
