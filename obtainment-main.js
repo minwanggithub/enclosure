@@ -30,6 +30,8 @@
                     FollowUpSaveButton: "#btnSaveFollowUp",
                     LogWebSearchSaveButton: "#btnSaveLogWebSearch",
                     FollowUpCancelButton: "#btnCancelFollowUp",
+                    CancelLogExternalEmailButton: "#btnCancelLogExternalEmail",
+                    LogExternalEmailSaveButton: "#btnSaveExternalEmail",
                     LogWebSearchCancelButton: "#btnCancelLogWebSearch",
                     LogPhoneCallSaveButton: "#btnSavePhoneCall",
                     LogPhoneCallCancelButton: "#btnCancelPhoneCall",
@@ -89,6 +91,7 @@
         }
         var actionModals = {
             FollowUp: "#mdlFollowUp",
+            LogExternalEmail: "#mdlLogExternalEmail",
             LogWebSearch: "#mdlLogWebSearch",
             LogPhoneCall: "#mdlLogPhoneCall",
             SendEmail: "#mdlSendEmail",
@@ -106,6 +109,7 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
+            SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -122,7 +126,7 @@
 
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
-        var obtainmentActions = { Empty: "", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var obtainmentActions = { Empty: "", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             successMessages: {
                 Saved: "Saved Successful",
@@ -135,6 +139,7 @@
                 SelectFilter: "A filter must be selected to execute a search",
                 NoItemsSelected: "No items have been selected",
                 NoRowSelected: "No row selected",
+                NoStepSelected: "Invalid Next Step",
                 NoActionSelected: "No action has been selected",
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
@@ -352,7 +357,7 @@
 
         });
 
-        obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {
+        obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {            
             if (hasNoticeNumbers)
                 $(this).displayError(messages.errorMessages.ResponseReceived);
             else
@@ -362,6 +367,14 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpCancelButton, function () {
             $(actionModals.FollowUp).toggleModal();
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CancelLogExternalEmailButton, function () {
+            $(actionModals.LogExternalEmail).toggleModal();
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogExternalEmailSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveLogExternalEmailAction, "LogExternalEmail", actionModals.LogExternalEmail);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnCancelConfirmNotAvailable, function () {
@@ -697,7 +710,6 @@
 
 
         function ShowActionModals() {
-
             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
@@ -711,12 +723,15 @@
             }
 
             switch (ddlActions.value()) {
-
+                case obtainmentActions.LogExternalEmail:
+                    alert("Under Construction");
+                    //SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
+                    //$(actionModals.LogExternalEmail).displayModal();
+                    break;
                 case obtainmentActions.SetFollowUp:
                     SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp", true);
                     $(actionModals.FollowUp).displayModal();
                     break;
-
                 case obtainmentActions.LogPhoneCall:
                     var owid = $("#hdnOwid").val().replace("Owid: ", "");
                     var companyid = owid.split('-')[0];
@@ -1157,7 +1172,7 @@
                     }
                 } else {
                     $(modalId).toggleModal();
-                    $(this).displayError(messages.errorMessages.NoProductSelected);
+                    $(this).displayError(messages.errorMessages.NoStepSelected);
                 }
             }
         }
