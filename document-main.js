@@ -907,9 +907,11 @@
                 $.post(url, { infoId : infoId },
                     function (data) {
                         var currenRevId = $("#RevisionID").val();
-                        var grid = $("#gdRevisionFileInfoDetail_" +currenRevId).data("kendoGrid");
-                        grid.dataSource.read();
-                        grid.dataSource.page(1);
+                        var grid = $("#gdRevisionFileInfoDetail_" + currenRevId).data("kendoGrid");
+                        if (grid.dataSource.view().length > 0) {
+                            grid.dataSource.page(1);
+                        }
+                        grid.dataSource.read();                        
                 });
             });
         };
@@ -1970,7 +1972,10 @@
                 e.preventDefault();
                 var grid = getHandle("#gdSearchDocument").data("kendoGrid");
                 if (grid != null) {
-                    grid.dataSource.page(1);
+                    if (grid.dataSource.view().length > 0) {
+                        grid.dataSource.page(1);
+                    }
+                    
                     grid.dataSource.read();
                 }
             });

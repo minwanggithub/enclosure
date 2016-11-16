@@ -687,11 +687,17 @@
                         }
 
                         var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
-                        gProudct.dataSource.page(1);
+
+                        if (gProudct.dataSource.view().length > 0) {
+                            gProudct.dataSource.page(1);
+                        }
                         gProudct.dataSource.read();
 
                         var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
-                        gNonProduct.dataSource.page(1);
+
+                        if (gNonProduct.dataSource.view().length > 0) {
+                            gNonProduct.dataSource.page(1);
+                        }
                         gNonProduct.dataSource.read();
 
                         kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), false);

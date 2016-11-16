@@ -724,9 +724,8 @@
 
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
-                    alert("Under Construction");
-                    //SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
-                    //$(actionModals.LogExternalEmail).displayModal();
+                    SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
+                    $(actionModals.LogExternalEmail).displayModal();
                     break;
                 case obtainmentActions.SetFollowUp:
                     SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp", true);
