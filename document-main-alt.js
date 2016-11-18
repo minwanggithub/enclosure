@@ -135,6 +135,7 @@
                 DocumentLastUpdatePopOver: "[id^=doc-I-Info-]",
                 DocumentRevisionLastUpdatePopOver: "[id^=rev-I-Info-]",
                 DocumentSearchOptions: "input[name=radiogroupTitleSearchOption]",
+                DocumentDateSearchOptions: "input[name=radiogroupDateSearchOption]",
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -174,6 +175,8 @@
                 DocumentSearchRevisionTitle: "[id^=txtRevisionTitle]",
                 DocumentSearchSupplierId: "[id^=txtSearchSupplierId]",
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
+                DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
+                DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
             }
         };
 
@@ -446,10 +449,15 @@
                 container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val('');
+
+
             }
         }
 
         function getContainerSearchCriteria(container) {
+
             if (container && container.length > 0) {
                 var result = {
                     ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
@@ -466,6 +474,9 @@
                     SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
                     SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
                     UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
+                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
+                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
                 };
 
                 return result;
