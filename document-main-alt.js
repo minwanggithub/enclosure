@@ -128,7 +128,8 @@
                 DocumentSearchLanguage: "[id^=ddlDocumentLanguage]",
                 DocumentSearchPhysicalState: "[id^=ddlDocumentPhysicalState]",
                 DocumentSearchRegion: "[id^=ddlDocumentRegion]",
-                DocumentSearchStatus: "[id^=ddlDocumentStatus]"
+                DocumentSearchStatus: "[id^=ddlDocumentStatus]",
+                DocumentSearchDateRange: "[id^=ddlDateRange]",
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
@@ -136,6 +137,8 @@
                 DocumentRevisionLastUpdatePopOver: "[id^=rev-I-Info-]",
                 DocumentSearchOptions: "input[name=radiogroupTitleSearchOption]",
                 DocumentDateSearchOptions: "input[name=radiogroupDateSearchOption]",
+                DocumentPartNumSearchOptions: "input[name=radiogroupPartNumSearchOption]",
+                DocumentUPCSearchOptions: "input[name=radiogroupUPCSearchOption]",
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -459,7 +462,8 @@
         function getContainerSearchCriteria(container) {
 
             if (container && container.length > 0) {
-                var result = {
+                var result =
+                {
                     ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
                     DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
                     DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
@@ -468,19 +472,28 @@
                     IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
                     LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
                     PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                    PartNumberSearchOption:container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(), 
                     PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
                     ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
                     SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
                     SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
                     UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
                     DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
                     DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
                     DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
                 };
 
+                var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
+                if (dateRange != "Custom") {
+                    result.DateRangeFrom = "";
+                    result.DateRangeTo = dateRange;
+                }
+
+                //console.log(result);
                 return result;
-                    }
+            }
 
             return null;
             }
