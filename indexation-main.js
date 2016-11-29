@@ -710,12 +710,18 @@
 
             indexationDetailObj.on("click", "#SearchByCAS, #SearchByIngredient", function (e) {
                 e.preventDefault();
-                $("#SearchIngredientWindow").closest(".k-window").css({
+                var ingredientWindow = $('#SearchIngredientWindow');
+
+                ingredientWindow.closest(".k-window").css({
                     top: 100,
                     left: 100
                 });
-                $("#SearchIngredientWindow").data("kendoWindow").center();
-                $("#SearchIngredientWindow").data("kendoWindow").open();
+                ingredientWindow.find("#CasNo").val("");
+                ingredientWindow.find("#IngredientName").val("");
+                ingredientWindow.find("#IngredientId").val("");
+
+                ingredientWindow.data("kendoWindow").center();
+                ingredientWindow.data("kendoWindow").open();
             });
 
 
@@ -723,7 +729,7 @@
                 e.preventDefault();
                 var validator = retrieveIngredientValidator();
 
-              
+
 
                 var registrationNumber = $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
 
@@ -852,34 +858,38 @@
                         // Check if the form is valid
                         var validator = editorForm.kendoValidator().data("kendoValidator");
                         if (validator.validate()) {
-
-                            $.post(url, formData, function(data) {
-                                if (!data.Errors) {
-
+                            $.post(url, formData, function (data) {
+                                if (data.Success) {
                                     editorWindow.data('kendoWindow').close();
-                                    $(this).savedSuccessFully("Ingredient Saved");
+                                    $(this).savedSuccessFully(data.Message);
+                                    var ingredientWindow = $('#SearchIngredientWindow');
+
+
+                                    //Doing client side insert newly created row (lighting fast) instead of search again (very slow)
+                                    ingredientWindow.find("#IngredientId").val(data.ReferenceId);
+                                    ingredientWindow.find("#CasNo").val(data.CasNumber);
+                                    ingredientWindow.find("#IngredientName").val(data.IngredientName);
 
                                     var grid = $('#gdIngredientsSearch').data("kendoGrid");
-                                    grid.dataSource.read();
-
+                                    grid.dataSource.data([]);
+                                    grid.dataSource.add({ CasNumber: data.CasNumber, IngredientsUsualName: data.IngredientName, IngredientId: data.ReferenceId });
                                     return true;
-
                                 } else {
 
                                     // do not close window
-                                    //editorWindow.data('kendoWindow').close();
+                                    editorWindow.data('kendoWindow').close();
 
-                                    var errorMessage = 'Error occured while saving the ingredient details';
-                                    var keys = Object.keys(data.Errors);
-                                    for (var idx = 0; idx < keys.length; idx++) {
-                                        var errorobj = data.Errors[keys[idx]];
-                                        if (errorobj.errors && errorobj.errors.length > 0) {
-                                            errorMessage = errorobj.errors[0];
-                                            break;
-                                        }
-                                    }
+                                    //var errorMessage = 'Error occured while saving the ingredient details';
+                                    //var keys = Object.keys(data.Errors);
+                                    //for (var idx = 0; idx < keys.length; idx++) {
+                                    //    var errorobj = data.Errors[keys[idx]];
+                                    //    if (errorobj.errors && errorobj.errors.length > 0) {
+                                    //        errorMessage = errorobj.errors[0];
+                                    //        break;
+                                    //    }
+                                    //}
 
-                                    $(this).displayError(errorMessage);
+                                    $(this).displayError(data.Message);
                                     return false;
                                 }
                             });
@@ -1074,24 +1084,21 @@
             });
 
             searchwindow.on("click", "#btnAddNewIngredient", function(e) {
-                e.preventDefault();
-
+                e.preventDefault();                
                 var editorWindow = $('#ingredientEditorWindow');
                 var loadedContents = editorWindow.find("#ingredientEditorContents").html();
+                var searchedIngridentName = $('#IngredientName').val();
+                var searchedCasNumber = $('#CasNo').val();
                 if (loadedContents.length != 0) {
-
-                    // reset all inut controls
-                    editorWindow.find("#IngredientName, #CASNumber").val("");
-
-                    // center and display
+                    //TRECOMPLI-2212
+                    editorWindow.find("#CASNumber").val(searchedCasNumber);
+                    editorWindow.find("#IngredientName").val(searchedIngridentName);   
                     editorWindow.data('kendoWindow').open();
                     editorWindow.data('kendoWindow').center();
-
                     return;
                 }
 
                 // load window contents once only
-
                 var url = GetEnvironmentLocation() + "/Operations/Ingredient/GetIngredient";
                 var data = { ingredientId: 0 };
                 
@@ -1104,10 +1111,11 @@
                             editorWindow.find("#ingredientEditorContents").html(layout);
                         },
                         complete: function() {
-
                             initializeIngredientCreationControls(editorWindow); // getting wired twice
                             editorWindow.data('kendoWindow').open();
                             editorWindow.data('kendoWindow').center();
+                            editorWindow.find("#CASNumber").val(searchedCasNumber);
+                            editorWindow.find("#IngredientName").val(searchedIngridentName);
                         }
                     });
 
