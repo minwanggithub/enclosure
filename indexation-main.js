@@ -877,8 +877,7 @@
                                 } else {
 
                                     // do not close window
-                                    editorWindow.data('kendoWindow').close();
-
+                                    //editorWindow.data('kendoWindow').close();
                                     //var errorMessage = 'Error occured while saving the ingredient details';
                                     //var keys = Object.keys(data.Errors);
                                     //for (var idx = 0; idx < keys.length; idx++) {
