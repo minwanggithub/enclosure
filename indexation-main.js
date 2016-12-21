@@ -793,12 +793,12 @@
                                     if (data !== '') {
                                         onIngredientSelection(data);
                                     } else {
-                                        $(this).displayError('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
+                                        $(this).displayError('No ingredient was found with the CAS of "' + ingCasNo + '"');
                                         $('#CasNumber').val("");
                                     }
                                 }, 
                                 error: function () {
-                                    $(this).displayError('No ingredient was found with the Cas Code of "' + ingCasNo + '"');
+                                    $(this).displayError('No ingredient was found with the CAS of "' + ingCasNo + '"');
                                     $('#CasNumber').val("");
                                 }
                             });

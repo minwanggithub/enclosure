@@ -19,11 +19,11 @@
         var gdSearchIngredient_Change = function (e) {
 
             // FOR THE TIME BEING REMOVED BASED ON COMMENTS FROM JAMES 2014-06-26
-            //var selectedData = this.dataItem(this.select());
-            //if (typeof selectedData != 'undefined') {
-            //    var ingredientId = selectedData.IngredientId;
-            //    onDetailIngredientItemClick(ingredientId);
-            //}
+            var selectedData = this.dataItem(this.select());
+            if (typeof selectedData != 'undefined') {
+                var ingredientId = selectedData.IngredientId;
+                onDetailIngredientItemClick(ingredientId);
+            }
         };
 
         function onDetailIngredientItemClick(ingredientId) {
