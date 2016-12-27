@@ -54,7 +54,8 @@
                     AccountId: "#txtEditAccountId",
                     NoticeBatchId: "#txtEditNoticeBatchId",
                     NumberOfItemsTextBox: "#numberOfItems",
-                    EmailSubject:"#txtEditEmailSubject"
+                    EmailSubject: "#txtEditEmailSubject",
+                    SummaryRecipient:"#txtEditSummaryRecipient"
                 },
 
                 datepickers: {
@@ -124,7 +125,8 @@
                 LoadEmailPreviewError: "Unable to load email template preview.",
                 NoItemsSelected: "No items have been selected",
                 EmailSubjectMissing: "Email subject missing.",
-                MissingNoticeNumber: "Notice number token missing from email subject line."
+                MissingNoticeNumber: "Notice number token missing from email subject line.",
+                MissingSummaryRecipient : "Notice summary recipient is required."
             }
         };
         
@@ -210,32 +212,13 @@
                 },
 
                 AddNewClick: function (e) {
+
                     //e.preventDefault();
                     //This is for embedding
                     var container = $(UIObject.containers.NewNotification);
                     if (container.length > 0) container.show(500);
 
-
-
-                    //var buttonElement = $(e.currentTarget);
-
-                    //Dynamically load the popup
-                    // $(this).ajaxCall(controllerCalls.LoadNewNotification, { noticeBatchId: 0 })
-                    //             .success(function (data) {
-                    //                 UIObject.sections.noticeDetailSection().html(data);
-                    //                 displayNotificationPopUp();
-                    //             }).error(
-                    //             function () {
-                    //                 $(this).displayError(errorMessages.LoadNewNotificationFailure);
-                    //});
-
-
                     LoadNotificationPopUp(0);
-                    //$("#ddlEditNextStep").data("kendoDropDownList").select(2);
-                    //if (displayNotificationPopUp) {
-                    //    //displaySupplierPopUp(function (data) {});  //With Call back
-                    //    displayNotificationPopUp();
-                    //}
 
                 }
             });
@@ -348,11 +331,13 @@
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
                 AccountIdArray: $(UIObject.controls.textbox.AccountId).val(),
                 NotificationAttachment: [],
+                SummaryRecipient: $(UIObject.controls.textbox.SummaryRecipient).val(),
 
                 MissingRequired: function () {
                     return (this.NextStepId == 0) || (this.NotificationStatusId == 0)
                         || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)
                         || (this.EmailSubject == "")
+                        || (this.SummaryRecipient == "")
                         || (this.ObtainmentList.length == 0);
                 },
 
