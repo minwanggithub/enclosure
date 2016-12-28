@@ -406,6 +406,13 @@
                                     }
                                 }
                                 else {
+
+                                    // were emails valid ?
+                                    if (!data.areEmailsValid) {
+                                        $(this).displayError("Invalid notification email(s).");
+                                        return;
+                                    }
+
                                     $(this).displayError(data.message);
                                 }
                             }).error(
@@ -428,7 +435,14 @@
             kendo.ui.progress(UIObject.sections.searchResultSection(), true);
             $(this).ajaxCall(controllerCalls.SaveNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
                     .success(function (data) {
-                        if (data.success){
+                        if (data.success) {
+
+                            // were emails valid ?
+                            if (!data.areEmailsValid) {
+                                $(this).displayError("Invalid notification email(s).");
+                                return;
+                            }
+
                             $(this).savedSuccessFully(data.message);
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
