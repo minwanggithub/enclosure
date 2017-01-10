@@ -89,6 +89,15 @@
                     formdata[this.name] = this.value;
                 });
 
+    
+
+                formdata["UsualNames"] = [{ 
+                
+                    "Ingredient_NameTypeLkpId": 11,
+                    "ChemicalName" : $("#UsualNames").val()
+                    
+                }];
+
                 $.post(url,
                     formdata,
                     function (data) {
