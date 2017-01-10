@@ -78,6 +78,19 @@
             saveIngredient(false);
         });
 
+        var onGridEditChangeTitle = function (e) {
+            var update = $(e.container).parent().find(".k-grid-update");
+            var cancel = $(e.container).parent().find(".k-cancel");
+            $(update).attr('title', 'Save');
+            $(cancel).attr('title', 'Cancel');
+        };
+
+        var onSaveName = function (e) {
+            var editClass = "tr.k-grid-edit-row.k-state-selected";
+            var dataItem = e.sender.tbody.find(editClass);
+            dataItem.closest("tr").removeClass("k-state-selected").addClass("k-active");
+        };
+
         function saveIngredient(overrideDuplicate) {
             var form = $('#ingredientForm');
             var validator = retrieveIngredientValidator();
@@ -180,7 +193,9 @@
             OnSelectIngredientTabstrip: OnSelectIngredientTabstrip,
             onIngredientActivate: onIngredientActivate,
             onDisplayError: onDisplayError,
-            onIngredientGeneralReady: onIngredientGeneralReady
+            onIngredientGeneralReady: onIngredientGeneralReady,
+            onGridEditChangeTitle:  onGridEditChangeTitle,
+            onSaveName: onSaveName
         };
     };
 })(jQuery);
