@@ -122,7 +122,7 @@
                             return true;
                         } else {
 
-                            var errorMessage = 'Error occured while saving the ingredient details';
+                            var errorMessage = 'Invalid CAS or ingredient already exists with the information provided, modify the data to continue.';
                             if (data.Errors.Exists) {
                                 errorMessage = data.Errors.Exists.errors[0];
 
