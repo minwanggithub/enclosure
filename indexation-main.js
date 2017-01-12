@@ -1176,7 +1176,7 @@
                 .end()
                 .find('#IngredientId')
                 .val(data.IngredientId);
-
+/*
             var synonymElement = ingredientForm.find('#IngredientSynonyms');
             for (var i = 0; i < data.IngredientSynonyms.length; i++) {
                 $('<option>',
@@ -1185,7 +1185,7 @@
                         value: data.IngredientSynonyms[i].IngredientSynonymId
                     }).appendTo(synonymElement);
             }
-
+*/
             removeValidationToolTips('#IngredientsUsualName');
 
             // Add to the cache so the check does not need to happen
