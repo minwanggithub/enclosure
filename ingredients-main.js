@@ -92,6 +92,11 @@
         };
 
         function saveIngredient(overrideDuplicate) {
+
+            // clear
+            $("#txtIngredientSearch").val("");
+
+            // save
             var form = $('#ingredientForm');
             var validator = retrieveIngredientValidator();
             if (validator.validate()) {
@@ -102,13 +107,9 @@
                     formdata[this.name] = this.value;
                 });
 
-    
-
                 formdata["UsualNames"] = [{ 
-                
                     "Ingredient_NameTypeLkpId": 11,
                     "ChemicalName" : $("#UsualNames").val()
-                    
                 }];
 
                 $.post(url,
@@ -118,8 +119,23 @@
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Ingredient Saved");
                             $('#DetailIngredient').html("");
                             var grid = $("#gdSearchIngredient").data("kendoGrid");
-                            grid.dataSource.read();
+
+                            // clear out all rows
+                            grid.dataSource.data([]);
+
+                            var data = [{
+                                IngredientId: data.IngredientId,
+                                Cas: data.Cas,
+                                IngredientName: data.IngredientName,
+                                CreatedBy: data.CreatedBy,
+                                CreateDateTime: data.CreateDateTime,
+                                LastUpdateBy: data.CreatedBy,
+                                LastUpdateDateTime: data.CreateDateTime
+                            }];
+
+                            grid.dataSource.data(data);
                             return true;
+
                         } else {
 
                             var errorMessage = 'Invalid CAS or ingredient already exists with the information provided, modify the data to continue.';
