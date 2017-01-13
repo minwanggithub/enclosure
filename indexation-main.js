@@ -729,8 +729,6 @@
                 e.preventDefault();
                 var validator = retrieveIngredientValidator();
 
-
-
                 var registrationNumber = $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
 
                 if (!isRegistrationNumberValid(registrationNumber.value())) {
@@ -1176,16 +1174,16 @@
                 .end()
                 .find('#IngredientId')
                 .val(data.IngredientId);
-/*
-            var synonymElement = ingredientForm.find('#IngredientSynonyms');
-            for (var i = 0; i < data.IngredientSynonyms.length; i++) {
+
+            var synonymElement = ingredientForm.find('#IngredientOtherNames');
+            for (var i = 0; i < data.IngredientOtherNames.length; i++) {
                 $('<option>',
                     {
-                        text: data.IngredientSynonyms[i].IngredientSynonymText,
-                        value: data.IngredientSynonyms[i].IngredientSynonymId
+                        text: data.IngredientOtherNames[i].IngredientNameText,
+                        value: data.IngredientOtherNames[i].IngredientNameId
                     }).appendTo(synonymElement);
             }
-*/
+
             removeValidationToolTips('#IngredientsUsualName');
 
             // Add to the cache so the check does not need to happen
