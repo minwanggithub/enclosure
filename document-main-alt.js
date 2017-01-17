@@ -499,7 +499,6 @@
             }
 
         function performDocumentSearch() {
-            debugger;
             
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             searchGrid.dataSource.data([]);
