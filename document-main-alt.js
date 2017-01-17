@@ -499,12 +499,11 @@
             }
 
         function performDocumentSearch() {
+            debugger;
+            
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
-            searchGrid.dataSource.read();
-            /*if (searchGrid && searchGrid.dataSource) {
-                searchGrid.dataSource.page(1);
-
-            }*/
+            searchGrid.dataSource.data([]);
+            searchGrid.dataSource.page(1);
         }
 
         function onDocumentSearchAddNewBtnClick(e) {
@@ -533,7 +532,7 @@
 
         function onDocumentSearchSearchBtnClick(e) {
             e.preventDefault();
-
+            
             performDocumentSearch();
         }
 
