@@ -114,12 +114,12 @@
             },
             errorMessages: {
                 SearchFailure: "Search failure",
-                NoCriteria: "Filters must be selcted to execute a search.",
+                NoCriteria: "Filters must be selected to execute a search.",
                 MissingRequiredFields: "All required fields must be filled.",
                 ScheduledDateError: "Scheduled date has to be greater than today's date.",
-                LoadNewNotificationFailure: "Can't not load new notification template.",
-                DeleteAttachmentFailure: "Can't not delete attachment ",
-                SaveAttachmentFailure: "Can't not save attachment ",
+                LoadNewNotificationFailure: "Cannot load new notification template.",
+                DeleteAttachmentFailure: "Cannot delete attachment ",
+                SaveAttachmentFailure: "Cannot save attachment ",
                 ReasonForNotAllowChange: "Batch can't be modified if the status is Sent.",                
                 ReasonForNotAllowDelete: "Batch can't be deleted because the status is Sent.",                
                 LoadEmailPreviewError: "Unable to load email template preview.",
@@ -596,7 +596,7 @@
         function DeleteAttachment(e) {
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             var args = {
-                header: 'Confirm Attachment Deleteion',
+                header: 'Confirm Attachment Deletion',
                 message: messages.warningMessages.confirmAttachmentDelete
             };
 

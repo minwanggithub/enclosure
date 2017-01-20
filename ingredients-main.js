@@ -78,6 +78,11 @@
             saveIngredient(false);
         });
 
+        ingredientDetailObj.on("click", "#btnDeleteIngredient", function (e) {
+            e.preventDefault();
+            deleteIngredient(e);
+        });
+
         var onGridEditChangeTitle = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-cancel");
@@ -90,6 +95,7 @@
             var dataItem = e.sender.tbody.find(editClass);
             dataItem.closest("tr").removeClass("k-state-selected").addClass("k-active");
         };
+
 
         function saveIngredient(overrideDuplicate) {
 
@@ -160,6 +166,30 @@
                     });
             }
         }
+
+        function deleteIngredient(e) {
+            var args = {
+                header: "Confirm Ingredient Deletion",
+                message: "Are you sure you want to delete this ingredient?"
+            };
+
+            DisplayConfirmationModal(args, function () {
+                var IngredientId = this.IngredientId;
+                $(this)
+                    .ajaxCall(GetEnvironmentLocation() + "/Operations/Ingredient/DeleteIngredient",
+                        { ingredientId: parseInt(IngredientId.value) })
+                    .success(function(data) {
+                        if (!data.Errors) {
+                            var grid = $("#gdSearchIngredient").data("kendoGrid");
+                            grid.dataSource.page(1);
+                            grid.dataSource.read();
+                        } else {
+                            $(this).displayError("The ingredient cannot be deleted as it is used to index documents.");
+                        }
+                    });
+            });
+
+        };
 
         var onIngredientGeneralReady = function () {            
             readonlyKendoDropDownList('IngredientTypeLkpID');
