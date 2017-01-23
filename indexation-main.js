@@ -32,7 +32,7 @@
 
             initializeMultiSelectCheckboxes();
             initializeIdentificationControls();
-            initializeIngredientControls();
+            initializeIngredientControls();         // initialize indexation controls
             initializePhysicalChemicalControls();
             initializeTransportControls();
             initializeAmericanControls();
@@ -394,6 +394,51 @@
             });
         }
 
+        function ReorderSelectedRow(targetGrid, up) {
+
+            var targetGridSelector = '#' + targetGrid;
+            var grid = $(targetGridSelector).data("kendoGrid");
+
+            if (grid.select().length > 0) {
+
+                var selectedData = grid.dataItem(grid.select());
+                if (typeof selectedData != 'undefined') {
+
+                    var ingredientId = selectedData.IngredientId;
+
+                    $.ajax({
+                        url: url,
+                        data: JSON.stringify(data),
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        success: function (successData) {
+
+                            if (successData.success === true) {
+
+                                // Uncheck the master select checkbox if checked
+                                var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                                if (checkbox && checkbox.is(':checked')) {
+                                    checkbox.attr('checked', false);
+                                }
+
+                                grid = $(targetGridSelector).data("kendoGrid");
+                                grid.dataSource.read();
+
+                            }
+
+                        }
+
+                    });
+
+                }
+
+            }else
+            {
+                $(this).displayError("No rows selected");
+            }
+ 
+        };
+
         function batchDeleteObjects(targetGrid, objName, url, data, completeCallback) {
 
             if (!targetGrid || !objName || !url)
@@ -685,12 +730,30 @@
 
         function initializeIngredientControls() {
 
+            // select - unselect behavior
+            indexationDetailObj.on("click", "#IngredientOtherNames", function (e) {
+
+            });
+
             indexationDetailObj.on("click", "#AddIngredient", function (e) {
+
+                debugger;
                 e.preventDefault();
-                if ($("#SearchIngredientWindow").length > 0) {
-                    var window = $("#SearchIngredientWindow").data("kendoWindow");
-                    window.destroy();
+
+                // unselect the grid 
+                $("#GridIngredients").data("kendoGrid").clearSelection();
+
+                // this window may not have been created yet.
+
+                try {
+
+                    if ($("#SearchIngredientWindow").length > 0) {
+                        var window = $("#SearchIngredientWindow").data("kendoWindow");
+                        window.destroy();
+                    }
                 }
+                catch (e) { }
+
                 var indexationId = $("#IndexationId").val();
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/AddIngredient';
                 $.post(url, { indexationId: indexationId },
@@ -708,6 +771,7 @@
                     , function () { $('#EditIngredient').empty(); });
             });
 
+          
             indexationDetailObj.on("click", "#SearchByCAS, #SearchByIngredient", function (e) {
                 e.preventDefault();
                 var ingredientWindow = $('#SearchIngredientWindow');
@@ -724,6 +788,16 @@
                 ingredientWindow.data("kendoWindow").open();
             });
 
+            indexationDetailObj.on("click", "#btnDiscardIngredient", function (e) {
+
+                // determine if there have been updates ?
+                debugger;
+                confirmUserSelection("Confirm", "Message", function () { alert("funct 1"); }, function () { alert("funct 2"); });
+
+                // clear out contents
+                $('#EditIngredient').html("");
+
+            });
 
             indexationDetailObj.on("click", "#btnSaveIngredient", function (e) {
                 e.preventDefault();
@@ -731,28 +805,63 @@
 
                 var registrationNumber = $('#ingredientForm').find('#RegistrationNumber').data("kendoMaskedTextBox");
 
+                // validate registration
                 if (!isRegistrationNumberValid(registrationNumber.value())) {
                     $(this).displayError("Registration Number invalid format");
                     return false;
                 }
 
+                debugger;
                 if (validator.validate()) {
+
                     var form = $("#ingredientForm");
                     var url = form.attr("action");
-                    var formData = form.serialize();
 
-                    $.post(url, formData, function (data) {
+                    var formdata = {};
+                    formdata['overrideDuplicate'] = false;
+                    $.each(form.serializeArray(), function () {
+                        formdata[this.name] = this.value;
+                    });
+
+                    var otherNames = formdata["IngredientOtherNames"];
+
+                    if (otherNames != null && otherNames > 0) {
+                        formdata["IngredientOtherNames"] = [{
+                            IngredientNameId: otherNames,
+                            IngredientNameText:"",
+                            IngredientTypeId:2
+                        }];
+                    }
+
+                    var isAdding = (formdata["MappingId"] == 0);
+
+                    var grid = $("#GridIngredients").data("kendoGrid");
+                    var gridData = grid.dataSource.data();
+
+                    for (var i = 0; i < gridData.length; i++) {
+                        if (formdata["IngredientId"] == gridData[i].IngredientId && isAdding)
+                        {
+                            $(this).displayError("Ingredient " + gridData[i].IngredientsUsualName + " has already been selected.");
+                            return;
+                        }
+                    }
+
+                    $.post(url, formdata, function (data) {
+
                         if (data.result == "success") {
+
                             $(this).savedSuccessFully(data.message);
                             $('#EditIngredient').empty();
                             if ($("#SearchIngredientWindow").length > 0) {
                                 var window = $("#SearchIngredientWindow").data("kendoWindow");
                                 window.destroy();
                             }
-                            var grid = $("#GridIngredients").data("kendoGrid");
+
                             grid.dataSource.read();
                             return true;
+
                         } else {
+
                             $(this).displayError(data.message);
                             $('#EditIngredient').empty();
                             return false;
@@ -842,36 +951,78 @@
                     });
 
                     var row = container.find(".row-fluid:first");
-                    if (row)
-                        container.append(row);
+                    if (row) container.append(row);
 
                     // Initialize all button events
                     editorWindow.on("click", "#btnSaveIngredient", function(e) {
+
                         e.preventDefault();
                         var url = editorForm.attr("action");
+
                         //formdata['overrideDuplicate'] = false;
-                        var formData = editorForm.serialize();
-                        formData = formData + '&overrideDuplicate=false';
+
+                        //var formData = editorForm.serialize();
+                        //formData = formData + "&overrideDuplicate=false";
+
+                        var url = editorForm.attr("action");
+                        var formdata = {};
+                        formdata['overrideDuplicate'] = false;
+                        $.each(editorForm.serializeArray(), function () {
+                            formdata[this.name] = this.value;
+                        });
+
+                        // usual names
+                        formdata["UsualNames"] = [{
+                            "Ingredient_NameTypeLkpId": 11,
+                            "ChemicalName": $("#UsualNames").val()
+                        }];
+
+                        debugger;
 
                         // Check if the form is valid
                         var validator = editorForm.kendoValidator().data("kendoValidator");
                         if (validator.validate()) {
-                            $.post(url, formData, function (data) {
+                            $.post(url, formdata, function (data) {
                                 if (data.Success) {
-                                    editorWindow.data('kendoWindow').close();
+
+                                    // display message
                                     $(this).savedSuccessFully(data.Message);
-                                    var ingredientWindow = $('#SearchIngredientWindow');
+                                    //debugger;
+                                    // close editor window
+                                    editorWindow.data('kendoWindow').close();
 
+                                        // close window
+                                        //var ingredientWindow = $('#SearchIngredientWindow');
+                                        //ingredientWindow.data('kendoWindow').close();
 
-                                    //Doing client side insert newly created row (lighting fast) instead of search again (very slow)
-                                    ingredientWindow.find("#IngredientId").val(data.ReferenceId);
-                                    ingredientWindow.find("#CasNo").val(data.CasNumber);
-                                    ingredientWindow.find("#IngredientName").val(data.IngredientName);
+                                        // re-load contents 
+                                        //var url = GetEnvironmentLocation() + '/Operations/Indexation/GetIndexationIngredient';
+                                        //var indexationId = $("#IndexationId").val();
+                                        //var data = { ingredientId: selectedData.IngredientId, indexationId: formdata.IndexationId };
 
-                                    var grid = $('#gdIngredientsSearch').data("kendoGrid");
-                                    grid.dataSource.data([]);
-                                    grid.dataSource.add({ CasNumber: data.CasNumber, IngredientsUsualName: data.IngredientName, IngredientId: data.ReferenceId });
+                                        //debugger;
+
+                                        //$.post(url, data, onIngredientSelection);
+
+                                        // searchGridDoubleClick("#gdIngredientsSearch", "#btnSelectIngredient");
+
+                                        // close ingredient window
+                                        // var ingredientWindow = $('#SearchIngredientWindow');
+                                        // ingredientWindow.data('kendoWindow').close();
+
+                                        // close all windows and edit directly
+
+                                     // doing client side insert newly created row (lighting fast) instead of search again (very slow)
+                                     ingredientWindow.find("#IngredientId").val(data.ReferenceId);
+                                     ingredientWindow.find("#CasNo").val(data.Cas);
+                                     ingredientWindow.find("#IngredientName").val(data.IngredientName);
+
+                                     var grid = $('#gdIngredientsSearch').data("kendoGrid");
+                                     grid.dataSource.data([]);
+                                     grid.dataSource.add({ CasNumber: data.Cas, IngredientsUsualName: data.IngredientName, IngredientId: data.ReferenceId });
+
                                     return true;
+
                                 } else {
 
                                     // do not close window
@@ -893,7 +1044,8 @@
                         }
                     });
 
-                    editorWindow.on("click", "#btnDiscardIngredient", function(e) {
+                    editorWindow.on("click", "#btnDiscardIngredient", function (e) {
+                        debugger;
                         e.preventDefault();
                         editorWindow.data('kendoWindow').close();
                     });
@@ -1080,16 +1232,25 @@
                 $('#ingredientEditorWindow').data('kendoWindow').center();
             });
 
-            searchwindow.on("click", "#btnAddNewIngredient", function(e) {
+            searchwindow.on("click", "#btnAddNewIngredient", function (e) {
+
+                debugger;
                 e.preventDefault();                
                 var editorWindow = $('#ingredientEditorWindow');
-                var loadedContents = editorWindow.find("#ingredientEditorContents").html();
+                var loadedContents = "";
+
+                // may not have been loaded yet
+                try { loadedContent = editorWindow.find("#ingredientEditorContents").html(); }
+                catch (e) { }
+
                 var searchedIngridentName = $('#IngredientName').val();
                 var searchedCasNumber = $('#CasNo').val();
+
                 if (loadedContents.length != 0) {
+
                     //TRECOMPLI-2212
                     editorWindow.find("#CASNumber").val(searchedCasNumber);
-                    editorWindow.find("#IngredientName").val(searchedIngridentName);   
+                    editorWindow.find("#UsualNames").val(searchedIngridentName);   
                     editorWindow.data('kendoWindow').open();
                     editorWindow.data('kendoWindow').center();
                     return;
@@ -1108,11 +1269,15 @@
                             editorWindow.find("#ingredientEditorContents").html(layout);
                         },
                         complete: function() {
+
                             initializeIngredientCreationControls(editorWindow); // getting wired twice
+
                             editorWindow.data('kendoWindow').open();
                             editorWindow.data('kendoWindow').center();
                             editorWindow.find("#CASNumber").val(searchedCasNumber);
-                            editorWindow.find("#IngredientName").val(searchedIngridentName);
+                            editorWindow.find("#UsualNames").val(searchedIngridentName);
+
+
                         }
                     });
 
@@ -1125,9 +1290,20 @@
             });
         };
 
-        var onGridIngredientChange = function(e) {
+        var onGridIngredientOrderChange = function (e) {
             e.preventDefault();
-            var selectedData = this.dataItem(this.select());
+        };
+
+
+        var onGridIngredientChange = function(e) {
+
+            e.preventDefault();
+
+            // triggered on un-selection also, careful !!
+            var select = this.select();
+            if (select.length == 0) return;
+
+            var selectedData = this.dataItem(select);
             var url = GetEnvironmentLocation() + '/Operations/Indexation/GetIngredientDetail';
             if ($("#SearchIngredientWindow").length > 0) {
                 var window = $("#SearchIngredientWindow").data("kendoWindow");
@@ -1175,14 +1351,9 @@
                 .find('#IngredientId')
                 .val(data.IngredientId);
 
-            var synonymElement = ingredientForm.find('#IngredientOtherNames');
-            for (var i = 0; i < data.IngredientOtherNames.length; i++) {
-                $('<option>',
-                    {
-                        text: data.IngredientOtherNames[i].IngredientNameText,
-                        value: data.IngredientOtherNames[i].IngredientNameId
-                    }).appendTo(synonymElement);
-            }
+            var ddl = $('#IngredientOtherNames').data("kendoDropDownList");
+            ddl.setDataSource(data.IngredientOtherNames);
+            ddl.refresh();
 
             removeValidationToolTips('#IngredientsUsualName');
 
@@ -3504,6 +3675,7 @@
             onGridHazardStatementChange: onGridHazardStatementChange,
             onGridHazardStatementRequestComplete: onGridHazardStatementRequestComplete,
             onGridIngredientChange: onGridIngredientChange,
+            onGridIngredientOrderChange: onGridIngredientOrderChange,
             onGridFirstAidChange: onGridFirstAidChange,
             onGridFirstAidRequestComplete:onGridFirstAidRequestComplete,
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
