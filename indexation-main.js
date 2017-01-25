@@ -841,8 +841,11 @@
                     for (var i = 0; i < gridData.length; i++) {
                         if (formdata["IngredientId"] == gridData[i].IngredientId && isAdding)
                         {
-                            $(this).displayError("Ingredient " + gridData[i].IngredientsUsualName + " has already been selected.");
-                            return;
+                            if (gridData[i].CasNumber != null) 
+                                $(this).displayError("Ingredient '" + gridData[i].CasNumber.trim() + "' has already been added!");
+                            else
+                                $(this).displayError("Ingredient '" + gridData[i].IngredientsUsualName + "' has already been added!");
+                            return true;
                         }
                     }
 
