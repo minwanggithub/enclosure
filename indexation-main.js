@@ -918,6 +918,41 @@
                 }
             });
 
+            indexationDetailObj.on("keyup", "#IngredientsUsualName", function (e) {
+
+                var code = (e.keyCode ? e.keyCode : e.which);
+
+                // search on enter
+                if (code == 13) { //Search only on enter
+
+                    // url for data
+                    var url = GetEnvironmentLocation() + '/Operations/Indexation/LookUpIngredientOnNameEnter';
+
+                    var ingredientName = $("#IngredientsUsualName").val();
+                    if (ingredientName != '') {
+                        var indexationId = $("#IndexationId").val();
+                        $.ajax({
+                            url: url,
+                            data: { ingredientName: ingredientName, indexationId: indexationId },
+                            type: "POST",
+                            success: function (data) {
+                                if (data !== '') {
+                                    onIngredientSelection(data);
+                                } else {
+                                    $(this).displayError('No ingredient was found with the Ingredient Name of "' + ingredientName + '"');
+                                    $('#IngredientsUsualName').val("");
+                                }
+                            },
+                            error: function () {
+                                $(this).displayError('No ingredient was found with the Ingredient Name of "' + ingredientName + '"');
+                                $('#IngredientsUsualName').val("");
+                            }
+                        });
+                    } else
+                        $(this).displayError('Use a valid ingredientName to search.');
+                }
+            });
+
             $(document).on("dblclick", "#gdIngredientsSearch table tr", function () {
                 searchGridDoubleClick("#gdIngredientsSearch", "#btnSelectIngredient");
             });
