@@ -997,7 +997,7 @@
                                             $('#ingredientEditorContents').html(response);
 
                                             // enable display of controls
-                                            $('#ingredientEditorControls').css("visibility", "");
+                                            $('#btnSelectIngredientDirect').css("visibility", "");
 
                                             // set up event handlers for subsequent use
                                             var editorWindow = $('#ingredientEditorWindow');
