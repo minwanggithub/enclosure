@@ -939,9 +939,10 @@
 
         function initializeIngredientCreationControls(editorWindow) {
 
-            if (!editorWindow)
-                return false;
+            // exit on no placeholder
+            if (!editorWindow) return false;
 
+            // editor form
             var editorForm = editorWindow.find("#ingredientForm");
             if (editorForm) {
 
@@ -960,12 +961,6 @@
                     editorWindow.on("click", "#btnSaveIngredient", function(e) {
 
                         e.preventDefault();
-                        var url = editorForm.attr("action");
-
-                        //formdata['overrideDuplicate'] = false;
-
-                        //var formData = editorForm.serialize();
-                        //formData = formData + "&overrideDuplicate=false";
 
                         var url = editorForm.attr("action");
                         var formdata = {};
@@ -990,12 +985,38 @@
 
                                     // display message
                                     $(this).savedSuccessFully(data.Message);
+
+                                    var formdata =[];
+                                    formdata["ingredientId"] = data.IngredientId;
+                                    debugger;
+                                    $.post("../Ingredient/GetIngredient?ingredientId=" + data.IngredientId,
+                                        formdata,
+                                        function (response) {
+
+                                            // load contents
+                                            $('#ingredientEditorContents').html(response);
+
+                                            // enable display of controls
+                                            $('#ingredientEditorControls').css("visibility", "");
+
+                                            // set up event handlers for subsequent use
+                                            var editorWindow = $('#ingredientEditorWindow');
+                                            initializeIngredientCreationControls(editorWindow);
+
+                                            // close down all windows
+                                            //editorWindow.data('kendoWindow').close();
+                                            //var ingredientWindow = $('#SearchIngredientWindow');
+                                            //ingredientWindow.data('kendoWindow').close();
+                                    });
+
+                                    return;
+
                                     //debugger;
                                     // close editor window
-                                    editorWindow.data('kendoWindow').close();
+                                    //editorWindow.data('kendoWindow').close();
 
                                         // close window
-                                        //var ingredientWindow = $('#SearchIngredientWindow');
+                                    //var ingredientWindow = $('#SearchIngredientWindow');
                                         //ingredientWindow.data('kendoWindow').close();
 
                                         // re-load contents 
@@ -1016,15 +1037,15 @@
                                         // close all windows and edit directly
 
                                      // doing client side insert newly created row (lighting fast) instead of search again (very slow)
-                                     ingredientWindow.find("#IngredientId").val(data.ReferenceId);
-                                     ingredientWindow.find("#CasNo").val(data.Cas);
-                                     ingredientWindow.find("#IngredientName").val(data.IngredientName);
+          //                           ingredientWindow.find("#IngredientId").val(data.ReferenceId);
+        //                             ingredientWindow.find("#CasNo").val(data.Cas);
+      //                               ingredientWindow.find("#IngredientName").val(data.IngredientName);
 
-                                     var grid = $('#gdIngredientsSearch').data("kendoGrid");
-                                     grid.dataSource.data([]);
-                                     grid.dataSource.add({ CasNumber: data.Cas, IngredientsUsualName: data.IngredientName, IngredientId: data.ReferenceId });
+    //                                 var grid = $('#gdIngredientsSearch').data("kendoGrid");
+  //                                   grid.dataSource.data([]);
+//                                     grid.dataSource.add({ CasNumber: data.Cas, IngredientsUsualName: data.IngredientName, IngredientId: data.ReferenceId });
 
-                                    return true;
+                                     return true;
 
                                 } else {
 
