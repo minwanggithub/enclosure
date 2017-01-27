@@ -823,16 +823,23 @@
                         formdata[this.name] = this.value;
                     });
 
+                    // default 
+                    formdata["Ingredient_NameId"] = formdata["IngredientsUsualNameId"];
+
                     var otherNames = formdata["IngredientOtherNames"];
 
                     if (otherNames != null && otherNames > 0) {
+
                         formdata["IngredientOtherNames"] = [{
                             IngredientNameId: otherNames,
                             IngredientNameText:"",
                             IngredientTypeId:2
                         }];
-                    }
 
+                        // over ride
+                        formdata["Ingredient_NameId"] = otherNames;
+                    }
+                    debugger;
 //                    var isAdding = (formdata["MappingId"] == 0);  // check for selected item instead of insert mode.
 
                     var grid = $("#GridIngredients").data("kendoGrid");
@@ -1377,26 +1384,45 @@
             operatorDropdownChange(e.sender._selectedValue, "OperatorFrom", "OperatorTo");
         };
 
-        var onIngredientSelection = function(data) {
+        var onIngredientSelection = function(response) {
 
             var ingredientForm = $('#ingredientForm');
+
             ingredientForm.find('#CasNumber')
-                .val(data.CasNumber)
-                .end()
-                .find('#IngredientsUsualName')
-                .val(data.IngredientsUsualName)
-                .end()
-                .find('#IngredientId')
-                .val(data.IngredientId);
+                            .val(response.CasNumber)
+                            .end()
+                            .find('#IngredientsUsualName')
+                            .val(response.IngredientsUsualName)
+                            .end()
+                            .find('#IngredientsUsualNameId')
+                            .val(response.IngredientsUsualNameId)
+                            .end()
+                            .find('#IngredientId')
+                            .val(response.IngredientId)
+                            .end()
+                            .find('#RegistrationNumber')
+                            .val("")
+                            .end()
+                            .find('#AuthorizationNumber')
+                            .val("")
+                            .end()
+                            .find('#OperatorTo')
+                            .val("")
+                            .end()
+                            .find('#OperatorFrom')
+                            .val("");
 
             var ddl = $('#IngredientOtherNames').data("kendoDropDownList");
-            ddl.setDataSource(data.IngredientOtherNames);
+            ddl.setDataSource(response.IngredientOtherNames);
             ddl.refresh();
+
+            $('#SelectIngOperator').data("kendoDropDownList").select(0);
+            $('#SelectConcentration').data("kendoDropDownList").select(0);
 
             removeValidationToolTips('#IngredientsUsualName');
 
             // Add to the cache so the check does not need to happen
-            ingredientCache.addToCache(data.IngredientId);
+            ingredientCache.addToCache(response.IngredientId);
         };
 
         // Physical & Chemical Properties
