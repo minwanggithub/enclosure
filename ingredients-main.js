@@ -121,6 +121,7 @@
                 $.post(url,
                     formdata,
                     function (data) {
+
                         if (!data.Errors) {
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Ingredient Saved");
                             $('#DetailIngredient').html("");
@@ -180,9 +181,17 @@
                         { ingredientId: parseInt(IngredientId.value) })
                     .success(function(data) {
                         if (!data.Errors) {
+
+                            // display message indicating ingredient deletion
+                            $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Ingredient Deleted");
+
+                            // delete the currently selected row
                             var grid = $("#gdSearchIngredient").data("kendoGrid");
-                            grid.dataSource.page(1);
+                            var selectedRow = grid.select()[0].rowIndex;
+                            var selectedItem = grid.dataItem(grid.select());
+                            grid.dataSource.remove(selectedItem);
                             grid.dataSource.read();
+
                         } else {
                             $(this).displayError("The ingredient cannot be deleted as it is used to index documents.");
                         }
