@@ -833,13 +833,14 @@
                         }];
                     }
 
-                    var isAdding = (formdata["MappingId"] == 0);
+//                    var isAdding = (formdata["MappingId"] == 0);  // check for selected item instead of insert mode.
 
                     var grid = $("#GridIngredients").data("kendoGrid");
+                    var selectedItem = grid.dataItem(grid.select());
                     var gridData = grid.dataSource.data();
 
                     for (var i = 0; i < gridData.length; i++) {
-                        if (formdata["IngredientId"] == gridData[i].IngredientId && isAdding)
+                        if (selectedItem != gridData[i] && formdata["IngredientId"] == gridData[i].IngredientId)
                         {
                             if (gridData[i].CasNumber != null) 
                                 $(this).displayError("Ingredient '" + gridData[i].CasNumber.trim() + "' has already been added!");
