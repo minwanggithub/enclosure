@@ -1014,12 +1014,14 @@
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
+            $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "hidden");
+
             // do not process if email already being sent
-            var state = $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state");
-            if (state == "sending") return;
+            //var state = $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state");
+            //if (state == "sending") return;
 
             // flag as sending
-            $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "sending");
+            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "sending");
 
             // ensure that the email has contact, subject and message body. without these a
             // email may not be sent out
@@ -1035,7 +1037,8 @@
                 valid = false;
 
                 // make availabe again
-                $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
+                //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
             }
 
             if (valid) {
@@ -1085,7 +1088,8 @@
                         },
                         error: function () {
                             $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                            $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
                         },
                         success: function (successData) {
                             if (successData.success == true) {
@@ -1099,13 +1103,15 @@
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
 
                             if (modalId != null) $(modalId).hideModal();
-                            $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
 
                         },
                         done: function () {
                             $(this).savedSuccessFully(messages.successMessages.Saved);
                             if (modalId != null) $(modalId).hideModal();
-                            $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+                            $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
                         }
                     });
                 }
