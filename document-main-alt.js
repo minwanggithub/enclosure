@@ -1609,7 +1609,7 @@
 
         function onDocumentRevisionMultipleNameNumbersSaveBtnClick(e) {
             e.preventDefault();
-
+           
             var container = $(e.currentTarget).parents('.modal:first');
             var nameNumbers = container.find(documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers).val();
             var nameNumberType = container.find(documentElementSelectors.dropdownlists.DocumentRevisionMultipleNameNumbersType).val();
@@ -2318,6 +2318,15 @@
             });
         };
 
+        var afterSaveNameNumber = function (e) {
+        
+            if (e.response.success == false) {
+                $(this).displayError(e.response.message);
+                $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
+                return;
+            }
+        };
+
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
@@ -2344,7 +2353,8 @@
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
-            UnlinkDocFromProudct: UnlinkDocFromProudct
+            UnlinkDocFromProudct: UnlinkDocFromProudct,
+            afterSaveNameNumber: afterSaveNameNumber
         };
     };
 
