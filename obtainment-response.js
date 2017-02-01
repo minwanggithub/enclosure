@@ -58,7 +58,10 @@
                         SupplierNameAndIdObjField: "SupplierNameAndId",
                         SupplierIdObjField: "SupplierId",
                         ResponseNotesField: "#txtStatusNotes",
-                        StatusNotesFieldAll: "[id^=txtStatusNotes]"
+                        StatusNotesFieldAll: "[id^=txtStatusNotes]",
+                        DateRangeFrom: "#txtDateRangeFrom",
+                        DateRangeTo: "#txtDateRangeTo"
+
                     },
                     checkBoxes: {
                         chkHasNotes: "HasNotes"
@@ -115,14 +118,21 @@
                 ResponseStatusId: "0",
                 ExistingInboundResponseId: 0,
                 HasNotes: false,
+                DateRangeFrom: null,
+                DateRangeTo: null,
                 SearchClick: function (e) {
                     e.preventDefault();
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
 
-                    this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
 
+
+                    this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
+                    this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
+                    this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
+
+                    debugger;
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
                                UIObject.sections.responseDetailGridSection().html(data);
