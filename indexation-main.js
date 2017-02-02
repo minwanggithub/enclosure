@@ -780,9 +780,11 @@
                     top: 100,
                     left: 100
                 });
+
                 ingredientWindow.find("#CasNo").val("");
                 ingredientWindow.find("#IngredientName").val("");
                 ingredientWindow.find("#IngredientId").val("");
+                ingredientWindow.find("#EinecsNo").val("");
 
                 ingredientWindow.data("kendoWindow").center();
                 ingredientWindow.data("kendoWindow").open();
@@ -1251,7 +1253,7 @@
 
             searchwindow.on("click", "#btnClearIngSearch", function(e) {
                 e.preventDefault();
-                $('#IngredientId, #CasNo, #IngredientName').val("");
+                $('#IngredientId, #CasNo, #IngredientName, #EinecsNo').val("");
                 $("#gdIngredientsSearch").data("kendoGrid").dataSource.data([]);
                 $('#ingredientEditorWindow').data('kendoWindow').center();
             });
