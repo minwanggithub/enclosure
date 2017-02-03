@@ -1214,11 +1214,11 @@
                     grid.unbind("dataBound", ingredientBind);
                 });
 
-                if (grid.dataSource.view().length > 0) {
-                    grid.dataSource.page(1);
-                }
+                // if (grid.dataSource.view().length > 0) {
+                //      grid.dataSource.page(1);
+                // }
 
-                grid.dataSource.read();
+                grid.dataSource.page(1);
 
             });
 
@@ -1412,7 +1412,8 @@
                             .val("")
                             .end()
                             .find('#OperatorFrom')
-                            .val("");
+                            .val("")
+                            .end();
 
             var ddl = $('#IngredientOtherNames').data("kendoDropDownList");
             ddl.setDataSource(response.IngredientOtherNames);
@@ -1425,6 +1426,19 @@
 
             // Add to the cache so the check does not need to happen
             ingredientCache.addToCache(response.IngredientId);
+
+        // display the edit and refresh buttons
+        // show on selection
+           $("#btnRefreshIngredient").css("display", "");
+           $("#btnEditIngredient").css("display", "");
+           $("#btnEditIngredient").parent().css("display", "");
+
+           // set the edit link
+           var url = $("#btnEditIngredient").attr("href");
+           url = url.replace("cas=?", "cas=" +response.CasNumber);
+           $("#btnEditIngredient").attr("href", url);
+
+
         };
 
         // Physical & Chemical Properties

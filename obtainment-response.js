@@ -126,9 +126,9 @@
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
 
-
-
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
+
+
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
 
@@ -149,6 +149,10 @@
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
                     this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
+
+                    $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
+                    $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
+
 
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
 
@@ -240,7 +244,7 @@
                 var code = (e1.keyCode ? e1.keyCode : e1.which);
                 if (code == 13) {//Search only on enter
                     viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
-                $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
+                    $.post(UIObject.controllerCalls.SearchSupplierInfo, { supplierInfo: viewModel.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) }, function (data) {
                     viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, data);
                     });
                 }
