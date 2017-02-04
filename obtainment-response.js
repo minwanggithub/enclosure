@@ -60,7 +60,8 @@
                         ResponseNotesField: "#txtStatusNotes",
                         StatusNotesFieldAll: "[id^=txtStatusNotes]",
                         DateRangeFrom: "#txtDateRangeFrom",
-                        DateRangeTo: "#txtDateRangeTo"
+                        DateRangeTo: "#txtDateRangeTo",
+                        BodyText: function () { return $("#BodyText"); }
 
                     },
                     checkBoxes: {
@@ -120,6 +121,7 @@
                 HasNotes: false,
                 DateRangeFrom: null,
                 DateRangeTo: null,
+                BodyText : "",
                 SearchClick: function (e) {
                     e.preventDefault();
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
@@ -128,6 +130,11 @@
 
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
 
+                    debugger;
+                    try { this.BodyText = this.get(UIObject.controls.textBoxes.BodyText); }
+                    catch (e) {
+                        var ee = e;
+                    }
 
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
@@ -149,6 +156,8 @@
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
                     this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
+                    debugger;
+                    $("#BodyText").val("");
 
                     $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
                     $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
