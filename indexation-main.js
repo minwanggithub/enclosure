@@ -1422,22 +1422,26 @@
             $('#SelectIngOperator').data("kendoDropDownList").select(0);
             $('#SelectConcentration').data("kendoDropDownList").select(0);
 
+            // set edit link
+            var editLink = $("#btnEditIngredient").attr("href");
+            var cas = (response.CasNumber + "").replace(/ /g, "");
+            if (response.CasNumber == null || cas == "")
+                editLink = "..//Ingredient/IngredientsMain?un=" + encodeURIComponent(response.IngredientsUsualName);
+            else
+                editLink = "..//Ingredient/IngredientsMain?cas=" + response.CasNumber;
+
+            $("#btnEditIngredient").attr("href", editLink);
+
             removeValidationToolTips('#IngredientsUsualName');
 
             // Add to the cache so the check does not need to happen
             ingredientCache.addToCache(response.IngredientId);
 
-        // display the edit and refresh buttons
-        // show on selection
+           // display the edit and refresh buttons
+           // show on selection
            $("#btnRefreshIngredient").css("display", "");
            $("#btnEditIngredient").css("display", "");
            $("#btnEditIngredient").parent().css("display", "");
-
-           // set the edit link
-           var url = $("#btnEditIngredient").attr("href");
-           url = url.replace("cas=?", "cas=" +response.CasNumber);
-           $("#btnEditIngredient").attr("href", url);
-
 
         };
 
