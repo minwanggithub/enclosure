@@ -7,6 +7,9 @@
         var viewModel = {};
         var supplierSearchViewModel = {};
         var notesModalSettings;
+        var itemsChecked = 0;
+        var selectedRequests = new Array();
+        var selectedRows = new Array();
 
             var UIObject = {
                 sections: {
@@ -30,7 +33,8 @@
                         SaveResponseSpecific: "btnResponseSave",
                         ShowCollapseObjField: "ShowCollapse",
                         ResendObtainmentEmail: "[id^=btnResendObtainmentEmail]",
-                        ResendObtainmentEmailSpecific: "btnResendObtainmentEmail"
+                        ResendObtainmentEmailSpecific: "btnResendObtainmentEmail",
+                        SetStatus: "#setStatusBtn"
                     },
                     containers: {
                         InboundResponsePanel: "InboundResponsePanel"
@@ -84,6 +88,7 @@
                 IfExistEmailOrDomain: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/IfExistEmailOrDomain",
                 ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail",
                 GetObtainmentResponseContentBody: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetObtainmentResponseContentBody",
+                ChangeStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ChangeStatus",
 
             },
                 warnings: {
@@ -129,8 +134,7 @@
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
 
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
-
-                    debugger;
+                    
                     try { this.BodyText = this.get(UIObject.controls.textBoxes.BodyText); }
                     catch (e) {
                         var ee = e;
@@ -138,8 +142,7 @@
 
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
-
-                    debugger;
+             
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
                                UIObject.sections.responseDetailGridSection().html(data);
@@ -156,7 +159,7 @@
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
                     this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
-                    debugger;
+                    
                     $("#BodyText").val("");
 
                     $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
@@ -626,6 +629,110 @@
 
             field.removeAttribute('data-is-dirty');
         }
+
+        UIObject.sections.responseDetailGridSection().on("click", ".chkMasterMultiSelect", function (e) {
+            
+            var checked = $(this).is(':checked');
+            var grid = $(this).parents('.k-grid:first');
+            if (grid) {
+                var kgrid = grid.data().kendoGrid;
+                if (kgrid._data.length > 0) {
+                    $.each(kgrid._data, function () {
+                        this['IsSelected'] = checked;
+                    });
+
+                    $('tr', grid).each(function () {
+                        var tr = $(this);
+                        if (checked) {
+                            tr.addClass('k-state-selected');
+                            $('.chkMultiSelect', tr).prop('checked', true);
+                        } else {
+                            tr.removeClass('k-state-selected');
+                            $('.chkMultiSelect', tr).removeAttr('checked');
+                        }
+                    });
+               
+                }
+               
+            }
+            e.stopImmediatePropagation();
+
+        });
+
+        UIObject.sections.responseDetailGridSection().on("click", ".chkMultiSelect", function (e) {
+
+            selectedRequests = new Array();
+            var checked = $(this).is(':checked');
+            var grid = $(this).parents('.k-grid:first');
+            if (grid) {
+                var kgrid = grid.data().kendoGrid;
+                var selectedRow = $(this).closest('tr');
+                var dataItem = kgrid.dataItem(selectedRow);
+                if (dataItem) {
+                    dataItem['IsSelected'] = checked;
+                }
+
+                if (checked) {
+                    selectedRow.addClass('k-state-selected');
+                    $('.chkMultiSelect ', selectedRow).prop('checked', true);
+                } else {
+                    selectedRow.removeClass('k-state-selected');
+                    $('.chkMultiSelect', selectedRow).removeAttr('checked');
+                }
+         
+            }
+
+            e.stopImmediatePropagation();
+
+        });
+
+        UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SetStatus, function (e) {
+            selectedRequests = new Array();
+            itemsChecked = 0;
+         
+            var grid = $('#gdInboundResponse');
+            if (grid) {
+
+                var kgrid = grid.data().kendoGrid;
+                if (kgrid._data.length > 0) {
+                    $.each(kgrid._data,
+                        function() {
+                            if (this['IsSelected']) {
+                                selectedRequests.push(this["InboundResponseId"]);
+                                itemsChecked++;
+                            } else {
+                                var index = selectedRequests.indexOf(this["InboundResponseId"]);
+                                if (index > -1)
+                                    selectedRequests.splice(index, 1);
+                            }
+
+                        });
+                
+                }
+            }
+
+            var status = $('#ddlSetResponseStatus').val();
+            if (itemsChecked > 0 && status > 0) {
+                $(this).ajaxCall(UIObject.controllerCalls.ChangeStatus, { inboundResponseIDs: selectedRequests, statusID: status })
+                      .success(function (data) {
+                        if (data == 'success') {
+                            $(this).savedSuccessFully("Inbound response status set.");
+                        } else {
+                            $(this).displayError("Error Set Status.");
+                        }
+                    }).error(
+                      function () {
+                          $(this).displayError("Error Set Status.");
+                      });
+
+                } else {
+                  $(this).displayError("Please select inbound responses items and the status.");
+            }
+
+            e.stopImmediatePropagation();
+
+        });
+
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
