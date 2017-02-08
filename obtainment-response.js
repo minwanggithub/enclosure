@@ -715,7 +715,8 @@
             if (itemsChecked > 0 && status > 0) {
                 $(this).ajaxCall(UIObject.controllerCalls.ChangeStatus, { inboundResponseIDs: selectedRequests, statusID: status })
                       .success(function (data) {
-                        if (data == 'success') {
+                          if (data == 'success') {
+                            $('#searchResponseBtn').trigger('click');
                             $(this).savedSuccessFully("Inbound response status set.");
                         } else {
                             $(this).displayError("Error Set Status.");
