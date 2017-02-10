@@ -43,6 +43,7 @@
                         ResponseStatusAll: "[id^=ddlResponseStatus]",
                         ResponseStatusId: "ResponseStatusId",
                         ResponseStatusSpecific: "ddlResponseStatus",
+                        ResponseHasNotes: "#HasNotes"
                     },
                     grids: {
                         InboundResponse: function() { return $("#gdInboundResponse").data("kendoGrid"); },
@@ -52,7 +53,7 @@
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                         UnprocessedResponsesCount: "lblUnprocessedCount",
                         LblFlagBy: "#lblFlagBy"
-        },
+                        },
                     textBoxes: {
                         Description: "divDescription",
                         NoticeNumberObj: function() { return $("#NoticeNumber"); },
@@ -132,9 +133,12 @@
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
-
+                  
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
-                    
+                    this.HasNotes = $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value();
+
+                    if (this.HasNotes == "") this.HasNotes = null;
+
                     try { this.BodyText = this.get(UIObject.controls.textBoxes.BodyText); }
                     catch (e) {
                         var ee = e;
