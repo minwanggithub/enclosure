@@ -138,6 +138,7 @@
                     this.HasNotes = $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value();
 
                     if (this.HasNotes == "") this.HasNotes = null;
+                   
 
                     try { this.BodyText = this.get(UIObject.controls.textBoxes.BodyText); }
                     catch (e) {

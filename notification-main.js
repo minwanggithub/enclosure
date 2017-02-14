@@ -38,7 +38,8 @@
                     SearchRequestsButton: "#searchRequestBtn",
                     EditSave: "#btnEditSaveNotification",
                     EditCancel: "#btnEditCancelNotification",
-                    RemoveNotificationBatchItemsButton: "#btnRemoveItems"
+                    RemoveNotificationBatchItemsButton: "#btnRemoveItems",
+                    SendNotificationImmediatelyButton: "#btnSendNotification"
                 },
 
                 dropdownlists: {
@@ -99,6 +100,7 @@
             EmailTemplatePreview: GetEnvironmentLocation() + "/Configuration/EmailTemplate/Preview",
             FinalMergedEmail: GetEnvironmentLocation() + "/Operations/Notification/FinalMergedEmail",
             RemoveNoticeBatchItems: GetEnvironmentLocation() + "/Operations/Notification/RemoveNoticeBatchItems",
+            SendNotificationImmediately: GetEnvironmentLocation() + "/Operations/Notification/SendNotificationImmediately",
             AddNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/AddNewBatchAttachments",
             RemoveNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/RemoveAttachmentsAlt",
         };
@@ -106,11 +108,13 @@
         var messages = {
             successMessages: {
                 Saved: "Saved Successful",
+                NotificationQueuedForProcessing: "Notice batch queued for immediate processing.",
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },            
             warningMessages:{
                 confirmAttachmentDelete: "Are you sure you want to delete the selected item(s)?",
                 PromptForInformationChange: "Batch is ready to Send. If you modify any related informtion, the batch will be regenerated. Are you sure?",
+                confirmImmediateNotificationSend : "Are you sure you want the notification to be sent immediately ?"
             },
             errorMessages: {
                 SearchFailure: "Search failure",
@@ -126,7 +130,8 @@
                 NoItemsSelected: "No items have been selected",
                 EmailSubjectMissing: "Email subject missing.",
                 MissingNoticeNumber: "Notice number token missing from email subject line.",
-                MissingSummaryRecipient : "Notice summary recipient is required."
+                MissingSummaryRecipient: "Notice summary recipient is required."
+                
             }
         };
         
@@ -224,6 +229,30 @@
             });
             kendo.bind(UIObject.sections.searchSection(), viewModel);
         };
+
+        $(UIObject.containers.NotificationGrid).on("click", UIObject.controls.buttons.SendNotificationImmediatelyButton, function () {
+
+            var args = {
+                header: 'Confirm Immediate Notification Send',
+                message: messages.warningMessages.confirmImmediateNotificationSend
+            };
+
+            var noticeBatchId = SearchCriteria().batchId;
+            
+            DisplayConfirmationModal(args, function () {
+                $(this).ajaxCall(controllerCalls.SendNotificationImmediately, { noticeBatchId: noticeBatchId })
+                    .success(function (data) {
+
+                        $(this).savedSuccessFully(messages.successMessages.NotificationQueuedForProcessing);
+                        $(UIObject.controls.buttons.SendNotificationImmediatelyButton).hide();
+
+                    }).error(function () {
+                        $(this).displayError("Send Notification Failed");
+                    });
+            });
+
+            return false;
+        });
 
         $(UIObject.containers.NotificationGrid).on("click", UIObject.controls.buttons.RemoveNotificationBatchItemsButton, function () {
             var args = {
