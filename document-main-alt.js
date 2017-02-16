@@ -180,6 +180,7 @@
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
                 DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
+                DocumentShowAllResults: "[id^=ShowAllResults]",
             }
         };
 
@@ -483,6 +484,7 @@
                     DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
                     DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
                     DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
+                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
                 };
 
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
@@ -491,7 +493,8 @@
                     result.DateRangeTo = dateRange;
                 }
 
-                //console.log(result);
+                // reset to false immediately
+                container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("false");
                 return result;
             }
 
@@ -2327,6 +2330,18 @@
             }
         };
 
+        var confirmFullSearchResultLoad = function(e){
+
+            DisplayConfirmationModal({ message: e.errors, header: 'Confirm search result display' }, function () {
+
+                var container = $(documentElementSelectors.containers.DocumentMain);
+                container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("true");
+                $("#gdSearchDocument").data("kendoGrid").dataSource.read();
+
+            });
+
+        }
+
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
@@ -2354,7 +2369,8 @@
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
-            afterSaveNameNumber: afterSaveNameNumber
+            afterSaveNameNumber: afterSaveNameNumber,
+            confirmFullSearchResultLoad: confirmFullSearchResultLoad
         };
     };
 
