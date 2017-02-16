@@ -66,7 +66,8 @@
                         StatusNotesFieldAll: "[id^=txtStatusNotes]",
                         DateRangeFrom: "#txtDateRangeFrom",
                         DateRangeTo: "#txtDateRangeTo",
-                        BodyText: function () { return $("#BodyText"); }
+                        BodyText: "BodyText",
+                        AccountId: "AccountId"
 
                     },
                     checkBoxes: {
@@ -127,7 +128,8 @@
                 HasNotes: false,
                 DateRangeFrom: null,
                 DateRangeTo: null,
-                BodyText : "",
+                BodyText: "",
+                AccountId:"",
                 SearchClick: function (e) {
                     e.preventDefault();
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
@@ -136,14 +138,12 @@
                   
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
                     this.HasNotes = $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value();
-
                     if (this.HasNotes == "") this.HasNotes = null;
-                   
+                    
+                    this.BodyText = this.get(UIObject.controls.textBoxes.BodyText);
+                    this.AccountId = this.get(UIObject.controls.textBoxes.AccountId);
 
-                    try { this.BodyText = this.get(UIObject.controls.textBoxes.BodyText); }
-                    catch (e) {
-                        var ee = e;
-                    }
+                    
 
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
@@ -159,23 +159,23 @@
                 },
 
                 ClearClick: function (e) {
+
                     e.preventDefault();
+
                     this.set(UIObject.controls.textBoxes.NoticeNumberObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, "");
                     this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
                     this.set(UIObject.controls.dropdownlists.ResponseStatusId, 0);
-                    
-                    $("#BodyText").val("");
-
+                    this.set(UIObject.controls.textBoxes.AccountId, "");
+                    this.set(UIObject.controls.textBoxes.BodyText, "");
                     $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
                     $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
-
+                    $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value("");
 
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
-
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
                         inboundGrid().dataSource.data([]);
-                    this.set(UIObject.controls.checkBoxes.chkHasNotes, false);
+
                 },
 
                 CloseSupplierClick: function (e) {
