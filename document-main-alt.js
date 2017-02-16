@@ -1530,7 +1530,7 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-
+          
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
