@@ -949,12 +949,12 @@
                                 if (data !== '') {
                                     onIngredientSelection(data);
                                 } else {
-                                    $(this).displayError('No ingredient was found with the Ingredient Name of "' + ingredientName + '"');
+                                    $(this).displayError('No unique ingredient was found with the Ingredient Name of "' + ingredientName + '"');
                                     $('#IngredientsUsualName').val("");
                                 }
                             },
                             error: function () {
-                                $(this).displayError('No ingredient was found with the Ingredient Name of "' + ingredientName + '"');
+                                $(this).displayError('No unique ingredient was found with the Ingredient Name of "' + ingredientName + '"');
                                 $('#IngredientsUsualName').val("");
                             }
                         });
