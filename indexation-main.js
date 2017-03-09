@@ -3652,10 +3652,13 @@
 
         };
 
-  
+        function onIngredientSearchCriteriaError(e) {
+
+            alert(e.errors);
+        }
 
     
-           var initialNonSdsValues = '';
+        var initialNonSdsValues = '';
 
         // Non Sds Indexing Methods
         function initializeNonSdsControls() {
@@ -3792,7 +3795,8 @@
             onVocVolumeMuChange: onVocVolumeMuChange,
             onVocOperatorChange: onVocOperatorChange,
             onVolatilityChange: onVolatilityChange,
-            onSaveNonSdsIndexation: onSaveNonSdsIndexation
+            onSaveNonSdsIndexation: onSaveNonSdsIndexation,
+            onIngredientSearchCriteriaError: onIngredientSearchCriteriaError
         };
     };
 
