@@ -8,6 +8,8 @@
         var supplierSearchViewModel = {};
         var notesModalSettings;
         var itemsChecked = 0;
+        var previewInboundResponseId = null;
+        var previewNoticeNumber = null;
         var selectedRequests = new Array();
         var selectedRows = new Array();
 
@@ -34,7 +36,10 @@
                         ShowCollapseObjField: "ShowCollapse",
                         ResendObtainmentEmail: "[id^=btnResendObtainmentEmail]",
                         ResendObtainmentEmailSpecific: "btnResendObtainmentEmail",
-                        SetStatus: "#setStatusBtn"
+                        SetStatus: "#setStatusBtn",
+                        ResendPreviewEmail: "#btnResendPreviewEmail", // preview functionality
+                        CancelPreviewEmail: "#btnCancelPreviewEmail"
+
                     },
                     containers: {
                         InboundResponsePanel: "InboundResponsePanel"
@@ -67,7 +72,11 @@
                         DateRangeFrom: "#txtDateRangeFrom",
                         DateRangeTo: "#txtDateRangeTo",
                         BodyText: "BodyText",
-                        AccountId: "AccountId"
+                        AccountId: "AccountId",
+                        PreviewRecipients: "PreviewRecipients",
+                        PreviewSubject: "PreviewSubject",
+                        PreviewBody: "PreviewBody",
+                        PreviewAttachments: "PreviewAttachments",
 
                     },
                     checkBoxes: {
@@ -77,7 +86,7 @@
             popWindow: {
                     supplierSearchDialog: function() { return $("#supplierSearchWindow").data("kendoWindow"); },
                     supplierPlugIn: function () { return $("#dgSupplierPlugIn"); },
-                    resendEmailDialog: function () { return $("#obtainmentEmailWindow").data("kendoWindow"); }
+                    resendEmailDialog: function () { return $("#resendEmailWindow").data("kendoWindow"); }
             },
             controllerCalls: {
                 GetInboundResponseById: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetInboundResponseById",
@@ -113,6 +122,8 @@
             UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
             UIObject.sections.responseDetailGridSection().on("keyup", UIObject.controls.textBoxes.StatusNotesFieldAll, onStatusesNotesChange);
+            $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
+            $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
 
         };
 
@@ -476,29 +487,82 @@
             e.preventDefault();
         }
 
+        function onBtnCancelPreviewEmailClick(e) {
+            e.preventDefault();
+            UIObject.popWindow.resendEmailDialog().close();
+        }
+
+        function onBtnResendPreviewEmail() {
+
+            var formData = {
+                'inboundResponseId': previewInboundResponseId,
+                'noticeNumber': previewNoticeNumber,
+                'preview': false
+            };
+
+            $(this).ajaxJSONCall(UIObject.controllerCalls.ResendObtainmentEmail, JSON.stringify(formData))
+
+                .success(function (result) {
+
+                    if (result.successful) {
+                        $(this).savedSuccessFully(result.message);
+                        UIObject.popWindow.resendEmailDialog().close();
+                    } else {
+                        $(this).displayError(result.message);
+                    }
+                })
+                .error(function () {
+                    $(this).displayError('An error occurred while resending the email assocaited with this response.');
+                });
+
+        };
+
         function onBtnResendObtainmentEmailClick(e) {
 
             var inboundResponseId = this.id.substring(UIObject.controls.buttons.ResendObtainmentEmailSpecific.length);
             if (inboundResponseId) {
 
+                var noticeNumber = $("#lblNoticeNumber" + inboundResponseId).text();
+
+                previewInboundResponseId = inboundResponseId;
+                previewNoticeNumber = noticeNumber;
+
                 var formData = {
-                    'inboundResponseId': parseInt(inboundResponseId)
+                    'inboundResponseId': parseInt(inboundResponseId),
+                    'noticeNumber' : noticeNumber,
+                    'preview' : true
                 };
- 
- 
+            
                 $(this).ajaxJSONCall(UIObject.controllerCalls.ResendObtainmentEmail, JSON.stringify(formData))
 
+                    .success(function (result) {
 
-                    .success(function (data) {
-                        if (data.successful) {
-                            $(this).displayError("The original email associated with this obtainment response has been resent.");
+                        if (result.successful) {
+                    
+                            // populate the preview pane and display it
+
+                            $("#previewSender").html(result.data.Sender);
+                            $("#previewRecepients").html(result.data.Recepients);
+                            $("#previewSubject").html(result.data.Subject);
+                            $("#previewBody").html(result.data.Body);
+                            $("#previewAttachments").html(result.attachments);
+
+                            UIObject.popWindow.resendEmailDialog().center().open();
+                            
                         } else {
-                            $(this).displayError("The original email associated with this obtainment response can not be resent as the" +
-                                " attachments are no longer available. You will have to re-create the email.");
+
+                            $(this).displayError(result.message);
+
                         }
                     })
                     .error(function () {
+            
+                        // the attachments associated with the email are no longer available on disk
+                        // the email can not be re-sent
+
                         $(this).displayError('An error occurred while resending the email assocaited with this response.');
+
+
                     });
             }
 
