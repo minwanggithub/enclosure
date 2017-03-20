@@ -539,13 +539,25 @@
 
                         if (result.successful) {
                     
-                            // populate the preview pane and display it
+                            // populate the preview pane and display it. although the email preview may be
+                            // visible, the attachments may no longer be available on disk.
 
                             $("#previewSender").html(result.data.Sender);
                             $("#previewRecepients").html(result.data.Recepients);
                             $("#previewSubject").html(result.data.Subject);
                             $("#previewBody").html(result.data.Body);
-                            $("#previewAttachments").html(result.attachments);
+
+                            var attachments = result.attachments;
+                            debugger;
+                            if (result.attachmentsCount > 0 && result.attachmentsAvailable == false) {
+                                attachments = "<b>Attachments are no longer available.</b><br>" +
+                                                "<strike>" + attachments + "</strike>";
+                            }
+
+                            $("#previewAttachments").html(attachments);
+
+                            // if there are attachments, but are not available on disk, indicate
+                            // so and let user decide what to do.
 
                             UIObject.popWindow.resendEmailDialog().center().open();
                             
