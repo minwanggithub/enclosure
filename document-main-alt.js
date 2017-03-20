@@ -1826,7 +1826,11 @@
         }
 
         function onDocumentRevisionSaveBtnClick(e) {
+            if ($(e.currentTarget).hasClass('k-state-disabled')) {
+                return false;
+            }            
             e.preventDefault();
+
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
             var formData = {
                 model: getDocumentRevisionDetailsData(form),
@@ -1855,6 +1859,9 @@
                     displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
                 }
+
+                //Prevent continus click
+                $(e.currentTarget).addClass('k-state-disabled');
 
                 var url = form.attr("action");
                 $(this).ajaxCall(url, formData)
