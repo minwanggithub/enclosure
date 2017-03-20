@@ -1212,7 +1212,8 @@
                 grid.bind("dataBound", function ingredientBind() {
                     displayKendoPopup($('#SearchIngredientWindow'));
                     grid.unbind("dataBound", ingredientBind);
-                    grid.dataSource.page(1);
+                    //grid.dataSource.page(1);
+                    grid.dataSource.query({ page: 1, pageSize: 15 });
 
                 });
 
