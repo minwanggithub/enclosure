@@ -1212,8 +1212,12 @@
                 grid.bind("dataBound", function ingredientBind() {
                     displayKendoPopup($('#SearchIngredientWindow'));
                     grid.unbind("dataBound", ingredientBind);
-                    //grid.dataSource.page(1);
-                    grid.dataSource.query({ page: 1, pageSize: 15 });
+
+                    // if there are no rows in the dataset and we try to
+                    // navigate to page(1), the grid will try read again
+
+                    if (grid.dataSource.total() > 0) grid.dataSource.page(1);
+                    //grid.dataSource.query({ page: 1, pageSize: 15 });
 
                 });
 
