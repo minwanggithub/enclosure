@@ -10,6 +10,7 @@
         var itemsChecked = 0;
         var previewInboundResponseId = null;
         var previewNoticeNumber = null;
+        var emailResent = false;
         var selectedRequests = new Array();
         var selectedRows = new Array();
 
