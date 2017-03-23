@@ -121,10 +121,7 @@
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
             UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
             UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
-            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
             UIObject.sections.responseDetailGridSection().on("keyup", UIObject.controls.textBoxes.StatusNotesFieldAll, onStatusesNotesChange);
-            $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
-            $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
 
         };
 
@@ -816,6 +813,10 @@
 
         });
 
+        // wire resend once
+        UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
+        $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
+        $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
