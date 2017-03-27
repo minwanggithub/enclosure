@@ -1839,14 +1839,14 @@
 
             if (formData.model) {
                 //Make sure the new revision is bigger than the latest revision
-                var newRevisionDate = new Date(formData.model.RevisionDate);
+                var newRevisionDate = formData.model.RevisionDate.toString();
                 var revListGrid = $("#gdDocumentRevisions_" + formData.model.DocumentId).data('kendoGrid');
                 var availalbeRevisions = revListGrid.dataSource.data();
                 var quitPost = false;
-                $.each(availalbeRevisions, function (i, row) {                    
-                    var previousRevisionDate = new Date(row.RevisionDate);
-                    if (newRevisionDate <= previousRevisionDate) {
-                        displayError("Invalid Revision Date. Revision date has to be greater than the latest revision date.");
+                $.each(availalbeRevisions, function (i, row) {
+                    var previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
+                    if (newRevisionDate == previousRevisionDate) {
+                        displayError("Can not create revision with duplicate revision date.");
                         quitPost = true;
                         return false;
                     }                    
@@ -1856,7 +1856,7 @@
                     return false;
 
                 if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
-                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
+                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);                    
                     return false;
                 }
 
