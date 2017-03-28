@@ -1829,6 +1829,7 @@
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }            
+         
             e.preventDefault();
 
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
@@ -1870,6 +1871,7 @@
                         if (!errorMessage) {
                             displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
                             setContainerFieldDefaultValues(form, checkDocumentRevisionDirtyStatus);
+                            $(e.currentTarget).removeClass('k-state-disabled');
 
                             if (formData.model.RevisionId == 0) {
                                 form.parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails).hide(500);
