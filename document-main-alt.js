@@ -1867,12 +1867,11 @@
                 var url = form.attr("action");
                 $(this).ajaxCall(url, formData)
                     .success(function (data) {
+                        $(e.currentTarget).removeClass('k-state-disabled');
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
                             displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
                             setContainerFieldDefaultValues(form, checkDocumentRevisionDirtyStatus);
-                            $(e.currentTarget).removeClass('k-state-disabled');
-
                             if (formData.model.RevisionId == 0) {
                                 form.parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails).hide(500);
                                 var revisionTab = form.parents(documentElementSelectors.containers.DocumentDetailsTab + ':first');
@@ -1897,7 +1896,10 @@
                         } else
                             displayError(errorMessage);
                     })
-                    .error(function() { displayError(documentMessages.errors.SaveDocumentRevisionError); });
+                    .error(function () {
+                         $(e.currentTarget).removeClass('k-state-disabled');
+                         displayError(documentMessages.errors.SaveDocumentRevisionError);
+                    });
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
