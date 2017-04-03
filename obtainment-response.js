@@ -156,6 +156,12 @@
 
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
+                    
+                    if (this.DateRangeFrom > this.DateRangeTo && this.DateRangeFrom != null && this.DateRangeTo != null) {
+                        $(this).displayError("Invalid date range. ");
+                        kendo.ui.progress(UIObject.sections.responseDetailGridSection(), false);
+                        return;
+                    }
              
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                            .success(function (data) {
