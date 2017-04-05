@@ -563,10 +563,23 @@
                 default:
                     gridOperator = "eq";
             }
-            
 
-            if($("#hdnProductName").val().length>0)
-                   grid.dataSource.filter({ field: "ProductName", operator: gridOperator, value: $("#hdnProductName").val()});
+            
+            if ($("#hdnProductName").val().length > 0) {
+                grid.dataSource.filter({
+                    field: "ProductName",
+                    operator: gridOperator,
+                    value: $("#hdnProductName").val()
+                });
+            } else {
+                // Remove a filter for ProductName
+                for (var index = 0; index < grid.dataSource.filter().filters.length; index++) {
+                   if (grid.dataSource.filter().filters[index].field == "ProductName") {
+                         grid.dataSource.filter().filters.splice(index, 1);
+                  }
+               }
+            }
+            
         };
 
         var QueueQuery = function () {
