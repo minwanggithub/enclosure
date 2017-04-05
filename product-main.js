@@ -537,15 +537,36 @@
 
         ////////////non publuc / public/////////////
         var refreshProductSearchResultGrid = function () {
+           
             var grid = $(productObject.controls.grids.GridSearchProduct).data("kendoGrid");
             
             if (grid.dataSource.view().length > 0) {
                 grid.dataSource.page(1);
             }
             grid.dataSource.read();
+            
+            var gridOperator = "";
+            var searchOperator = $("input[name=radiogroupTitleSearchOption]:checked").val();
+            switch (searchOperator) {
+                case "0":
+                    gridOperator = "contains";
+                    break;
+                case "1":
+                    gridOperator = "eq";
+                    break;
+                case "2":
+                    gridOperator = "startswith";
+                    break;
+                case "3":
+                    gridOperator = "endswith";
+                    break;
+                default:
+                    gridOperator = "eq";
+            }
+            
 
             if($("#hdnProductName").val().length>0)
-                grid.dataSource.filter({ field: "ProductName", operator: "eq", value: $("#hdnProductName").val()});
+                   grid.dataSource.filter({ field: "ProductName", operator: gridOperator, value: $("#hdnProductName").val()});
         };
 
         var QueueQuery = function () {
