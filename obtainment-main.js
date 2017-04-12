@@ -280,12 +280,13 @@
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
 
             //Based on TRECOMPLI-1302, if supplier Id has value, then it will clear the rest filter and do super mail
-            var supplierFilter = $(obtainmentObject.controls.textBoxes.SupplierId).val();
-            if (supplierFilter != "")
-            {
-                $(obtainmentObject.controls.buttons.ClearRequestSearchButton).click();
-                $(obtainmentObject.controls.textBoxes.SupplierId).val(supplierFilter);
-            }
+            //Above function was overwritten by TRECOMPLI-2385
+            //var supplierFilter = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            //if (supplierFilter != "")
+            //{
+            //    $(obtainmentObject.controls.buttons.ClearRequestSearchButton).click();
+            //    $(obtainmentObject.controls.textBoxes.SupplierId).val(supplierFilter);
+            //}
 
 
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
@@ -476,6 +477,30 @@
             e.preventDefault();
             ShowAccount(this.id, null);
         });
+
+        var enableSuperEmail = function () {
+            var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
+            var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
+            var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
+            var noticeNumber = $("#divSearchSection " + obtainmentObject.controls.textBoxes.NoticeNumberSearch).val();
+            var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
+            var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
+            var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
+            var accountId = $("#divSearchSection " + obtainmentObject.controls.textBoxes.AccountId).val();
+            var includeInboundReceived = $("#divSearchSection " + obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
+
+            //create requestSearchModel to be passed to the controller
+            var hasValue = (drpTeams.value() == "") &&
+                (drpLang.value() == "") &&
+                (drpDocType.value() == "") &&
+                (drpLockType.value() == "") &&
+                (drpAssignedToType.value() == "") &&
+                (drpNextStep.value() == "") &&
+                (noticeNumber == "") &&
+                (accountId == "") &&
+                !includeInboundReceived;
+            return hasValue;
+        }
 
         function SetSuperEmailDefault(supplierUrl)
         {
@@ -1002,13 +1027,13 @@
             var count = $("#gdRequests").data("kendoGrid").dataSource.total();
             //alert(count);
 
-            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
+            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "");
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
         }
 
         var onObtainmentReqeustDataBound = function (e) {
             var count = $("#gdRequests").data("kendoGrid").dataSource.total();
-            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "")
+            var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "") && enableSuperEmail();
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
         }
 
