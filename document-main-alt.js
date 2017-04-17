@@ -1841,17 +1841,28 @@
             if (formData.model) {
                 //Make sure the new revision is bigger than the latest revision
                 var newRevisionDate = formData.model.RevisionDate.toString();
+                var newVerifyDate = formData.model.VerifyDate.toString();
                 var revListGrid = $("#gdDocumentRevisions_" + formData.model.DocumentId).data('kendoGrid');
                 var availalbeRevisions = revListGrid.dataSource.data();
                 var quitPost = false;
                 $.each(availalbeRevisions, function (i, row) {
+                    debugger;
                     var previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
+                    var previousConfirmationDate = (row.VerifyDate.getMonth() + 1) + '/' + row.VerifyDate.getDate() + '/' + row.VerifyDate.getFullYear();
+                    
                     if (newRevisionDate == previousRevisionDate) {
                         displayError("Can not create revision with duplicate revision date.");
                         quitPost = true;
                         return false;
-                    }                    
+                    }
+                    else if (newVerifyDate == previousConfirmationDate) {
+                        displayError("New revision should have updated confirmation datee.");
+                        quitPost = true;
+                        return false;
+                    }
                 });
+
+
 
                 if (quitPost)
                     return false;
