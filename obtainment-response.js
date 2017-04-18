@@ -59,7 +59,7 @@
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                         UnprocessedResponsesCount: "lblUnprocessedCount",
                         LblFlagBy: "#lblFlagBy"
-                        },
+                    },
                     textBoxes: {
                         Description: "divDescription",
                         NoticeNumberObj: function() { return $("#NoticeNumber"); },
@@ -240,6 +240,12 @@
 
                             supplierLabel.text(newValue);
                             changeLayoutOnInputChange(this.ExistingInboundResponseId);
+
+                            // set the obtainments link
+                            var supplierLink = $('#lnkSupplierInfoForResponseDetail' + this.ExistingInboundResponseId);
+                            var link = supplierLink.attr("href").split("=")[0] + "=" + item.CompanyId;
+                            supplierLink.attr("href", link);
+                                              
                         }
 
                         this.set("ExistingInboundResponseId", 0);
