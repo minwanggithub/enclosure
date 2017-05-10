@@ -2359,12 +2359,61 @@
             });
         };
 
+        var onDocumentRevisionNameNumberError = function (e) {
+          
+            var tokens = e.errors["ServerError"].errors[0].split(":");
+            $(this).displayError(tokens[1]);
+            var gridId = '#gdRevisionNameNumber_' + tokens[0];
+            var grid = $(gridId).data("kendoGrid");
+            grid.one("dataBinding", function (e) {
+                e.preventDefault();
+            });
+            return;
+        }
+
         var afterSaveNameNumber = function (e) {
-        
+
+          
             if (e.response.success == false) {
                 $(this).displayError(e.response.message);
                 $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
                 return;
+            }
+
+            return;
+        
+            console.log(e);
+            debugger;
+
+            if (e.type == "create") {
+
+                var gridId = '#gdRevisionNameNumber_' + e.response.revisionId;
+
+                if (e.response.success == false) {
+                    $(this).displayError(e.response.message);
+                    $(gridId).data('kendoGrid').dataSource.read();
+                    //var tr = $(gridId).data("kendoGrid").select();
+                    //if (tr.length > 0) grid.editRow(tr);
+                }
+
+                //if (e.response.Errors != null) {
+                    
+                //    $(this).displayError(e.response.Errors["NameNumber"].errors[0]);
+                //    var grid = $(gridId).data('kendoGrid');
+                //    grid.one("dataBinding", function (e) {
+                //        e.preventDefault();
+                //    });
+
+                //    //var grid = $().data("kendoGrid");
+                //    //var tr = $(gridId).data("kendoGrid").select();
+                //    //if (tr.length > 0) grid.editRow(tr);
+                //    //return false;
+                //}
+                //else {
+                //    //$('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
+                //    //return true;
+                //}
+
             }
         };
 
@@ -2401,6 +2450,7 @@
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
+            onDocumentRevisionNameNumberError:onDocumentRevisionNameNumberError,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
