@@ -2458,7 +2458,8 @@
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
-            confirmFullSearchResultLoad: confirmFullSearchResultLoad
+            confirmFullSearchResultLoad: confirmFullSearchResultLoad,
+            performDocumentSearch: performDocumentSearch
         };
     };
 
