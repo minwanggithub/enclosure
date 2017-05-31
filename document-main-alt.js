@@ -1846,23 +1846,33 @@
                 var availalbeRevisions = revListGrid.dataSource.data();
                 var quitPost = false;
                 $.each(availalbeRevisions, function (i, row) {
-                    debugger;
                     var previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
                     var previousConfirmationDate = (row.VerifyDate.getMonth() + 1) + '/' + row.VerifyDate.getDate() + '/' + row.VerifyDate.getFullYear();
-                    
-                    if (newRevisionDate == previousRevisionDate) {
-                        displayError("Can not create revision with duplicate revision date.");
-                        quitPost = true;
-                        return false;
+
+                    //This only consider for the new revision
+                    if (formData.model.RevisionId == 0) {
+                        if (newRevisionDate == previousRevisionDate) {
+                            displayError("Can not create revision with duplicate revision date.");
+                            quitPost = true;
+                            return false;
+                        } else if (newVerifyDate == previousConfirmationDate) {
+                            displayError("New revision should have updated confirmation datee.");
+                            quitPost = true;
+                            return false;
+                        }
                     }
-                    else if (newVerifyDate == previousConfirmationDate) {
-                        displayError("New revision should have updated confirmation datee.");
-                        quitPost = true;
-                        return false;
+                    else if (formData.model.RevisionId != row.RevisionId) {
+                        if (newRevisionDate == previousRevisionDate) {
+                            displayError("Revision with same revision date already exists.");
+                            quitPost = true;
+                            return false;
+                        } else if (newVerifyDate == previousConfirmationDate) {
+                            displayError("Revision with same confirmation datee already exists.");
+                            quitPost = true;
+                            return false;
+                        }
                     }
                 });
-
-
 
                 if (quitPost)
                     return false;
