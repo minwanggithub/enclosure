@@ -1856,7 +1856,7 @@
                             quitPost = true;
                             return false;
                         } else if (newVerifyDate == previousConfirmationDate) {
-                            displayError("New revision should have updated confirmation datee.");
+                            displayError("New revision should have updated confirmation date.");
                             quitPost = true;
                             return false;
                         }
