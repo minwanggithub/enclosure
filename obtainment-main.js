@@ -359,9 +359,9 @@
         });
 
         obtainmentDetailWorkFlowObj.on("click", obtainmentObject.controls.buttons.ActionLoadModal, function () {            
-            if (hasNoticeNumbers)
-                $(this).displayError(messages.errorMessages.ResponseReceived);
-            else
+            //if (hasNoticeNumbers)
+            //    $(this).displayError(messages.errorMessages.ResponseReceived);
+            //else
                 ShowActionModals();
         });
 
