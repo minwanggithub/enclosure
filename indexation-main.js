@@ -3454,6 +3454,7 @@
             indexationDetailObj.on("click", "#btnSaveFireFighting", function(e) {
                 e.preventDefault();
                 var form = $("#FormFireFighting");
+                debugger;
                 var validator = form.kendoValidator().data("kendoValidator");
                 if (validator.validate()) {
                     var url = form.attr("action");
