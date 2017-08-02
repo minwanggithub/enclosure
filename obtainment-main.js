@@ -152,7 +152,7 @@
                 NoContactSelcted: "No contact has been selected from Contact Information",
                 NoPhoneSelected: "No contact phone has been selected",
                 GeneralError: "Error Occurred",
-                EmailPartsMissing: "Email must have subject and body.",
+                EmailPartsMissing: "Email must have subject, body and the ||ProductsList|| placement token.",
                 EmailAddressMissing: "Email address needs to be selected",
                 CannotGenerateNoticeNumber: "Cannot generate notice number",
                 ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
@@ -782,13 +782,15 @@
 
                 if (data.links != null && data.links.length > 0) {
 
-                    var text = "Nethub links for the following products will be added to the outgoing email - ";
-                    if(data.sdsObtainments) text = "The following list of products will be appended to the body of the email."
+                    var text = "Nethub links for the following products will replace the ||ProductsList|| token : ";
+                    if (data.sdsObtainments) text = "The following list of products will replace the ||ProductList|| token :"
 
                     for (var i = 0; i < data.links.length; i++) {
                         text += data.links[i];
                         if (i < data.links.length - 1) text += ", ";
                     }
+
+                    if (!data.sdsObtainments) text += ". Use the ||SupplierPortal(link text)|| token to provide a link to the supplier portal.";
 
                     $("#txtObtainmentEmailNethubLinks").val(text);
 
@@ -1130,9 +1132,12 @@
 
             var valid = true;
 
+            var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+            var hasProductsListToken = ((body + "").toUpperCase().indexOf("||PRODUCTSLIST||")) >= 0;
+
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
-                $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
+                $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0 || !hasProductsListToken){
 
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.EmailPartsMissing);
