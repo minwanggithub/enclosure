@@ -255,10 +255,10 @@
         function operatorDropdownChange(selectedValue, fromDdl, toDdl, moreNeeded) {
 
             // <, <=, >, >=, =, approx, trace, range
-            
+
             // disable by default
             $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", onElementDisable);
-            
+
             if (!selectedValue || selectedValue == 7) {
                 $("#" + fromDdl + ", #" + toDdl).val("").prop("disabled", true);    // trace
             } else if (selectedValue == 8) {                                        // range
@@ -266,6 +266,22 @@
             } else {
                 $("#" + fromDdl).prop("disabled", false);
                 $("#" + toDdl).val("").prop("disabled", true);
+            }
+
+            // if a function was passed to complete the task continue with that
+            if (moreNeeded) {
+                moreNeeded(selectedValue);
+            }
+        };
+
+        function uniOperatorDropdownChange(selectedValue, fromDdl, moreNeeded) {
+            $(fromDdl).val("").prop("disabled", onElementDisable);
+            if (!selectedValue || selectedValue == 7) {
+                $(fromDdl).val("").prop("disabled", true);    // trace
+            } else if (selectedValue == 8) {                                        // range
+                $(fromDdl).val("").prop("disabled", false);
+            } else {
+                $(fromDdl).prop("disabled", false);
             }
 
             // if a function was passed to complete the task continue with that
@@ -3492,7 +3508,7 @@
         }
 
         function flashPointMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $('#SelectFlashPointTempUnit').data("kendoDropDownList").select(0);
                 $('#SelectFlashPointTempUnit').data("kendoDropDownList").enable(false);
             } else
@@ -3500,19 +3516,31 @@
         }
 
         function flameExtensionMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").select(0);
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(false);
             } else
                 $('#FlameExtensionUnitLength').data("kendoDropDownList").enable(true);
         }
 
+        function selfIgnitionMoreNeeded(selectedValue) {
+            if (!selectedValue || selectedValue == 7) {
+                $('#SelectSelfIgniTempUnit').data("kendoDropDownList").select(0);
+                $('#SelectSelfIgniTempUnit').data("kendoDropDownList").enable(false);
+            } else
+                $('#SelectSelfIgniTempUnit').data("kendoDropDownList").enable(true);
+        }
+
         var onFlashPointOperatorChange = function (e) {
             operatorDropdownChange(e.sender._selectedValue, "FromFlashPoint", "ToFlashPoint", flashPointMoreNeeded);
         };
 
-        var onFlameExtensionOperatorChange = function(e) {
+        var onFlameExtensionOperatorChange = function (e) {
             operatorDropdownChange(e.sender._selectedValue, "FlameExtensionFrom", "FlameExtensionTo", flameExtensionMoreNeeded);
+        };
+
+        var onSelfIgnitionOperatorChange = function (e) {
+            uniOperatorDropdownChange(e.sender._selectedValue, "#SelfIgniTemperature", selfIgnitionMoreNeeded);
         };
 
         // PPE section methods
@@ -3759,6 +3787,7 @@
             onBoilingPointOperatorChange: onBoilingPointOperatorChange,
             onFlameExtensionOperatorChange: onFlameExtensionOperatorChange,
             onFlashPointOperatorChange: onFlashPointOperatorChange,
+            onSelfIgnitionOperatorChange: onSelfIgnitionOperatorChange,
             onGravityOperatorChange: onGravityOperatorChange,
             onGridEditChangeTitle: onGridEditChangeTitle,
             onGridHazardClassChange: onGridHazardClassChange,
