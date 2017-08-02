@@ -752,8 +752,6 @@
             });
 
             indexationDetailObj.on("click", "#AddIngredient", function (e) {
-
-                debugger;
                 e.preventDefault();
 
                 // unselect the grid 
@@ -809,7 +807,6 @@
             indexationDetailObj.on("click", "#btnDiscardIngredient", function (e) {
 
                 // determine if there have been updates ?
-                debugger;
                 confirmUserSelection("Confirm", "Message", function () { alert("funct 1"); }, function () { alert("funct 2"); });
 
                 // clear out contents
@@ -829,9 +826,7 @@
                     return false;
                 }
 
-                debugger;
                 if (validator.validate()) {
-
                     var form = $("#ingredientForm");
                     var url = form.attr("action");
 
@@ -857,7 +852,6 @@
                         // over ride
                         formdata["Ingredient_NameId"] = otherNames;
                     }
-                    debugger;
 //                    var isAdding = (formdata["MappingId"] == 0);  // check for selected item instead of insert mode.
 
                     var grid = $("#GridIngredients").data("kendoGrid");
@@ -1087,7 +1081,6 @@
 
                     var btnDiscardIngredient = editorForm.find("#btnDiscardIngredient");
                     btnDiscardIngredient.unbind().click(function (e) {
-                        debugger;
                         e.preventDefault();
                         editorWindow.data('kendoWindow').close();
                     });
@@ -1278,9 +1271,6 @@
             });
 
             searchwindow.on("click", "#btnAddNewIngredient", function (e) {
-
-                debugger;
-
                 e.preventDefault();
 
                 var editorWindow = $('#ingredientEditorWindow');
@@ -1332,8 +1322,6 @@
                             var e = editorWindow;
                         },
                         complete: function() {
-
-                            debugger;
                             initializeIngredientCreationControls(editorWindow);
 
                             var e = editorWindow;
@@ -3470,7 +3458,6 @@
             indexationDetailObj.on("click", "#btnSaveFireFighting", function(e) {
                 e.preventDefault();
                 var form = $("#FormFireFighting");
-                debugger;
                 var validator = form.kendoValidator().data("kendoValidator");
                 if (validator.validate()) {
                     var url = form.attr("action");
