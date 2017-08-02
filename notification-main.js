@@ -48,6 +48,7 @@
                     EditNextStep: "#ddlEditNextStep",
                     EditEmailTemplate: "#ddlEditEmailTemplate",
                     EditNoticeStatus: "#ddlEditNoticeStatus",
+                    ObtainmentState: "#ddlObtainmentState",
 
                 },
 
@@ -77,6 +78,7 @@
                 NotificationStatusId: "NotificationStatusId",
                 ScheduledDate: "ScheduledDate",
                 ActualSendDate: "ActualSendDate",
+                ObtainmentState: "ObtainmentState",
             },
 
 
@@ -359,6 +361,7 @@
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
                 AccountIdArray: $(UIObject.controls.textbox.AccountId).val(),
+                ObtainmentState: Number($(UIObject.controls.dropdownlists.ObtainmentState).data("kendoDropDownList").value()),
                 NotificationAttachment: [],
                 SummaryRecipient: $(UIObject.controls.textbox.SummaryRecipient).val(),
 
@@ -388,6 +391,7 @@
                     var subject = (this.EmailSubject + "").toUpperCase();
                     return (subject.indexOf("||NOTICENUMBER||") < 0);
                 }
+
             };
 
             //alert(JSON.stringify(noticeModel));
@@ -457,6 +461,7 @@
                 $(this).displayError(messages.errorMessages.MissingNoticeNumber);
                 return;
             };
+
 
 
             noticeModel.NotificationAttachment = notificatonAttachments;
