@@ -130,7 +130,7 @@
         var obtainmentActions = { Empty: "", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             instructionMessages: {
-                SupplierPortalEmailInstruction: "<br/>Please follow ||SupplierPortal(this link)|| to submit your document for the following products:<br/><br/>||ProductList||<br/>",
+                SupplierPortalEmailInstruction: "<br/>Please follow ||SupplierPortal(this link)|| to submit your document for the following products:<br/><br/>||ProductsList||<br/>",
                 RevisionSDSEmailInstruction: "<br/><b>Please provide updated SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>",
                 NewSDSEmailInstruction: "<br/><b>Please provide SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>"
             },
@@ -539,8 +539,8 @@
             $(actionModals.SuperMail + " #myModalLabel").html("Super Email - " + emailTargetText);
 
             var message = messages.instructionMessages.SupplierPortalEmailInstruction;
-            if (emailTarget == "3") message = messages.instructionMessages.NewSDSEmailInstruction;
-            if (emailTarget == "2") message = messages.instructionMessages.RevisionSDSEmailInstruction;
+            if (emailTarget == "2") message = messages.instructionMessages.NewSDSEmailInstruction;
+            if (emailTarget == "3") message = messages.instructionMessages.RevisionSDSEmailInstruction;
 
             //var message = messages.successMessages.SuperEmailDirection.replace("*", supplierUrl);
             var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(message);
@@ -656,7 +656,7 @@
                     beforeSend: function () {
                         //kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
                         },
-                        error: function () {
+                    error: function () {
                         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                     },
                     success: function (successData) {
@@ -783,7 +783,7 @@
                 if (data.links != null && data.links.length > 0) {
 
                     var text = "Nethub links for the following products will replace the ||ProductsList|| token : ";
-                    if (data.sdsObtainments) text = "The following list of products will replace the ||ProductList|| token :"
+                    if (data.sdsObtainments) text = "The following list of products will replace the ||ProductsList|| token :"
 
                     for (var i = 0; i < data.links.length; i++) {
                         text += data.links[i];
@@ -1131,6 +1131,7 @@
             // email may not be sent out
 
             var valid = true;
+            debugger;
 
             var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
             var hasProductsListToken = ((body + "").toUpperCase().indexOf("||PRODUCTSLIST||")) >= 0;
