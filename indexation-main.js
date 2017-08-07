@@ -1564,7 +1564,7 @@
 
         // temparature unit
         function boilingPointMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").select(0);
                 $('#SelectCfkrBoilingPoint').data("kendoDropDownList").enable(false);
             } else
@@ -1573,7 +1573,7 @@
 
         // temparature unit
         function volatilityMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $('#SelectFromToVolatility').data("kendoDropDownList").select(0);
                 $('#SelectFromToVolatility').data("kendoDropDownList").enable(false);
             } else
@@ -1592,7 +1592,7 @@
                 $("#SelectAtViscosity").data("kendoDropDownList").enable(true);
                 $("#AtViscosity").prop("disabled", false);
 
-                if (selectedValue === 7) {
+                if (selectedValue == 7) {
                     $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
                     $("#SelectFromToViscosity").data("kendoDropDownList").enable(false);
                 }
@@ -1600,7 +1600,7 @@
         }
 
         function vocOperatorMoreNeeded(selectedValue) {
-            if (!selectedValue || selectedValue === 7) {
+            if (!selectedValue || selectedValue == 7) {
                 $('#SelectMuType').data("kendoDropDownList").select(0);
                 $('#SelectMuType').data("kendoDropDownList").enable(false);
                 $("#SelectWeightMu").data("kendoDropDownList").select(0);
@@ -1763,7 +1763,8 @@
             }
         };
 
-        var onVolatilityChange = function(e) {
+        var onVolatilityChange = function (e) {
+            debugger;
             operatorDropdownChange(e.sender._selectedValue, "FromVolatility", "ToVolatility", volatilityMoreNeeded);
         };
 
