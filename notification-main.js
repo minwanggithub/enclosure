@@ -132,14 +132,15 @@
                 NoItemsSelected: "No items have been selected",
                 EmailSubjectMissing: "Email subject missing.",
                 MissingNoticeNumber: "Notice number token missing from email subject line.",
-                MissingSummaryRecipient: "Notice summary recipient is required."
+                MissingSummaryRecipient: "Notice summary recipient is required.",
+                SingleAccountRequired: "A single Account must be specified for Notifications for 'All Steps'."
                 
             }
         };
         
         var searchBind = function () {
             var viewModel = kendo.observable({
-                NextStepId: 0,
+                NextStepId: -1,
                 ObtainmentList: null,
                 ObtainmentIndex: null,
                 AccountIdArray: "",
@@ -150,7 +151,7 @@
                 EmailSubject:"",
 
                 HasCriteria: function (e) {
-                    var fieldCheck = (this.get(UIObject.observable.NextStepId) > 0
+                    var fieldCheck = (this.get(UIObject.observable.NextStepId) >= 0
                         || (this.get(UIObject.observable.ObtainmentList)).length > 0
                         || this.get(UIObject.observable.AccountIdArray) !== ""
                         || this.get(UIObject.observable.EmailTemplateId) > 0
@@ -160,7 +161,9 @@
                         || this.get(UIObject.observable.ActualSendDate) != null);
                     return fieldCheck;
                 },
-                SearchClick : function (e) {
+
+                SearchClick: function (e) {
+                   
                     //e.preventDefault();
                     this.set(UIObject.observable.ObtainmentList, ($("#divSearchSection " +
                         UIObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoMultiSelect").value()).map(function (item) {
@@ -175,7 +178,7 @@
                            
                         //need to verify that dropdowns are set back to 0 instead of empty string if not selected this causes a Object Reference Exception
                         if (this.NextStepId == "")
-                            this.NextStepId = 0;
+                            this.NextStepId = -1;
 
                         if (this.EmailTemplateId == "")
                             this.EmailTemplateId = 0;
@@ -198,7 +201,7 @@
 
                 ClearClick: function (e) {
                     //e.preventDefault();
-                    this.set(UIObject.observable.NextStepId, 0);
+                    this.set(UIObject.observable.NextStepId, -1);
                     this.set(UIObject.observable.ObtainmentList, null);
                     this.set(UIObject.observable.AccountIdArray,"");
                     this.set(UIObject.observable.EmailTemplateId, 0);
@@ -366,7 +369,16 @@
                 SummaryRecipient: $(UIObject.controls.textbox.SummaryRecipient).val(),
 
                 MissingRequired: function () {
-                    return (this.NextStepId == 0) || (this.NotificationStatusId == 0)
+
+                    var nextStepValid = true;
+
+                    if (this.NextStepId == -1)
+                        nextStepValid = false;
+                    else if (this.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
+                                                      noticeModel.AccountIdArray.indexOf(",") >= 0))
+                        nextStepValid = false;
+
+                    return (!nextStepValid) || (this.NotificationStatusId == 0)
                         || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)
                         || (this.EmailSubject == "")
                         || (this.SummaryRecipient == "")
@@ -398,7 +410,13 @@
 
             //Add this attachment to model
             if (noticeModel.MissingRequired()) {
-                $(this).displayError(messages.errorMessages.MissingRequiredFields);
+    
+                // single account required
+                if (noticeModel.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
+                                                    noticeModel.AccountIdArray.indexOf(",") >= 0))
+                    $(this).displayError(messages.errorMessages.SingleAccountRequired);
+                else 
+                    $(this).displayError(messages.errorMessages.MissingRequiredFields);
                 return;
             };
             
