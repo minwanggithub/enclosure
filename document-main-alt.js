@@ -227,7 +227,8 @@
                 DocumentRevisionDeleteAttachmentMessage: "Are you sure you want to delete this file?",
                 DocumentRevisionDiscardChangesHeader: "Discard Revision Changes",
                 DocumentRevisionDiscardChangesMessage: "You are going to discard your revision changes. Are you sure you would like to continue?",
-                SaveRevisionWothoutAttachment: "Are you sure you want to save revision without attachment?"
+                SaveRevisionWothoutAttachment: "Are you sure you want to save revision without attachment?",
+                PrivateAccessForDocument: "This document is being marked private. Only documents marked public will publish to other systems."
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -958,6 +959,13 @@
         function onNewDocumentFieldChange(e) {
             onInputFieldChange(e);
             checkNewDocumentDirtyStatus();
+
+            // warn about private documents
+            var model = getNewDocumentData();
+            if (!model.IsPublic) {
+                displayError(documentMessages.modals.PrivateAccessForDocument);
+            }
+           
         }
 
         function onNewDocumentPopUpCancelBtnClick(e) {
