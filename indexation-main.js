@@ -45,6 +45,7 @@
             initializeFireFightingControls();
             initializePpeControls();
 
+          
 
             indexationDetailObj.on("click", "#btnDocumentAddressSave", function (e) {
                 e.preventDefault();
@@ -713,6 +714,16 @@
                 window.close();
             });
 
+            indexationDetailObj.on("keypress", "#readOnlyRevisionTitle", function (e) {
+                //alert(e.keyCode);
+                if (e.keyCode === 35 || e.keyCode === 36 || e.keyCode === 37 || e.keyCode === 39) {
+                    return;
+                }
+                else
+                    e.preventDefault();                
+            });
+
+            
 
             indexationDetailObj.on("click", "#ancSynBatchDelete", function (e) {
                 e.preventDefault();
@@ -728,6 +739,7 @@
                 e.preventDefault();
                 batchDeleteObjects('GridOtherNumber', 'other numbers', '../Indexation/BatchDeleteNameNumbers');
             });
+
         };
 
 
