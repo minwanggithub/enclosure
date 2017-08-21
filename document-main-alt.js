@@ -960,12 +960,14 @@
             onInputFieldChange(e);
             checkNewDocumentDirtyStatus();
 
-            // warn about private documents
-            var model = getNewDocumentData();
-            if (!model.IsPublic) {
-                displayError(documentMessages.modals.PrivateAccessForDocument);
+            var element = $(e.currentTarget);
+            if (element.attr("id") == "IsPublic_New") {
+                var model = getNewDocumentData();
+                if (!model.IsPublic) {
+                    displayError(documentMessages.modals.PrivateAccessForDocument);
+                }
             }
-           
+          
         }
 
         function onNewDocumentPopUpCancelBtnClick(e) {
