@@ -714,16 +714,23 @@
                 window.close();
             });
 
-            indexationDetailObj.on("keypress", "#readOnlyRevisionTitle", function (e) {
-                //alert(e.keyCode);
+            //indexationDetailObj.on("keypress", "#readOnlyRevisionTitle", function (e) {
+            //    alert(e.keyCode);
+            //    if (e.keyCode === 35 || e.keyCode === 36 || e.keyCode === 37 || e.keyCode === 39) {
+            //        return;
+            //    }
+            //    else
+            //        e.preventDefault();                
+            //});
+   
+
+            indexationDetailObj.on("keydown", "#readOnlyRevisionTitle", function (e) {
                 if (e.keyCode === 35 || e.keyCode === 36 || e.keyCode === 37 || e.keyCode === 39) {
-                    return;
+                    return true;
                 }
-                else
-                    e.preventDefault();                
+                return false;
             });
 
-            
 
             indexationDetailObj.on("click", "#ancSynBatchDelete", function (e) {
                 e.preventDefault();
@@ -1607,6 +1614,8 @@
                 if (selectedValue == 7) {
                     $("#SelectFromToViscosity").data("kendoDropDownList").select(0);
                     $("#SelectFromToViscosity").data("kendoDropDownList").enable(false);
+                    $("#SelectAtViscosity").data("kendoDropDownList").enable(false);
+                    $("#AtViscosity").val("").prop("disabled", true);
                 }
             }
         }
