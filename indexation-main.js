@@ -1698,19 +1698,19 @@
 
             
             if (selectedValue != 1) {
-                $("#SelectOperator").data("kendoDropDownList").select(0);
-                $("#SelectOperator").data("kendoDropDownList").enable(false);
+                $("#SelectVocOperator").data("kendoDropDownList").select(0);
+                $("#SelectVocOperator").data("kendoDropDownList").enable(false);
                 $("#SelectParticularity").data("kendoDropDownList").select(0);
                 $("#SelectParticularity").data("kendoDropDownList").enable(false);
                 $("#Warning").prop("disabled", true).prop("checked", false);
 
-                removeValidationToolTips($('#SelectOperator'));
+                removeValidationToolTips($('#SelectVocOperator'));
                 removeValidationToolTips($('#SelectMuType'));
                 removeValidationToolTips($('#SelectParticularity'));
                 operatorDropdownChange("", "FromVoc", "ToVoc", vocOperatorMoreNeeded);
 
             } else {
-                $("#SelectOperator").data("kendoDropDownList").enable(true);
+                $("#SelectVocOperator").data("kendoDropDownList").enable(true);
                 $("#SelectParticularity").data("kendoDropDownList").enable(true);
                 $("#Warning").prop("disabled", false);
             }
