@@ -228,7 +228,7 @@
                 DocumentRevisionDiscardChangesHeader: "Discard Revision Changes",
                 DocumentRevisionDiscardChangesMessage: "You are going to discard your revision changes. Are you sure you would like to continue?",
                 SaveRevisionWothoutAttachment: "Are you sure you want to save revision without attachment?",
-                PrivateAccessForDocument: "This document is being marked private. Only documents marked public will publish to other systems."
+                PrivateAccessForDocument: "This document is being marked private. Only documents marked public will be searchable on certain client systems."
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
