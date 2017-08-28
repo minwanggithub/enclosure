@@ -1475,6 +1475,16 @@
         var physicalChemicalValidator = null;
 
         function initializePhysicalChemicalControls() {
+            indexationDetailObj.on("click", "#chkBoxPhysicalStateNotAvailable", function (element) {                
+                //alert(element.target.checked);
+                if (element.target.checked) {
+                    $("#SelectPhysicalState").data("kendoDropDownList").select(0);
+                    $("#SelectPhysicalState").data("kendoDropDownList").enable(false);                    
+                } else {
+                    $("#SelectPhysicalState").data("kendoDropDownList").enable(true);
+                }
+
+            });
 
             // Overall PhyChem section
             indexationDetailObj.on("click", "#btnSavePhyChemProperties", function (e) {
@@ -3777,11 +3787,7 @@
             parentFrame.height(nethubContent.height() +(htmlPadding * 2) + 'px');
         }
 
-
-
         
-
-
         // Exposed methods
         return {
             getDocRevisionId: getDocRevisionId,
