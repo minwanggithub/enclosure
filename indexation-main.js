@@ -1475,7 +1475,7 @@
         var physicalChemicalValidator = null;
 
         function initializePhysicalChemicalControls() {
-            indexationDetailObj.on("click", "#chkBoxPhysicalStateNotAvailable", function (element) {                
+            indexationDetailObj.on("click", "#PhysicalStateNotAvailable", function (element) {                
                 //alert(element.target.checked);
                 if (element.target.checked) {
                     $("#SelectPhysicalState").data("kendoDropDownList").select(0);
@@ -1489,6 +1489,8 @@
             // Overall PhyChem section
             indexationDetailObj.on("click", "#btnSavePhyChemProperties", function (e) {
                 e.preventDefault();
+
+
                 initializePhysicalChemicalValidator();
                 if(physicalChemicalValidator.validate()) {
                     var form = $("#FormPhyChemProperties");
