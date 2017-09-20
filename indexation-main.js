@@ -1632,7 +1632,7 @@
             }
         }
 
-        function vocOperatorMoreNeeded(selectedValue) {
+        function vocOperatorMoreNeeded(selectedValue) {            
             if (!selectedValue || selectedValue == 7) {
                 $('#SelectMuType').data("kendoDropDownList").select(0);
                 $('#SelectMuType').data("kendoDropDownList").enable(false);
@@ -1640,6 +1640,8 @@
                 $("#SelectWeightMu").data("kendoDropDownList").enable(false);
                 $("#SelectVolumeMu").data("kendoDropDownList").select(0);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
+
+          
             } else
                 $('#SelectMuType').data("kendoDropDownList").enable(true);
         }
@@ -1707,8 +1709,6 @@
 
         var onVocCodeChange = function (e) {
             var selectedValue = e.sender._selectedValue;
-
-            
             if (selectedValue != 1) {
                 $("#SelectVocOperator").data("kendoDropDownList").select(0);
                 $("#SelectVocOperator").data("kendoDropDownList").enable(false);
@@ -1724,6 +1724,7 @@
             } else {
                 $("#SelectVocOperator").data("kendoDropDownList").enable(true);
                 $("#SelectParticularity").data("kendoDropDownList").enable(true);
+
                 $("#Warning").prop("disabled", false);
             }
         };
@@ -1743,8 +1744,8 @@
 
             // ppb, ppm, ppt
             if (selectedValue >= 26 && selectedValue <= 29) {
-                $("#SelectParticularity").data("kendoDropDownList").enable(false);
-                $("#Warning").prop("disabled", true).prop("checked", false);
+                //$("#SelectParticularity").data("kendoDropDownList").enable(false);
+                //$("#Warning").prop("disabled", true).prop("checked", false);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
             }
 
@@ -1761,15 +1762,14 @@
 
             // %, %v, %w
             if (selectedValue >= 33 && selectedValue <= 35) {
-                $("#SelectParticularity").data("kendoDropDownList").enable(false);
-                $("#Warning").prop("disabled", true).prop("checked", false);
-                $("#SelectWeightMu").data("kendoDropDownList").enable(false);
+                //$("#SelectParticularity").data("kendoDropDownList").enable(false);
+                //$("#Warning").prop("disabled", true).prop("checked", false);
+                //$("#SelectWeightMu").data("kendoDropDownList").enable(false);
             }
             
         }
 
         var onVocMuTypeChange = function (e) {
-
             var selectedValue = e.sender._selectedValue;
 
             // disable always
@@ -1777,14 +1777,9 @@
             $("#Warning").prop("disabled", true);
 
             if (selectedValue == 4) {
-
                 // weight by volume
                 $("#SelectWeightMu").data("kendoDropDownList").enable(true);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(true);
-
-                $("#SelectParticularity").data("kendoDropDownList").enable(true);
-                $("#Warning").prop("disabled", false);
-
             } else {
                 $("#SelectWeightMu").data("kendoDropDownList").select(0);
                 $("#SelectWeightMu").data("kendoDropDownList").enable(false);
