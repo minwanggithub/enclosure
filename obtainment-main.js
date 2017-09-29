@@ -567,29 +567,21 @@
 
                 // depending on Super Email Types, determine if the appropriate tokens have been specified
 
-                var linksOrProductsToken = false;
-                var sdsObtainment = false;
+                var sdsObtainment = (emailTarget != "1");
+                var linksOrProductsToken = true;
 
                 var heading = $(actionModals.SuperMail + " #myModalLabel").html().toUpperCase();
 
                 var body = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value() + "";
                 body = body.toUpperCase();
 
-                if (emailTarget != "1") {
-                    linksOrProductsToken = (body.indexOf("||PRODUCTSLIST||") >= 0);
-                    sdsObtainment = true;
-                }
-                else {
-
-                    debugger;
-                    // do a regex search for ||SUPPLIERPORTAL(*)||
+                // supplier portal mandatory for Non SDS super email
+                if (!sdsObtainment) {
                     var regex = /\|\|SUPPLIERPORTAL\([a-zA-Z\s0-9]+?\)\|\|/;
                     linksOrProductsToken = regex.test(body);
                 }
 
-                debugger;
-                
-                if (!hasRecepient || !hasNoticeNumber || !linksOrProductsToken){
+                if (!hasRecepient || !hasNoticeNumber || (!sdsObtainment && !linksOrProductsToken)){
 
                     $(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
@@ -601,10 +593,12 @@
                         SubError(messages.errorMessages.EmailAddressMissing);
                     else if (!hasNoticeNumber)
                         SubError(messages.errorMessages.NoNoticeNumberInSuperEmailSubject);
-                    else if (emailTarget == "1")
-                        SubError(messages.errorMessages.NoNonSDSSubstitutionToken);
-                    else  
-                        SubError(messages.errorMessages.NoSDSSubstitutionToken);
+                    else {
+
+                        if (emailTarget == "1")
+                            SubError(messages.errorMessages.NoNonSDSSubstitutionToken);
+                        
+                    }
                 }
                 else {
                     DeliverSuperMain(emailTarget);
@@ -1134,7 +1128,9 @@
             debugger;
 
             var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
-            var hasProductsListToken = ((body + "").toUpperCase().indexOf("||PRODUCTSLIST||")) >= 0;
+
+            // products link token is optional.
+            var hasProductsListToken = true; // ((body + "").toUpperCase().indexOf("||PRODUCTSLIST||")) >= 0;
 
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
