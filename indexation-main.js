@@ -1772,8 +1772,12 @@
         var onVocMuTypeChange = function (e) {
             var selectedValue = e.sender._selectedValue;
 
-            // disable always
-            $("#SelectParticularity").data("kendoDropDownList").enable(false);
+            if (selectedValue == 5) 
+                $("#SelectParticularity").data("kendoDropDownList").enable(false);
+            else
+                $("#SelectParticularity").data("kendoDropDownList").enable(true);
+
+
             $("#Warning").prop("disabled", true);
 
             if (selectedValue == 4) {
