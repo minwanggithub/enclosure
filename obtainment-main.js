@@ -87,7 +87,12 @@
                     EmailTargets: "#ddlEmailTarget"
                 },
                 labels: { ContactName: "#lblContactName" },
-                checkBox: { LiveCall: "#chkLiveCall", IncludeInboundResponses: "#chkOnlyWithInboundResponses" }
+                checkBox: {
+                    LiveCall: "#chkLiveCall",
+                    IncludeInboundResponses: "#chkOnlyWithInboundResponses",
+                    InsertProductsList: "#chkInsertProductsList",
+                    InsertSuppliersLink: "#chkInsertSuppliersLink"
+                }
             }
         }
         var actionModals = {
@@ -130,6 +135,7 @@
         var obtainmentActions = { Empty: "", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             instructionMessages: {
+
                 SupplierPortalEmailInstruction: "<br/>Please follow ||SupplierPortal(this link)|| to submit your document for the following products:<br/><br/>||ProductsList||<br/>",
                 RevisionSDSEmailInstruction: "<br/><b>Please provide updated SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>",
                 NewSDSEmailInstruction: "<br/><b>Please provide SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>"
@@ -162,7 +168,9 @@
                 NoNoticeNumberInSuperEmailSubject: "A ||NoticeNumber|| token is mandatory in the super email subject.",
                 SuperEmailTargetNotSelected: "The targeted Obtainment type must be specified for a Super Email.",
                 NoNonSDSSubstitutionToken:"A ||SupplierPortal(link text)|| token is mandatory in the super email body.",
-                NoSDSSubstitutionToken:"A ||ProductsList|| token is mandatory in the SDS super email body.",
+                NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS super email body.",
+                EmailBodyMissing: "Email body is missing.",
+                NextStepMissing: "Obtainment next step has not been selected."
             }
         };
 
@@ -205,7 +213,9 @@
             Cc: null,
             Subject: null,
             Body: null,
-            Files: null
+            Files: null,
+            AddSupplierPortalLink: null,
+            AddProductsList: null
         };
 
         var superEmailModel = {
@@ -535,17 +545,36 @@
             //    handle: ".modal-header"
             //});
             //$(actionModals.SuperMail).css('height', '550px');
+
             $(actionModals.SuperMail).displayModal();
             $(actionModals.SuperMail + " #myModalLabel").html("Super Email - " + emailTargetText);
 
-            var message = messages.instructionMessages.SupplierPortalEmailInstruction;
-            if (emailTarget == "2") message = messages.instructionMessages.NewSDSEmailInstruction;
-            if (emailTarget == "3") message = messages.instructionMessages.RevisionSDSEmailInstruction;
+            // reset controls of the super email
+            $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).data("kendoDropDownList").value(-1);   
+            $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val("");                                           
+            $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value("");
+            $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).data("kendoDropDownList").value(-1);
 
-            //var message = messages.successMessages.SuperEmailDirection.replace("*", supplierUrl);
-            var editor = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value(message);
+            // select auto insert products list
+            $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).removeAttr("checked");
+            $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).removeAttr("checked");
+
+            // instructions
+            var message = "";
+            if (emailTarget == "2") { 
+                $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).prop("checked", true);
+            }
+            else if (emailTarget == "1") { // Non-SDS obtainments
+                $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("checked", true);
+            }
+
+            debugger;
+            //$(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).removeAttr("checked");
+            //$(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value("");
+            //$(obtainmentObject.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value();
 
             RefreshSuperEmailDialog(emailTarget);
+
         }
 
         function RefreshSuperEmailDialog(emailTarget) {
@@ -561,6 +590,10 @@
                 var recepient = $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val();
                 var hasRecepient = !(recepient == '' || recepient == 'Select One')
 
+                // next step selected ?
+                var nextStep = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
+                var hasNextStep = !(nextStep == '' || nextStep == 'Select One')
+
                 // notice number selected ?
                 var subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val() + "";
                 var hasNoticeNumber = (subject.toUpperCase().indexOf("||NOTICENUMBER||") >= 0);
@@ -573,7 +606,7 @@
                 var heading = $(actionModals.SuperMail + " #myModalLabel").html().toUpperCase();
 
                 var body = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value() + "";
-                body = body.toUpperCase();
+                var hasBody = (body.trimRight() != "");                
 
                 // supplier portal mandatory for Non SDS super email
                 if (!sdsObtainment) {
@@ -581,27 +614,29 @@
                     linksOrProductsToken = regex.test(body);
                 }
 
-                if (!hasRecepient || !hasNoticeNumber || (!sdsObtainment && !linksOrProductsToken)){
+                if (!hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep) {
 
-                    $(actionModals.SuperMail).hide();
+                    //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
                         $(actionModals.SuperMail).show();
                         $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
                     })
 
-                    if (!hasRecepient)
-                        SubError(messages.errorMessages.EmailAddressMissing);
-                    else if (!hasNoticeNumber)
-                        SubError(messages.errorMessages.NoNoticeNumberInSuperEmailSubject);
-                    else {
+                    var message = "Please correct the following issue(s): <br><br>";
 
-                        if (emailTarget == "1")
-                            SubError(messages.errorMessages.NoNonSDSSubstitutionToken);
-                        
-                    }
+                    if (!hasRecepient) message += messages.errorMessages.EmailAddressMissing + "<br>";
+                    if (!hasNoticeNumber) message += messages.errorMessages.NoNoticeNumberInSuperEmailSubject + "<br>";
+                    if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
+                    if (!hasNextStep) message += messages.errorMessages.NextStepMissing;
+                    
+
+                    SubError(message);
+                  
                 }
                 else {
+
                     DeliverSuperMain(emailTarget);
+
                 }
             });
         }
@@ -622,25 +657,21 @@
         }
 
         function DeliverSuperMain(emailTarget) {
+
+            // super-email payload
             superEmailModel.Recepients = $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val()
             superEmailModel.Subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val();            
-            superEmailModel.MessageBody = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value();
+            superEmailModel.MessageBody = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value() + "";
             superEmailModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
             superEmailModel.NextStepId = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
             superEmailModel.DueDate = $(obtainmentObject.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value();
+            superEmailModel.AddProductsList = $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).is(":checked");
+            superEmailModel.AddSupplierPortalLink = $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).is(":checked");
+
             superEmailModel.EmailTarget = emailTarget;
 
             var jData = JSON.stringify(superEmailModel);
 
-            //There are issues with this ajax wrapper, can not deserialized the data, using native instead
-            //$(this).ajaxCall(controllerCalls.SendSuperEmail, {obtainmentActionSendSuperEmailModel: jData})
-            //             .success(function (successData) {
-            //                 if (successData.success == true) {
-            //                     $(this).savedSuccessFully(messages.successMessages.Saved);
-            //    }
-            //    }).error(function (error) {
-            //                         $(this).displayError(error);
-            //});
 
             $.ajax({
                 url: controllerCalls.SendSuperEmail,
@@ -732,6 +763,15 @@
 
                 // set up subject
                 $("#txtObtainmentEmailSendEmailSubject").val(data.subject);
+                
+                debugger;
+
+                // set the check boxes
+                $(obtainmentObject.controls.checkBox.InsertProductsList).removeAttr("checked");
+                if (data.sdsObtainments) $(obtainmentObject.controls.checkBox.InsertProductsList).prop("checked", true);
+
+                $(obtainmentObject.controls.checkBox.InsertSuppliersLink).removeAttr("checked");
+                if (!data.sdsObtainments) $(obtainmentObject.controls.checkBox.InsertSuppliersLink).prop("checked", true);  
 
                 // reset the email body and re-initialize the kendo editor
                 var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
@@ -789,8 +829,10 @@
                     $("#txtObtainmentEmailNethubLinks").val(text);
 
                 }
+
                 // change caption as needed
                 $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
+
             }
         }
 
@@ -1112,6 +1154,7 @@
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
+            // disable button after first click, re-enable after process completes    
             $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "hidden");
 
             // do not process if email already being sent
@@ -1129,20 +1172,21 @@
 
             var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
 
-            // products link token is optional.
-            var hasProductsListToken = true; // ((body + "").toUpperCase().indexOf("||PRODUCTSLIST||")) >= 0;
-
             if ($(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val().length == 0 ||
                 $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val().length == 0 ||
-                $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0 || !hasProductsListToken){
+                $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val().length == 0) {
 
-                $(modalId).toggleModal();
-                $(this).displayError(messages.errorMessages.EmailPartsMissing);
+                // flag as invalid
                 valid = false;
+
+                //$(modalId).toggleModal();
+
+                // display validation message
+                $(this).displayError(messages.errorMessages.EmailPartsMissing);
 
                 // make availabe again
                 $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
-                //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
+
             }
 
             if (valid) {
@@ -1171,15 +1215,18 @@
 
                     var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                     var contact = contactsGrid.dataItem(contactsGrid.select());
-                    //console.log(contact);
 
+                    // set up payload
                     obtainmentActionSendEmailModel.Recepients = $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val() + "|" + contact.CompanyContactEmailId;
                     obtainmentActionSendEmailModel.Cc = null;
                     obtainmentActionSendEmailModel.Subject = $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
                     obtainmentActionSendEmailModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumber).val();
                     obtainmentActionSendEmailModel.Body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
                     obtainmentActionSendEmailModel.Files = fUploadlib.getAttachments();
+                    obtainmentActionSendEmailModel.AddProductsList = $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).is(":checked");
+                    obtainmentActionSendEmailModel.AddSupplierPortalLink = $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).is(":checked");
 
+                    debugger;
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
 
                     $.ajax({
@@ -1191,11 +1238,13 @@
                             kendo.ui.progress(obtainmentDetailWorkFlowObj, true);
                         },
                         error: function () {
+
+                            // display error 
                             $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
-                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
                             $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
                         },
                         success: function (successData) {
+
                             if (successData.success == true) {
                                 kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
                                 var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
@@ -1206,17 +1255,21 @@
                             } else
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
 
+                            // done
                             if (modalId != null) $(modalId).hideModal();
-                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
                             $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
 
                         },
                         done: function () {
+
                             $(this).savedSuccessFully(messages.successMessages.Saved);
+
+                            // done
                             if (modalId != null) $(modalId).hideModal();
-                            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "");
                             $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
+
                         }
+
                     });
                 }
 
