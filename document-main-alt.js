@@ -961,7 +961,7 @@
             checkNewDocumentDirtyStatus();
 
             var element = $(e.currentTarget);
-            if (element.attr("id") == "IsPublic_New") {
+            if ((element.attr("id") == "IsPublic_New")) {
                 var model = getNewDocumentData();
                 if (!model.IsPublic) {
                     displayError(documentMessages.modals.PrivateAccessForDocument);
@@ -1222,6 +1222,15 @@
 
             var element = $(e.currentTarget);
             checkDocumentDetailsDirtyStatus(element.parents(documentElementSelectors.containers.DocumentDetailsForm + ":first"));
+
+            // ARINDAM
+            if ((element.attr("id").indexOf("IsPublic_") >= 0)) {
+
+                var isChecked = element.is(":checked");
+                if (!isChecked) {
+                    displayError(documentMessages.modals.PrivateAccessForDocument);
+                }
+            }
         }
 
         function onDocumentDetailsSaveBtnClick(e) {
