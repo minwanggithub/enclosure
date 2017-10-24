@@ -170,7 +170,8 @@
                 NoNonSDSSubstitutionToken:"A ||SupplierPortal(link text)|| token is mandatory in the super email body.",
                 NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS super email body.",
                 EmailBodyMissing: "Email body is missing.",
-                NextStepMissing: "Obtainment next step has not been selected."
+                NextStepMissing: "Obtainment next step has not been selected.",
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions."
             }
         };
 
@@ -850,6 +851,24 @@
                 return;
             }
 
+            if (ddlActions.value() == obtainmentActions.ConfirmAsCurrent) {
+                var newSelected = false;
+                var grid = $("#gdDetailRequests").data("kendoGrid");
+                $.each(grid._data, function () {
+                    if (this['IsSelected']) {
+                        if ((this['OWType']).toUpperCase().indexOf("NEW") >= 0) {
+                            newSelected = true;
+                        }
+                    }
+                });
+
+                if (newSelected) {
+                    $(this).displayError(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
+                    return;
+                }
+
+            }
+
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
                     SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
@@ -1341,7 +1360,7 @@
                                  if (modalId != null)
                                      $(modalId).hideModal();
                                  $(this).savedSuccessFully(messages.successMessages.Saved);
-                             } else
+                             } else 
                                  $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                          }).error(function () {
                              $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
