@@ -1296,16 +1296,14 @@
         }
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
+
             var customerAction = false;
+
             if (actionName == "CustomerAction") {
                 actionName = "CloseRequest";
                 customerAction = true;
             }
 
-            //if (actionName == "ConfirmNotAvailable") {
-            //    alert("Save ConfirmNotAvailable");
-            //    return;
-            //}
 
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
@@ -1315,11 +1313,14 @@
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
                 if (ddlNextSteps.value() != "") {
+
+                    // set values
                     obtainmentMultipleWorkItemActionModel.ObtainmentWorkItemIDs = selectedRequests;
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionLkpID = ddlActions.value();
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepLkpID = ddlNextSteps.value();
                     obtainmentMultipleWorkItemActionModel.Notes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotes + actionName).val();
                     obtainmentMultipleWorkItemActionModel.NextObtainmentStepDueDate = dteDateAssigned.value();
+
                     if (actionName == "PhoneCall") {
                         var contactPhonegrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
                         var selectedPhoneItem = contactPhonegrid.dataItem(contactPhonegrid.select());
@@ -1393,6 +1394,11 @@
             }
 
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
+
+            // null out anything other than close request
+            obtainmentMultipleWorkItemActionModel.ObtainmentActionLogPhoneCallModel = null;
+            obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel= null;
+
             return obtainmentActionCloseRequest;
         }
 
@@ -1401,6 +1407,11 @@
             obtainmentActionLogPhoneCallModel.CompanyContactId = selectedPhoneItem.CompanyContactId;
             obtainmentActionLogPhoneCallModel.CompanyContactPhoneId = selectedPhoneItem.CompanyContactPhoneId;
             obtainmentActionLogPhoneCallModel.InternalNotesLkpId = $(obtainmentObject.controls.dropdownlists.InternalNotes).val() != "" ? $(obtainmentObject.controls.dropdownlists.InternalNotes).val() : null;
+
+
+            obtainmentActionLogPhoneCallModel.ObtainmentActionSendEmailModel = null;
+            obtainmentActionLogPhoneCallModel.ObtainmentActionCloseRequest = null;
+
             return obtainmentActionLogPhoneCallModel;
         }
 
