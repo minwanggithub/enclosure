@@ -1166,6 +1166,7 @@
             var enable = (count > 0 && $(obtainmentObject.controls.textBoxes.SupplierId).val() != "") && enableSuperEmail();
 
             $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
+            $(obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").dataSource.read();
             $(obtainmentObject.controls.dropdownlists.EmailTargets).enableControl(enable);
             $("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").enable(enable);
             
