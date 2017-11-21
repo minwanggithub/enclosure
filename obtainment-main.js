@@ -171,7 +171,8 @@
                 NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS super email body.",
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
-                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions."
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
+                InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. "
             }
         };
 
@@ -388,6 +389,7 @@
             if (code == 13) //Search only on enter
                 $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
             
+            //$(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
             if ($(obtainmentObject.controls.textBoxes.SupplierId).val() == "") {
                 $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
                 $(obtainmentObject.controls.dropdownlists.EmailTargets).enableControl(false);
@@ -604,7 +606,7 @@
                 var heading = $(actionModals.SuperMail + " #myModalLabel").html().toUpperCase();
 
                 var body = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value() + "";
-                var hasBody = (body.trimRight() != "");                
+                var hasBody = (body.trimRight() != "");
 
                 // supplier portal mandatory for Non SDS super email
                 if (!sdsObtainment) {
@@ -1199,6 +1201,33 @@
 
                 // display validation message
                 $(this).displayError(messages.errorMessages.EmailPartsMissing);
+
+                // make availabe again
+                $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
+
+            }
+
+            if (valid) {
+
+                var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+
+                if (body.indexOf("||") >= 0) {
+
+                    var suppregex = /\|\|SUPPLIERPORTAL\([a-zA-Z\s0-9]+?\)\|\|/;
+                    var productsRegex = /\|\|PRODUCTSLIST\|\|/;
+
+                    // replace all matching tokens and then test for errors
+                    var bodyCopy = body.toUpperCase();
+
+                    bodyCopy = bodyCopy.replace(/\|\|SUPPLIERPORTAL\([a-zA-Z\s0-9]+?\)\|\|/g, "");
+                    bodyCopy = bodyCopy.replace(/\|\|PRODUCTSLIST\|\|/g, "");
+
+                    if (bodyCopy.indexOf("||") >= 0 && (!suppregex.test(bodyCopy) || !productsRegex.test(bodyCopy))) {
+                        $(this).displayError(messages.errorMessages.InvalidSubstitutionTokens);
+                        valid = false;
+                    }
+
+                }
 
                 // make availabe again
                 $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
