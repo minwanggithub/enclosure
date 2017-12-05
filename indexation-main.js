@@ -2581,13 +2581,36 @@
 
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val();
                 if ($("#popupHazardStatement").length > 0) {
-                    var grid = $("#GridSearchHazardStatement").data("kendoGrid");
+
+                    $("#txtGridSearchHazardStatement").val("");                                     // reset filtering
+
+                    var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
+                    var ds = grid.dataSource;
+
+                    var hCodeStmt = $("#StatementHCode").val().trim().split(",");                   // get existing hcode
+
+                    var hCode = null;
+                    if (hCodeStmt.length > 1) {
+                        hCode = hCodeStmt[hCodeStmt.length - 1].replace(/ /g, "");
+                        $("#txtGridSearchHazardStatement").val(hCode);                              // set filter condition
+                    }
+
+                    if (hCode == null)
+                        grid.dataSource.filter([]);                                                 // reset any filtering
+                    else
+                    {
+                        var filters = new Array();
+                        filters.push({ field: "HCode", operator: "contains", value: hCode });
+                        ds.filter(filters);
+                    }
+
                     var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
                     grid.dataSource.read();
                 }
                 
                 $("#popupHazardStatement").modal("show");
+
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherHCode", function (e) {
