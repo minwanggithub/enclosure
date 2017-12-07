@@ -2315,10 +2315,11 @@
 
             indexationDetailObj.on("click", "#btnEnableOtherHClass", function (e) {
                 e.preventDefault();
+                $("#OtherClass").prop("disabled", false);
+                $("#OtherClass").val($("#Class").val());
                 $("#Class").val("");
                 $("#ClassPhraseId").val("");
-                $("#OtherClass").prop("disabled", false);
-
+                
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Class'));
                     ghsHazardClassValidator.validateInput($('#OtherClass'));
@@ -2361,10 +2362,11 @@
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherHCategory", function (e) {
-                e.preventDefault();
+                e.preventDefault();                
+                $("#OtherCategory").prop("disabled", false);
+                $("#OtherCategory").val($("#Category").val());
                 $("#Category").val("");
                 $("#CategoryPhraseId").val("");
-                $("#OtherCategory").prop("disabled", false);
 
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
