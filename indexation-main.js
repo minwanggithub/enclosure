@@ -2578,6 +2578,51 @@
                 }
             });
 
+            function getGHSHazardSearchFilters(hCodeStmt) {
+
+                // set up filtering
+                var filters = new Array();
+
+                // tokenize 
+                var tokens = hCodeStmt.split(",");
+
+                if (tokens.length == 1) {
+                    if (!isNaN(hCodeStmt)) {
+
+                        // hcode only
+                        filters.push({ field: "HCode", operator: "contains", value: hCodeStmt });
+                        return { logic: "or", filters: filters };
+
+                    } else {
+
+                        // search both
+                        filters.push({ field: "HCode", operator: "contains", value: tokens[0].trim() });
+                        filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
+                        return { logic: "or", filters: filters };
+
+                    }
+                }
+                else {
+
+                    filters.push({ field: "HCode", operator: "contains", value: tokens[tokens.length - 1].trim() });
+                    tokens = tokens.slice(0, -1);
+                    filters.push({ field: "Statement", operator: "contains", value: tokens.join(",") });
+                    return { logic: "and", filters: filters };
+                }
+
+            }
+
+            indexationDetailObj.on("keyup", "#txtGridSearchHazardStatement", function (e) {
+
+                if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
+
+                var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
+
+                grid.dataSource.filter(getGHSHazardSearchFilters($("#txtGridSearchHazardStatement").val().trim()));
+                grid.dataSource.read();
+
+            });
+
             indexationDetailObj.on("click", "#SearchByHazardCode", function (e) {
                 e.preventDefault();
 
@@ -2585,30 +2630,13 @@
                 if ($("#popupHazardStatement").length > 0) {
 
                     $("#txtGridSearchHazardStatement").val("");                                     // reset filtering
-
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
-                    var ds = grid.dataSource;
-
-                    var hCodeStmt = $("#StatementHCode").val().trim().split(",");                   // get existing hcode
-
-                    var hCode = null;
-                    if (hCodeStmt.length > 1) {
-                        hCode = hCodeStmt[hCodeStmt.length - 1].replace(/ /g, "");
-                        $("#txtGridSearchHazardStatement").val(hCode);                              // set filter condition
-                    }
-
-                    if (hCode == null)
-                        grid.dataSource.filter([]);                                                 // reset any filtering
-                    else
-                    {
-                        var filters = new Array();
-                        filters.push({ field: "HCode", operator: "contains", value: hCode });
-                        ds.filter(filters);
-                    }
 
                     var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
+                    grid.dataSource.filter(getGHSHazardSearchFilters($("#StatementHCode").val().trim()));
                     grid.dataSource.read();
+
                 }
                 
                 $("#popupHazardStatement").modal("show");
