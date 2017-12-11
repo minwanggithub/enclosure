@@ -583,6 +583,23 @@
             displayAddNewDocumentPopUp(pKey);
         }
 
+
+        var DocumentRowSelect = function (e) {
+            var dataItem = $(documentElementSelectors.grids.DocumentSearch).data("kendoGrid").dataItem(this);
+            if (e.ctrlKey) {
+                var currenturl = window.location.href;
+                var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
+                var url = indexArea + "Indexation/SelectIndexingType?documentId=" + dataItem.ReferenceId + "&revisionId=" + dataItem.RevisionId;
+                window.open(url, "_blank");
+
+            }
+        }
+
+        var onDataBound = function (e) {
+            var searchGrid = $(documentElementSelectors.grids.DocumentSearch);
+            searchGrid.find("tr").click(DocumentRowSelect);
+        }
+
         /******************************** Search Methods (Pop-Up) ********************************/
         function displayAddNewDocumentPopUp(pKey) {
 
@@ -2485,6 +2502,7 @@
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
+            onDataBound: onDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             confirmFullSearchResultLoad: confirmFullSearchResultLoad,
