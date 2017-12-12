@@ -2578,6 +2578,8 @@
                 }
             });
 
+            // ---- SMART FILTERING ----
+
             function getGHSHazardSearchFilters(hCodeStmt) {
 
                 // set up filtering
@@ -2616,15 +2618,18 @@
 
                 if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
 
-                var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
+                var grid = $("#GridSearchHazardStatement").data("kendoGrid");
 
                 grid.dataSource.filter(getGHSHazardSearchFilters($("#txtGridSearchHazardStatement").val().trim()));
                 grid.dataSource.read();
 
             });
 
+
             indexationDetailObj.on("click", "#SearchByHazardCode", function (e) {
+
                 e.preventDefault();
+                e.stopPropagation();   // do not transfer PgUp/PdGn etc
 
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val();
                 if ($("#popupHazardStatement").length > 0) {
@@ -2759,18 +2764,85 @@
                 }
             });
 
+            // ---- SMART FILTERING
+
+            function getGHSPrecautionarySearchFilters(pCodeStmt) {
+
+                // set up filtering
+                var filters = new Array();
+
+                // tokenize 
+                var tokens = pCodeStmt.split(",");
+
+                if (tokens.length == 1) {
+                    if (!isNaN(pCodeStmt)) {
+
+                        // hcode only
+                        filters.push({ field: "PCode", operator: "contains", value: pCodeStmt });
+                        return { logic: "or", filters: filters };
+
+                    } else {
+
+                        // search both
+                        filters.push({ field: "PCode", operator: "contains", value: tokens[0].trim() });
+                        filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
+                        filters.push({ field: "Category", operator: "contains", value: tokens[0].trim() });
+                        return { logic: "or", filters: filters };
+
+                    }
+                }
+                else {
+
+                    filters.push({ field: "PCode", operator: "contains", value: tokens[0] });
+
+                    tokens.shift();
+                    filters.push({ field: "Statement", operator: "contains", value: tokens.join(",").trim() });
+                    return { logic: "and", filters: filters };
+                }
+
+            }
+
+
+            indexationDetailObj.on("keyup", "#txtGridSearchPrecautionaryStatement", function (e) {
+
+                if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
+
+                var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
+                grid.dataSource.filter(getGHSPrecautionarySearchFilters($("#txtGridSearchPrecautionaryStatement").val().trim()));
+                grid.dataSource.read();
+
+            });
+
+
             indexationDetailObj.on("click", "#SearchByPrecautionaryCode", function (e) {
+
                 e.preventDefault();
+                e.stopPropagation();
 
                 var referenceId = $('#AddEditPrecautionaryStatement').find('#Reference').val();
+                //if ($("#popupPStatement").length > 0) {
+                //    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
+                //    var singleSelection = !(referenceId && referenceId !== "0");
+                //    grid.selectable.options.multiple = singleSelection;
+                //    grid.dataSource.read();
+
+
+                //}
+
                 if ($("#popupPStatement").length > 0) {
-                    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
+
+                    $("#txtGridSearchPrecautionaryStatement").val("");                                     // reset filtering
+                    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");                   // get reference
+
                     var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
+                    grid.dataSource.filter(getGHSPrecautionarySearchFilters($("#StatementPCode").val().trim()));
                     grid.dataSource.read();
+
                 }
-                
+
                 $("#popupPStatement").modal("show");
+
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherPCode", function (e) {
