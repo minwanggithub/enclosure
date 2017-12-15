@@ -558,12 +558,25 @@
 
             // select auto insert products list
             $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).removeAttr("checked");
+            $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).removeAttr("disabled");
+
             $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).removeAttr("checked");
+
+            $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).removeAttr("disabled");
+            $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": "1" });
+
+            // disable supplier link, enable if non-SDS
 
             // instructions
             var message = "";
             if (emailTarget == "2") {
+
                 $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).prop("checked", true);
+
+                // disable
+                $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("disabled", true);
+                $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
+
             }
             else if (emailTarget == "1") { // Non-SDS obtainments
                 $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("checked", true);
@@ -768,10 +781,21 @@
 
                 // set the check boxes
                 $(obtainmentObject.controls.checkBox.InsertProductsList).removeAttr("checked");
-                if (data.sdsObtainments) $(obtainmentObject.controls.checkBox.InsertProductsList).prop("checked", true);
-
                 $(obtainmentObject.controls.checkBox.InsertSuppliersLink).removeAttr("checked");
-                if (!data.sdsObtainments) $(obtainmentObject.controls.checkBox.InsertSuppliersLink).prop("checked", true);  
+                $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": "1" });
+
+                $(obtainmentObject.controls.checkBox.InsertSuppliersLink).removeAttr("disabled");
+                
+                if (data.sdsObtainments) {
+                    $(obtainmentObject.controls.checkBox.InsertProductsList).prop("checked", true);
+
+                    $(obtainmentObject.controls.checkBox.InsertSuppliersLink).prop("disabled", true);
+                    $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
+                }
+
+                if (!data.sdsObtainments) {
+                    $(obtainmentObject.controls.checkBox.InsertSuppliersLink).prop("checked", true);
+                }
 
                 // reset the email body and re-initialize the kendo editor
                 var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
