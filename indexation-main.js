@@ -2308,10 +2308,46 @@
                 }
             });
 
+
+            // ---- SMART FILTERING ----
+
+            function getClassSearchFilters(code) {
+
+                // set up filtering
+                var filters = new Array();
+
+                // description only    
+                filters.push({ field: "Description", operator: "contains", value: code });
+                return { logic: "or", filters: filters };
+
+            }
+
+            indexationDetailObj.on("keyup", "#txtGridSearchHazardClass", function (e) {
+
+                if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
+
+                var grid = $("#GridSearchHazardClass").data("kendoGrid");
+                console.log(getClassSearchFilters($("#txtGridSearchHazardClass").val().trim()));
+
+                grid.dataSource.filter(getClassSearchFilters($("#txtGridSearchHazardClass").val().trim()));
+                grid.dataSource.read();
+
+            });
+
             indexationDetailObj.on("click", "#SearchByCode", function (e) {
                 e.preventDefault();
+
+                $("#txtGridSearchHazardClass").val($("#Class").val().trim());       // reset filtering
+                var grid = $("#GridSearchHazardClass").data("kendoGrid");           // get reference
+
+                grid.selectable.options.multiple = false;
+                grid.dataSource.filter(getClassSearchFilters($("#Class").val().trim()));
+                grid.dataSource.read();
+
                 $("#popupHazardClass").modal("show");
             });
+
+
 
             indexationDetailObj.on("click", "#btnEnableOtherHClass", function (e) {
                 e.preventDefault();
@@ -2356,9 +2392,43 @@
                 searchGridDoubleClick("#GridSearchHazardClass", "#btnSelectHazardClass");
             });
 
+            // ---- SMART FILTERING ----
+
+            function getCategorySearchFilters(code) {
+
+                // set up filtering
+                var filters = new Array();
+
+                // description only    
+                filters.push({ field: "Description", operator: "contains", value: code });
+                return { logic: "or", filters: filters };
+
+            }
+
+            indexationDetailObj.on("keyup", "#txtGridSearchHazardCategory", function (e) {
+
+                if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
+
+                var grid = $("#GridSearchHazardCategory").data("kendoGrid");
+
+                grid.dataSource.filter(getCategorySearchFilters($("#txtGridSearchHazardCategory").val().trim()));
+                grid.dataSource.read();
+
+            });
+
+
             indexationDetailObj.on("click", "#SearchByCategory", function (e) {
                 e.preventDefault();
+
+                $("#txtGridSearchHazardCategory").val($("#Category").val().trim());                                     // reset filtering
+                var grid = $("#GridSearchHazardCategory").data("kendoGrid");                   // get reference
+
+                grid.selectable.options.multiple = false;
+                grid.dataSource.filter(getCategorySearchFilters($("#Category").val().trim()));
+                grid.dataSource.read();
+
                 $("#popupHazardCategory").modal("show");
+
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherHCategory", function (e) {
@@ -2634,7 +2704,7 @@
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val();
                 if ($("#popupHazardStatement").length > 0) {
 
-                    $("#txtGridSearchHazardStatement").val("");                                     // reset filtering
+                    $("#txtGridSearchHazardStatement").val($("#StatementHCode").val().trim());      // reset filtering
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
 
                     var singleSelection = !(referenceId && referenceId !== "0");
@@ -2820,19 +2890,11 @@
                 e.stopPropagation();
 
                 var referenceId = $('#AddEditPrecautionaryStatement').find('#Reference').val();
-                //if ($("#popupPStatement").length > 0) {
-                //    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");
-                //    var singleSelection = !(referenceId && referenceId !== "0");
-                //    grid.selectable.options.multiple = singleSelection;
-                //    grid.dataSource.read();
-
-
-                //}
 
                 if ($("#popupPStatement").length > 0) {
 
-                    $("#txtGridSearchPrecautionaryStatement").val("");                                     // reset filtering
-                    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");                   // get reference
+                    $("#txtGridSearchPrecautionaryStatement").val($("#StatementPCode").val().trim());       // reset filtering
+                    var grid = $("#GridSearchPrecautionaryStatement").data("kendoGrid");                    // get reference
 
                     var singleSelection = !(referenceId && referenceId !== "0");
                     grid.selectable.options.multiple = singleSelection;
