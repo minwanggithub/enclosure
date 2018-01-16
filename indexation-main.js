@@ -58,7 +58,10 @@
                         $.post(url, { indexationId: data.indexationId}, function (result) {
                             $("#DocERContactAddress").html($(result));
                         });
-
+                        url = "../Indexation/GetDocumentContactPhone";
+                        $.post(url, { indexationId: data.indexationId }, function (result) {
+                            $("#DocERContactPhone").html($(result));
+                        });
                         $(this).savedSuccessFully(data.message);
                     } else {
                         if (data.popupMessage)
@@ -76,11 +79,13 @@
                 $.post(url, formData, function (data) {
                     if (data.result === "success") {
                         var url = "../Indexation/GetDocumentContactPhone";
-                        $.post(url, {
-                        indexationId: data.indexationId
-                        }, function (result) {
+                        $.post(url, {indexationId: data.indexationId}, function (result) {
                             $("#DocERContactPhone").html($(result));
-                       });
+                        });
+                        url = "../Indexation/GetDocumentContactAddress";
+                        $.post(url, { indexationId: data.indexationId }, function (result) {
+                            $("#DocERContactAddress").html($(result));
+                        });
                         $(this).savedSuccessFully(data.message);
                     } else {
                         if (data.popupMessage)
