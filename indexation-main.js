@@ -2710,6 +2710,7 @@
                 if ($("#popupHazardStatement").length > 0) {
 
                     $("#txtGridSearchHazardStatement").val($("#StatementHCode").val().trim());      // reset filtering
+                    
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
 
                     var singleSelection = !(referenceId && referenceId !== "0");
@@ -2718,8 +2719,28 @@
                     grid.dataSource.read();
 
                 }
-                
+
                 $("#popupHazardStatement").modal("show");
+
+                setTimeout(function () {
+
+                    // set focus on filter
+                    $("input[id=txtGridSearchHazardStatement]").focus();
+
+                    // arrow handling
+                    var arrows = [38, 40];
+                    grid.table.on("keydown", function (e) {
+                        if (arrows.indexOf(e.keyCode) >= 0) {
+                            setTimeout(function () {
+                                grid.clearSelection();
+                                grid.select($("#GridSearchHazardStatement_active_cell").closest("tr"));
+                            }, 10);
+                        }
+                    })
+
+
+                }, 2000);
+                
 
             });
 
