@@ -3897,12 +3897,14 @@
         }
 
         function getSelectedPpeHmisReference() {
+            var indexationId = $("#IndexationId").val();
+
             var selectedPpe = 0;
             var dropdownlist = $('#PpeHmisReference').data("kendoDropDownList");
             if (dropdownlist)
                 selectedPpe = dropdownlist.select();
-
-            return { selectedPpe: selectedPpe };
+            return { selectedPpe: selectedPpe, IndexationId: indexationId };
+            //return { IndexationId: indexationId };
         }
 
         var onPpeReady = function() {
