@@ -161,6 +161,8 @@
             radiobuttons: {
                 DocumentRevisionDetailsIsBadImage: "[id^=IsBadImage_]",
                 DocumentRevisionDetailsIsGoodImage: "[id^=IsGoodImage_]",
+                DocumentRevisionDetailsReplicateIndexationData: "[id^=ReplicateIndexationData_]",
+                DocumentRevisionDetailsAutomateIndexationData: "[id^=AutomateIndexationData_]",
             },
             textboxes: {
                 DocumentDetailsDocumentId: "[id^=DocumentId_]",
@@ -1393,6 +1395,7 @@
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
                 };
 
                 if (extractCompanyIdFromTemplate) {
@@ -1428,6 +1431,7 @@
                         DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
                         SupplierId: null,
                         VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+                        CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
                };
 
                if (extractCompanyIdFromTemplate) {
