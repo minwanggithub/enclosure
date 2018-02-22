@@ -3904,7 +3904,6 @@
             if (dropdownlist)
                 selectedPpe = dropdownlist.select();
             return { selectedPpe: selectedPpe, IndexationId: indexationId };
-            //return { IndexationId: indexationId };
         }
 
         var onPpeReady = function() {
