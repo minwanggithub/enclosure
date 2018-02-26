@@ -1905,8 +1905,11 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function () {
-                        if (!generalSave)
+                        if (!generalSave) {
+                            var ppePictogramGrid = $("#GridPPEPictogram").data("kendoGrid");
+                            ppePictogramGrid.dataSource.read();
                             $(this).savedSuccessFully("Regulatory American Saved");
+                        }
                         else
                             $(this).savedSuccessFully("Indexation Saved");
                     });
