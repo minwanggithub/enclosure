@@ -37,7 +37,7 @@
                     AssignMeButton: "#btnAssignMe",
                     UnAssignButton: "#btnUnAssignFrom",
                     SaveAssignButton: "#btnSaveAssign",
-                    StartWorkflow: "#btnStartWorkflow"
+                    StartWorkflow: "#btnStartIndexing"
                 },
 
                 grids: {
@@ -99,7 +99,7 @@
             SearchRequestsCriteria: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/GetSearchCriteria",
             SearchRequests: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/SearchRequests",
             AllocateSelectedItems: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/AllocateSelectedItems",
-            StartWorkflow: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/StartWorkflow",
+            StartIndexingWorkflow: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/StartIndexingWorkflow",
             IndexationWorkflowHistory: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/IndexationWorkflowHistory",
 
         };
@@ -128,6 +128,9 @@
                 SelectGroup: "Please select a group to assign request item(s)",
                 UnAssignWorkloadItemsFailed: "Un-assigning of user/group to selected workload items failed.",
                 AssignWorkloadItemsFailed: "Assigning of user/group to selected workload items failed.",
+                WorkflowStartForOneSelectedItemOnly: "Workflow for only one work item can be started at a time.",
+                WorkflowCompleted: "This indexation workflow item has already been completed.",
+                OneOrMoreIndexationWorkflowItemsMustBeSelected: "One or more indexation workflow items must be selected"
             }
         };
 
@@ -220,16 +223,42 @@
         // clear search 
         workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartWorkflow, function () {
 
-            // validate
+            var ids = (selectedIds || []);
+            debugger;
 
-            // start workflow
-            $(this).ajaxCall(controllerCalls.StartWorkflow, { ids: selectedIds })
-            .success(function (data) {
-                changesSavedSuccessfully();
-            }).error(
-            function () {
+            if (ids.length == 0) {
+                $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
+            }
+            else {
 
-            });
+                // this call "installs" the list of selected indexation workflow items.
+                // the call validates assignment and returns the first available indexing record.
+
+                // start workflow
+                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: selectedIds })
+                .success(function (data) {
+
+                    if (!data.Navigable) {
+
+                        alert("There is no worload available");
+
+                    } else {
+
+                        // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
+
+                        var url = window.location.href.split("/");
+                        url[url.length - 1] = "Indexation/Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
+                                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId;
+                        window.open(url.join("/"), "_blank").focus();
+
+                    }
+
+                }).error(
+                function () {
+
+                });
+
+            }
 
         });
 
@@ -239,8 +268,15 @@
             disableButtons();
 
             // generate the search request
-            indexationWorkLoadSearchModel.StateId = 0;
-            indexationWorkLoadSearchModel.IndexingLevelId = 0;
+            indexationWorkLoadSearchModel.StateId = null;
+            indexationWorkLoadSearchModel.IndexingLevelId = null;
+            
+            var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
+            if (selValue != null) indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
+
+            selValue = $(obtainmentObject.controls.dropdownlists.IndexingLevelDropDownList).data("kendoDropDownList").value();
+            if (selValue != null) indexationWorkLoadSearchModel.IndexingLevelId = (selValue.toLowerCase() == "gold" ? 0 : 1);
+
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
             indexationWorkLoadSearchModel.CategoryIds = getSelectedCategories();
 
@@ -367,7 +403,7 @@
             // request
             var data = {
                 searchCriteria: $("#SearchCriteria").val(),
-                ids: Object.keys(selectedIds),
+                ids: selectedIds || [],
                 allocate: allocate,
                 userOrGroup: userOrGroup
             };
@@ -501,7 +537,7 @@
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
                 // row preselected ?
-                var checked = (gridIds[v.RevisionID] == true);
+                var checked = (gridIds[v.IndexingWorkItemID] == true);
 
                 // locate checkbox
                 $(row).find(".chkMultiSelect").prop("checked", checked);
@@ -524,9 +560,9 @@
             // locate row
             $(this).closest("[data-uid]");
 
-            var revisionId = grid.dataItem($(this).closest("[data-uid]")).RevisionID;
+            var revisionId = grid.dataItem($(this).closest("[data-uid]")).IndexingWorkItemID;
 
-            $(this).ajaxCall(controllerCalls.IndexationWorkflowHistory, { revisionId: revisionId })
+            $(this).ajaxCall(controllerCalls.IndexationWorkflowHistory, { indexingWorkItemID: IndexingWorkItemID })
                    .success(function (result) {
                        $("#dvIndexationWorkflowHistory").html(result);
                    }).done(function () {
@@ -541,8 +577,11 @@
 
             selectedIds = [];
             Object.keys(gridIds).forEach(function (v, i) {
+                console.log(v, i);
                 if (gridIds[v]) selectedIds.push(parseInt(v));
             });
+
+            console.log(selectedIds);
 
             if (selectedIds.length > 0) {
                 enableAssignUnAssignButtons(true);
@@ -566,7 +605,7 @@
             $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
             // set state of row
-            gridIds[grid.dataItem(row).RevisionID] = checked;
+            gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
 
             // after select actions
             doPostGridRowAction();
@@ -596,7 +635,7 @@
                 $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
                 // flag selection state
-                gridIds[grid.dataItem(row).RevisionID] = checked;
+                gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
 
             });
 
