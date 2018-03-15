@@ -4005,7 +4005,74 @@
             parentFrame.height(nethubContent.height() +(htmlPadding * 2) + 'px');
         }
 
+        function navigateWithinWorkload(guid, id, prev) {
+
+            var data = new Object();
+            data.guid = guid;
+            data.id = id;
+            data.prev = prev;
+
+            $.ajax({
+                url: GetEnvironmentLocation() + "/Operations/IndexationWorkflow/NavigateWithinWorkload",
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+
+                },
+                success: function (data) {
+
+                    if (data.Navigable){
+
+                        var url = window.location.href.split("/");
+                        url[url.length - 1] = "Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
+                                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId;
+
+                        window.location = url.join("/");
+
+                    }
+                    else {
+
+                        // not navigable
+                        alert("Not navigable");
+
+
+                    }
+
+                }
+            });
+        }
         
+        function initNavigation(guid, offset) {
+
+            var data = new Object();
+            data.guid = guid;
+            data.id = offset;
+
+            $.ajax({
+                url: GetEnvironmentLocation() + "/Operations/IndexationWorkflow/GetNavigationForIndexingWorkload",
+                data: JSON.stringify(data),
+                type: "POST",
+                contentType: 'application/json; charset=utf-8',
+                error: function () {
+                    
+                },
+                success: function (data) {
+
+                    $("#lnkPrevIndexationRecord").hide();
+                    $("#lnkNextIndexationRecord").hide();
+
+                    if (data.prevNavigation == true) { $("#lnkPrevIndexationRecord").show(); }
+                    if (data.nextNavigation == true) { $("#lnkNextIndexationRecord").show(); }
+
+                    if (data.prevNavigation || data.nextNavigation) {
+                        $("#IndexationRecordNavigation").css("display", "flex");
+                    }
+                }
+            });
+
+        }
+
         // Exposed methods
         return {
             getDocRevisionId: getDocRevisionId,
@@ -4064,7 +4131,9 @@
             onVocOperatorChange: onVocOperatorChange,
             onVolatilityChange: onVolatilityChange,
             onSaveNonSdsIndexation: onSaveNonSdsIndexation,
-            onIngredientSearchCriteriaError: onIngredientSearchCriteriaError
+            onIngredientSearchCriteriaError: onIngredientSearchCriteriaError,
+            initNavigation: initNavigation,
+            navigateWithinWorkload: navigateWithinWorkload
         };
     };
 

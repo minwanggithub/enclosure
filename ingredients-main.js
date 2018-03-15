@@ -250,7 +250,8 @@
             onDisplayError: onDisplayError,
             onIngredientGeneralReady: onIngredientGeneralReady,
             onGridEditChangeTitle:  onGridEditChangeTitle,
-            onSaveName: onSaveName
+            onSaveName: onSaveName,
+
         };
     };
 })(jQuery);

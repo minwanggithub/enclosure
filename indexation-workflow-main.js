@@ -73,6 +73,10 @@
                     RemoveOnHoldWorkLoadTextBox: "#txtRemoveOnHoldWorkLoadNotes"
 
                 },
+
+                checkboxes : {
+                    CurrentRevisionOnly: "#chkCurrentRevisionOnly"
+                },
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
 
 
@@ -130,15 +134,19 @@
                 AssignWorkloadItemsFailed: "Assigning of user/group to selected workload items failed.",
                 WorkflowStartForOneSelectedItemOnly: "Workflow for only one work item can be started at a time.",
                 WorkflowCompleted: "This indexation workflow item has already been completed.",
-                OneOrMoreIndexationWorkflowItemsMustBeSelected: "One or more indexation workflow items must be selected"
+                OneOrMoreIndexationWorkflowItemsMustBeSelected: "One or more indexation workflow items must be selected",
+                NoIndexingWorkloadAvailable: "No indexing workload available.",
             }
         };
 
         var indexationWorkLoadSearchModel = {
-            stateId: 0,
-            indexingLevelId: 0,
-            categoryIds: "",
-            criterias: []
+            StateId: 0,
+            IndexingLevelId: 0,
+            CategoryIds: "",
+            DateFrom: null,
+            DateTo:null,
+            CurrentRevisionOnly: false, 
+            Criterias: []
         };
 
 
@@ -240,7 +248,10 @@
 
                     if (!data.Navigable) {
 
-                        alert("There is no worload available");
+                        // something happened. workload no longer assigne to user or some such thing
+                        // happened.
+
+                        $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
 
                     } else {
 
@@ -272,10 +283,12 @@
             indexationWorkLoadSearchModel.IndexingLevelId = null;
             
             var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
-            if (selValue != null) indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
+            if (selValue != "") indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
 
             selValue = $(obtainmentObject.controls.dropdownlists.IndexingLevelDropDownList).data("kendoDropDownList").value();
-            if (selValue != null) indexationWorkLoadSearchModel.IndexingLevelId = (selValue.toLowerCase() == "gold" ? 0 : 1);
+            if (selValue != "") indexationWorkLoadSearchModel.IndexingLevelId = (selValue.toLowerCase() == "gold" ? 0 : 1);
+
+            indexationWorkLoadSearchModel.CurrentRevisionOnly = $(obtainmentObject.controls.checkboxes.CurrentRevisionOnly).is(":checked");
 
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
             indexationWorkLoadSearchModel.CategoryIds = getSelectedCategories();
