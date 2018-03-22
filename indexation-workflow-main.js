@@ -345,20 +345,39 @@
 
         function handleAdvancedSearchOption(e) {
 
-            // if the user has selected language, present the list of language options
-            // TESTED
-
+            // the fields control
             var ctrl = "#" + this.element.attr("id");
 
-            var textField = ctrl.replace("drpFields", "txtFreeField");
-            var languageDropDown = ctrl.replace("drpFields", "dvDropDown");
+            // get the unique id
+            var id = ctrl.substr(ctrl.lastIndexOf("_"));
 
-            if (this.value().toLowerCase() == "languageid") {
+            console.log("Ending:" + id);
+            console.log("Search Criteria: " + "select[id$=" + id + "]");
+
+            // hide kendo drop downs
+            $("#advancedSearchContainerTable").find("select[id$=" + id + "]").map((i, v) => {
+                var id = $(v).attr("id");
+                if (id.toLowerCase().indexOf("dropdown") >= 0) {
+                    var enclosure = "#" + id.replace("drp", "dv");
+                    console.log("Hiding Enclosure:" + enclosure);
+                    $(enclosure).hide();
+                }
+            });
+
+            // free text field
+            var textField = ctrl.replace("drpFields", "txtFreeField");
+
+            // criteria drop down
+            var dropdown = ctrl.replace("drpFields", "dvDropDown").replace("_", "_" + this.value() + "_");
+            console.log("Selected dropdown:" + dropdown);
+
+            if ($(dropdown).size() != 0) {
                 $(textField).hide();
-                $(languageDropDown).show();
+                var enclosure = dropdown.replace("drp", "dv");
+                console.log("Showing Enclosure:" + enclosure);
+                $(enclosure).show();
             }
             else {
-                $(languageDropDown).hide();
                 $(textField).show();
             }
 
@@ -367,24 +386,82 @@
         getAdvancedSearchCriteria = function () {
 
             var criteria = [];
-            $("#advancedSearchContainerTable div[id=row]").each(function (i, v) {
 
-                var fieldName = $($(v).find("select[id^='drpFields_']")[0]).kendoDropDownList();
-                var whereOperator = $($(v).find("select[id^='drpContains_']")[0]).kendoDropDownList();
-                var searchFor = $($(v).find("select[id^='drpDropDown_']")[0]).kendoDropDownList();
-                var searchForFreeField = $(v).find("input[id^='txtFreeField_']")[0];
+            $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {
 
-                var searchForValue = ($(searchForFreeField).is(":visible") ? $(searchForFreeField).val() : searchFor.val());
-                if (searchForValue.replace(/ /g, "") != "") {
-                    criteria.push({
-                        FieldName: fieldName.val(),
-                        WhereOperator: whereOperator.val(),
-                        SearchFor: searchForValue
-                    });
+                var searchFor = null;
+
+                var timeId = $(v).attr("id").split("_").reverse()[0];
+
+                var ddlFields = "#drpFields_" + timeId;
+                var textFieldId = "#txtFreeField_" + timeId;
+
+                var criteriaField = $("#drpFields_" + timeId).data("kendoDropDownList");
+                var containsDropDown = $("#drpContains_" + timeId).data("kendoDropDownList");
+                var fieldDropDown = $("#drpDropDown_" + criteriaField.value() + "_" + timeId).data("kendoDropDownList");
+
+                var whereOperator = containsDropDown.value();
+
+                if ($(textFieldId).is(":visible")) {
+
+                    searchFor = $(textFieldId).val();
+
+                    if (criteriaField.text().toLowerCase().indexOf(" id") > 0 || criteriaField.text().indexOf("#") >= 0) {
+                        containsDropDown.value("Exact Match");
+                        whereOperator = "";
+                    }
+
+
+                } else {
+                    searchFor = fieldDropDown.value();
+                    containsDropDown.value("Exact Match");
+                    whereOperator = "";
                 }
+
+                criteria.push({
+                    FieldName: criteriaField.value(),
+                    WhereOperator: whereOperator,
+                    SearchFor: searchFor
+                });
+                
+            });
+
+            console.log(criteria);
+            return criteria;
+
+            $("#advancedSearchContainerTable div[id=rrow]").each(function (i, v) {
+
+                // selected field identifier
+                var ddlFieldId = $($(v).find("select[id^='drpFields_']")[0]).attr("id");                // field
+                var whereOperatorId = ddlFieldId.replace("drpFields", "drpContains");                   // where
+                var textFieldId = ddlFieldId.replace("drpFields", "txtFreeField");                      // text 
+                debugger;
+                var searchField = $($(v).find("#" + ddlFieldId)[0]).data("kendoDropDownList").value();
+                var textField = $($(v).find("#" + textFieldId)[0]).val();
+
+                var whereOperator = $("#" + ddlFieldId.replace("drpFields", "drpContains")).data("kendoDropDownList").text();
+                var searchFor = "";
+
+                if ($($(v).find("#" + textFieldId)[0]).is(":visible")) {
+                    searchFor = textField;
+                } else {
+                    var ddlDropDownId = "#" + ddlFieldId.replace("drpFields", "drpDropDown_" + searchField);
+
+                    searchFor = $($(v).find(ddlDropDownId)[0]).data("kendoDropDownList").value();
+                    $("#" + ddlFieldId.replace("drpFields", "drpContains")).data("kendoDropDownList").value("Exact Match");
+                    whereOperator = "";
+                }
+
+                // where 
+                criteria.push({
+                    FieldName: searchField,
+                    WhereOperator: whereOperator,
+                    SearchFor: searchFor
+                });
 
             });
 
+            console.log(criteria);
             return criteria;
 
         }
