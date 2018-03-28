@@ -577,6 +577,37 @@
             }
         };
 
+        var onGHSCodeReposition = function (e) {
+
+            // the following grids are to be handled:
+            // GridHazardClass, GridHazardStatement, GridPrecautionaryStatement
+
+            e.preventDefault();
+
+            // target grid
+            var grid = $(e.currentTarget).closest("div[id^='Grid'").data("kendoGrid");
+
+            // data item
+            var dataItem = grid.dataItem($(e.currentTarget).closest("tr"));
+
+            // name of grid 
+            var gridName = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
+
+            // action to invoke
+            var url = GetEnvironmentLocation() + "/Operations/Indexation/RepositionGHSCode";
+            var data = {};
+
+            data.Grid = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
+            data.Id = dataItem.id;
+            data.Direction = e.data.commandName;
+            data.IndexationId = $("#IndexationId").val();
+
+            $.post(url, data, function (data) {
+                grid.dataSource.read();
+            });
+
+        }
+
         var onMultiDeleteGridDataBound = function (e) {
             var grid = $(e.sender.table.context);
             if (grid) {
@@ -588,6 +619,48 @@
                         multiDeleteCache.clearCache(grid.attr('id'));
                     }
                 }
+
+                // specific grids                
+                ['GridHazardClass', 'GridHazardStatement', 'GridPrecautionaryStatement'].forEach((gv, gi) => {
+                    if (e.sender.element.context.id === gv) {
+                        
+                        var _grid = $("#" + gv).data("kendoGrid");
+                        var _data = _grid.dataSource.data();
+
+                        _data.forEach((v, i) => {
+                            
+                            var uid = _data[i].uid;
+                            var arrows = $.find('tr[data-uid="' + uid + '"] a[title^="Arrow"]');
+
+                            arrows.forEach((av, ai) => {
+
+                                $(av).hide();
+                                $(av).text("");
+
+                                var id = $(av).attr("title");
+
+                                if (id.indexOf("Up") >= 0) {
+                                    $(av).prepend("<span class='k-icon k-i-arrow-up'></span>");
+                                    if (i > 0) {
+                                        $(av).show();
+                                    }
+                                }
+
+                                if (id.indexOf("Down") >= 0) {
+                                    $(av).prepend("<span class='k-icon k-i-arrow-down'></span>");
+                                    if (_data.length > 1 && i < _data.length - 1) {
+                                        $(av).show();
+                                    }
+                                }
+
+                            });
+
+                        });
+
+                    }
+
+                });
+
             }
         };
 
@@ -4133,7 +4206,8 @@
             onSaveNonSdsIndexation: onSaveNonSdsIndexation,
             onIngredientSearchCriteriaError: onIngredientSearchCriteriaError,
             initNavigation: initNavigation,
-            navigateWithinWorkload: navigateWithinWorkload
+            navigateWithinWorkload: navigateWithinWorkload,
+            onGHSCodeReposition: onGHSCodeReposition
         };
     };
 
