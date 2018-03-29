@@ -582,28 +582,46 @@
             // the following grids are to be handled:
             // GridHazardClass, GridHazardStatement, GridPrecautionaryStatement
 
+            // client side re-ordering
             e.preventDefault();
 
+            // grid name
+            var gridName = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
+
             // target grid
-            var grid = $(e.currentTarget).closest("div[id^='Grid'").data("kendoGrid");
+            var grid = $("#" + gridName).data("kendoGrid");
 
             // data item
             var dataItem = grid.dataItem($(e.currentTarget).closest("tr"));
 
-            // name of grid 
-            var gridName = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
+            // grid data
+            var gridData = grid.dataSource.data();
 
-            // action to invoke
+            // locate the row
+            var index = Array.from(gridData).findIndex(e=>e.id == dataItem.id);
+
+            // swap index
+            var swapIndex = index + (e.data.commandName.indexOf("Up") > 0 ? -1 : 1);
+
+            // swap data at data source
+            var swapData = gridData[index];
+            gridData[index] = gridData[swapIndex];
+            gridData[swapIndex] = swapData;
+
+            // refresh grid without hitting server
+            grid.refresh();
+
+            // reposition 
             var url = GetEnvironmentLocation() + "/Operations/Indexation/RepositionGHSCode";
             var data = {};
 
-            data.Grid = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
-            data.Id = dataItem.id;
-            data.Direction = e.data.commandName;
+            data.Grid = gridName;//$(e.currentTarget).closest("div[id^='Grid'").attr("id");
+            data.Ids = Array.from(gridData).map(e=>e.id);
             data.IndexationId = $("#IndexationId").val();
 
+            console.log(grid);
+
             $.post(url, data, function (data) {
-                grid.dataSource.read();
             });
 
         }
@@ -622,39 +640,22 @@
 
                 // specific grids                
                 ['GridHazardClass', 'GridHazardStatement', 'GridPrecautionaryStatement'].forEach((gv, gi) => {
+
+                    // match ?
                     if (e.sender.element.context.id === gv) {
                         
-                        var _grid = $("#" + gv).data("kendoGrid");
-                        var _data = _grid.dataSource.data();
+                        // process up arrow
+                        $.find('div[id="' + gv + '"] a[title^="Move Up"]').splice(1).map(ua => {
+                            $(ua).text("");
+                            $(ua).prepend("<span class='k-icon k-i-arrow-n'></span>");
+                            $(ua).show();
+                        });
 
-                        _data.forEach((v, i) => {
-                            
-                            var uid = _data[i].uid;
-                            var arrows = $.find('tr[data-uid="' + uid + '"] a[title^="Arrow"]');
-
-                            arrows.forEach((av, ai) => {
-
-                                $(av).hide();
-                                $(av).text("");
-
-                                var id = $(av).attr("title");
-
-                                if (id.indexOf("Up") >= 0) {
-                                    $(av).prepend("<span class='k-icon k-i-arrow-up'></span>");
-                                    if (i > 0) {
-                                        $(av).show();
-                                    }
-                                }
-
-                                if (id.indexOf("Down") >= 0) {
-                                    $(av).prepend("<span class='k-icon k-i-arrow-down'></span>");
-                                    if (_data.length > 1 && i < _data.length - 1) {
-                                        $(av).show();
-                                    }
-                                }
-
-                            });
-
+                        // process down arrow
+                        $.find('div[id="' + gv + '"] a[title^="Move Down"]').reverse().splice(1).map(da => {
+                            $(da).text("");
+                            $(da).prepend("<span class='k-icon k-i-arrow-s'></span>");
+                            $(da).show();
                         });
 
                     }
