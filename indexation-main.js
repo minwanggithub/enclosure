@@ -2367,19 +2367,41 @@
                     , function () { hideEditorSection("AddEditHazardClass"); });
             });
 
+            function purgeGHSHazardClasses(url, indexationId) {
+
+                $('#AddEditHazardClass').empty();
+                $.post(url, { hClassNotProvided: true, indexationId: indexationId }, function (data) {
+                    $(this).savedSuccessFully(data);
+                    var hClassGrid = $("#GridHazardClass").data("kendoGrid");
+                    hClassGrid.dataSource.data([]);
+                    hClassGrid.refresh();
+                    $("#btnAddHazardClass, #ancHazardClassBatchDelete").addClass("k-state-disabled");
+                    indexationDetailObj.off("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
+                });
+
+            }
+
             indexationDetailObj.on("change", "#HClassNotProvided", function () {
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/SaveHClassNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
-                    $('#AddEditHazardClass').empty();
-                    $.post(url, { hClassNotProvided: true, indexationId: indexationId },
-                        function (data) {
-                            $(this).savedSuccessFully(data);
-                            var hClassGrid = $("#GridHazardClass").data("kendoGrid");
-                            hClassGrid.dataSource.read();
-                            $("#btnAddHazardClass, #ancHazardClassBatchDelete").addClass("k-state-disabled");
-                            indexationDetailObj.off("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
-                        });
+
+                    // does grid have data ?
+                    var grid = $("#GridHazardClass").data("kendoGrid");
+                    if (Array.from(grid.dataSource.data()).length > 0) {
+
+                        var args = {
+                            message: 'All Hazard Classes will be removed. Proceed ?',
+                            header: 'Confirm Hazard Class removal.'
+                        };
+
+                        DisplayConfirmationModal(args, function () { purgeGHSHazardClasses(url, indexationId); },
+                            function () { $("#HClassNotProvided").prop("checked", false); });
+
+                    }
+                    else
+                        purgeGHSHazardClasses(indexationid)
+
                 } else {
                     $.post(url, { hClassNotProvided: false, indexationId: indexationId },
                         function (data) {
@@ -2591,18 +2613,39 @@
                 batchDeleteObjects("GridRegGHSPic", "pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteGhsPictograms");
             });
 
+            function purgeGHSPictograms(url, indexationId) {
+                $.post(url, { pictNotProvided: true, indexationId: indexationId }, function (data) {
+                    $(this).savedSuccessFully(data);
+                    var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
+                    pictGrid.dataSource.data([]);
+                    pictGrid.refresh();
+                    $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").addClass("k-state-disabled");
+                    indexationDetailObj.off("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
+                });
+
+            }
+
             indexationDetailObj.on("change", "#PictNotProvided", function () {
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/SavePictNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
-                    $.post(url, { pictNotProvided: true, indexationId: indexationId },
-                        function (data) {
-                            $(this).savedSuccessFully(data);
-                            var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
-                            pictGrid.dataSource.read();
-                            $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").addClass("k-state-disabled");
-                            indexationDetailObj.off("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
-                        });
+
+                    var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
+                    if (Array.from(pictGrid.dataSource.data()).length > 0) {
+
+                        var args = {
+                            message: 'All GHS Pictograms will be removed. Proceed ?',
+                            header: 'Confirm GHS Pictogram removal.'
+                        };
+
+                        DisplayConfirmationModal(args, function () { purgeGHSPictograms(url, indexationId); },
+                        function () { $("#PictNotProvided").prop("checked", false); });
+
+                    }
+                    else{
+                        purgeGHSPictograms(indexationid);
+                    }
+
                 } else {
                     $.post(url, { pictNotProvided: false, indexationId: indexationId },
                         function (data) {
@@ -2707,19 +2750,39 @@
                     , function() { hideEditorSection("AddEditHazardStatement"); });
             });
 
+            function purgeGHSHStatement(url, indexationId) {
+                $('#AddEditHazardStatement').empty();
+                $.post(url, { hStatementNotProvided: true, indexationId: indexationId }, function (data) {
+                    $(this).savedSuccessFully(data);
+                    var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
+                    hStatementGrid.dataSource.data([]);
+                    hStatementGrid.refresh();
+                    $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").addClass("k-state-disabled");
+                    indexationDetailObj.off("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
+                });
+            }
+
             indexationDetailObj.on("change", "#HStatementNotProvided", function () {
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/SaveHStatementNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
-                    $('#AddEditHazardStatement').empty();
-                    $.post(url, { hStatementNotProvided: true, indexationId: indexationId },
-                        function (data) {
-                            $(this).savedSuccessFully(data);
-                            var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
-                            hStatementGrid.dataSource.read();
-                            $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").addClass("k-state-disabled");
-                            indexationDetailObj.off("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
-                        });
+
+                    var hStatementGrid = $("#GridHazardStatement").data("kendoGrid");
+                    if (Array.from(hStatementGrid.dataSource.data()).length > 0) {
+
+                        var args = {
+                            message: 'All GHS Hazard Statements will be removed. Proceed ?',
+                            header: 'Confirm GHS Hazard Statement removal.'
+                        };
+
+                        DisplayConfirmationModal(args, function () { purgeGHSHStatement(url, indexationId); },
+                            function () { $("#HStatementNotProvided").prop("checked", false); });
+
+                    }
+                    else {
+                        purgeGHSHStatement(indexationId);
+                    }   
+                   
                 } else {
                     $.post(url, { hStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
@@ -2914,19 +2977,40 @@
                     function () { hideEditorSection("AddEditPrecautionaryStatement"); });
             });
 
+            function purgeGHSPStatement(url, indexationId) {
+                $('#AddEditPrecautionaryStatement').empty();
+                $.post(url, { pStatementNotProvided: true, indexationId: indexationId }, function (data) {
+                        $(this).savedSuccessFully(data);
+                        var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
+                        hClassGrid.dataSource.data([]);
+                        hClassGrid.refresh();
+                        $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
+                        indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
+                    });
+            }
+
             indexationDetailObj.on("change", "#PStatementNotProvided", function () {
                 var url = '../Indexation/SavePStatementNotProvided';
                 var indexationId = $("#IndexationId").val();
                 if ($(this).is(":checked")) {
-                    $('#AddEditPrecautionaryStatement').empty();
-                    $.post(url, { pStatementNotProvided: true, indexationId: indexationId },
-                        function (data) {
-                            $(this).savedSuccessFully(data);
-                            var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
-                            hClassGrid.dataSource.read();
-                            $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
-                            indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
-                        });
+
+                    var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
+                    if (Array.from(hClassGrid.dataSource.data()).length > 0) {
+
+                        var args = {
+                            message: 'All GHS Precautionary Statements will be removed. Proceed ?',
+                            header: 'Confirm GHS Precautionary statement removal.'
+                        };
+
+                        DisplayConfirmationModal(args, function () { purgeGHSPStatement(url, indexationId); },
+                        function () { $("#PStatementNotProvided").prop("checked", false); });
+
+                    }
+                    else
+                    {
+                        purgeGHSPStatement(indexationId);
+                    }
+
                 } else {
                     $.post(url, { pStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
