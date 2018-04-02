@@ -16,6 +16,37 @@
         var validationMessage = "Validation failed for following sections:<br />";
         var generalSave = false;
 
+        var ajaxCallsInProgress = 0;
+        var nonUpdateCalls = ["HasSessionEnded", "/Get", "_Read"];
+
+        function initializeAuditHandlers() {
+
+            // global handler
+            $(document).ajaxComplete(function (event, request, settings) {
+                if (!nonUpdateCalls.some(e=>settings.url.indexOf(e) >= 0)) {
+                    --ajaxCallsInProgress;
+                    if (ajaxCallsInProgress == 0) {
+
+                        var indexationId = $("#IndexationId").val();
+                        var url = GetEnvironmentLocation() + "/Operations/Indexation/GetUpdateAudit?indexationId=" + indexationId;
+                        $.post(url, function (data) {
+                            var labels = $(document).find("label[for='Item1_LastUpdate']");
+                            $(labels[1]).html(data.LastUpdatedDescription);
+                        });
+                    }
+                    console.log("ajaxComplete:" + ajaxCallsInProgress);
+                }
+            });
+
+            $(document).ajaxSend(function (event, request, settings) {
+                if (!nonUpdateCalls.some(e=>settings.url.indexOf(e) >= 0)) {
+                    ++ajaxCallsInProgress;
+                    console.log("ajaxComplete:" + ajaxCallsInProgress);
+                }
+            });
+
+        }
+
         // General indexation methodsa
         var loadIndexationPlugin = function(callbackSettings) {
             settings = callbackSettings;
@@ -30,6 +61,7 @@
                 }
             });
 
+            initializeAuditHandlers();
             initializeMultiSelectCheckboxes();
             initializeIdentificationControls();
             initializeIngredientControls();         // initialize indexation controls
@@ -778,7 +810,7 @@
                         else
                             $(this).savedSuccessFully("Indexation Saved");
 
-                        
+
                     });
                 } else {
                     validationGeneral = false;
