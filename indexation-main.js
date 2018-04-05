@@ -498,7 +498,6 @@
             if (!targetGrid || !objName || !url)
                 return false;
 
-
             var targetGridSelector = '#' + targetGrid;
             var grid = $(targetGridSelector).data("kendoGrid");
             if (grid && grid.dataSource._total > 0) {
@@ -514,6 +513,7 @@
                         data = {};
 
                     data['ids'] = selectedIds;
+                    data['indexationId'] = $("#IndexationId").val();
 
                     var args = {
                         message: 'Are you sure you would like to delete the selected ' + objName + '?',
