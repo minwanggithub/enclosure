@@ -2432,7 +2432,7 @@
 
                     }
                     else
-                        purgeGHSHazardClasses(indexationid)
+                        purgeGHSHazardClasses(url, indexationid)
 
                 } else {
                     $.post(url, { hClassNotProvided: false, indexationId: indexationId },
@@ -2675,7 +2675,7 @@
 
                     }
                     else{
-                        purgeGHSPictograms(indexationid);
+                        purgeGHSPictograms(url, indexationid);
                     }
 
                 } else {
@@ -2812,7 +2812,7 @@
 
                     }
                     else {
-                        purgeGHSHStatement(indexationId);
+                        purgeGHSHStatement(url, indexationId);
                     }   
                    
                 } else {
@@ -3040,7 +3040,7 @@
                     }
                     else
                     {
-                        purgeGHSPStatement(indexationId);
+                        purgeGHSPStatement(url, indexationId);
                     }
 
                 } else {
