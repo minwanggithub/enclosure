@@ -2918,8 +2918,8 @@
 
             indexationDetailObj.on("click", "#btnEnableOtherHCode", function (e) {
                 e.preventDefault();
-                $("#StatementHCode, #HCodePhraseID").val("");
-                $("#OtherHCode, #OtherHStatement").val("").prop("disabled", false);
+                $("#HCodePhraseID").val("");
+                $("#StatementHCode, #OtherHCode, #OtherHStatement").prop("disabled", false);
 
                 if (ghsHazardStatementValidator) {
                     ghsHazardStatementValidator.validateInput($('#StatementHCode'));
@@ -3128,8 +3128,8 @@
 
             indexationDetailObj.on("click", "#btnEnableOtherPCode", function (e) {
                 e.preventDefault();
-                $("#StatementPCode, #PrecautionaryStatementId").val("");
-                $("#OtherPCode, #OtherPStatement").val("").prop("disabled", false);
+                $("#PrecautionaryStatementId").val("");
+                $("#StatementPCode, #OtherPCode, #OtherPStatement").prop("disabled", false);
 
                 if (ghsPrecautionaryStatementValidator) {
                     ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
