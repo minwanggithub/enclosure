@@ -77,29 +77,41 @@
             initializeFireFightingControls();
             initializePpeControls();
 
-          
-
             indexationDetailObj.on("click", "#btnDocumentAddressSave", function (e) {
                 e.preventDefault();
                 var form = $("#FormDocumentContactAddress");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    if (data.result === "success") {
+
+                    if (data.contactAddressSaved) {
+
+                        $(this).savedSuccessFully(data.message);
+
                         var url = "../Indexation/GetDocumentContactAddress";
-                        $.post(url, { indexationId: data.indexationId}, function (result) {
+                        $.post(url, {
+                            indexationId: data.indexationId
+                        }, function (result) {
                             $("#DocERContactAddress").html($(result));
                         });
+                        
                         url = "../Indexation/GetDocumentContactPhone";
-                        $.post(url, { indexationId: data.indexationId }, function (result) {
+                        $.post(url, {
+                            indexationId: data.indexationId
+                        }, function (result) {
                             $("#DocERContactPhone").html($(result));
                         });
-                        $(this).savedSuccessFully(data.message);
+
                     } else {
-                        if (data.popupMessage)
-                            $(this).displayError(data.popupMessage);
+
+                        debugger;
+                        var message = "The following missing information is required to create a valid Document Contact Addesss:<br><br><ul>";
+                        message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
+                        
+                        $(this).displayError(message);
                     }
                 });
+
                 return true;                
             });
 
@@ -109,7 +121,11 @@
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    if (data.result === "success") {
+
+                    if (data.contactPhoneSaved) {
+
+                        $(this).savedSuccessFully(data.message);
+
                         var url = "../Indexation/GetDocumentContactPhone";
                         $.post(url, {indexationId: data.indexationId}, function (result) {
                             $("#DocERContactPhone").html($(result));
@@ -118,10 +134,15 @@
                         $.post(url, { indexationId: data.indexationId }, function (result) {
                             $("#DocERContactAddress").html($(result));
                         });
-                        $(this).savedSuccessFully(data.message);
+                        
+
                     } else {
-                        if (data.popupMessage)
-                            $(this).displayError(data.popupMessage);
+
+                        debugger;
+                        var message = "The following information is required to create a valid Document Contact Phone:<br><br><ul>";
+                        message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
+
+                        $(this).displayError(message);
                     }
                 });
                 return true;
