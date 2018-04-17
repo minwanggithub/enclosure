@@ -34,14 +34,14 @@
                             $(labels[1]).html(data.LastUpdatedDescription);
                         });
                     }
-                    console.log("ajaxComplete:" + ajaxCallsInProgress);
+                    //console.log("ajaxComplete:" + ajaxCallsInProgress);
                 }
             });
 
             $(document).ajaxSend(function (event, request, settings) {
                 if (!nonUpdateCalls.some(e=>settings.url.indexOf(e) >= 0)) {
                     ++ajaxCallsInProgress;
-                    console.log("ajaxComplete:" + ajaxCallsInProgress);
+                    //console.log("ajaxComplete:" + ajaxCallsInProgress);
                 }
             });
 
@@ -2479,19 +2479,80 @@
 
             }
 
+            indexationDetailObj.on("keydown", "#txtGridSearchHazardClass", function (e) {
+
+                // keypress
+                var e = e || window.event;
+                e.preventDefault();
+                e.stopPropagation();
+
+
+                var grid = $("#GridSearchHazardClass").data("kendoGrid");                   // grid   
+                var rows = Array.from($("#GridSearchHazardClass tr[data-uid]"));            // rows
+                if (rows.length == 0) return;
+
+                var index = rows.findIndex(r => $(r).hasClass("k-state-selected"));         // selected
+
+                // transfer selection
+                if (e.which == 13) {
+                    if (index < 0) return;
+                    grid.select(rows[index]);  // force selection
+                    $("#btnSelectHazardClass").click();
+                    return;
+                }
+
+                // ESC, close dialog box
+                if (e.which == 27) {
+                    $("#btnSelectHazardClass").parent().find("[data-dismiss]").click();
+                    return;
+                }
+
+                // valid key strokes ?
+                if (![40, 38].some(c=>c == e.which)) return;
+
+                // change selection
+                if (e.which == 40) {
+                    if (++index >= rows.length) index = rows.length - 1;
+                }
+                else if (e.which == 38) {
+                    if (--index < 0) index = 0;
+                }
+
+                // make selection
+                grid.select(rows[index]);
+
+                // geometry
+                var scrollTop = grid.content.scrollTop();
+                var rowTop = $(rows[index]).position().top;
+                var rowHeight = $(rows[index]).height();
+                var contentHeight = grid.content.height();
+
+                if (rowTop < 0) {
+                    grid.content.scrollTop(grid.content.scrollTop() + rowTop);
+                }
+                else if (rowTop + rowHeight > contentHeight) {
+                    var spill = rowTop + rowHeight - contentHeight;
+                    grid.content.scrollTop(scrollTop + spill);
+                }
+
+            });
+
             indexationDetailObj.on("keyup", "#txtGridSearchHazardClass", function (e) {
 
+                e.preventDefault();
+
+                var e = e || window.event;
                 if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
 
                 var grid = $("#GridSearchHazardClass").data("kendoGrid");
-                console.log(getClassSearchFilters($("#txtGridSearchHazardClass").val().trim()));
-
                 grid.dataSource.filter(getClassSearchFilters($("#txtGridSearchHazardClass").val().trim()));
                 grid.dataSource.read();
 
             });
 
+
             indexationDetailObj.on("click", "#SearchByCode", function (e) {
+
                 e.preventDefault();
 
                 $("#txtGridSearchHazardClass").val($("#Class").val().trim());       // reset filtering
@@ -2501,12 +2562,47 @@
                 grid.dataSource.filter(getClassSearchFilters($("#Class").val().trim()));
                 grid.dataSource.read();
 
-                $("#popupHazardClass").modal("show");
+                $("#popupHazardClass").css({ "visibility": "hidden", "margin": "0" }).modal("show").css({ "display": "flex" });
+
+                // make draggable
+                $("#popupHazardClass").draggable({
+                    handle: "h1",
+                    containment: $('#container'),
+                    stop: function () {
+                        savePreferences("popupHazardClass");
+                    }
+                });
+
+                $("#dgHazardClassPlugInDraggable").draggable({
+                    axis: "y",
+                    handles: "s",
+                    start: function (event, ui) {
+                        initOffsetHazardClass = ui.offset.top;
+                    },
+                    stop: function (event, ui) {
+
+                        var diff = ui.offset.top - initOffsetHazardClass;
+                        var height = $("#popupHazardClass .k-grid-content").css("height").replace("px", "");
+                        height = (parseInt(height) + diff);
+                        if (height < 200) height = 200;
+
+                        $("#popupHazardClass .k-grid-content").css("height", height + "px");
+                        $("#dgHazardClassPlugInDraggable").css({ top: 0 });
+
+                    }
+                });
+
+                setPreferences("popupHazardClass");
+                $("#popupHazardClass").css("visibility", "");
+                $("#popupHazardClass").show(function(){
+                        $("#Class").blur();
+                        $("#txtGridSearchHazardClass").focus();
+                });
+
             });
 
-
-
             indexationDetailObj.on("click", "#btnEnableOtherHClass", function (e) {
+      
                 e.preventDefault();
                 $("#OtherClass").prop("disabled", false);
                 $("#OtherClass").val($("#Class").val());
@@ -2517,9 +2613,12 @@
                     ghsHazardClassValidator.validateInput($('#Class'));
                     ghsHazardClassValidator.validateInput($('#OtherClass'));
                 }
+
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardClass", function (e) {
+                
+
                 e.preventDefault();
                 var grid = $("#GridSearchHazardClass").data("kendoGrid");
                 if (grid.dataSource.total() === 0) {
@@ -2562,34 +2661,202 @@
 
             }
 
+            indexationDetailObj.on("keydown", "#txtGridSearchHazardCategory", function (e) {
+               
+                // keypress
+                var e = e || window.event;
+                e.stopPropagation();
+                e.preventDefault();
+
+                var grid = $("#GridSearchHazardCategory").data("kendoGrid");                // grid   
+                var rows = Array.from($("#GridSearchHazardCategory tr[data-uid]"));         // rows
+                if (rows.length == 0) return;
+
+                var index = rows.findIndex(r => $(r).hasClass("k-state-selected"));         // selected
+
+                // transfer selection
+                if (e.which == 13) {
+                    if (index < 0) return;
+                    grid.select(rows[index]);  // force selection
+                    $("#btnSelectHazardCategory").click();
+                    return;
+                }
+
+                // ESC, close dialog box
+                if (e.which == 27) {
+                    $("#btnSelectHazardCategory").parent().find("[data-dismiss]").click();
+                    return;
+                }
+
+                // valid key strokes ?
+                if (![40, 38].some(c=>c == e.which)) return;
+
+                // change selection
+                if (e.which == 40) {
+                    if (++index >= rows.length) index = rows.length - 1;
+                }
+                else if (e.which == 38) {
+                    if (--index < 0) index = 0;
+                }
+                
+                // make selection
+                grid.select(rows[index]);
+
+                // geometry
+                var scrollTop = grid.content.scrollTop();
+                var rowTop = $(rows[index]).position().top;
+                var rowHeight = $(rows[index]).height();
+                var contentHeight = grid.content.height();
+
+                if (rowTop < 0) {
+                    grid.content.scrollTop(grid.content.scrollTop() + rowTop);
+                }
+                else if (rowTop + rowHeight > contentHeight) {
+                    var spill = rowTop + rowHeight - contentHeight;
+                    grid.content.scrollTop(scrollTop + spill);
+                }
+
+            });
+
             indexationDetailObj.on("keyup", "#txtGridSearchHazardCategory", function (e) {
 
+                e.preventDefault();
+
+                var e = e || window.event;
                 if (e.keyCode >= 33 && e.keyCode <= 40 || e.keyCode == 45) return;
 
                 var grid = $("#GridSearchHazardCategory").data("kendoGrid");
-
                 grid.dataSource.filter(getCategorySearchFilters($("#txtGridSearchHazardCategory").val().trim()));
                 grid.dataSource.read();
 
             });
 
+            var initOffsetHazardCategory = null;
+            var initOffsetHazardClass = null;
 
             indexationDetailObj.on("click", "#SearchByCategory", function (e) {
+
                 e.preventDefault();
 
-                $("#txtGridSearchHazardCategory").val($("#Category").val().trim());                                     // reset filtering
-                var grid = $("#GridSearchHazardCategory").data("kendoGrid");                   // get reference
+                $("#txtGridSearchHazardCategory").val($("#Category").val().trim());
+                var grid = $("#GridSearchHazardCategory").data("kendoGrid");
 
                 grid.selectable.options.multiple = false;
                 grid.dataSource.filter(getCategorySearchFilters($("#Category").val().trim()));
                 grid.dataSource.read();
 
-                $("#popupHazardCategory").modal("show");
+                $("#popupHazardCategory").css({ "visibility": "hidden", "margin": "0" }).modal("show").css("display", "flex");
+
+                // make draggable
+                $("#popupHazardCategory").draggable({
+                    handle: "h1",
+                    containment: $('#container'),
+                    stop: function () {
+                        savePreferences("popupHazardCategory");
+                    }
+                });
+
+                $("#dgHazardCategoryPlugInDraggable").draggable({
+                    axis: "y",
+                    handles: "s",
+                    start: function (event, ui) {
+                        initOffsetHazardCategory = ui.offset.top;
+                    },
+                    stop: function (event, ui) {
+
+                        var diff = ui.offset.top - initOffsetHazardCategory;
+                        var height = $("#popupHazardCategory .k-grid-content").css("height").replace("px", "");
+                        height = (parseInt(height) + diff);
+                        if (height <= 200) height = 200;
+
+                        $("#popupHazardCategory .k-grid-content").css("height", height + "px");
+                        $("#dgHazardCategoryPlugInDraggable").css({ top: 0 });
+
+                        savePreferences("popupHazardCategory");
+
+                    }
+                });
+
+                setPreferences("popupHazardCategory");
+                $("#popupHazardCategory").css("visibility", "");
+                $("#txtGridSearchHazardCategory").focus();
+                
 
             });
 
+            function setPreferences(popup) {
+
+                var cookies = decodeURIComponent(document.cookie).split(";");
+                var token = "IndexationUIPreferences_" + popup;
+                var preference = cookies.filter(e=> e.indexOf(token + "=") >= 0);
+
+                console.log(cookies[0]);
+                console.log(cookies[1]);
+                console.log(preference);
+
+
+                var height = null;
+                var position = null;
+
+                if (preference != null && preference.length > 0) {
+                    var preferences = JSON.parse((preference[0].replace(token + "=", "")).trim());
+                    if (preferences != null) {
+                        height = preferences.height;
+                        position = preferences.position;
+                    }
+                }
+                console.log("height preference:" + height);
+                if (height != null) {
+                    $("#" + popup + " .k-grid-content").css("height", height + "px");
+                }
+
+                position = (position == null ? { top: 100, left: 100 } : position);
+
+                var scrollTop = $(document).scrollTop();
+                var scrollLeft = $(document).scrollLeft();
+
+                console.log(position);
+                $("#" + popup).offset({ top: scrollTop + position.top, left: scrollLeft + position.left });
+                $("#" + popup).show();
+
+            }
+
+            function savePreferences(popup) {
+
+                // HEIGHT PREFERENCES
+                var tag = popup.replace("popup", "");
+                var available = $("#GridSearch" + tag).parent().height();
+                var header = $("#popup" + tag + " .k-grid-header").height();
+                $("#popup" + tag + " .k-grid-content").css("height", (available - header) + "px");
+
+                var cookies = decodeURIComponent(document.cookie).split(";");
+                var token = "IndexationUIPreferences_" + popup;
+                var preference = cookies.filter(e=> e.indexOf(token + "=") >= 0);
+
+                // grid rows
+                var height = $("#" + popup + " .k-grid-content").height();
+
+                var scrollTop = $(document).scrollTop();
+                var scrollLeft = $(document).scrollLeft();
+
+                var offset = $("#" + popup).offset();
+                var dispX = offset.top - scrollTop;
+                var dispY = offset.left - scrollLeft;
+
+                var data = JSON.stringify({ "height": height, "position": { top: dispX, left: dispY } });
+
+                console.log(data);
+
+                var d = new Date();
+                d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = token + "=" + data + ";" + expires + ";path=/";
+                console.log(document.cookie);
+
+            }
+
             indexationDetailObj.on("click", "#btnEnableOtherHCategory", function (e) {
-                e.preventDefault();                
+                e.preventDefault();
                 $("#OtherCategory").prop("disabled", false);
                 $("#OtherCategory").val($("#Category").val());
                 $("#Category").val("");
@@ -2598,7 +2865,7 @@
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
                     ghsHazardClassValidator.validateInput($('#OtherCategory'));
-                }
+            }
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardCategory", function (e) {
@@ -2607,12 +2874,12 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 $("#popupHazardCategory").modal("hide");
 
                 $("#OtherCategory").val("");
@@ -2624,7 +2891,7 @@
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
                     ghsHazardClassValidator.validateInput($('#OtherCategory'));
-                }
+            }
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchHazardCategory table tr", function () {
@@ -2647,7 +2914,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                        }
+                    }
                     });
                     return true;
                 } else
@@ -2666,7 +2933,7 @@
                 batchDeleteObjects("GridRegGHSPic", "pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteGhsPictograms");
             });
 
-            function purgeGHSPictograms(url, indexationId) {
+                function purgeGHSPictograms(url, indexationId) {
                 $.post(url, { pictNotProvided: true, indexationId: indexationId }, function (data) {
                     $(this).savedSuccessFully(data);
                     var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
@@ -2687,9 +2954,9 @@
                     if (Array.from(pictGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                            message: 'All GHS Pictograms will be removed. Proceed ?',
-                            header: 'Confirm GHS Pictogram removal.'
-                        };
+                                message: 'All GHS Pictograms will be removed. Proceed ?',
+                                header: 'Confirm GHS Pictogram removal.'
+                    };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPictograms(url, indexationId); },
                         function () { $("#PictNotProvided").prop("checked", false); });
@@ -2697,7 +2964,7 @@
                     }
                     else{
                         purgeGHSPictograms(url, indexationid);
-                    }
+                }
 
                 } else {
                     $.post(url, { pictNotProvided: false, indexationId: indexationId },
@@ -2705,8 +2972,8 @@
                             $(this).savedSuccessFully(data);
                             $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
-                        });
-                }
+                    });
+            }
             });
 
             indexationDetailObj.on("click", "#btnSelectGhsPictograms", function (e) {
@@ -2715,12 +2982,12 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 if (grid.select().length > 1) {
                     var rows = grid.select();
                     var ghspictogramlists = [];
@@ -2728,11 +2995,11 @@
                         function (index, row) {
                             var selectedItem = grid.dataItem(row);
                             ghspictogramlists.push(selectedItem.Reference);
-                        }
+                    }
                     );
                     addGhsPictogramList(ghspictogramlists);
                     return;
-                }
+            }
                 addGhsPictogram(selectedData.Reference);
             });
 
@@ -2746,14 +3013,14 @@
                 if ($(this).is(":checked")) {
                     $("#SignalWord").val("").prop("disabled", true);
                     $("#SWOther").val("").prop("disabled", true);
-                    $("#SWOtherBit").prop('checked', false); 
+                    $("#SWOtherBit").prop('checked', false);
                     $("#SearchBySignalWord").addClass("k-state-disabled");
                     $("#SignalWordId").val(null);
                     indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 } else {
-                   $("#SearchBySignalWord").removeClass("k-state-disabled");
-                    indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
-                }
+               $("#SearchBySignalWord").removeClass("k-state-disabled");
+                indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+            }
             });
 
             indexationDetailObj.on("change", "#SWOtherBit", function () {
@@ -2766,10 +3033,10 @@
                     $("#SignalWordId").val(null);
                     indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 } else {
-                    $("#SWOther").val("").prop("disabled", true);
-                    $("#SearchBySignalWord").removeClass("k-state-disabled");
-                    indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
-                }
+                $("#SWOther").val("").prop("disabled", true);
+                $("#SearchBySignalWord").removeClass("k-state-disabled");
+                indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+            }
             });
 
             indexationDetailObj.on("click", "#btnSelectGhsSignalWord", function (e) {
@@ -2778,12 +3045,12 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
                 $("#popupGhsSignalWord").modal("hide");
                 $("#SignalWord").val(selectedData.SignalWord + ", " + selectedData.SignalWordCode);
                 $("#SignalWordId").val(selectedData.SignalWordId);
@@ -2803,7 +3070,7 @@
                     , function() { hideEditorSection("AddEditHazardStatement"); });
             });
 
-            function purgeGHSHStatement(url, indexationId) {
+                function purgeGHSHStatement(url, indexationId) {
                 $('#AddEditHazardStatement').empty();
                 $.post(url, { hStatementNotProvided: true, indexationId: indexationId }, function (data) {
                     $(this).savedSuccessFully(data);
@@ -2824,9 +3091,9 @@
                     if (Array.from(hStatementGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                            message: 'All GHS Hazard Statements will be removed. Proceed ?',
-                            header: 'Confirm GHS Hazard Statement removal.'
-                        };
+                                message: 'All GHS Hazard Statements will be removed. Proceed ?',
+                                header: 'Confirm GHS Hazard Statement removal.'
+                    };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHStatement(url, indexationId); },
                             function () { $("#HStatementNotProvided").prop("checked", false); });
@@ -2834,50 +3101,50 @@
                     }
                     else {
                         purgeGHSHStatement(url, indexationId);
-                    }   
-                   
+                }
+
                 } else {
                     $.post(url, { hStatementNotProvided: false, indexationId: indexationId },
                         function (data) {
                             $(this).savedSuccessFully(data);
                             $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
-                        });
-                }
+                    });
+            }
             });
 
-            // ---- SMART FILTERING ----
+                // ---- SMART FILTERING ----
 
-            function getGHSHazardSearchFilters(hCodeStmt) {
+                function getGHSHazardSearchFilters(hCodeStmt) {
 
-                // set up filtering
-                var filters = new Array();
+                    // set up filtering
+                    var filters = new Array();
 
-                // tokenize 
-                var tokens = hCodeStmt.split(",");
+                    // tokenize 
+                    var tokens = hCodeStmt.split(",");
 
-                if (tokens.length == 1) {
-                    if (!isNaN(hCodeStmt)) {
+                    if (tokens.length == 1) {
+                        if (!isNaN(hCodeStmt)) {
 
-                        // hcode only
+                            // hcode only
                         filters.push({ field: "HCode", operator: "contains", value: hCodeStmt });
                         return { logic: "or", filters: filters };
 
-                    } else {
+                        } else {
 
-                        // search both
+                            // search both
                         filters.push({ field: "HCode", operator: "contains", value: tokens[0].trim() });
                         filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
                         return { logic: "or", filters: filters };
 
                     }
-                }
-                else {
+                    }
+                    else {
 
-                    filters.push({ field: "HCode", operator: "contains", value: tokens[tokens.length - 1].trim() });
-                    tokens = tokens.slice(0, -1);
-                    filters.push({ field: "Statement", operator: "contains", value: tokens.join(",") });
-                    return { logic: "and", filters: filters };
+                        filters.push({ field: "HCode", operator: "contains", value: tokens[tokens.length - 1].trim() });
+                        tokens = tokens.slice(0, -1);
+                        filters.push({ field: "Statement", operator: "contains", value: tokens.join(",") });
+                        return { logic: "and", filters: filters };
                 }
 
             }
@@ -2903,7 +3170,7 @@
                 if ($("#popupHazardStatement").length > 0) {
 
                     $("#txtGridSearchHazardStatement").val($("#StatementHCode").val().trim());      // reset filtering
-                    
+
                     var grid = $("#GridSearchHazardStatement").data("kendoGrid");                   // get reference
 
                     var singleSelection = !(referenceId && referenceId !== "0");
@@ -2911,7 +3178,7 @@
                     grid.dataSource.filter(getGHSHazardSearchFilters($("#StatementHCode").val().trim()));
                     grid.dataSource.read();
 
-                }
+            }
 
                 $("#popupHazardStatement").modal("show");
 
@@ -2928,12 +3195,12 @@
                                 grid.clearSelection();
                                 grid.select($("#GridSearchHazardStatement_active_cell").closest("tr"));
                             }, 10);
-                        }
+                    }
                     })
 
 
                 }, 2000);
-                
+
 
             });
 
@@ -2946,7 +3213,7 @@
                     ghsHazardStatementValidator.validateInput($('#StatementHCode'));
                     ghsHazardStatementValidator.validateInput($('#OtherHCode'));
                     ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
-                }
+            }
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardStatement", function (e) {
@@ -2955,13 +3222,13 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
 
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
@@ -2979,12 +3246,12 @@
                         ghsHazardStatementValidator.validateInput($('#StatementHCode'));
                         ghsHazardStatementValidator.validateInput($('#OtherHCode'));
                         ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
-                    }
+                }
 
                     // Multiple items have been selected save directly into the database
                 } else {
                     batchSaveHazardStatements(getSelectedIds(grid, selectedItems));
-                }
+            }
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchHazardStatement table tr", function() {
@@ -3008,7 +3275,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                        }
+                    }
                     });
                     return true;
                 } else
@@ -3030,7 +3297,7 @@
                     function () { hideEditorSection("AddEditPrecautionaryStatement"); });
             });
 
-            function purgeGHSPStatement(url, indexationId) {
+                function purgeGHSPStatement(url, indexationId) {
                 $('#AddEditPrecautionaryStatement').empty();
                 $.post(url, { pStatementNotProvided: true, indexationId: indexationId }, function (data) {
                         $(this).savedSuccessFully(data);
@@ -3039,7 +3306,7 @@
                         hClassGrid.refresh();
                         $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
                         indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
-                    });
+                });
             }
 
             indexationDetailObj.on("change", "#PStatementNotProvided", function () {
@@ -3051,9 +3318,9 @@
                     if (Array.from(hClassGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                            message: 'All GHS Precautionary Statements will be removed. Proceed ?',
-                            header: 'Confirm GHS Precautionary statement removal.'
-                        };
+                                message: 'All GHS Precautionary Statements will be removed. Proceed ?',
+                                header: 'Confirm GHS Precautionary statement removal.'
+                    };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPStatement(url, indexationId); },
                         function () { $("#PStatementNotProvided").prop("checked", false); });
@@ -3070,38 +3337,38 @@
                             $(this).savedSuccessFully(data);
                             $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
-                        });
-                }
+                    });
+            }
             });
 
-            // ---- SMART FILTERING
+                // ---- SMART FILTERING
 
-            function getGHSPrecautionarySearchFilters(pCodeStmt) {
+                function getGHSPrecautionarySearchFilters(pCodeStmt) {
 
-                // set up filtering
-                var filters = new Array();
+                    // set up filtering
+                    var filters = new Array();
 
-                // tokenize 
-                var tokens = pCodeStmt.split(",");
+                    // tokenize 
+                    var tokens = pCodeStmt.split(",");
 
-                if (tokens.length == 1) {
-                    if (!isNaN(pCodeStmt)) {
+                    if (tokens.length == 1) {
+                        if (!isNaN(pCodeStmt)) {
 
-                        // hcode only
-                        filters.push({ field: "PCode", operator: "contains", value: pCodeStmt });
-                        return { logic: "or", filters: filters };
+                            // hcode only
+                            filters.push({ field: "PCode", operator: "contains", value: pCodeStmt });
+                            return { logic: "or", filters: filters };
 
-                    } else {
+                        } else {
 
-                        // search both
-                        filters.push({ field: "PCode", operator: "contains", value: tokens[0].trim() });
-                        filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
-                        filters.push({ field: "Category", operator: "contains", value: tokens[0].trim() });
-                        return { logic: "or", filters: filters };
+                            // search both
+                            filters.push({ field: "PCode", operator: "contains", value: tokens[0].trim() });
+                            filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
+                            filters.push({ field: "Category", operator: "contains", value: tokens[0].trim() });
+                            return { logic: "or", filters: filters };
 
                     }
-                }
-                else {
+                    }
+                    else {
 
                     filters.push({ field: "PCode", operator: "contains", value: tokens[0] });
 
@@ -3141,7 +3408,7 @@
                     grid.dataSource.filter(getGHSPrecautionarySearchFilters($("#StatementPCode").val().trim()));
                     grid.dataSource.read();
 
-                }
+            }
 
                 $("#popupPStatement").modal("show");
 
@@ -3156,7 +3423,7 @@
                     ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
-                }
+            }
             });
 
             indexationDetailObj.on("click", "#btnSelectPStatement", function (e) {
@@ -3165,13 +3432,13 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
-                
+            }
+
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
                     $(this).displayError("No rows selected");
                     return;
-                }
+            }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
@@ -3189,12 +3456,12 @@
                         ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
                         ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
                         ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
-                    }
+                }
 
                     // Multiple items have been selected save directly into the database
                 } else {
                     batchSavePrecautionaryStatements(getSelectedIds(grid, selectedItems));
-                }
+            }
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchPrecautionaryStatement table tr", function () {
@@ -3219,7 +3486,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                        }
+                    }
                     });
                     return true;
 
@@ -3232,24 +3499,24 @@
                 $('#AddEditPrecautionaryStatement').empty();
             });
 
-            // NONE ----
+                // NONE ----
 
-            indexationDetailObj.on("change", "#NoHazardCategory", function () {
-                if ($(this).is(":checked")) {
+                indexationDetailObj.on("change", "#NoHazardCategory", function () {
+                    if ($(this).is(":checked")) {
 
                     $("#btnEnableOtherHCategory").addClass("k-state-disabled");//.prop("disabled", true);
                     $("#SearchByCategory").addClass("k-state-disabled");//.prop("disabled", true);
                     $("#Category").val("").prop("disabled", true);
                     $("#OtherCategory").val("Category not provided").prop("disabled", false);
 
-                } else {
+                    } else {
 
                     $("#btnEnableOtherHCategory").removeClass("k-state-disabled");//.prop("disabled", true);
                     $("#SearchByCategory").removeClass("k-state-disabled");//.prop("disabled", true);
                     $("#Category").val("").prop("disabled", false);
                     $("#OtherCategory").val("").prop("disabled", true);
                 }
-            });
+                });
 
             indexationDetailObj.on("change", "#NoHazardClass", function () {
                 if ($(this).is(":checked")) {
@@ -3258,7 +3525,7 @@
                     $("#SearchByCode").addClass("k-state-disabled");
                     $("#Class").val("").prop("disabled", true);
                     $("#OtherClass").val("Class not provided").prop("disabled", false);
-//                    indexationDetailObj.off("click", "#SearchByCode", onSearchByCodeButtonClick);
+                    //                    indexationDetailObj.off("click", "#SearchByCode", onSearchByCodeButtonClick);
 
                 } else {
 
@@ -3266,12 +3533,12 @@
                     $("#SearchByCode").removeClass("k-state-disabled");
                     $("#Class").val("").prop("disabled", false);
                     $("#OtherClass").val("").prop("disabled", true);
-//                    indexationDetailObj.on("click", "#SearchByCode", onSearchByCodeButtonClick);
-                }
+                    //                    indexationDetailObj.on("click", "#SearchByCode", onSearchByCodeButtonClick);
+            }
             });
 
 
-            // NONE ----
+                // NONE ----
         }
 
         function initializeGhsHazardClassValidator() {
