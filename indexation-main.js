@@ -2483,9 +2483,6 @@
 
                 // keypress
                 var e = e || window.event;
-                e.preventDefault();
-                e.stopPropagation();
-
 
                 var grid = $("#GridSearchHazardClass").data("kendoGrid");                   // grid   
                 var rows = Array.from($("#GridSearchHazardClass tr[data-uid]"));            // rows
@@ -2495,6 +2492,10 @@
 
                 // transfer selection
                 if (e.which == 13) {
+
+                    e.stopPropagation();
+                    e.preventDefault();
+
                     if (index < 0) return;
                     grid.select(rows[index]);  // force selection
                     $("#btnSelectHazardClass").click();
@@ -2665,8 +2666,6 @@
                
                 // keypress
                 var e = e || window.event;
-                e.stopPropagation();
-                e.preventDefault();
 
                 var grid = $("#GridSearchHazardCategory").data("kendoGrid");                // grid   
                 var rows = Array.from($("#GridSearchHazardCategory tr[data-uid]"));         // rows
@@ -2676,6 +2675,10 @@
 
                 // transfer selection
                 if (e.which == 13) {
+
+                    e.stopPropagation();
+                    e.preventDefault();
+
                     if (index < 0) return;
                     grid.select(rows[index]);  // force selection
                     $("#btnSelectHazardCategory").click();
