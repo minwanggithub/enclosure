@@ -2449,11 +2449,11 @@
                         };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHazardClasses(url, indexationId); },
-                            function () { $("#HClassNotProvided").prop("checked", false); });
+                            function () { $("#HClassNotProvided").prop("checked", false); }, true);
 
                     }
                     else
-                        purgeGHSHazardClasses(url, indexationid)
+                        purgeGHSHazardClasses(url, indexationId)
 
                 } else {
                     $.post(url, { hClassNotProvided: false, indexationId: indexationId },
@@ -2936,7 +2936,7 @@
                 batchDeleteObjects("GridRegGHSPic", "pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteGhsPictograms");
             });
 
-                function purgeGHSPictograms(url, indexationId) {
+            function purgeGHSPictograms(url, indexationId) {
                 $.post(url, { pictNotProvided: true, indexationId: indexationId }, function (data) {
                     $(this).savedSuccessFully(data);
                     var pictGrid = $("#GridRegGHSPic").data("kendoGrid");
@@ -2962,11 +2962,11 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPictograms(url, indexationId); },
-                        function () { $("#PictNotProvided").prop("checked", false); });
+                        function () { $("#PictNotProvided").prop("checked", false); }, true);
 
                     }
                     else{
-                        purgeGHSPictograms(url, indexationid);
+                        purgeGHSPictograms(url, indexationId);
                 }
 
                 } else {
@@ -3099,7 +3099,7 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHStatement(url, indexationId); },
-                            function () { $("#HStatementNotProvided").prop("checked", false); });
+                            function () { $("#HStatementNotProvided").prop("checked", false); }, true);
 
                     }
                     else {
@@ -3326,7 +3326,7 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPStatement(url, indexationId); },
-                        function () { $("#PStatementNotProvided").prop("checked", false); });
+                        function () { $("#PStatementNotProvided").prop("checked", false); }, true);
 
                     }
                     else
