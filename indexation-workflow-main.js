@@ -280,18 +280,18 @@
 
             // generate the search request
             indexationWorkLoadSearchModel.StateId = null;
-            indexationWorkLoadSearchModel.IndexingLevelId = null;
+            indexationWorkLoadSearchModel.IndexationSets = null;
             
             var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
             if (selValue != "") indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
 
             selValue = $(obtainmentObject.controls.dropdownlists.IndexingLevelDropDownList).data("kendoDropDownList").value();
-            if (selValue != "") indexationWorkLoadSearchModel.IndexingLevelId = (selValue.toLowerCase() == "gold" ? 0 : 1);
+            if (selValue != "") indexationWorkLoadSearchModel.IndexationSets = (selValue.toLowerCase() == "gold" ? 1 : 2);
 
             indexationWorkLoadSearchModel.CurrentRevisionOnly = $(obtainmentObject.controls.checkboxes.CurrentRevisionOnly).is(":checked");
 
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
-            indexationWorkLoadSearchModel.CategoryIds = getSelectedCategories();
+            indexationWorkLoadSearchModel.Priority = getSelectedCategories();
 
             // validate
 
@@ -300,6 +300,8 @@
             // reload the search section
             var url = controllerCalls.SearchRequests
             var searchCriteria = JSON.stringify(indexationWorkLoadSearchModel);
+
+            debugger;
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
             .success(function (data) {
