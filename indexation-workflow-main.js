@@ -281,6 +281,8 @@
             // generate the search request
             indexationWorkLoadSearchModel.StateId = null;
             indexationWorkLoadSearchModel.IndexationSets = null;
+            indexationWorkLoadSearchModel.DateFrom = null;
+            indexationWorkLoadSearchModel.DateTo = null;
             
             var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
             if (selValue != "") indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
@@ -293,15 +295,14 @@
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
             indexationWorkLoadSearchModel.Priority = getSelectedCategories();
 
-            // validate
+            indexationWorkLoadSearchModel.DateFrom = $(obtainmentObject.controls.dateTime.FromDate).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.DateTo = $(obtainmentObject.controls.dateTime.ToDate).data("kendoDatePicker").value();
 
             // get the data
 
             // reload the search section
             var url = controllerCalls.SearchRequests
             var searchCriteria = JSON.stringify(indexationWorkLoadSearchModel);
-
-            debugger;
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
             .success(function (data) {
