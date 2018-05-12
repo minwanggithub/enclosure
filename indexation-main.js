@@ -2449,7 +2449,7 @@
                         };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHazardClasses(url, indexationId); },
-                            function () { $("#HClassNotProvided").prop("checked", false); }, true);
+                            function () { $("#HClassNotProvided").prop("checked", false); });
 
                     }
                     else
@@ -2962,7 +2962,7 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPictograms(url, indexationId); },
-                        function () { $("#PictNotProvided").prop("checked", false); }, true);
+                        function () { $("#PictNotProvided").prop("checked", false); });
 
                     }
                     else{
@@ -3099,7 +3099,7 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHStatement(url, indexationId); },
-                            function () { $("#HStatementNotProvided").prop("checked", false); }, true);
+                            function () { $("#HStatementNotProvided").prop("checked", false); });
 
                     }
                     else {
@@ -3326,7 +3326,7 @@
                     };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPStatement(url, indexationId); },
-                        function () { $("#PStatementNotProvided").prop("checked", false); }, true);
+                        function () { $("#PStatementNotProvided").prop("checked", false); });
 
                     }
                     else
