@@ -515,6 +515,7 @@
 
                         // reset selected ids
                         selectedIds = [];
+                        gridIds = {};
 
                         // reset master select and rebind grid
                         var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
@@ -653,9 +654,9 @@
             // locate row
             $(this).closest("[data-uid]");
 
-            var revisionId = grid.dataItem($(this).closest("[data-uid]")).IndexingWorkItemID;
+            var indexingWorkItemID = grid.dataItem($(this).closest("[data-uid]")).IndexingWorkItemID;
 
-            $(this).ajaxCall(controllerCalls.IndexationWorkflowHistory, { indexingWorkItemID: IndexingWorkItemID })
+            $(this).ajaxCall(controllerCalls.IndexationWorkflowHistory, { indexingWorkItemID: indexingWorkItemID })
                    .success(function (result) {
                        $("#dvIndexationWorkflowHistory").html(result);
                    }).done(function () {
@@ -722,13 +723,18 @@
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
                 // locate checkbox
-                $(row).find(".chkMultiSelect").prop("checked", checked);
+                var selector = $(row).find(".chkMultiSelect");
+                
+                if (selector.size() != 0) {
 
-                // set row state
-                $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
+                    $(selector).prop("checked", checked);
 
-                // flag selection state
-                gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
+                    // set row state
+                    $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
+
+                    // flag selection state
+                    gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
+                }
 
             });
 
