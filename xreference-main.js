@@ -324,6 +324,9 @@
                 var criteria = {};
                 criteria.FieldName = drpFields.value();
                 criteria.WhereOperator = drpCriteria.text();
+                criteria.SearchOperator = drpCriteria.value();
+
+
                 var valueAssigned;
                 if ($("div #row #right " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).is(":hidden")) {
                     if (drpFields.text() === "Language") {
