@@ -248,7 +248,11 @@
 
         var keyCodeValues = {
             Enter: 13,
-            V: 86
+            V: 86,
+            ctrlKeyState :
+            {
+                Pressed : false
+            }
         };
 
         /******************************** Local Methods ********************************/
@@ -464,7 +468,6 @@
         }
 
         function getContainerSearchCriteria(container) {
-
             if (container && container.length > 0) {
                 var result =
                 {
@@ -488,8 +491,9 @@
                     DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
                     DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
                     ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                    SearchControl: keyCodeValues.ctrlKeyState.Pressed
                 };
-
+                keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
                     result.DateRangeFrom = "";
@@ -504,8 +508,7 @@
             return null;
             }
 
-        function performDocumentSearch() {
-            
+        function performDocumentSearch() {            
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             searchGrid.dataSource.data([]);
             searchGrid.dataSource.page(1);
@@ -535,9 +538,9 @@
                 onKeyPressEnter(e, performDocumentSearch);
         }
 
-        function onDocumentSearchSearchBtnClick(e) {
+        function onDocumentSearchSearchBtnClick(e) {                   
+            keyCodeValues.ctrlKeyState.Pressed = e.ctrlKey;            
             e.preventDefault();
-            
             performDocumentSearch();
         }
 
@@ -557,7 +560,7 @@
             }
         }
 
-        var getDocumentSearchCriteria = function () {
+        var getDocumentSearchCriteria = function (e) {
             var container = $(documentElementSelectors.containers.DocumentSearch);
             return getContainerSearchCriteria(container);
             };

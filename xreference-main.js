@@ -295,7 +295,7 @@
         });
 
         //Does search and displays search results 
-        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchRequestsButton, function () {
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SearchRequestsButton, function (e) {
             var numberOfRows = $('div #row').length;
             var initialRow = 0;
             var mltCategories = $("#divSearchSection " + xreferenceObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
@@ -313,6 +313,7 @@
             requestSearchModel.StatusId = drpStatus.value() === "" ? null : drpStatus.value();
             requestSearchModel.DaysSelected = drpDays.value() === "" ? null : drpDays.value();
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
+            requestSearchModel.SearchControl = e.ctrlKey;
 
             var criteriaList = [];
 
