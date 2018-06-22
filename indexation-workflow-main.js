@@ -242,8 +242,12 @@
                 // this call "installs" the list of selected indexation workflow items.
                 // the call validates assignment and returns the first available indexing record.
 
+                // ids must be passed in selected order
+
+
+
                 // start workflow
-                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: selectedIds })
+                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: getSelectedIdsBySortOrder() })
                 .success(function (data) {
 
                     if (!data.Navigable) {
@@ -641,6 +645,28 @@
                 $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
             });
+
+        }
+
+        function getSelectedIdsBySortOrder() {
+
+            var _selectedIds = [];
+
+            var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
+            $(grid.dataSource.view()).each(function (i, v) {
+
+                // locate row
+                var row = grid.table.find("[data-uid=" + v.uid + "]");
+
+                // selected ?
+                var selected = $(row).hasClass("k-state-selected");
+
+                if (selected) _selectedIds.push(v.IndexingWorkItemID);
+
+            });
+
+           // alert(_selectedIds);
+            return _selectedIds;
 
         }
 
