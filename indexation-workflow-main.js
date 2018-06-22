@@ -288,7 +288,8 @@
             if (selValue != "") indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
 
             selValue = $(obtainmentObject.controls.dropdownlists.IndexingLevelDropDownList).data("kendoDropDownList").value();
-            if (selValue != "") indexationWorkLoadSearchModel.IndexationSets = (selValue.toLowerCase() == "gold" ? 1 : 2);
+            if (selValue != "") indexationWorkLoadSearchModel.IndexationSets = selValue;
+            //(selValue.toLowerCase() == "gold" ? 1 : 2);
 
             indexationWorkLoadSearchModel.CurrentRevisionOnly = $(obtainmentObject.controls.checkboxes.CurrentRevisionOnly).is(":checked");
 
