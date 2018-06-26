@@ -4505,9 +4505,14 @@
 
                     if (data.Navigable){
 
+                        var indexationSets = [];
+                        if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
+                        if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
+                        indexationSets = indexationSets.join(",");
+
                         var url = window.location.href.split("/");
                         url[url.length - 1] = "Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
-                                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId;
+                            "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
 
                         window.location = url.join("/");
 

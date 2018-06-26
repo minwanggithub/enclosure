@@ -259,11 +259,16 @@
 
                     } else {
 
+                        var indexationSets = []
+                        if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
+                        if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
+                        indexationSets = indexationSets.join(",");
+
                         // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
 
                         var url = window.location.href.split("/");
                         url[url.length - 1] = "Indexation/Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
-                                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId;
+                            "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
                         window.open(url.join("/"), "_blank").focus();
 
                     }
