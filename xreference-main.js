@@ -108,7 +108,9 @@
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 RemoveWorkLoadNotes: "Please type in a reason to remove item(s) from workload",
                 OnHoldWorkLoadNotes: "Please type in a reason to hold or remove the item(s) frmo workload",
-                GeneralError: "Error Occurred"
+                GeneralError: "Error Occurred",
+                SelectedStateForSqlError: "Selected State is only for SQL Search",
+                SelectedStateForEsError: "Selected State is only for Elastic Search"
             }
         };
 
@@ -314,6 +316,18 @@
             requestSearchModel.DaysSelected = drpDays.value() === "" ? null : drpDays.value();
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
             requestSearchModel.SearchControl = e.ctrlKey;
+
+            debugger;
+            
+            if (requestSearchModel.SearchControl && requestSearchModel.StatusId > 100){
+                $(this).displayError(messages.errorMessages.SelectedStateForEsError);
+                return;
+            }
+
+            if (!requestSearchModel.SearchControl && requestSearchModel.StatusId < 100) {
+                $(this).displayError(messages.errorMessages.SelectedStateForSqlError);
+                return;
+            }
 
             var criteriaList = [];
 
