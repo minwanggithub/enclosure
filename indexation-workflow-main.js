@@ -613,7 +613,7 @@
 
             // selection
             var groupSelected = ($("input[name=GroupIndividual]:checked").val().toLowerCase() === "group");
-            var selectedValue = (groupSelected ? ddlGroups.text() : acUserName.value());
+            var selectedValue = (groupSelected ? ddlGroups.text() + "*" : acUserName.value());
 
             // user/group must be selected
             if (selectedValue.replace(/ /g, "") === "") {
