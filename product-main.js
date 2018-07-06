@@ -46,9 +46,9 @@
                     ReferenceNote: "#txtXReferenceNote",
                     ProductSearch: "#txtProductSearch",
                     SupplierSearch: "#txtSupplierSearch",
-                    SearchSupplierId: "#txtSearchSupplierId",
-                    ProductSearchProductId: "#txtSearchProductId",
-                    ProductSearchProductName: "#txtProductSearchProductName"
+                    SearchSupplierId: "#txtSearchSupplierId",                    
+                    ProductSearchProductName: "#txtProductSearchProductName",
+                    ProductSearchProductId: "#txtProductSearchSearchProductId"
                 },
                 checkBox: {
                     Obsolete: "#chkIsObsolete"
@@ -375,14 +375,9 @@
                     }
 
                     UnBindingSaveCancel(0);
-                    deactivateLayout(activeSaveButton);
-                    // this checks that the xref screen hidden textboxes have values, if not means you are on the main product screen
-                    if ($(productObject.controls.hiddenTextBoxes.HiddenProductName).val() != "") {
-                        $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductName).val($(productObject.controls.hiddenTextBoxes.HiddenProductName).val());
-                        $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
-                    }
-                    else
-                        $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductId).val(data.ReferenceId);
+                    deactivateLayout(activeSaveButton);    
+                    $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductId).val(data.ReferenceId);
+                    $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
                     
                     $(productObject.controls.divs.NewProductDetail).html("");
 
