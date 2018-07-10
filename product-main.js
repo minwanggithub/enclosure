@@ -568,11 +568,13 @@
                 });
             } else {
                 // Remove a filter for ProductName
-                for (var index = 0; index < grid.dataSource.filter().filters.length; index++) {
-                   if (grid.dataSource.filter().filters[index].field == "ProductName") {
-                         grid.dataSource.filter().filters.splice(index, 1);
-                  }
-               }
+                if (grid.dataSource.filter() != null) { 
+                    for (var index = 0; index < grid.dataSource.filter().filters.length; index++) {
+                        if (grid.dataSource.filter().filters[index].field == "ProductName") {
+                            grid.dataSource.filter().filters.splice(index, 1);
+                        }
+                    }
+                }
             }
             
         };
