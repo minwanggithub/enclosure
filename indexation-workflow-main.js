@@ -30,6 +30,7 @@
                 buttons: {
                     ClearRequestSearchButton: "#clearIndexingWorkflowBtn",      // resets search
                     SearchRequestsButton: "#searchIndexingWorkflowBtn",         // do the search
+                    UploadIndexationUsers: "#uploadIndexationUsers",
                     SaveSearchSettings: "#saveSearchSettingsBtn",               // save settings (not implemented)
                     AddAdvancedSearchOption: "#btnAddCriteria",                 // save settings (not implemented)
                     RemoveAdvancedSearchOption: "#btnDeleteCriteria",           // remove settings (not implemented)
@@ -37,6 +38,7 @@
                     AssignMeButton: "#btnAssignMe",
                     UnAssignButton: "#btnUnAssignFrom",
                     SaveAssignButton: "#btnSaveAssign",
+                    ManageUsers: "#btnManageUsers",
                     StartWorkflow: "#btnStartIndexing"
                 },
 
@@ -93,7 +95,9 @@
             Assign: "#mdlAssign",
             ViewHistory: "#mdlViewHistory",
             OnHold: "#mdlOnHold",
-            RemoveOnHold: "#mdlRemoveOnHold"
+            RemoveOnHold: "#mdlRemoveOnHold",
+            ManageUsers: "#mdlManageUsers"
+
         };
 
         var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
@@ -280,6 +284,11 @@
 
             }
 
+        });
+
+        workflowSearchObj.on("click", obtainmentObject.controls.buttons.UploadIndexationUsers, function () {
+            $("#fileUploadWindow").data("kendoWindow").center();
+            $("#fileUploadWindow").data("kendoWindow").open();
         });
 
         // clear search 
@@ -601,6 +610,17 @@
             });
         })
 
+        // ASSIGN SELECTED WORKFLOW ITEMS
+        workflowDetailObj.on("click", obtainmentObject.controls.buttons.ManageUsers, function (e) {
+            e.preventDefault();
+            //fUploadlib.displayFileUploadModal(argsCallbackFunc, callbackFunc, clearCacheOnConfirm);
+
+            $("#fileUploadWindow").data("kendoWindow").center();
+            $("#fileUploadWindow").data("kendoWindow").open();
+
+
+        })
+
         // PROCESS ASSIGN SELECTED ITEMS TO USER OR GROUP
         workflowDetailObj.on("click", obtainmentObject.controls.buttons.SaveAssignButton, function (e) {
 
@@ -775,147 +795,6 @@
 
         });
 
-        // --------------------------------- END OF GRID ACTIONS
-
-        //// SAVE WORKFLOW
-        //workflowSearchObj.on("click", obtainmentObject.controls.buttons.SaveSearchSettings, function () {
-
-        //    //var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
-        //    //var drpLanguage = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
-        //    //var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
-        //    //var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
-        //    //var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
-        //    //var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
-
-        //    //obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
-        //    //obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
-        //    //obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
-        //    //obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
-        //    //obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
-        //    //obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
-        //    //obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
-        //    //DisableEnableButtons(false);
-
-        //    //$(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-        //    //   .success(function (successData) {
-        //    //       if (successData.success == true) {
-        //    //           DisableEnableButtons(true);
-        //    //           $(this).savedSuccessFully(messages.successMessages.Saved);
-        //    //       }
-        //    //   }).error(function (error) {
-        //    //       $(this).displayError(error);
-        //    //   });
-        //});
-
-
-        //workflowSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function () {
-        //    $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
-        //});
-
-        // SEARCH WORKFLOW
-        //workflowSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
-
-        //    //var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
-        //    //var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
-        //    //var drpDocType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DocumentTypeDropDownList).data("kendoDropDownList");
-        //    //var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
-        //    //var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
-        //    //var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
-
-        //    ////create requestSearchModel to be passed to the controller
-        //    //obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
-        //    //obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
-        //    //obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
-        //    //obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
-        //    //obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
-        //    //obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
-        //    //obtainmentWorkLoadSearchResultModel.NoticeNumber = $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val();
-        //    //obtainmentWorkLoadSearchResultModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
-        //    //obtainmentWorkLoadSearchResultModel.AccountId = $(obtainmentObject.controls.textBoxes.AccountId).val();
-        //    //obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
-
-
-        //    //obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
-        //    //    + obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId
-        //    //    + obtainmentWorkLoadSearchResultModel.DocumentTypeId
-        //    //    + obtainmentWorkLoadSearchResultModel.LockTypeId
-        //    //    + obtainmentWorkLoadSearchResultModel.AssignedToId
-        //    //    + obtainmentWorkLoadSearchResultModel.NextStepId
-        //    //    + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0"
-        //    //    + obtainmentWorkLoadSearchResultModel.AccountId;
-
-        //    //if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
-        //    //    DisableEnableButtons(false);
-
-        //    //    kendo.ui.progress(obtainmentDetailObj, true);
-        //    //    $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-        //    //        .success(function (data) {
-        //    //            obtainmentDetailObj.html(data);
-        //    //            DisableEnableButtons(true);
-        //    //        }).error(
-        //    //        function () {
-        //    //            $(this).displayError(messages.errorMessages.GeneralError);
-        //    //        });
-        //    //}
-        //    //else
-        //    //    $(this).displayError(messages.errorMessages.SelectFilter);
-        //});
-
-        //workflowSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
-
-        //    //var supplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
-        //    //var emailTarget = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").value();
-        //    //var emailTargetText = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").text();
-
-        //    //if (emailTarget == "") emailTarget = "0";
-
-        //    //if (emailTarget == "0") {
-        //    //    $(this).displayError(messages.errorMessages.SuperEmailTargetNotSelected);
-        //    //    return;
-        //    //}
-
-        //    //// get portal data
-        //    //$(this).ajaxCall(controllerCalls.GetSupplierPortalUrl, { supplierId: supplierId })
-        //    //        .success(function (successData) {
-        //    //            SetSuperEmailDefault(successData, emailTarget, emailTargetText);
-        //    //        }).error(function (error) {
-        //    //            $(this).displayError(error);
-        //    //        });
-        //});
-
-
-
-        //workflowSearchObj.on("input propertychange paste keyup", obtainmentObject.controls.textBoxes.SupplierId, function (e1) {
-        //    //var code = (e1.keyCode ? e1.keyCode : e1.which);
-        //    //if (code == 13) //Search only on enter
-        //    //    $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
-
-        //    ////$(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
-        //    //if ($(obtainmentObject.controls.textBoxes.SupplierId).val() == "") {
-        //    //    $(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(false);
-        //    //    $(obtainmentObject.controls.dropdownlists.EmailTargets).enableControl(false);
-        //    //    $("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").enable(false);
-        //    //}
-
-        //});
-
-        ////obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
-        ////    e.preventDefault();
-        ////    ShowHistory(this.id, null);
-        ////});
-
-        ////obtainmentDetailWorkFlowObj.on("click", ".showHistorySupplier", function (e) {
-        ////    e.preventDefault();
-        ////    ShowHistory(null, this.id);
-        ////});
-
-        ////obtainmentDetailWorkFlowObj.on("click", ".showAccount", function (e) {
-        ////    e.preventDefault();
-        ////    ShowAccount(this.id, null);
-        ////});
-
-
-
         function SubError(errorMessage) {
             var message = errorMessage;
             $('#errorReport').find('.modal-body').html(message);
@@ -955,13 +834,32 @@
             }
         }
 
+        function onFileUploadError(e) {
+            $(".k-upload-files > li").remove();
+            $(this).displayError("Invalid File Format - " + e.files[0].name + "<br>Please load a valid Groups/Users spreadsheet.");
+        }
+
+        function onFileUploadUpload(e) {
+            $(".k-upload-files > li").remove();
+            $(this).displayError("File - " + e.files[0].name + " has been processed successfully.");
+            $("#fileUploadWindow").data("kendoWindow").close();
+        }
+
+        function onFileUploadWindowClose(e) {
+            //$(".k-upload-files > li").remove();
+            //$("#fileUploadWindow").data("kendoWindow").close();
+        }
 
         return {
 
             init:init,
             handleAdvancedSearchOption: handleAdvancedSearchOption,
             loadRequests: loadRequests,
-            handleKendoGridEvents: handleKendoGridEvents
+            handleKendoGridEvents: handleKendoGridEvents,
+            showError: SubError,
+            onFileUploadError: onFileUploadError,
+            onFileUploadUpload: onFileUploadUpload,
+            onFileUploadWindowClose: onFileUploadWindowClose
             
 
             //loadRequests: loadRequests,
