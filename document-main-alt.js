@@ -182,7 +182,9 @@
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
                 DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
-                DocumentShowAllResults: "[id^=ShowAllResults]",
+                DocumentShowAllResults: "[id^=ShowAllResults]",                
+                DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
+                DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_"
             }
         };
 
@@ -241,7 +243,7 @@
             warnings: {
                 DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
-                LinkDocumentToAllMfrProudct: "Are you sure you want to link the above document to all product(s) from it's Manufacturer in the list below?",
+                LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
                 InvalidManufacturerSelection : "Invalid Manufacturer Selection. Proceed nevertheless ?"
             }
         };
@@ -726,33 +728,80 @@
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
                 DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                    kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
                     kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
-                    $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
 
+                    $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
                         if (!data.Success) {
                             $(this).displayError(data.Message);
                             return;
                         }
-
-                        var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
-
-                        if (gProudct.dataSource.view().length > 0) {
-                            gProudct.dataSource.page(1);
-                        }
-                        gProudct.dataSource.read();
-
-                        var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
-
-                        if (gNonProduct.dataSource.view().length > 0) {
-                            gNonProduct.dataSource.page(1);
-                        }
-                        gNonProduct.dataSource.read();
-
-                        kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), false);
+                        refereshAssociationGrid(did);
                     });
                 });
             });
+
+            getRealNumberForProductAssociation(did)
         };
+
+        function refereshAssociationGrid(did) {
+            var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
+            var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
+
+            if (gProudct.dataSource.view().length > 0) {
+                gProudct.dataSource.page(1);
+            }
+            gProudct.dataSource.data([]);
+
+            if (gNonProduct.dataSource.view().length > 0) {
+                gNonProduct.dataSource.page(1);
+            }
+            gNonProduct.dataSource.data([]);
+
+
+            getRealNumberForProductAssociation(did)
+
+            gProudct.dataSource.read();
+            gNonProduct.dataSource.read();
+
+
+            kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), false);
+            kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), false);
+        }
+
+        function getRealNumberForProductAssociation(did) {
+            $.ajax({
+                method: "GET",
+                url: GetEnvironmentLocation() + "/Document/GetProductDocumentAssociationInfo?documentId=" + did,
+                contentType: 'application/json; charset=utf-8',
+                error: function () { /* DO NOTHING */ },
+                success: function (result) {
+                    $(documentElementSelectors.textboxes.DocumentAssociatedProduct + did).text('Total products in db: ' + result.associatedItems);
+                    $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
+                    
+                    if (result.unassociatedItems > 5000)
+                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to first 5000 products');
+                    else
+                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems  + ' products');
+                }
+            });
+
+            //$.ajax({
+            //    method: "GET",
+            //    url: GetEnvironmentLocation() + "/DataLoader/GetDataLoaderEntityById?tablename=complifolder&companyid=" + companyId + "&statuslkpid=" + statusLkpId,
+            //    contentType: 'application/json; charset=utf-8',
+            //    error: function () { /* DO NOTHING */ },
+            //    success: function (result) {
+
+            //        $(".CompanyName_" + compliFolderId).html(result.CompanyName + "");
+            //        $(".StatusLookupId_" + compliFolderId).html(result.Status);
+
+            //        $(".CompliFolderDetail_" + compliFolderId + " td:contains('null')").each(function () {
+            //            $(this).html("");
+            //        });
+            //    }
+            //});
+        }
 
         /******************************** New Document Methods ********************************/
         function cancelNewDocumentForm(callbackFunc, clearFields, clearAttachments) {
@@ -2399,6 +2448,7 @@
                         $(this).displayError(data.Message);
                         return;
                     }
+
                     //Remove the row instead of refresh grid, it's much faster
                     var gView = $("#" + targetId).data("kendoGrid");
                     gView.removeRow($(dataItem)); //just gives alert message
