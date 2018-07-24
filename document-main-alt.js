@@ -785,22 +785,6 @@
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems  + ' products');
                 }
             });
-
-            //$.ajax({
-            //    method: "GET",
-            //    url: GetEnvironmentLocation() + "/DataLoader/GetDataLoaderEntityById?tablename=complifolder&companyid=" + companyId + "&statuslkpid=" + statusLkpId,
-            //    contentType: 'application/json; charset=utf-8',
-            //    error: function () { /* DO NOTHING */ },
-            //    success: function (result) {
-
-            //        $(".CompanyName_" + compliFolderId).html(result.CompanyName + "");
-            //        $(".StatusLookupId_" + compliFolderId).html(result.Status);
-
-            //        $(".CompliFolderDetail_" + compliFolderId + " td:contains('null')").each(function () {
-            //            $(this).html("");
-            //        });
-            //    }
-            //});
         }
 
         /******************************** New Document Methods ********************************/
