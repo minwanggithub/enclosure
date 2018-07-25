@@ -739,9 +739,8 @@
                         refereshAssociationGrid(did);
                     });
                 });
-            });
-
-            getRealNumberForProductAssociation(did)
+            });            
+            getRealNumberForProductAssociation(did);
         };
 
         function refereshAssociationGrid(did) {
@@ -2432,16 +2431,16 @@
                         $(this).displayError(data.Message);
                         return;
                     }
-
                     //Remove the row instead of refresh grid, it's much faster
                     var gView = $("#" + targetId).data("kendoGrid");
                     gView.removeRow($(dataItem)); //just gives alert message
                     gView.dataSource.remove(dataItem); //removes it actually from the grid
 
-                    var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
-                    gNonProduct.dataSource.page(1);
-                    gNonProduct.dataSource.read();
+                    //var gNonProduct = $(documentElementSelectors.grids.NonDocumentProduct + did).data("kendoGrid");
+                    //gNonProduct.dataSource.page(1);
+                    //gNonProduct.dataSource.read();
 
+                    getRealNumberForProductAssociation(did);
                 });
             });
         };
