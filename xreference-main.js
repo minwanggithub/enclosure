@@ -317,18 +317,6 @@
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
             requestSearchModel.SearchControl = e.ctrlKey;
 
-            debugger;
-            
-            if (requestSearchModel.SearchControl && requestSearchModel.StatusId > 100){
-                $(this).displayError(messages.errorMessages.SelectedStateForEsError);
-                return;
-            }
-
-            if (!requestSearchModel.SearchControl && requestSearchModel.StatusId < 100) {
-                $(this).displayError(messages.errorMessages.SelectedStateForSqlError);
-                return;
-            }
-
             var criteriaList = [];
 
             //create filter array
