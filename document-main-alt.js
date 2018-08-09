@@ -493,7 +493,6 @@
                     DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
                     DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
                     ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                    SearchControl: keyCodeValues.ctrlKeyState.Pressed
                 };
                 keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();

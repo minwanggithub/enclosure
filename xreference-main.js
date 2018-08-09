@@ -315,7 +315,6 @@
             requestSearchModel.StatusId = drpStatus.value() === "" ? null : drpStatus.value();
             requestSearchModel.DaysSelected = drpDays.value() === "" ? null : drpDays.value();
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
-            requestSearchModel.SearchControl = e.ctrlKey;
 
             var criteriaList = [];
 
