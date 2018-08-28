@@ -48,7 +48,8 @@
                     SupplierSearch: "#txtSupplierSearch",
                     SearchSupplierId: "#txtSearchSupplierId",                    
                     ProductSearchProductName: "#txtProductSearchProductName",
-                    ProductSearchProductId: "#txtProductSearchSearchProductId"
+                    ProductSearchProductId: "#txtProductSearchSearchProductId",
+                    ProductSearchResultTotal: "#lblProductSearchResultTotal"
                 },
                 checkBox: {
                     Obsolete: "#chkIsObsolete"
