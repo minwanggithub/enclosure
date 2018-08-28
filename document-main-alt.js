@@ -184,7 +184,8 @@
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
                 DocumentShowAllResults: "[id^=ShowAllResults]",                
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
-                DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_"
+                DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
+                DocumentSearchResultTotal: "#lblDocumentSearchResultTotal"
             }
         };
 
@@ -561,10 +562,26 @@
             }
         }
 
+        function updateDocumentSearchResultTotal(criteria) {
+            $.ajax({
+                method: "GET",
+                url: GetEnvironmentLocation() + "/Document/GetDocumentResultCount?searchCriteria=" + criteria,
+                contentType: 'application/json; charset=utf-8',
+                error: function () { /* DO NOTHING */ },
+                success: function (result) {                    
+                    $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result);                    
+                }
+            });
+        }
+
+
+
         var getDocumentSearchCriteria = function (e) {
             var container = $(documentElementSelectors.containers.DocumentSearch);
-            return getContainerSearchCriteria(container);
-            };
+            var model = getContainerSearchCriteria(container);
+            updateDocumentSearchResultTotal(JSON.stringify(model));
+            return model;
+        };
 
         var onDocumentMainPanelActivate = function () {
             this.element.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchAddNewBtnClick);
