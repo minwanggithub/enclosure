@@ -862,9 +862,10 @@
 
 
         function ShowActionModals() {
+
             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
-            if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
+            if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().replace(/ /g, "").length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
                 return;
             }
@@ -1096,7 +1097,6 @@
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["ObtainmentWorkID"]);
-                            itemsChecked++;
                         } else {
                             var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
                             if (index > -1)
@@ -1115,6 +1115,7 @@
                             grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
                     });
 
+                    itemsChecked = selectedRequests.length;
                     UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
                 }
@@ -1122,6 +1123,7 @@
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
+
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 selectedRequests = new Array();
@@ -1134,7 +1136,6 @@
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["ObtainmentWorkID"]);
-                                itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
                                 if (index > -1)
@@ -1147,8 +1148,8 @@
                             if (!this['IsSelected'] && this['NoticeNumber'] != null)
                                 hasNoticeNumbers = false;
                         });
+
                         kgrid.refresh();
-                        UpdateNumberOfItemsChecked(itemsChecked);
 
                         $('tr', grid).each(function () {
                             var tr = $(this);
@@ -1163,11 +1164,20 @@
                     }
                 }
 
+                itemsChecked = selectedRequests.length;
+                UpdateNumberOfItemsChecked(itemsChecked);
+
             });
+
+            
         }
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
-            $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+
+            if (numberOfItems > 0)
+                $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
+            else
+                $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("");
         }
 
         function onDdlDataBound(e) {
