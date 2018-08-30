@@ -370,7 +370,7 @@
                 kendo.ui.progress(xreferenceDetailObj, true);
                 $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: JSON.stringify(requestSearchModel) })
                     .success(function (data) {
-                        xreferenceDetailObj.html(data);
+                        xreferenceDetailObj.html(data);                        
                     }).done(function () {
                         $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(true);
                         $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
@@ -440,7 +440,6 @@
             } else {
                 var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
                 if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
-                    debugger;
                     var data = {};
                     data['ids'] = selectedRequests;
                     data['customerAction'] = "Customer Action";
