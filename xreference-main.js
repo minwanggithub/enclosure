@@ -11,7 +11,7 @@
         var onHoldCount = 0;
         var requestSearchModel = {};
         var selectedRequests = new Array();
-        var selectedRows = new Array();
+        var selectedRows = new Array();        
         var radioButtonSelected = "Group";
         var xreferenceObject = {
             controls: {
@@ -317,7 +317,9 @@
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
 
             var criteriaList = [];
-
+            selectedSupplierNameOperator = 0;
+            selectedSupplierName = "";
+            selectedSupplierId = 0;      
             //create filter array
             for (var indexRows = 0; indexRows < numberOfRows; indexRows++) {
                 initialRow++;
@@ -327,7 +329,6 @@
                 criteria.FieldName = drpFields.value();
                 criteria.WhereOperator = drpCriteria.text();
                 criteria.SearchOperator = drpCriteria.value();
-
 
                 var valueAssigned;
                 if ($("div #row #right " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).is(":hidden")) {
@@ -359,7 +360,6 @@
                     if (valueAssigned.length > 0)
                         criteriaList.push(criteria);
                 }
-
             }
 
             if (dteDateAssigned.value() != null || drpStatus.value() !== "" || drpDays.value() !== "" || intCategoryValue > 0 || criteriaList.length > 0) {
@@ -824,13 +824,14 @@
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
                         if (selectedRow.length > 0) {
-
+                            debugger;
                             if ($(this).is(':checked')) {
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
                                 $("#hdnSupplier").val("").trigger('change');
                                 $("#lblProductName").text("");
                                 $("#lblSupplierName").text("");
+                                
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
@@ -840,7 +841,7 @@
 
                             } else {
 
-                                if (dataItem["ProductName"] !== $("#hdnProductName").val() || dataItem["SupplierID"] !== $("#hdnSupplier").val()) {
+                                if (dataItem["ProductName"] !== $("#hdnProductName").val() || dataItem["SupplierID"] !== $("#hdnSupplier").val() ) {
                                     $("#hdnSupplierName").val(dataItem["SupplierName"]).trigger('change');
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
                                     $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
