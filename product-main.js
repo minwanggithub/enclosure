@@ -113,6 +113,36 @@
             Obsolete: false
         };
 
+        var dsProductNameOption = kendo.observable({
+            selectedValue: "0",
+            id: "radiogroupProductNameSearchOption",
+            items: [
+                { caption: "Contains", value: "3" },
+                { caption: "Exact Match", value: "0" },
+                { caption: "Start With", value: "1" },
+                { caption: "End With", value: "2" }
+            ]
+        });
+
+        var dsSupplierNameSearchOption = kendo.observable({
+            selectedValue: "0",
+            id: "radiogroupSupplierNameSearchOption",
+            items: [
+                { caption: "Contains", value: "3" },
+                { caption: "Exact Match", value: "0" },
+                { caption: "Start With", value: "1" },
+                { caption: "End With", value: "2" }
+            ]
+        });
+
+        var initializeSearchOperator = function () {
+            kendo.bind($("#searchTitleOptionDivPre"), dsProductNameOption);
+            kendo.bind($("#searchSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
+        };
+
+        var resetSupplierNameOptionObservable = function (value) {            
+            dsSupplierNameSearchOption.set("selectedValue", value);
+        };
 
         function deactivateLayout(productId) {
             // Sanity check!
@@ -902,6 +932,7 @@
             displaySingleDocument: displaySingleDocument,
             initializeProductDetailControls: initializeProductDetailControls,
             intializeSearchHistoryControls: intializeSearchHistoryControls,
+            initializeSearchOperator: initializeSearchOperator,
             LoadProductMatchDetailsCompleted: LoadProductMatchDetailsCompleted,
             onProductStatusChange: onProductStatusChange,
             onProductStatusGridChange: onProductStatusGridChange,
@@ -921,7 +952,8 @@
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
             onProductPhysicalStateChange: onProductPhysicalStateChange,
-            setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback
+            setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback,
+            resetSupplierNameOptionObservable: resetSupplierNameOptionObservable
         };
     };
 

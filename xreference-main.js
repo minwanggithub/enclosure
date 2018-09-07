@@ -824,7 +824,6 @@
                     if (dataItem) {
                         dataItem.set('IsSelected', !checked);
                         if (selectedRow.length > 0) {
-                            debugger;
                             if ($(this).is(':checked')) {
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
