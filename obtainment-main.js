@@ -1327,7 +1327,11 @@
                             if (successData.success == true) {
                                 kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
                                 var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+
                                 grid.dataSource.read();
+                                while (selectedRequests.length > 0) selectedRequests.pop();
+                                UpdateNumberOfItemsChecked(0);
+
                                 if (modalId != null)
                                     $(modalId).hideModal();
                                 $(this).savedSuccessFully(messages.successMessages.Saved);
@@ -1417,7 +1421,12 @@
                              if (successData.success == true) {
                                  kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
                                  var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+
                                  grid.dataSource.read();
+
+                                 while (selectedRequests.length > 0) selectedRequests.pop();
+                                 UpdateNumberOfItemsChecked(0);
+
                                  if (modalId != null)
                                      $(modalId).hideModal();
                                  $(this).savedSuccessFully(messages.successMessages.Saved);
