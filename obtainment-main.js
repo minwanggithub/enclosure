@@ -1173,11 +1173,11 @@
         }
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
-
+            
             if (numberOfItems > 0)
                 $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
             else
-                $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("");
+                $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val("").trigger("change");
         }
 
         function onDdlDataBound(e) {
