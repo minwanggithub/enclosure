@@ -179,10 +179,6 @@
             notesModalSettings = settings;
         };
 
-        var setUpdateStatusLayoutCallback = function (updateStatusLayoutFunc) {
-            updateStatusLayoutCallback = updateStatusLayoutFunc;
-        };
-
         // Document Methods
         function addDocumentListToProduct(doclists) {
             $.post(controllerCalls.AddDocumentListToProduct, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
@@ -324,6 +320,16 @@
                 window.open(controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
         }
 
+        // Logic to check if the document status dropdownlist should be readonly
+        var updateProductStatusLayout = function (currentProductId, currentStatusId) {
+            if (currentStatusId == '@deactivated' ||
+                (currentStatusId == '@suspect' && '@isAdmin' != 'True') ||
+                currentProductId == '0') {
+                var ddlId = ($('#ddlProductStatus_' + currentProductId).length > 0) ? 'ddlProductStatus_' + currentProductId : 'ddlProductStatus_0';
+                readonlyKendoDropDownList(ddlId);
+            }
+        }
+
         function saveBtnEvent(activeSaveButton) {
             var form = $("#frmProductDetail_" + activeSaveButton).updateValidation();
             if (!form.valid())
@@ -428,9 +434,7 @@
                     reloadProductHistoryGrid(activeSaveButton);
                     setProductGridDataSourceItem(data);
                 }
-
-                if (updateStatusLayoutCallback)
-                    updateStatusLayoutCallback(productId, selectedStatusId);
+                updateProductStatusLayout(productId, selectedStatusId);
             });
         }
 
@@ -538,7 +542,6 @@
             elemId = elemId.replace('ddlPhysicalState_', '');
             BindingSaveCancel(elemId);
         };
-
 
         //--------------------start of _SearchProduct.cshtml-----------------------
         function TabReload(tabName, tab) {
@@ -953,7 +956,8 @@
             viewSingleSupplier: viewSingleSupplier,
             onProductPhysicalStateChange: onProductPhysicalStateChange,
             setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback,
-            resetSupplierNameOptionObservable: resetSupplierNameOptionObservable
+            resetSupplierNameOptionObservable: resetSupplierNameOptionObservable,
+            updateProductStatusLayout: updateProductStatusLayout
         };
     };
 
