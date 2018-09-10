@@ -1191,6 +1191,9 @@
                     var tr = $(this);
                     tr.removeClass('k-state-selected');
                 });
+
+                // clear out master selector
+                $(".chkMasterMultiSelect").prop("checked", false);
                 
             }
         }
