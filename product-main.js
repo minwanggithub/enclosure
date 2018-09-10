@@ -955,7 +955,6 @@
             UnBindingSaveCancel: UnBindingSaveCancel,
             viewSingleSupplier: viewSingleSupplier,
             onProductPhysicalStateChange: onProductPhysicalStateChange,
-            setUpdateStatusLayoutCallback: setUpdateStatusLayoutCallback,
             resetSupplierNameOptionObservable: resetSupplierNameOptionObservable,
             updateProductStatusLayout: updateProductStatusLayout
         };
