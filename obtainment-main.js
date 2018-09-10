@@ -1177,7 +1177,22 @@
             if (numberOfItems > 0)
                 $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
             else
+            {
+
+                // clear out number of items selected
                 $(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val("").trigger("change");
+
+                // remove any previously selected rows
+                while (selectedRows.length > 0) selectedRows.pop();
+
+                // un-select highlighted rows
+                var grid = $(".chkMasterMultiSelect").parents('.k-grid:first');
+                $('tr', grid).each(function () {
+                    var tr = $(this);
+                    tr.removeClass('k-state-selected');
+                });
+                
+            }
         }
 
         function onDdlDataBound(e) {
