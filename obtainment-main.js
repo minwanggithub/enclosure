@@ -1185,6 +1185,9 @@
                 // remove any previously selected rows
                 while (selectedRows.length > 0) selectedRows.pop();
 
+                // clean this out too
+                while (selectedRequests.length > 0) selectedRequests.pop();
+
                 // un-select highlighted rows
                 var grid = $(".chkMasterMultiSelect").parents('.k-grid:first');
                 $('tr', grid).each(function () {
@@ -1227,18 +1230,7 @@
             // disable button after first click, re-enable after process completes    
             $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "hidden");
 
-            // do not process if email already being sent
-            //var state = $(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state");
-            //if (state == "sending") return;
-
-            // flag as sending
-            //$(obtainmentObject.controls.buttons.SendEmailButton).attr("send-state", "sending");
-
-            // ensure that the email has contact, subject and message body. without these a
-            // email may not be sent out
-
             var valid = true;
-            debugger;
 
             var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
 
@@ -1248,8 +1240,6 @@
 
                 // flag as invalid
                 valid = false;
-
-                //$(modalId).toggleModal();
 
                 // display validation message
                 $(this).displayError(messages.errorMessages.EmailPartsMissing);
