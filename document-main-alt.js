@@ -75,7 +75,7 @@
                 DocumentSearchPopUpCancel: "#btnCancelDocumentSearch",
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
-                DocumentSearchSearchSupplier: "#searchSupplierIdBtn",
+                DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_"
             },
             checkboxes: {
@@ -130,6 +130,8 @@
                 DocumentSearchRegion: "[id^=ddlDocumentRegion]",
                 DocumentSearchStatus: "[id^=ddlDocumentStatus]",
                 DocumentSearchDateRange: "[id^=ddlDateRange]",
+                DocumentSupplierNameOperatorDropdown: "[id^=btnDocSupplierNameOperatorDropdown]",
+                
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
@@ -179,6 +181,7 @@
                 DocumentSearchPartNumber: "[id^=txtSearchPartNumber]",
                 DocumentSearchRevisionTitle: "[id^=txtRevisionTitle]",
                 DocumentSearchSupplierId: "[id^=txtSearchSupplierId]",
+                DocumentSearchSupplierName: "[id^=txtDocSearchSupplierName]",
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
                 DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
@@ -257,6 +260,60 @@
                 Pressed : false
             }
         };
+
+        var dsSearchOption = kendo.observable({
+            selectedValue: "2",
+            id: "radiogroupTitleSearchOption",
+            items: [
+                { caption: "Contains", value: "0" },
+                { caption: "Exact Match", value: "1" },
+                { caption: "Start With", value: "2" },
+                { caption: "End With", value: "3" }
+            ]
+        });
+
+        var dsUPCSearchOption = kendo.observable({
+            selectedValue: "1",
+            id: "radiogroupUPCSearchOption",
+            items: [
+                { caption: "Contains", value: "0" },
+                { caption: "Exact Match", value: "1" },
+                { caption: "Start With", value: "2" },
+                { caption: "End With", value: "3" }
+            ]
+        });
+
+        var dsPartNumSearchOption = kendo.observable({
+            selectedValue: "1",
+            id: "radiogroupPartNumSearchOption",
+            items: [
+                { caption: "Contains", value: "0" },
+                { caption: "Exact Match", value: "1" },
+                { caption: "Start With", value: "2" },
+                { caption: "End With", value: "3" }
+            ]
+        });
+
+        var dsDateSearchOption = kendo.observable({
+            selectedValue: "0",
+            id: "radiogroupDateSearchOption",
+            items: [
+                { caption: "Revision Date", value: "0" },
+                { caption: "Created Date", value: "1" },
+                { caption: "Updated Date", value: "2" },
+            ]
+        });
+
+        var dsSupplierNameSearchOption = kendo.observable({
+            selectedValue: "0",
+            id: "radiogroupSupplierNameSearchOption",
+            items: [
+                { caption: "Contains", value: "3" },
+                { caption: "Exact Match", value: "0" },
+                { caption: "Start With", value: "1" },
+                { caption: "End With", value: "2" }
+            ]
+        });
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
@@ -2384,6 +2441,26 @@
             }
         }
 
+        function switchBetweenMfgNameAndID() {
+            $('input:radio[name="mfgdocselectvalue"]').change(function () {
+                var whichOne = $("input[name='mfgdocselectvalue']:checked").val();
+                if (whichOne == 'docmfgid') {
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled", true); 
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled", false);
+                    $(documentElementSelectors.buttons.DocumentSearchSearchSupplier).prop("disabled", false);
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).val("");
+                    $(documentElementSelectors.dropdownlists.DocumentSupplierNameOperatorDropdown).prop("disabled", true);
+                }
+                else {
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled", false);
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled", true);
+                    $(documentElementSelectors.buttons.DocumentSearchSearchSupplier).prop("disabled", true);
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).val("");
+                    $(documentElementSelectors.dropdownlists.DocumentSupplierNameOperatorDropdown).prop("disabled", false);
+                }
+            });
+        }
+
         var onDocumentContainerClassificationTypeChange = function () {
             refreshDocumentContainersGrid(this.element.attr('id'));
         };
@@ -2519,17 +2596,30 @@
             }
         };
 
-        var confirmFullSearchResultLoad = function(e){
+        var confirmFullSearchResultLoad = function(e) {
 
-            DisplayConfirmationModal({ message: e.errors, header: 'Confirm search result display' }, function () {
+            DisplayConfirmationModal({ message: e.errors, header: 'Confirm search result display' },
+                function() {
 
-                var container = $(documentElementSelectors.containers.DocumentMain);
-                container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("true");
-                $("#gdSearchDocument").data("kendoGrid").dataSource.read();
+                    var container = $(documentElementSelectors.containers.DocumentMain);
+                    container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("true");
+                    $("#gdSearchDocument").data("kendoGrid").dataSource.read();
 
-            });
+                });
 
-        }
+        };
+
+        var initializeSearchOperator = function () {
+            kendo.bind($("#searchTitleOptionDiv"), dsSearchOption);
+            kendo.bind($("#searchDateOptionDiv"), dsDateSearchOption);
+            kendo.bind($("#searchUPCOptionDiv"), dsUPCSearchOption);
+            kendo.bind($("#searchPartNumOptionDiv"), dsPartNumSearchOption);
+            kendo.bind($("#searchDocSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
+
+            $("#btnDocSupplierNameOperatorDropdown").prop("disabled", true);
+
+            switchBetweenMfgNameAndID();
+        };
 
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
@@ -2562,6 +2652,7 @@
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             confirmFullSearchResultLoad: confirmFullSearchResultLoad,
+            initializeSearchOperator: initializeSearchOperator,
             performDocumentSearch: performDocumentSearch
         };
     };
