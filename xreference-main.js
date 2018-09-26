@@ -834,12 +834,11 @@
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
-
                                 if (typeof performXrefProductSearch != "undefined")
                                     performXrefProductSearch();
 
                             } else {
-
+                                
                                 if (dataItem["ProductName"] !== $("#hdnProductName").val() || dataItem["SupplierID"] !== $("#hdnSupplier").val() ) {
                                     $("#hdnSupplierName").val(dataItem["SupplierName"]).trigger('change');
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');

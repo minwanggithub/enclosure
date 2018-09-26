@@ -141,6 +141,7 @@
                 DocumentDateSearchOptions: "input[name=radiogroupDateSearchOption]",
                 DocumentPartNumSearchOptions: "input[name=radiogroupPartNumSearchOption]",
                 DocumentUPCSearchOptions: "input[name=radiogroupUPCSearchOption]",
+                DocumentSupplierNameSearchOptions: "input[name=radiogroupSupplierNameSearchOption]",
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -308,10 +309,10 @@
             selectedValue: "0",
             id: "radiogroupSupplierNameSearchOption",
             items: [
-                { caption: "Contains", value: "3" },
-                { caption: "Exact Match", value: "0" },
-                { caption: "Start With", value: "1" },
-                { caption: "End With", value: "2" }
+                { caption: "Contains", value: "0" },
+                { caption: "Exact Match", value: "1" },
+                { caption: "Start With", value: "2" },
+                { caption: "End With", value: "3" }
             ]
         });
 
@@ -545,6 +546,8 @@
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
                     SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
                     SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
+                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
                     UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
                     UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
                     DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
@@ -2560,9 +2563,6 @@
             }
 
             return;
-        
-            console.log(e);
-            debugger;
 
             if (e.type == "create") {
 
