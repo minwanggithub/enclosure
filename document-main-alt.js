@@ -85,6 +85,7 @@
                 DocumentRevisionDetailsBestImageAvailable: "[id^=BestImageAvailable_]",
                 DocumentSearchIncludeDeleted: "[id^=chkIncludeDeletedDocument]",
                 DocumentSearchLatestRevision: "[id^=chkLatestRevision]",
+                DocumentSearchSupplierIdCheckBox: "[id^=rdMfgId]",
             },
             containers: {
                 CreatedMessage: "#CreatedMessage",
@@ -2446,7 +2447,7 @@
 
         function switchBetweenMfgNameAndID() {
             $('input:radio[name="mfgdocselectvalue"]').change(function () {
-                var whichOne = $("input[name='mfgdocselectvalue']:checked").val();
+                var whichOne = $("input[name='mfgdocselectvalue']:checked").val();                
                 if (whichOne == 'docmfgid') {
                     $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled", true); 
                     $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled", false);
@@ -2615,9 +2616,7 @@
             kendo.bind($("#searchUPCOptionDiv"), dsUPCSearchOption);
             kendo.bind($("#searchPartNumOptionDiv"), dsPartNumSearchOption);
             kendo.bind($("#searchDocSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
-
             $("#btnDocSupplierNameOperatorDropdown").prop("disabled", true);
-
             switchBetweenMfgNameAndID();
         };
 
