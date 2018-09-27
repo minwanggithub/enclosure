@@ -719,9 +719,14 @@
                     ShowMessage("The super email request has been queued for processing.<br>" +
                         "A preview summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.");
                 } else {
+
                     $(actionModals.SuperMail).toggleModal();
                     ShowMessage("The super email request has been queued for processing.<br>" +
                         "A summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.<br>");
+
+                    // reset fields
+                    $(obtainmentObject.controls.checkBox.PreviewEmail).prop("checked", true);   
+
                 }
 
             });
