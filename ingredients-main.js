@@ -240,6 +240,15 @@
             return ingredientValidator;
         }
 
+        var onSaveIngredient = function (e) {
+            if (!confirm("This change will affect all products matched to this chemical name. Do you wish to proceed ?"))
+            {
+                e.preventDefault();
+                return false;
+            }
+            return true;
+        };
+
         //Expose to public
 
         return {
@@ -251,7 +260,7 @@
             onIngredientGeneralReady: onIngredientGeneralReady,
             onGridEditChangeTitle:  onGridEditChangeTitle,
             onSaveName: onSaveName,
-
+            onSaveIngredient: onSaveIngredient
         };
     };
 })(jQuery);
