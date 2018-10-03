@@ -2597,19 +2597,6 @@
             }
         };
 
-        var confirmFullSearchResultLoad = function(e) {
-
-            DisplayConfirmationModal({ message: e.errors, header: 'Confirm search result display' },
-                function() {
-
-                    var container = $(documentElementSelectors.containers.DocumentMain);
-                    container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("true");
-                    $("#gdSearchDocument").data("kendoGrid").dataSource.read();
-
-                });
-
-        };
-
         var initializeSearchOperator = function () {
             kendo.bind($("#searchTitleOptionDiv"), dsSearchOption);
             kendo.bind($("#searchDateOptionDiv"), dsDateSearchOption);
@@ -2650,7 +2637,6 @@
             onDataBound: onDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
-            confirmFullSearchResultLoad: confirmFullSearchResultLoad,
             initializeSearchOperator: initializeSearchOperator,
             performDocumentSearch: performDocumentSearch
         };
