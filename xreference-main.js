@@ -11,7 +11,7 @@
         var onHoldCount = 0;
         var requestSearchModel = {};
         var selectedRequests = new Array();
-        var selectedRows = new Array();        
+        var selectedRows = new Array();        esv
         var radioButtonSelected = "Group";
         var xreferenceObject = {
             controls: {
@@ -70,7 +70,7 @@
                     YesNoDropDownList: "#selYesNo"
                 },
                 multiSelectLists: { CategoriesMultiSelect: "#mltCategories" },
-                dateTime: { DateAssigned: "#DateAssigned" },
+                dateTime: { DateAssigned: "#DateAssigned", DateCreated: "#DateCreated" },                
                 labels: { NotesLabel: "#lblNotes", PendingNotesLabel: "#lblPendingNotes" },
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
             }
@@ -302,6 +302,7 @@
             var initialRow = 0;
             var mltCategories = $("#divSearchSection " + xreferenceObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
             var dteDateAssigned = $("#divSearchSection " + xreferenceObject.controls.dateTime.DateAssigned).data("kendoDatePicker");
+            var dteDateCreated = $("#divSearchSection " + xreferenceObject.controls.dateTime.DateCreated).data("kendoDatePicker");
             var drpStatus = $("#divSearchSection " + xreferenceObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList");
             var drpDays = $("#divSearchSection " + xreferenceObject.controls.dropdownlists.DaysDropDownList).data("kendoDropDownList");
 
@@ -312,6 +313,7 @@
 
             //create requestSearchModel to be passed to the controller
             requestSearchModel.DateAssigned = dteDateAssigned.value() === "" ? null : dteDateAssigned.value();
+            requestSearchModel.DateCreated = dteDateCreated.value() === "" ? null : dteDateCreated.value();
             requestSearchModel.StatusId = drpStatus.value() === "" ? null : drpStatus.value();
             requestSearchModel.DaysSelected = drpDays.value() === "" ? null : drpDays.value();
             requestSearchModel.Category = intCategoryValue === 0 ? null : intCategoryValue;
@@ -362,7 +364,7 @@
                 }
             }
 
-            if (dteDateAssigned.value() != null || drpStatus.value() !== "" || drpDays.value() !== "" || intCategoryValue > 0 || criteriaList.length > 0) {
+            if (dteDateAssigned.value() != null || dteDateCreated.value() != null || drpStatus.value() !== "" || drpDays.value() !== "" || intCategoryValue > 0 || criteriaList.length > 0) {
                 //add filter array to requestSearchModel
                 $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(false);
                 $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
