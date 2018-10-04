@@ -11,7 +11,7 @@
         var onHoldCount = 0;
         var requestSearchModel = {};
         var selectedRequests = new Array();
-        var selectedRows = new Array();        esv
+        var selectedRows = new Array(); 
         var radioButtonSelected = "Group";
         var xreferenceObject = {
             controls: {
