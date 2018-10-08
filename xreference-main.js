@@ -574,7 +574,6 @@
 
         //changes the controls on the criteria from dropdowns to text inputs depending on selection
         $(document).on("change", "select", function () {
-
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
             var drpContains;
             if (this.id.length > 0) {
@@ -582,24 +581,31 @@
                 var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
                 drpContains = $(xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + index).data("kendoDropDownList");
-
                 if ($(this).val() === "Language" || $(this).val() === "DocumentType" || $(this).val() === "Country") {
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
                     var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
                     //create dropdown in html form first and added to it's corresponding div
                     drpContains.select(criteriaCondition.ExactMatch);
+                    drpContains.enable(false);
                     $("#dvDropDown_" + index).html(drpDownList);
                     //transform select to kendo dropdown
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
                 }
+                if ($(this).val().toLowerCase().endsWith("id")) {
+                    drpContains.select(criteriaCondition.ExactMatch);
+                    drpContains.enable(false);
+                }
+                else if (!$.isNumeric($(this).val())) {
+                    drpContains.select(criteriaCondition.Contains);
+                    drpContains.enable(true);
+                }
+
                 if (ddlName === xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#", "")) {
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).val("");
-                    $("#dvDropDown_" + index).css("display", "none");
-                    if (drpContains != null)
-                        drpContains.select(criteriaCondition.StartsWith);
+                    $("#dvDropDown_" + index).css("display", "none");                    
                 }
             }
 
