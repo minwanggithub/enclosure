@@ -114,7 +114,7 @@
         };
 
         var dsProductNameOption = kendo.observable({
-            selectedValue: "0",
+            selectedValue: "3",
             id: "radiogroupProductNameSearchOption",
             items: [
                 { caption: "Contains", value: "3" },
@@ -125,7 +125,7 @@
         });
 
         var dsSupplierNameSearchOption = kendo.observable({
-            selectedValue: "0",
+            selectedValue: "3",
             id: "radiogroupSupplierNameSearchOption",
             items: [
                 { caption: "Contains", value: "3" },

@@ -264,7 +264,7 @@
         };
 
         var dsSearchOption = kendo.observable({
-            selectedValue: "2",
+            selectedValue: "0",
             id: "radiogroupTitleSearchOption",
             items: [
                 { caption: "Contains", value: "0" },
@@ -275,7 +275,7 @@
         });
 
         var dsUPCSearchOption = kendo.observable({
-            selectedValue: "1",
+            selectedValue: "0",
             id: "radiogroupUPCSearchOption",
             items: [
                 { caption: "Contains", value: "0" },
@@ -286,7 +286,7 @@
         });
 
         var dsPartNumSearchOption = kendo.observable({
-            selectedValue: "1",
+            selectedValue: "0",
             id: "radiogroupPartNumSearchOption",
             items: [
                 { caption: "Contains", value: "0" },
