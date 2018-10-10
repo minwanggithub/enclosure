@@ -75,7 +75,7 @@
                     RemoveOnHoldWorkLoadTextBox: "#txtRemoveOnHoldWorkLoadNotes"
 
                 },
-
+                searchOptions: { Contains: "Contains", ExactMatch: "Exact Match", StartsWith: "Starts With", EndsWith: "Ends With"},
                 checkboxes : {
                     CurrentRevisionOnly: "#chkCurrentRevisionOnly"
                 },
@@ -366,7 +366,6 @@
         })
 
         function handleAdvancedSearchOption(e) {
-
             // the fields control
             var ctrl = "#" + this.element.attr("id");
 
@@ -393,6 +392,16 @@
             var dropdown = ctrl.replace("drpFields", "dvDropDown").replace("_", "_" + this.value() + "_");
             console.log("Selected dropdown:" + dropdown);
 
+            var drpContains = $("#drpContains" + id).data("kendoDropDownList");
+            if (this.value().toLowerCase().endsWith("id") || this.value() === "Language") {
+                drpContains.value(obtainmentObject.controls.searchOptions.ExactMatch);
+                drpContains.enable(false);
+            } else {
+                drpContains.value(obtainmentObject.controls.searchOptions.Contains);
+                drpContains.enable(true);
+            }
+
+
             if ($(dropdown).size() != 0) {
                 $(textField).hide();
                 var enclosure = dropdown.replace("drp", "dv");
@@ -408,7 +417,6 @@
         getAdvancedSearchCriteria = function () {
 
             var criteria = [];
-
             $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {
 
                 var searchFor = null;
