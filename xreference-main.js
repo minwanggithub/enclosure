@@ -595,11 +595,16 @@
                 }
                 if ($(this).val().toLowerCase().endsWith("id")) {
                     drpContains.select(criteriaCondition.ExactMatch);
-                    drpContains.enable(false);
+                    drpContains.enable(false);                    
+                    $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,            
+                        function () {
+                            this.value = this.value.replace(/[^0-9$,]/g, '');
+                   });
                 }
                 else if (!$.isNumeric($(this).val())) {
                     drpContains.select(criteriaCondition.Contains);
                     drpContains.enable(true);
+                    $(document).off('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index);                    
                 }
 
                 if (ddlName === xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#", "")) {
