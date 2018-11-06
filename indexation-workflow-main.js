@@ -396,12 +396,15 @@
             if (this.value().toLowerCase().endsWith("id") || this.value() === "Language") {
                 drpContains.value(obtainmentObject.controls.searchOptions.ExactMatch);
                 drpContains.enable(false);
+                $(document).on('keyup', textField,
+                    function () {
+                        this.value = this.value.replace(/[^0-9$,]/g, '');
+                    });
             } else {
                 drpContains.value(obtainmentObject.controls.searchOptions.Contains);
                 drpContains.enable(true);
+                $(document).off('keyup', textField);  
             }
-
-
             if ($(dropdown).size() != 0) {
                 $(textField).hide();
                 var enclosure = dropdown.replace("drp", "dv");
@@ -409,7 +412,7 @@
                 $(enclosure).show();
             }
             else {
-                $(textField).show();
+                $(textField).val("").show();
             }
 
         }
