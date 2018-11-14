@@ -623,24 +623,28 @@
             }
         }
 
-        function updateDocumentSearchResultTotal(criteria) {
+        function updateDocumentSearchResultTotal(model) {
             $.ajax({
-                method: "GET",
-                url: GetEnvironmentLocation() + "/Document/GetDocumentResultCount?searchCriteria=" + criteria,
-                contentType: 'application/json; charset=utf-8',
-                error: function () { /* DO NOTHING */ },
-                success: function (result) {                    
-                    $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result);                    
+                type: 'GET',
+                dataType: 'json',
+                cache: false,
+                url: GetEnvironmentLocation() + '/Document/GetDocumentResultCount',
+                data: model,
+                success: function (result, textStatus, jqXHR) {
+                    $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    //Parent will throw error
                 }
             });
         }
 
 
-
         var getDocumentSearchCriteria = function (e) {
             var container = $(documentElementSelectors.containers.DocumentSearch);
             var model = getContainerSearchCriteria(container);
-            updateDocumentSearchResultTotal(JSON.stringify(model));
+            //updateDocumentSearchResultTotal(JSON.stringify(model));
+            updateDocumentSearchResultTotal(model);
             return model;
         };
 
