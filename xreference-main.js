@@ -593,7 +593,10 @@
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
                 }
-                if ($(this).val().toLowerCase().endsWith("id")) {
+                if ($(this).get(0).id.startsWith("drpLanguage") || $(this).get(0).id.startsWith("drpDocumentType") || $(this).get(0).id.startsWith("drpCountry")) {
+                    //skip all the events
+                }
+                else if ($(this).val().toLowerCase().endsWith("id")) {
                     drpContains.select(criteriaCondition.ExactMatch);
                     drpContains.enable(false);                    
                     $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,            
