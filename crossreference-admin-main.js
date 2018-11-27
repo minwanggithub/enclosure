@@ -11,7 +11,11 @@
         // initialize 
         var craSearchObj = $("#CrossRefernceWFPanel");                          // panel container
         var craAdvancedSearchObj = $("#CrossReferenceAdminSearchOptions");      // advanced search options
-        var craDetailObj = $("#CrossReferenceAdminGrid");                       // grid container 
+        var craDetailObj = $("#CrossReferenceAdminWFGrid");                       // grid container 
+
+        var workflowSearchObj = $("#IndexationWFPanel");                        // panel container
+        var workflowAdvancedSearchObj = $("#IndexationAdvancedSearchOptions");  // advanced search options
+        var workflowDetailObj = $("#IndexationWFGrid");                         // grid container 
 
         var selectedIds = {};                                                   // ids of selected rows
         var gridIds = {};                                                       // traversed ids with selection state
@@ -33,7 +37,7 @@
                 },
 
                 grids: {
-                    GridRequests: "#gdRequests"
+                    GridRequests: "#gdSearchCrossReference"
                 },
 
                 dateTime: {
@@ -63,6 +67,7 @@
 
         var controllerCalls = {
             SearchRequestsCriteria: GetEnvironmentLocation() + "/Administration/CrossReference/GetSearchCriteria",
+            SearchRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SearchRequests",
         };
 
 
@@ -99,18 +104,27 @@
             var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
 
-            // disable slide-out menu options
-            disableSideMenuItems();
-            enableAssignUnAssignButtons(false);
-
-            // show the slide out tab
-            $(crossReferenceObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
-
-            // set ASSIGN/UNASSIGN default to GROUP
-            $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
         };
 
-        
+        // get cross reference results
+        var doCrossReferenceSearch = function () {
+
+            // prevent another search being executed
+            disableButtons();
+
+            var url = controllerCalls.SearchRequests
+            var searchCriteria = JSON.stringify(getAdvancedSearchCriteria());
+
+            $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
+                .success(function (data) {
+                    console.log(data);
+                    craDetailObj.html(data);
+                    enableButtons();
+                }).error(
+                    function () {
+                        enableButtons();
+                    });
+        };
 
         // ---------------------------------  BUTTONS AND MENUS    
 
@@ -148,25 +162,7 @@
 
         // clear search 
         craSearchObj.on("click", crossReferenceObjects.controls.buttons.SearchCrossReferenceAdminBtn, function () {
-
-            // get criteria to query for
-            crossReferenceAdminSearchModel.Criterias = Array.from(getAdvancedSearchCriteria());
-
-            
-
-            //var errors = [];
-            //// get search criteria
-            //var criteria = Array.from(getAdvancedSearchCriteria());
-            //// validate any date range
-            //if (criteria.filter(e => e["FieldName"] == "DateRange" && e["SearchFor"].replace(/ /g, "") == ":").length > 0) {
-            //    errors.push("DATE RANGE");
-            //}
-            //if (criteria.filter(e => "ACCOUNTID DOCUMENTID".indexOf(e["FieldName"].toUpperCase()) >= 0 && isNaN(e["SearchFor"])).length > 0) {
-            //    errors.push("INTEGER IDENTIFIERS");
-            //}
-            //console.log(errors);
-            //console.log(criteria);
-
+            doCrossReferenceSearch();
         });
 
         // ---------------------------------------- ADVANCED SEARCH OPTIONS ---------------------------------------- 
@@ -324,7 +320,10 @@
 
             });
 
-            return criteria;
+            var data = new Object();
+            data.Criterias = criteria;
+
+            return data;
 
         }
 
@@ -398,6 +397,14 @@
             }
 
         }
+
+        var loadRequests = function () {
+
+            // bind grid
+            var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
+            grid.dataSource.read();
+
+        };
 
         $(craDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
 
@@ -489,13 +496,19 @@
 
         }
 
+        function onDataBound() {
+
+        }
+
         return {
 
             init: init,
+            getAdvancedSearchCriteria: getAdvancedSearchCriteria,
             handleAdvancedSearchOption: handleAdvancedSearchOption,
             loadRequests: loadRequests,
             handleKendoGridEvents: handleKendoGridEvents,
-            showError: SubError
+            showError: SubError,
+            onDataBound: onDataBound
 
         };
     };
