@@ -500,6 +500,10 @@
 
         }
 
+        function onResponseDetailExpand() {
+
+        }
+
         return {
 
             init: init,
@@ -508,7 +512,8 @@
             loadRequests: loadRequests,
             handleKendoGridEvents: handleKendoGridEvents,
             showError: SubError,
-            onDataBound: onDataBound
+            onDataBound: onDataBound,
+            onResponseDetailExpand: onResponseDetailExpand
 
         };
     };
