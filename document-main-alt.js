@@ -22,7 +22,7 @@
                 UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
                 ClearSessionVariablesDocument: "ClearSessionsVariables",
                 GetSupplierName: "GetSupplierName",
-                VerifyProductManufacturer : "VerifyProductManufacturer"
+                VerifyProductManufacturer: "VerifyProductManufacturer"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -76,7 +76,8 @@
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",
-                DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_"
+                DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
+                DocumentAddSibling: "#btnSibling_"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -132,7 +133,7 @@
                 DocumentSearchStatus: "[id^=ddlDocumentStatus]",
                 DocumentSearchDateRange: "[id^=ddlDateRange]",
                 DocumentSupplierNameOperatorDropdown: "[id^=btnDocSupplierNameOperatorDropdown]",
-                
+
             },
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
@@ -155,7 +156,8 @@
                 DocumentSearchPopUp: "#gdSearchDocumentPopUp",
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
                 DocumentProduct: "#gdDocumentProduct_",
-                NonDocumentProduct: "#gdNonDocumentProduct_"
+                NonDocumentProduct: "#gdNonDocumentProduct_",
+                DocumentSibling: "#gdDocumentSibling_",
             },
             hidden: {
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
@@ -187,7 +189,7 @@
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
                 DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
-                DocumentShowAllResults: "[id^=ShowAllResults]",                
+                DocumentShowAllResults: "[id^=ShowAllResults]",
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
                 DocumentSearchResultTotal: "#lblDocumentSearchResultTotal"
@@ -197,7 +199,8 @@
         var controllerCalls = {
             RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate",
             AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
-            IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid"
+            IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
+            AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling"
         }
 
         var documentMessages = {
@@ -250,17 +253,17 @@
                 DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
-                InvalidManufacturerSelection : "Invalid Manufacturer Selection. Proceed nevertheless ?"
+                InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?"
             }
         };
 
         var keyCodeValues = {
             Enter: 13,
             V: 86,
-            ctrlKeyState :
-            {
-                Pressed : false
-            }
+            ctrlKeyState:
+                {
+                    Pressed: false
+                }
         };
 
         var dsSearchOption = kendo.observable({
@@ -532,30 +535,30 @@
         function getContainerSearchCriteria(container) {
             if (container && container.length > 0) {
                 var result =
-                {
-                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                    PartNumberSearchOption:container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(), 
-                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
-                    SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
-                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
-                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
-                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
-                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
-                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
-                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
-                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
-                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                };
+                    {
+                        ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
+                        DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
+                        DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
+                        DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
+                        DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
+                        IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
+                        LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
+                        PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                        PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
+                        PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
+                        ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
+                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
+                        SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                        SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                        SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
+                        SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
+                        UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                        UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
+                        DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
+                        DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
+                        DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
+                        ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                    };
                 keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
@@ -569,9 +572,9 @@
             }
 
             return null;
-            }
+        }
 
-        function performDocumentSearch() {            
+        function performDocumentSearch() {
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             searchGrid.dataSource.data([]);
             searchGrid.dataSource.page(1);
@@ -601,8 +604,8 @@
                 onKeyPressEnter(e, performDocumentSearch);
         }
 
-        function onDocumentSearchSearchBtnClick(e) {                   
-            keyCodeValues.ctrlKeyState.Pressed = e.ctrlKey;            
+        function onDocumentSearchSearchBtnClick(e) {
+            keyCodeValues.ctrlKeyState.Pressed = e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
         }
@@ -667,7 +670,7 @@
             $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
-        var onDisplayNewDocumentPopUp = function(pKey) {
+        var onDisplayNewDocumentPopUp = function (pKey) {
             displayAddNewDocumentPopUp(pKey);
         }
 
@@ -703,7 +706,7 @@
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
                         if ($(this).getQueryStringParameterByName("docGuid")) {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
-                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") +"&productid="+pKey;
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey;
                             } else {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
                             }
@@ -723,7 +726,7 @@
                         }
 
                     })
-                    .error(function () {displayError(documentMessages.errors.AddNewDocumentPopUp);});
+                    .error(function () { displayError(documentMessages.errors.AddNewDocumentPopUp); });
 
             } else
                 displayError(documentMessages.errors.AddNewDocumentPopUp);
@@ -733,8 +736,8 @@
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             var grid = container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
             if (grid && grid.dataSource) {
-                
-                if (grid.dataSource.view().length > 0) { 
+
+                if (grid.dataSource.view().length > 0) {
                     grid.dataSource.page(1);
                 }
                 grid.dataSource.read();
@@ -783,7 +786,7 @@
             }
         }
 
-        var getDocumentSearchPopUpCriteria = function() {
+        var getDocumentSearchPopUpCriteria = function () {
             var container = $(documentElementSelectors.containers.DocumentSearchPopUp);
             return getContainerSearchCriteria(container);
         };
@@ -820,9 +823,30 @@
                         refereshAssociationGrid(did);
                     });
                 });
-            });            
+            });
             getRealNumberForProductAssociation(did);
         };
+
+        var initializeDocumentSibling = function (did) {
+            $(documentElementSelectors.buttons.DocumentAddSibling + did).click(function (e) {
+                e.preventDefault();
+                var title = prompt("Please enter title for the sibling you want to create", "");
+                if (title != null) {                    
+                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
+                    $.post(controllerCalls.AddDocumentSibling,
+                        { documentId: did, documentTitle: title },
+                        function (data) {
+                            if (!data.Success) {
+                                $(this).displayError(data.Message);
+                                return;
+                            }
+                            //Need to refreshSiblingGrid(did);
+                        });
+                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+                }
+            });
+        };
+
 
         function refereshAssociationGrid(did) {
             var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
@@ -858,11 +882,11 @@
                 success: function (result) {
                     $(documentElementSelectors.textboxes.DocumentAssociatedProduct + did).text('Total products in db: ' + result.associatedItems);
                     $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
-                    
+
                     if (result.unassociatedItems > 5000)
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to first 5000 products');
                     else
-                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems  + ' products');
+                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems + ' products');
                 }
             });
         }
@@ -880,7 +904,7 @@
 
                 displayConfirmationModal(settings, function () {
 
-                    if(clearFields == true)
+                    if (clearFields == true)
                         revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
 
                     var formData = {
@@ -894,7 +918,7 @@
                         url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
                         data: formData,
                         beforeSend: function () {
-                            if(clearAttachments == true)
+                            if (clearAttachments == true)
                                 clearDocumentRevisionAttachments(container);
                         }
                     });
@@ -988,7 +1012,7 @@
                 url = form.attr('action');
 
                 $(this).ajaxCall(url, formData)
-                    .success(function(data) {
+                    .success(function (data) {
                         var errorMessage = parseErrorMessage(data);
                         if (!errorMessage) {
 
@@ -1003,8 +1027,8 @@
                         } else
                             displayError(errorMessage);
                     })
-                    .error(function() {displayError(documentMessages.errors.SaveNewDocumentError);});
-            }else
+                    .error(function () { displayError(documentMessages.errors.SaveNewDocumentError); });
+            } else
                 displayError(documentMessages.errors.SaveNewDocumentError);
         }
 
@@ -1102,7 +1126,7 @@
                     displayError(documentMessages.modals.PrivateAccessForDocument);
                 }
             }
-          
+
         }
 
         function onNewDocumentPopUpCancelBtnClick(e) {
@@ -1119,12 +1143,12 @@
                 data.manufacturerId = formData.ManufacturerId;
                 data.productId = $(this).getQueryStringParameterByName("productid");
                 $(this).syncAjaxCall(controllerCalls.IsManufacturerProductionSelectionValid, data)
-                    .success(function(response) {
+                    .success(function (response) {
                         var valid = true;
                         if (!response.IsValid) valid = confirm("The selected manufacturer does not correspond to the product. Continue ?");
                         if (valid) saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
                     })
-                    .error(function() {});
+                    .error(function () { });
             } else
                 saveNewDocumentRevisionToDatabase(saveNewDocumentPopUp);
 
@@ -1147,7 +1171,7 @@
                     if (!response.IsValid) return confirm("The selected manufacturer does not correspond to the product. Continue ?");
 
                 })
-                .error(function() {});
+                .error(function () { });
         }
 
         function onNewDocumentSaveBtnClick(e) {
@@ -1195,20 +1219,20 @@
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
 
-            $(this).ajaxCall(generateActionUrl("../../" + documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.GetSupplierName), {supplierId: supplierId})
-            .success(function (result) {
-                if (result.message == "Error" || result.success == false) {
+            $(this).ajaxCall(generateActionUrl("../../" + documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.GetSupplierName), { supplierId: supplierId })
+                .success(function (result) {
+                    if (result.message == "Error" || result.success == false) {
+                        $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
+                        $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
+                    } else {
+                        $("[id*=txtSupplierId_" + documentId + "]").val(supplierId + ', ' + result);
+                        $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId + ', ' + result);
+                    }
+                })
+                .error(function () {
                     $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
                     $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
-                } else {
-                    $("[id*=txtSupplierId_" + documentId + "]").val(supplierId + ', ' + result);
-                    $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId + ', ' + result);
-               }
-           })
-           .error(function () {
-               $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
-               $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
-           });
+                });
 
 
             $("[id*=btnDocumentRevisionSave_" + documentId + "]").removeClass('disabled-link');
@@ -1527,36 +1551,36 @@
 
         function getDocRevDetailsDataForInboundResponse(container, documentId, revisionId) {
 
-         if (!container && documentId & revisionId) {
-                container =((revisionId || 0) == 0) ? $(documentElementSelectors.containers.DocumentNewRevision +documentId): $(documentElementSelectors.containers.DocumentRevision +documentId);
-         }
+            if (!container && documentId & revisionId) {
+                container = ((revisionId || 0) == 0) ? $(documentElementSelectors.containers.DocumentNewRevision + documentId) : $(documentElementSelectors.containers.DocumentRevision + documentId);
+            }
 
-                if (container && container.length > 0) {
-                    var result = {
-                        BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
-                        DocumentId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val(),
-                        DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
-                        DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
-                        DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
-                        IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
-                        IsGoodImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).is(":checked"),
-                        ManufacturerId: null,
-                        RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
-                        RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
-                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
-                        DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
-                        SupplierId: null,
-                        VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
-                        CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
-               };
+            if (container && container.length > 0) {
+                var result = {
+                    BestImageAvailable: container.find(documentElementSelectors.checkboxes.DocumentRevisionDetailsBestImageAvailable).is(":checked"),
+                    DocumentId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val(),
+                    DocumentIdentification: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentIdentification).val(),
+                    DocumentSourceId: container.find(documentElementSelectors.dropdownlists.DocumentRevisionDetailsDocumentSource).val(),
+                    DocumentVersion: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentVersion).val(),
+                    IsBadImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsBadImage).is(":checked"),
+                    IsGoodImage: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsIsGoodImage).is(":checked"),
+                    ManufacturerId: null,
+                    RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
+                    RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
+                    DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
+                    SupplierId: null,
+                    VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
+                };
 
-               if (extractCompanyIdFromTemplate) {
+                if (extractCompanyIdFromTemplate) {
                     result.ManufacturerId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId).val());
                     result.SupplierId = extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId).val());
                 }
 
                 return result;
-                }
+            }
 
             return null;
         }
@@ -1639,7 +1663,7 @@
                         header: documentMessages.modals.DocumentRevisionDiscardChangesHeader,
                     };
 
-                    displayConfirmationModal(settings, function() {
+                    displayConfirmationModal(settings, function () {
                         revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);
                         window.close();
                     });
@@ -1663,10 +1687,10 @@
 
                 displayConfirmationModal(settings, function () {
                     $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment), {
-                            files: [{ FileName: dataItem.FileName, PhysicalPath: dataItem.PhysicalPath }],
-                            documentId: dataItem.DocumentId,
-                            revisionId: dataItem.RevisionId,
-                        })
+                        files: [{ FileName: dataItem.FileName, PhysicalPath: dataItem.PhysicalPath }],
+                        documentId: dataItem.DocumentId,
+                        revisionId: dataItem.RevisionId,
+                    })
                         .success(function (data) {
                             var errorMessage = parseErrorMessage(data);
                             if (errorMessage)
@@ -1689,7 +1713,7 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-          
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
@@ -1717,11 +1741,11 @@
                     backdrop: true,
                     keyboard: true
                 }).css(
-                {
-                    'margin-left': function () {
-                        return -($(this).width() / 2);
-                    }
-                });
+                    {
+                        'margin-left': function () {
+                            return -($(this).width() / 2);
+                        }
+                    });
             }
         }
 
@@ -1741,7 +1765,7 @@
                 displayConfirmationModal(settings, function () {
 
                     $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.DeleteDocumentFile), { DocumentInfoId: dataItem.DocumentInfoId })
-                        .success(function(data) {
+                        .success(function (data) {
                             var errorMessage = parseErrorMessage(data);
                             if (errorMessage)
                                 displayError(errorMessage);
@@ -1768,7 +1792,7 @@
 
         function onDocumentRevisionMultipleNameNumbersSaveBtnClick(e) {
             e.preventDefault();
-           
+
             var container = $(e.currentTarget).parents('.modal:first');
             var nameNumbers = container.find(documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers).val();
             var nameNumberType = container.find(documentElementSelectors.dropdownlists.DocumentRevisionMultipleNameNumbersType).val();
@@ -1800,8 +1824,8 @@
                     } else
                         displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers);
                 })
-                .error(function () {displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers);})
-                .complete(function () {displayCreatedMessage(documentMessages.success.DocumentRevisionMultipleNameNumbersSaved);});
+                .error(function () { displayError(documentMessages.errors.DocumentRevisionMultipleNameNumbers); })
+                .complete(function () { displayCreatedMessage(documentMessages.success.DocumentRevisionMultipleNameNumbersSaved); });
         }
 
         function onDocumentRevisionMultipleNameNumbersKeyUp(e) {
@@ -1885,11 +1909,11 @@
 
                             } else {
                                 $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.SaveDocumentRevisionAttachments), {
-                                        files: data.map(function(item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; }),
-                                        documentId: documentId,
-                                        revisionId: revisionId,
-                                        isNewRevision: false
-                                    })
+                                    files: data.map(function (item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; }),
+                                    documentId: documentId,
+                                    revisionId: revisionId,
+                                    isNewRevision: false
+                                })
                                     .success(function (result) {
                                         if (result.message == "Error" || result.success == false) {
                                             displayError(documentMessages.errors.DocumentRevisionAttachment);
@@ -1984,8 +2008,8 @@
         function onDocumentRevisionSaveBtnClick(e) {
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
-            }            
-         
+            }
+
             e.preventDefault();
 
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
@@ -2034,7 +2058,7 @@
                     return false;
 
                 if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
-                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);                    
+                    displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
                 }
 
@@ -2074,8 +2098,8 @@
                             displayError(errorMessage);
                     })
                     .error(function () {
-                         $(e.currentTarget).removeClass('k-state-disabled');
-                         displayError(documentMessages.errors.SaveDocumentRevisionError);
+                        $(e.currentTarget).removeClass('k-state-disabled');
+                        displayError(documentMessages.errors.SaveDocumentRevisionError);
                     });
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
@@ -2087,7 +2111,7 @@
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
 
             var formData = {
-                inboundResponseId : $(this).getQueryStringParameterByName("inboundresponseid"),
+                inboundResponseId: $(this).getQueryStringParameterByName("inboundresponseid"),
                 model: getDocRevDetailsDataForInboundResponse(form, documentId, 0),
                 attachments: getDocRevAttachmentsForInboundResponse(form, documentId, 0)
             };
@@ -2099,21 +2123,21 @@
                 if (formData.attachments.length > 0) {
 
                     $(this).ajaxCall(url, formData)
-                    .success(function(data) {
-                        var errorMessage = parseErrorMessage(data);
-                        if(!errorMessage) {
-                            parent.window.opener.location.reload();
-                            window.close();
+                        .success(function (data) {
+                            var errorMessage = parseErrorMessage(data);
+                            if (!errorMessage) {
+                                parent.window.opener.location.reload();
+                                window.close();
                             } else
-                            displayError(errorMessage);
-                            })
-                    .error(function() {
-                        displayError(documentMessages.errors.SaveDocumentRevisionError);
-                    });
+                                displayError(errorMessage);
+                        })
+                        .error(function () {
+                            displayError(documentMessages.errors.SaveDocumentRevisionError);
+                        });
 
                     return;
 
-                 }
+                }
 
                 // if there are no attachments, prompt for a save confirmation
                 if (formData.attachments.length == 0) {
@@ -2128,17 +2152,17 @@
                     displayConfirmationModal(settings, function () {
 
                         $(this).ajaxCall(url, formData)
-                        .success(function(data) {
-                            var errorMessage = parseErrorMessage(data);
-                            if (!errorMessage) {
-                                parent.window.opener.location.reload();
-                                window.close();
-                            } else
-                                displayError(errorMessage);
+                            .success(function (data) {
+                                var errorMessage = parseErrorMessage(data);
+                                if (!errorMessage) {
+                                    parent.window.opener.location.reload();
+                                    window.close();
+                                } else
+                                    displayError(errorMessage);
                             })
-                        .error(function () {
-                            displayError(documentMessages.errors.SaveDocumentRevisionError);
-                        });
+                            .error(function () {
+                                displayError(documentMessages.errors.SaveDocumentRevisionError);
+                            });
 
                     });
 
@@ -2167,7 +2191,7 @@
                         supplierField.val(data).trigger('change');
                     }
                 })
-                .error(function(xhr, textStatus, error) { displayError(error); });
+                .error(function (xhr, textStatus, error) { displayError(error); });
         }
 
 
@@ -2205,12 +2229,12 @@
 
                 // alert(JSON.stringyfy(attachment));
 
-                $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription),attachment)
+                $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.UpdateDocumentInfoDescription), attachment)
                     .success(function (data) {
                         var errorMessage = parseErrorMessage(data);
                         if (errorMessage) displayError(errorMessage);
                     })
-                    .error(function () {displayError(documentMessages.errors.DocumentRevisionAttachmentDescriptionUpdate);});
+                    .error(function () { displayError(documentMessages.errors.DocumentRevisionAttachmentDescriptionUpdate); });
             }
         };
 
@@ -2401,7 +2425,7 @@
                             else
                                 refreshDocumentContainersGrid(ddl.element.attr('id'));
                         })
-                        .error(function () {displayError(documentMessages.errors.SaveDocumentContainerComponent);});
+                        .error(function () { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
                 });
             }
         }
@@ -2417,7 +2441,7 @@
                     message: documentMessages.modals.DocumentDeleteContainerComponentMessage,
                 };
 
-                displayConfirmationModal(settings, function() {
+                displayConfirmationModal(settings, function () {
 
                     var data = {
                         ChildDocumentId: dataItem.ChildDocumentId,
@@ -2426,7 +2450,7 @@
                         ParentDocumentId: dataItem.ParentDocumentId,
                     };
 
-                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveDocumentContainerComponent),data)
+                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveDocumentContainerComponent), data)
                         .success(function (result) {
                             var errorMessage = parseErrorMessage(result);
                             if (errorMessage)
@@ -2434,7 +2458,7 @@
                             else
                                 refreshDocumentContainersGrid(grid.element.attr('id'));
                         })
-                        .error(function () {displayError(documentMessages.errors.DocumentContainerComponentDelete);});
+                        .error(function () { displayError(documentMessages.errors.DocumentContainerComponentDelete); });
                 });
             }
         }
@@ -2451,9 +2475,9 @@
 
         function switchBetweenMfgNameAndID() {
             $('input:radio[name="mfgdocselectvalue"]').change(function () {
-                var whichOne = $("input[name='mfgdocselectvalue']:checked").val();                
+                var whichOne = $("input[name='mfgdocselectvalue']:checked").val();
                 if (whichOne == 'docmfgid') {
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled", true); 
+                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled", true);
                     $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled", false);
                     $(documentElementSelectors.buttons.DocumentSearchSearchSupplier).prop("disabled", false);
                     $(documentElementSelectors.textboxes.DocumentSearchSupplierName).val("");
@@ -2547,7 +2571,7 @@
         };
 
         var onDocumentRevisionNameNumberError = function (e) {
-          
+
             var tokens = e.errors["ServerError"].errors[0].split(":");
             $(this).displayError(tokens[1]);
             var gridId = '#gdRevisionNameNumber_' + tokens[0];
@@ -2560,7 +2584,7 @@
 
         var afterSaveNameNumber = function (e) {
 
-          
+
             if (e.response.success == false) {
                 $(this).displayError(e.response.message);
                 $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
@@ -2581,7 +2605,7 @@
                 }
 
                 //if (e.response.Errors != null) {
-                    
+
                 //    $(this).displayError(e.response.Errors["NameNumber"].errors[0]);
                 //    var grid = $(gridId).data('kendoGrid');
                 //    grid.one("dataBinding", function (e) {
@@ -2616,6 +2640,7 @@
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
+            initializeDocumentSibling: initializeDocumentSibling,
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
@@ -2632,7 +2657,7 @@
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
-            onDocumentRevisionNameNumberError:onDocumentRevisionNameNumberError,
+            onDocumentRevisionNameNumberError: onDocumentRevisionNameNumberError,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
             onNewDocumentPanelActivate: onNewDocumentPanelActivate,
