@@ -839,8 +839,14 @@
                             if (!data.Success) {
                                 $(this).displayError(data.Message);
                                 return;
+                            }                            
+                            var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+
+                            if (sbGrid.dataSource.view().length > 0) {
+                                sbGrid.dataSource.page(1);
                             }
-                            //Need to refreshSiblingGrid(did);
+                            sbGrid.dataSource.data([]);
+                            sbGrid.dataSource.read();
                         });
                     kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
                 }
