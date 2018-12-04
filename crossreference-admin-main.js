@@ -52,8 +52,7 @@
                 checkboxes: {
                 },
 
-                sideMenus: {
-                }
+                sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
 
             }
 
@@ -92,10 +91,22 @@
         };
 
         // side action menus
+        function enableAssignUnAssignButtons() {
+
+        }
+
         function disableSideMenuItems() {
+            $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
+                $(v).enableControl(false);
+                $(v).addClass("disabled-link");
+            });
         }
 
         function enableSideMenuItems() {
+            $("#eeeSideBarWorkLoad").find("[id^=btnStart]").each(function (i, v) {
+                $(v).enableControl(true);
+                $(v).removeClass("disabled-link");
+            });
         }
 
         var loadRequests = function () {
@@ -103,6 +114,9 @@
             // bind grid
             var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
+
+            // show the slide out tab
+            $(crossReferenceObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
 
         };
 
@@ -344,7 +358,7 @@
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
                 // row preselected ?
-                var checked = (gridIds[v.IndexingWorkItemID] == true);
+                var checked = (gridIds[v.RequestWorkItemID] == true);
 
                 // locate checkbox
                 $(row).find(".chkMultiSelect").prop("checked", checked);
@@ -369,12 +383,16 @@
                 // selected ?
                 var selected = $(row).hasClass("k-state-selected");
 
-                if (selected) _selectedIds.push(v.IndexingWorkItemID);
+                if (selected) _selectedIds.push(v.RequestWorkItemID);
 
             });
 
             // alert(_selectedIds);
             return _selectedIds;
+
+        }
+
+        function enableAssignUnAssignButtons(state) {
 
         }
 
@@ -421,7 +439,7 @@
             $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
             // set state of row
-            gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
+            gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
 
             // after select actions
             doPostGridRowAction();
@@ -455,7 +473,7 @@
                     $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
                     // flag selection state
-                    gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
+                    gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
                 }
 
             });
@@ -513,7 +531,8 @@
             handleKendoGridEvents: handleKendoGridEvents,
             showError: SubError,
             onDataBound: onDataBound,
-            onResponseDetailExpand: onResponseDetailExpand
+            onResponseDetailExpand: onResponseDetailExpand,
+            enableAssignUnAssignButtons : enableAssignUnAssignButtons
 
         };
     };
