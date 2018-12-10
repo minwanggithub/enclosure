@@ -2053,7 +2053,7 @@
                             quitPost = true;
                             return false;
                         } else if (newVerifyDate == previousConfirmationDate) {
-                            displayError("Revision with same confirmation datee already exists.");
+                            displayError("Revision with same confirmation date already exists.");
                             quitPost = true;
                             return false;
                         }
@@ -2067,48 +2067,51 @@
                     displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
                 }
-
+                
                 //Prevent continus click
                 $(e.currentTarget).addClass('k-state-disabled');
-
-                var url = form.attr("action");
-                $(this).ajaxCall(url, formData)
-                    .success(function (data) {
-                        $(e.currentTarget).removeClass('k-state-disabled');
-                        var errorMessage = parseErrorMessage(data);
-                        if (!errorMessage) {
-                            displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
-                            setContainerFieldDefaultValues(form, checkDocumentRevisionDirtyStatus);
-                            if (formData.model.RevisionId == 0) {
-                                form.parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails).hide(500);
-                                var revisionTab = form.parents(documentElementSelectors.containers.DocumentDetailsTab + ':first');
-                                if (revisionTab.length > 0) {
-                                    var revisionGrid = revisionTab.find(documentElementSelectors.grids.DocumentRevision).data('kendoGrid');
-                                    if (revisionGrid) {
-                                        revisionGrid.dataSource.bind("change", function newRevisionRead() {
-                                            revisionGrid.expandRow(revisionGrid.wrapper.find('tr.k-master-row:first'));
-                                            revisionGrid.dataSource.unbind("change", newRevisionRead);
-                                        });
-                                        revisionGrid.dataSource.read();
-                                    }
-                                }
-                                clearDocumentRevisionAttachments(form);
-
-                            } else {
-                                var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentRevisionLastUpdatePopOver);
-                                if (lastUpdatePopOver.length > 0)
-                                    lastUpdatePopOver.data('popover').options.content = data.LastUpdatedDescription;
-                            }
-
-                        } else
-                            displayError(errorMessage);
-                    })
-                    .error(function () {
-                        $(e.currentTarget).removeClass('k-state-disabled');
-                        displayError(documentMessages.errors.SaveDocumentRevisionError);
-                    });
+                submitRevison(form, formData, e);
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
+        }
+
+        function submitRevison(form, formData, e) {
+            var url = form.attr("action");
+            $(this).ajaxCall(url, formData)
+                .success(function (data) {
+                    $(e.currentTarget).removeClass('k-state-disabled');
+                    var errorMessage = parseErrorMessage(data);
+                    if (!errorMessage) {
+                        displayCreatedMessage(documentMessages.success.DocumentRevisionSaved);
+                        setContainerFieldDefaultValues(form, checkDocumentRevisionDirtyStatus);
+                        if (formData.model.RevisionId == 0) {
+                            form.parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails).hide(500);
+                            var revisionTab = form.parents(documentElementSelectors.containers.DocumentDetailsTab + ':first');
+                            if (revisionTab.length > 0) {
+                                var revisionGrid = revisionTab.find(documentElementSelectors.grids.DocumentRevision).data('kendoGrid');
+                                if (revisionGrid) {
+                                    revisionGrid.dataSource.bind("change", function newRevisionRead() {
+                                        revisionGrid.expandRow(revisionGrid.wrapper.find('tr.k-master-row:first'));
+                                        revisionGrid.dataSource.unbind("change", newRevisionRead);
+                                    });
+                                    revisionGrid.dataSource.read();
+                                }
+                            }
+                            clearDocumentRevisionAttachments(form);
+
+                        } else {
+                            var lastUpdatePopOver = form.find(documentElementSelectors.general.DocumentRevisionLastUpdatePopOver);
+                            if (lastUpdatePopOver.length > 0)
+                                lastUpdatePopOver.data('popover').options.content = data.LastUpdatedDescription;
+                        }
+
+                    } else
+                        displayError(errorMessage);
+                })
+                .error(function () {
+                    $(e.currentTarget).removeClass('k-state-disabled');
+                    displayError(documentMessages.errors.SaveDocumentRevisionError);
+                });
         }
 
         function onDocRevSaveForInboundResponseBtnClick(e) {
