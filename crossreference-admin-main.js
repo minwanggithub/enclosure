@@ -256,7 +256,8 @@
                 }
             });
 
-            if (option == "DATERANGE") {
+            if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE",
+                    "DATEOBTSTARTEDRANGE", "DATEXREFSTARTEDRANGE"].indexOf(option) >= 0) {
                 // convert to date pickers
                 $(textField).css({ visibility: '', width: "100px" });
                 $(textField1).css({ visibility: '', width: "100px" });
@@ -310,19 +311,26 @@
 
                 var errors = [];
 
-                if (criteriaFieldName == "DATERANGE") {
+                if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE",
+                            "DATEOBTSTARTEDRANGE", "DATEXREFSTARTEDRANGE"].indexOf(criteriaFieldName) >= 0) {
 
                     var fromDate = $(textFieldId).val().replace(/ /g, "");
                     var toDate = $(textField1Id).val().replace(/ /g, "");
+                    whereOperator = "";
 
-                    searchFor = fromDate + ":" + toDate;
+                    // prefixed with offset in minutes
+                    searchFor = (new Date()).getTimezoneOffset() + "|" + fromDate + "|" + toDate;
 
                 }
                 else if (["ACCOUNTID", "DOCUMENTID"].indexOf(criteriaFieldName) >= 0) {
+                    whereOperator = "";
+                    searchFor = $(textFieldId).val();
                 }
                 else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
+                    searchFor = $(textFieldId).val()
                 }
                 else {
+                    whereOperator = "Exact Match";
                     searchFor = fieldDropDown.value();
                 }
 
