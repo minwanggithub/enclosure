@@ -200,7 +200,8 @@
             RemoveProductDocumentsWithoutCheckDuplicate: GetEnvironmentLocation() + "/Configuration/ProductManager/RemoveProductDocumentsWithoutCheckDuplicate",
             AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
-            AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling"
+            AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSilibingDocumentList"
         }
 
         var documentMessages = {
@@ -321,7 +322,7 @@
         });
 
         /******************************** Local Methods ********************************/
-        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
+        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {            
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
@@ -1220,8 +1221,7 @@
 
         }
 
-        var onNewRevisionPanelActivate = function (e) {
-
+        var onNewRevisionPanelActivate = function (e) {            
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
 
@@ -1451,7 +1451,7 @@
         };
 
         /******************************** Revision Methods ********************************/
-        function checkDocumentRevisionDirtyStatus(container) {
+        function checkDocumentRevisionDirtyStatus(container) {           
             var isExistingRevision = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val() != "0";
             changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
@@ -1656,7 +1656,7 @@
             }
         }
 
-        function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {
+        function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {            
             e.preventDefault();
             window.opener = self;
 
@@ -2067,13 +2067,50 @@
                     displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
                 }
-                
-                //Prevent continus click
+
+                //Prevent continuously click
                 $(e.currentTarget).addClass('k-state-disabled');
-                submitRevison(form, formData, e);
+
+                $.ajax({
+                    type: 'GET',
+                    dataType: 'json',
+                    cache: false,
+                    url: controllerCalls.GetSiblingList,
+                    data: { documentId: formData.model.DocumentId },
+                    success: function (result, textStatus, jqXHR) {                        
+                        if (result.length > 0) {
+                            var siblingList = [];
+                            for (var idx = 0; idx < result.length; idx++) {
+                                siblingList.push(
+                                    {
+                                        DocumentId: result[idx].ReferenceId,
+                                        Included: true
+                                    });
+                            }
+
+                            var siblingLib = $("#siblingPopup").bundlesiblings({
+                                siblingDataSource: siblingList,
+                                submitForm: form,
+                                submitData: formData,                                
+                                target: e,
+                                revisionCallback: function (form, formData, e) {                                    
+                                    submitRevison(form, formData, e);
+                                },
+                                inboundRevisionCallback: null
+                            });                
+                        }
+                        else {
+                            submitRevison(form, formData, e);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        //Parent will throw error
+                    }
+                });
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
+
 
         function submitRevison(form, formData, e) {
             var url = form.attr("action");
@@ -2114,6 +2151,24 @@
                 });
         }
 
+
+        function submitInboundRevision(form, formData) {
+            debugger;
+            var url = form.attr("action");
+            $(this).ajaxCall(url, formData)
+                .success(function (data) {
+                    var errorMessage = parseErrorMessage(data);
+                    if (!errorMessage) {
+                        parent.window.opener.location.reload();
+                        window.close();
+                    } else
+                        displayError(errorMessage);
+                })
+                .error(function () {
+                    displayError(documentMessages.errors.SaveDocumentRevisionError);
+                });
+        }
+
         function onDocRevSaveForInboundResponseBtnClick(e) {
             e.preventDefault();
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
@@ -2126,31 +2181,14 @@
             };
 
             if (formData.model) {
-
                 var url = form.attr("action");
-
                 if (formData.attachments.length > 0) {
-
-                    $(this).ajaxCall(url, formData)
-                        .success(function (data) {
-                            var errorMessage = parseErrorMessage(data);
-                            if (!errorMessage) {
-                                parent.window.opener.location.reload();
-                                window.close();
-                            } else
-                                displayError(errorMessage);
-                        })
-                        .error(function () {
-                            displayError(documentMessages.errors.SaveDocumentRevisionError);
-                        });
-
+                    submitInboundRevision(form, formData);
                     return;
-
                 }
 
                 // if there are no attachments, prompt for a save confirmation
                 if (formData.attachments.length == 0) {
-
                     var settings = {
                         header: documentMessages.modals.GeneralConfirm,
                         message: documentMessages.modals.SaveRevisionWothoutAttachment,
@@ -2159,7 +2197,6 @@
                     // no attachment
                     proceedWithSave = false;
                     displayConfirmationModal(settings, function () {
-
                         $(this).ajaxCall(url, formData)
                             .success(function (data) {
                                 var errorMessage = parseErrorMessage(data);
@@ -2172,13 +2209,8 @@
                             .error(function () {
                                 displayError(documentMessages.errors.SaveDocumentRevisionError);
                             });
-
                     });
-
                 }
-
-
-
             } else {
                 // something wrong with the form data
                 displayError(documentMessages.errors.SaveDocumentRevisionError);

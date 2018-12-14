@@ -3,6 +3,10 @@
         options = options || {};
         var $this = $(this);
 
+        //var form = options.submitForm;
+        //var formData = options.submitData;
+        //var target = options.target;
+        
         var winPop;
 
         var defaultLookUpDataSource = [
@@ -18,7 +22,12 @@
         ];
 
         var settings = $.extend({
-            siblingDataSource: defaultLookUpDataSource
+            siblingDataSource: defaultLookUpDataSource,
+            submitForm: null,
+            submitData: null,            
+            target: null,
+            revisionCallback: null,
+            inboundRevisionCallback: null
         }, options);
 
         var plugInOptions = {
@@ -35,26 +44,42 @@
             // if (!confirm("are you sure?")) {
             //   e.preventDefault();
             //   win.fadeIn();
-            // }
+            // }            
             var target = $(plugInOptions.Ids.SilbingSectionId);
-
             var siblingRows = target.find(".siblingrow");
 
-            var criteria = {};
+            var siblingList = [];
+
             for (var index = 0; index < siblingRows.length; index++) {
                 var checkBox = $(siblingRows[index]).find('input:checkbox');
                 var bs = checkBox.get(0).kendoBindingTarget.source;
-
                 //var bs = $(siblingRows[index]).get(0).children[0].kendoBindingTarget.source;
                 //kendoConsole.log("Include: " + bs.included + " , DocumentId: " + bs.documentId + ", RevisionTitle: " + bs.exteredRevisionTitle);
 
-
                 if (bs != null && bs.included && bs.exteredRevisionTitle === "") {
                     alert("Please enter revision title for document: " + bs.documentId);
-                    e.preventDefault();
+                    e.preventDefault();                    
                     return;
+                } else {
+                    if (bs.included) {
+                        var siblingdata = {};
+                        siblingdata.DocumentId = bs.documentId;
+                        siblingdata.RevisionTitle = bs.exteredRevisionTitle;
+                        siblingList.push(siblingdata);
+                    }
                 }
+            }
 
+            if (siblingList.length > 0) {
+                settings.submitData.model.SiblingList = siblingList;
+            }
+
+            if ($.isFunction(settings.revisionCallback)) {
+                settings.revisionCallback.call(this, settings.submitForm, settings.submitData, settings.target);
+            }
+
+            if ($.isFunction(settings.inboundRevisionCallback)) {
+                settings.inboundRevisionCallback.call(this, settings.submitForm, settings.submitData);
             }
         }
 
@@ -133,7 +158,8 @@
                 actions: ["Close"], //["Refresh"]
                 modal: true,
                 width: "640px",
-                height: "500px",
+                height: "500px",        
+                position: 'fixed',
                 close: onClose
             });
 
@@ -147,8 +173,9 @@
 
             //AddSibilingRow($(plugInOptions.Ids.SilbingSectionId));            
             AddSibilingTableRow($(plugInOptions.Ids.SilbingSectionId));
-            if (winPop.length > 0)
-                winPop.data("kendoWindow").center().open();
+            if (winPop.length > 0) {
+                winPop.data("kendoWindow").center().open();                
+            }
         }
 
         function Data() {
@@ -164,6 +191,21 @@
 
                 criteriaList.push(criteria);
             }
+            return criteriaList;
+        }
+
+        function Data1() {
+            var siblingRows = $(plugInOptions.Ids.SilbingSectionId).find(".siblingrow");
+            var criteriaList = [];            
+            $.each(siblingRows, function(i, row) {
+                var bs = row.get(0).children[0].kendoBindingTarget.source;
+                var criteria = {};
+                criteria.Included = bs.included;
+                criteria.DocumentId = bs.documentId;
+                criteria.RevisionTitle = bs.exteredRevisionTitle;
+
+                criteriaList.push(criteria);
+            });
             return criteriaList;
         }
 
