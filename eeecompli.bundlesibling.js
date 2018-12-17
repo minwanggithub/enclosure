@@ -139,14 +139,15 @@
 
         function Init() {
             var windowConstraint = $("<div style='height: 100%;'/>");
-            var windowContent = $("<div style='overflow: auto; height: calc(100% - 70px); padding: 10px'><div id='siblingsection'/></div>");
+            var windowContent = $("<div style='overflow: auto; height: calc(100% - 74px); padding: 10px'><div id='siblingsection'/></div>");
             //            var windowFoot = $("<div style='width: 100%; height: 60px; background-color: #e3e3e3; border-top: solid #C5C5C5 1px'></div>");
-            var windowFoot = $("<div style=height: 60px;  border-top: solid #C5C5C5 1px'></div>");
-            var footMargin = $("<div style='float: right; margin: 10px'/>");
+            var windowFoot = $("<div style='height: 60px;  border-top: solid #C5C5C5 1px'></div>");
+            //var footMargin = $("<div style='float: right; margin: 10px'/>");
+            var footMargin = $("<div style='float: right;'/>");
             //var saveButton = $("<button id='btnSiblingSave'>Save</button>");
-            var saveButton = $("<a id='btnSiblingSave' class='k-button k-button-icontext pull-right' href='#' title='Save'><span class='k-icon k-i-pencil'></span>Save</a>");
+            var saveButton = $("<a id='btnSiblingSave' style='margin-top: 20px;' class='k-button k-button-icontext pull-right' href='#' title='Save'><span class='k-icon k-i-pencil'></span>Save</a>");
 
-            // var cancelButton = $("<button id='siblingButton' style='background-color: red'>Cancel</button>");
+            // var cancelButton = $("<button id='siblingButton' style='background-color: red'>Cancel</button>");            
             footMargin.append(saveButton);
             windowFoot.append(footMargin);
             windowConstraint.append(windowContent, windowFoot);
