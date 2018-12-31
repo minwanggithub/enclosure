@@ -2183,7 +2183,42 @@
             if (formData.model) {
                 var url = form.attr("action");
                 if (formData.attachments.length > 0) {
-                    submitInboundRevision(form, formData);
+                    $.ajax({
+                        type: 'GET',
+                        dataType: 'json',
+                        cache: false,
+                        url: controllerCalls.GetSiblingList,
+                        data: { documentId: formData.model.DocumentId },
+                        success: function (result, textStatus, jqXHR) {
+                            if (result.length > 0) {
+                                var siblingList = [];
+                                for (var idx = 0; idx < result.length; idx++) {
+                                    siblingList.push(
+                                        {
+                                            DocumentId: result[idx].ReferenceId,
+                                            Included: true
+                                        });
+                                }
+
+                                var siblingLib = $("#siblingPopup").bundlesiblings({
+                                    siblingDataSource: siblingList,
+                                    submitForm: form,
+                                    submitData: formData,
+                                    target: null,                                    
+                                    revisionCallback: null,
+                                    inboundRevisionCallback: function (form, formData) {
+                                        submitInboundRevision(form, formData);
+                                    }
+                                });
+                            }
+                            else {
+                                submitInboundRevision(form, formData);
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            //Parent will throw error
+                        }
+                    });
                     return;
                 }
 

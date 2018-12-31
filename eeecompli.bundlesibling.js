@@ -40,7 +40,7 @@
         };
 
         function onClose(e) {
-
+            debugger;
             // if (!confirm("are you sure?")) {
             //   e.preventDefault();
             //   win.fadeIn();
@@ -175,7 +175,8 @@
             //AddSibilingRow($(plugInOptions.Ids.SilbingSectionId));            
             AddSibilingTableRow($(plugInOptions.Ids.SilbingSectionId));
             if (winPop.length > 0) {
-                winPop.data("kendoWindow").center().open();                
+                winPop.data("kendoWindow").center().open();        
+                winPop.parent().find(".k-window-action").css("visibility", "hidden");
             }
         }
 
