@@ -40,7 +40,6 @@
         };
 
         function onClose(e) {
-            debugger;
             // if (!confirm("are you sure?")) {
             //   e.preventDefault();
             //   win.fadeIn();
