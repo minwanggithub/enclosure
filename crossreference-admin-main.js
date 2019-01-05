@@ -11,7 +11,7 @@
         // initialize 
         var craSearchObj = $("#CrossRefernceWFPanel");                          // panel container
         var craAdvancedSearchObj = $("#CrossReferenceAdminSearchOptions");      // advanced search options
-        var craDetailObj = $("#CrossReferenceAdminWFGrid");                       // grid container 
+        var craDetailObj = $("#CrossReferenceAdminWFGrid");
 
         var workflowSearchObj = $("#IndexationWFPanel");                        // panel container
         var workflowAdvancedSearchObj = $("#IndexationAdvancedSearchOptions");  // advanced search options
@@ -24,6 +24,7 @@
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
         var selectedRows = new Array();
+        var radioButtonSelected = "Group";
 
         var crossReferenceObjects = {
 
@@ -33,32 +34,61 @@
                     AddAdvancedSearchOption: "#btnAddCriteria",                     // save settings (not implemented)
                     RemoveAdvancedSearchOption: "#btnDeleteCriteria",               // remove settings (not implemented)
                     ClearCrossReferenceAdminBtn: "#clearCrossReferenceAdminBtn",    // clear advanced search options
-                    SearchCrossReferenceAdminBtn: "#searchCrossReferenceAdminBtn"   // search as per advanced options
+                    SearchCrossReferenceAdminBtn: "#searchCrossReferenceAdminBtn",  // search as per advanced options
+                    SendToObtainmentBtn: "#btnSendToObtainment",                    // bulk action
+                    MatchToDocumentBtn: "#btnMatchToDocument",                      // bulk action
+                    MakeCustomerActionBtn: "#btnMakeCustomerActionItem",            // bulk action
+                    UnAssignFromButton: "#btnUnAssignFrom",
+                    AssignToButton: "#btnAssignTo",
+                    AssignMeButton: "#btnAssignMe",
+                    UnAssignButton: "#btnUnAssign",
+                    SaveAssignButton: "#btnSaveAssign",
+                    ObtainmentSideMenuButton: "#btnObtainment",
+                    CustomerActionSideMenuButton: "#btnCustomerAction",
+                    SaveObtainmentButton: "#btnSaveObtainment",
+                    SaveCustomerActionButton: "#btnSaveCustomerAction",
+                    SearchSupplierButton: "#searchSupplierIdBtn",                   // bring up supplier search
+                    CancelSupplierSearch: "#btnCancelSupplierSearch",               // exit supplier search
                 },
 
                 grids: {
-                    GridRequests: "#gdSearchCrossReference"
+                    GridRequests: "#gdSearchCrossReference",
+                    SearchSupplierNewGrid: "#gdSearchSupplierNew"
                 },
 
                 dateTime: {
                 },
 
                 dropdownlists: {
+                    GroupsDropDownList: "#ddlGroups",
+                    CustomerActionDropDownList: "#selCustomerAction",
                 },
 
                 textBoxes: {
+                    IndividualTextBox: "#txtIndividual",
+                    NotesTextBox: "#txtNotes",
+                    ProductIdTextBox: "#txtProductId",
+                    SearchSupplierIdTextBox: "#txtSearchSupplierId",
                 },
 
                 checkboxes: {
                 },
 
-                sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
+                sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" },
+
+                labels: {
+                    NotesLabel: "#lblNotes",
+                    PendingNotesLabel: "#lblPendingNotes"
+                },
 
             }
 
         }
 
         var actionModals = {
+            Resolve: "#mdlResolve",
+            Obtainment: "#mdlObtainment",
+            CustomerAction: "#mdlCustomerAction",
         };
 
         var kendoWindows = {
@@ -67,6 +97,10 @@
         var controllerCalls = {
             SearchRequestsCriteria: GetEnvironmentLocation() + "/Administration/CrossReference/GetSearchCriteria",
             SearchRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SearchRequests",
+            SaveAssignedItems: GetEnvironmentLocation() + "/Administration/CrossReference/SaveAssignedItems",
+            SaveObtainment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainment",
+            SaveActionRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SaveCustomerActionRequests",
+            SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
         };
 
 
@@ -75,13 +109,27 @@
             instructionMessages: {
             },
 
-            successMessages: {
-            },
-
+            successMessages: { Saved: "Saved Successful" },
             confirmationMessages: {
-            },
+                UnAssigneRequests: "unassign these request item(s)",
+                AssignRequests: "assign these request item(s)",
+                MatchDocuments: "match these request item(s)",
+                SendToObtainment: "send the request item(s) to obtainment",
+                AssignRequests:"set a customer action for the request item(s)"
 
+            },
             errorMessages: {
+                UserRequiredToAssign: "User required to assign selected request item(s)",
+                SelectFilter: "A filter must be selected to execute a search",
+                NoItemsSelected: "No items have been selected",
+                NoCustomerActionSelected: "No customer action has been specified",
+                NoPendingActionSelected: "No action has been specified",
+                NoRowSelected: "No row selected",
+                RequestsCouldNotBeSaved: "Requests could not be saved",
+                RequestsCouldNotBeAssigned: "Requests could not be assigned",
+                GeneralError: "Error Occurred",
+                SelectedStateForSqlError: "Selected State is only for SQL Search",
+                SelectedStateForEsError: "Selected State is only for Elastic Search"
             }
         };
 
@@ -103,22 +151,11 @@
         }
 
         function enableSideMenuItems() {
-            $("#eeeSideBarWorkLoad").find("[id^=btnStart]").each(function (i, v) {
+            $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
                 $(v).enableControl(true);
                 $(v).removeClass("disabled-link");
             });
         }
-
-        var loadRequests = function () {
-
-            // bind grid
-            var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
-            grid.dataSource.read();
-
-            // show the slide out tab
-            $(crossReferenceObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
-
-        };
 
         // get cross reference results
         var doCrossReferenceSearch = function () {
@@ -131,19 +168,177 @@
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
                 .success(function (data) {
-                    console.log(data);
                     craDetailObj.html(data);
                     enableButtons();
                 }).error(
                     function () {
                         enableButtons();
-                    });
+            });
         };
 
         // ---------------------------------  BUTTONS AND MENUS    
 
-        disableButtons = function () { };
-        enableButtons = function () { };
+        disableButtons = function () {
+
+        };
+
+        enableButtons = function () {
+
+        };
+
+        getGridIds = function () {
+            return gridIds;
+        }
+
+        // final call handled by "Save"
+        batchAssignWorkItems = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.AssignRequests + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.Assign).displayModal();    
+                }, function () {
+                    // do nothing
+                });
+                
+            }
+
+        }
+
+        // confirm and unassign work items
+        batchUnassignWorkItems = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.UnAssigneRequests + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function ()
+                {
+                    batchAssignUnassignWorkItems(false, null, null);
+                }, function ()
+                {
+                    // do nothing
+                });
+            }
+
+        }
+
+        // controller call to assign/unassign work items
+        batchAssignUnassignWorkItems = function (isAssign, assignedTo, completeCallback) {
+
+            var data = {};
+
+            data['ids'] = selectedIds;
+            data["searchCriteria"] = $("#SearchCriteria").val();
+            data["isAssign"] = isAssign;
+            data["assignedTo"] = (isAssign ? assignedTo : null);
+
+            var url = controllerCalls.SaveAssignedItems;
+
+            $(this).ajaxJSONCall(url, JSON.stringify(data))
+                .success(function (successData) {
+
+                    debugger;
+
+                    if (successData.success === true) {
+
+                        // find all grids on the page by locating the master check control
+
+                        craDetailObj.find(".chkMasterMultiSelect").each((i, v) => {
+
+                            // uncheck the master control
+                            $(v).prop('checked', false);
+
+                            // unselect all identifiers in view
+                            var grid = $(v).parents('.k-grid:first').data().kendoGrid;
+                            
+                            // data source
+                            $(grid.dataSource.view()).each(function (_i, _v) {
+
+                                // locate row
+                                var row = grid.table.find("[data-uid=" + _v.uid + "]");
+
+                                // locate checkbox
+                                $(row).find(".chkMultiSelect").prop("checked", false);
+
+                                // set row state
+                                $(row).removeClass("k-state-selected");
+
+                            });
+
+                            // reset identifiers
+                            selectedIds = [];
+                            gridIds = [];
+
+                        });
+
+                        return true;
+
+
+                        // un check all selected rows
+
+                        // update the assigned to value for all grids
+
+                        // no need to refresh ?
+
+                        // Uncheck the master select checkbox if checked
+                        //var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+                        //if (checkbox && checkbox.is(':checked'))
+                        //    checkbox.attr('checked', false);
+
+
+                        //grid = $(targetGridSelector).data("kendoGrid");
+                        //grid.dataSource.read();
+
+                    } else
+                    {
+                        $(this).displayError(messages.errorMessages.GeneralError);
+                    }
+                })
+                .error(function () { $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned); })
+                .complete(function (compData) {
+
+                    kendo.ui.progress(craDetailObj, false);
+                    $(this).savedSuccessFully(messages.successMessages.Saved);
+                    if (completeCallback)
+                        completeCallback(compData);
+                });
+        }
+
+        batchAssignUnassign = function (message, url, isAssign, assignTo, completeCallback) {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.AssignRequests + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    batchAssignUnassign(false, null, null);
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        };
 
         getSelectedCategories = function () {
             var list = $(crossReferenceObjects.controls.dropdownlists.CategoriesDropDownList).data("kendoMultiSelect").value();
@@ -177,6 +372,18 @@
         // clear search 
         craSearchObj.on("click", crossReferenceObjects.controls.buttons.SearchCrossReferenceAdminBtn, function () {
             doCrossReferenceSearch();
+        });
+
+        //Toggle Customer Action Option for Notes
+        craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
+            var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+            if (selCustomerAction.text() === "Other") {
+                $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "inline");
+                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "inline");
+            } else {
+                $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "none");
+                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "none");
+            }
         });
 
         // ---------------------------------------- ADVANCED SEARCH OPTIONS ---------------------------------------- 
@@ -256,8 +463,9 @@
                 }
             });
 
-            if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE",
-                    "DATEOBTSTARTEDRANGE", "DATEXREFSTARTEDRANGE"].indexOf(option) >= 0) {
+            // "DATEOBTSTARTEDRANGE", "DATEXREFSTARTEDRANGE"
+
+            if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE"].indexOf(option) >= 0) {
                 // convert to date pickers
                 $(textField).css({ visibility: '', width: "100px" });
                 $(textField1).css({ visibility: '', width: "100px" });
@@ -300,7 +508,11 @@
 
                 var criteriaField = $("#drpFields_" + timeId).data("kendoDropDownList");        // always has a value
                 var containsDropDown = $("#drpContains_" + timeId).data("kendoDropDownList");   // always has a value
+
+                console.log(i + " " + $(v).attr("id"));
+
                 var fieldDropDown = $("#drpDropDown_" + criteriaField.text().replace(/ /g, "") + "_" + timeId).data("kendoDropDownList");
+                
 
                 // criteria definition
                 var fieldName = criteriaField.value();
@@ -311,19 +523,52 @@
 
                 var errors = [];
 
-                if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE",
-                            "DATEOBTSTARTEDRANGE", "DATEXREFSTARTEDRANGE"].indexOf(criteriaFieldName) >= 0) {
+                if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE"].indexOf(criteriaFieldName) >= 0) {
+
+                    var offset = (new Date()).getTimezoneOffset();
+
+                    var behind = (offset < 0);
+                    offset = Math.abs(offset);
+
+                    var minutes = offset % 60;
+                    var hours = (offset - minutes) / 60;
+
+                    var offsetHM = (behind ? "-" : "+") + hours + ":" + minutes;
 
                     var fromDate = $(textFieldId).val().replace(/ /g, "");
                     var toDate = $(textField1Id).val().replace(/ /g, "");
-                    whereOperator = "";
+
+                    whereOperator = "Date Range";
+
+                    try {
+                        fromDate = (new Date(fromDate)).toISOString().split('T')[0];
+                    }
+                    catch (e)
+                    {
+                        fromDate = null;
+                    }
+
+                    try
+                    {
+                        toDate = new Date(toDate).toISOString().split('T')[0];
+                    }
+                    catch (e)
+                    {
+                        toDate = null;
+                    }
 
                     // prefixed with offset in minutes
-                    searchFor = (new Date()).getTimezoneOffset() + "|" + fromDate + "|" + toDate;
+                    searchFor = offsetHM + "|" + fromDate + "|" + toDate;
+
+                    if (fromDate == null && toDate == null)
+                    {
+                        searchFor = null;  
+                        whereOperator = "Exact Match";
+                    }
 
                 }
                 else if (["ACCOUNTID", "DOCUMENTID"].indexOf(criteriaFieldName) >= 0) {
-                    whereOperator = "";
+                    whereOperator = "Exact Match";
                     searchFor = $(textFieldId).val();
                 }
                 else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
@@ -354,6 +599,72 @@
         function changesSavedSuccessfully() {
             $(this).savedSuccessFully(messages.successMessages.ChangesSavedSuccessfully);
         }
+
+        // ---- 
+
+        //Show Supplier
+        craSearchObj.on("click", crossReferenceObjects.controls.buttons.SearchSupplierButton, function () {
+            // var activeSupplier = "txtSearchSupplierId";
+            $("#supplierSearchWindow").data("kendoWindow").center().open();
+            $(actionModals.Obtainment).toggleModal();
+        });
+
+        // ---------------------------------  ASSIGN - UNASSIGN FUNCTIONS
+
+        craDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
+            radioButtonSelected = $(this).val();
+            if ($(this).val() === "Group") {
+                $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").show();
+                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete").value("");
+            }
+            else {
+                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").show();
+                $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").hide();
+            }
+        });
+
+        craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveAssignButton, function (e) {
+
+            e.preventDefault();
+            var userName = $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete");
+            var selectedValue;
+            if (radioButtonSelected === "Group") {
+
+                var ddlGroups = $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
+
+                selectedValue = ddlGroups.text();
+                if (ddlGroups.select() == 0) selectedValue = "";
+
+
+            } else
+                selectedValue = userName.value();
+
+            debugger;
+
+            // valid group or name check
+            if (selectedValue.replace(/ /g, "").length > 0) {
+
+                // assign 
+                batchAssignUnassignWorkItems(true, selectedValue, function () {
+                    $(actionModals.Assign).hideModal();
+                });
+
+            }
+            else {
+
+                $(actionModals.Assign).hideModal();
+                var errorMessage;
+
+                if ($("input[name=GroupIndividual]:radio").val() === "Group")
+                    errorMessage = messages.errorMessages.SelectGroup;
+                else
+                    errorMessage = messages.errorMessages.UserRequiredToAssign;
+
+                $(this).displayError(errorMessage);
+            }
+
+        });
 
         // --------------------------------- GRID ACTIONS
 
@@ -424,13 +735,311 @@
 
         }
 
+        confirmMatchToDocument = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.MatchDocuments + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    batchAssignUnassign(false, null, null);
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+        }
+
+        confirmSendToObtainment = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.SendToObtainment + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.Obtainment).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
+        confirmCustomerAction = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.AssignRequests + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.CustomerAction).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
+        saveCustomerAction = function () {
+
+            // no items selected ?
+            if ((selectedIds || []).length > 0) {
+
+                var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                if (selCustomerAction.select() > 0 || $(crossReferenceObjects.controls.textBoxes.NotesTextBox).text().length > 0) {
+
+                    var data = {};
+                    data['ids'] = selectedIds;
+                    data['customerAction'] = "Customer Action";
+                    data['notes'] = selCustomerAction.value();
+
+                    SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
+                    
+                } else {
+
+                    // indicate no customer selected
+                    $(this).displayError(messages.errorMessages.NoCustomerActionSelected);
+
+                }
+
+            }
+
+        }
+
+        function Remove(str, startIndex) {
+            return str.substr(0, startIndex);
+        }
+
+        saveSendToObtainment = function () {
+
+            // safety
+            if ((selectedIds || []).length > 0) {
+
+                // if a supplier id was selected
+                if ($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
+
+                    var data = {};
+                    data['ids'] = selectedRequests;
+                    data['supplierId'] = Remove($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val(),
+                        $(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
+
+                    alert(JSON.stringify(data));
+
+                    //SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
+
+
+                } else {
+
+                    $(actionModals.Obtainment).toggleModal();
+                    $(this).displayError(messages.errorMessages.NoSupplierSelected);
+
+                }
+
+            }
+
+            //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length === 0 || 
+            // $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "0" || 
+            // $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
+            //    $(actionModals.Obtainment).toggleModal();
+            //    $(this).displayError(messages.errorMessages.NoItemsSelected);
+            //} else {
+            //    if ($(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
+            //        var data = {};
+            //        data['ids'] = selectedRequests;
+            //        data['supplierId'] = Remove($(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val(), $(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
+            //        SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
+            //    } else {
+            //        $(actionModals.Obtainment).toggleModal();
+            //        $(this).displayError(messages.errorMessages.NoSupplierSelected);
+            //    }
+            //}
+
+            //// no items selected ?
+            //if ((selectedIds || []).length > 0) {
+
+            //    var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+            //    if (selCustomerAction.select() > 0 || $(crossReferenceObjects.controls.textBoxes.NotesTextBox).text().length > 0) {
+
+            //        var data = {};
+            //        data['ids'] = selectedIds;
+            //        data['customerAction'] = "Customer Action";
+            //        data['notes'] = selCustomerAction.value();
+
+            //        SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
+
+            //    } else {
+
+            //        // indicate no customer selected
+            //        $(this).displayError(messages.errorMessages.NoCustomerActionSelected);
+
+            //    }
+
+            //}
+
+        }
+
+        function SaveRequest(strUrl, dataArray, modalId, callback) {
+            if (selectedIds.length > 0) {
+                kendo.ui.progress(craDetailObj, true);
+                $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
+                    .success(function (successData) {
+                        
+                        if (successData.success === true) {
+
+                            // display message and hide modal
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                            if (modalId != null) $(modalId).hideModal();                         
+
+                        } else {
+                            if (successData.message)
+                                $(this).displayError(successData.message);
+                            else
+                                $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                        }
+
+                        if (callback != null) callback(successData);
+
+                    })
+                    .error(function () {
+                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                    })
+                    .done(function () {
+
+                        // stop progress indicator
+                        kendo.ui.progress(craDetailObj, false);
+
+                        // update the grids
+                        
+                    });
+
+            }
+        }
+
         var loadRequests = function () {
 
             // bind grid
             var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
 
+            selectedIds = {};
+            gridIds = {}; 
+
+            // disable all options
+            disableSideMenuItems();
+
+            // show the slide out tab
+            $(crossReferenceObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
+
+            // default to group
+            $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+
+            // assign event handlers for assign/un-assign
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.UnAssignFromButton, function (e) {
+                batchUnassignWorkItems();
+            });
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.AssignToButton, function (e) {
+                batchAssignWorkItems();
+            });
+
+            // bulk operation confirmations
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SendToObtainmentBtn, function (e) {
+                confirmSendToObtainment();
+            });
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.MatchToDocumentBtn, function (e) {
+                confirmMatchToDocument();
+            });
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
+                confirmCustomerAction();
+            });
+
+            // bulk operation updates
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveObtainmentButton, function (e) {
+                saveSendToObtainment();
+            });
+
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveCustomerActionButton, function (e) {
+                saveCustomerAction();
+            });
+
         };
+
+        function obtainmentSelSupplier(supplierSearchDialog) {
+
+            debugger;
+
+            var grid = $(crossReferenceObjects.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
+            if (grid.dataSource.total() === 0) {
+                $(this).displayError(messages.errorMessages.NoRowSelected);
+                return;
+            }
+            var data = grid.dataItem(grid.select());
+            if (data == null) {
+                $(this).displayError(messages.errorMessages.NoRowSelected);
+                return;
+            }
+
+            alert(data.id + "," + data.Name);
+            $(crossReferenceObjects.controls.textBoxes.ProductIdTextBox).val(data.id + "," + data.Name);
+
+            supplierSearchDialog.data("kendoWindow").close();
+            $(actionModals.Obtainment).displayModal();
+
+        }
+
+        var loadSupplierPlugIn = function () {
+
+            $.post(controllerCalls.SupplierSearch, { supplierId: 0 }, function (data) {
+                $("#dgSupplierPlugIn").html(data);
+            });
+
+            var supplierSearchDialog = $("#supplierSearchWindow");
+
+            $(crossReferenceObjects.controls.buttons.CancelSupplierSearch).click(function () {
+                supplierSearchDialog.data("kendoWindow").close();
+                //DisableSideMenuItems();
+                //EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+                $(actionModals.Obtainment).displayModal();
+            });
+
+            $('#dgSupplierPlugIn').on('dblclick', 'table tr', function () {
+                obtainmentSelSupplier(supplierSearchDialog);
+            });
+
+            //This is for Supplier plugIn
+            $("#searchSupplierIdSelect").click(function () {
+                alert("Selected");
+                obtainmentSelSupplier(supplierSearchDialog);
+            });
+
+        }
 
         $(craDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
 
@@ -523,10 +1132,39 @@
         }
 
         function onDataBound() {
+           
+        }
+
+        function onDetailDataBound(sender) {
+
+            // highlight rows selected
+            var grid = sender.sender;
+            var pageData = grid.dataSource.view();
+
+            pageData.forEach((v, i) => {
+
+                // see if the RequestWorkItemID for the row is in the selected list.
+                // if yes, highlight the row.
+
+                var row = grid.table.find("[data-uid=" + v.uid + "]");
+                $(row).removeClass("k-state-selected");
+
+                var checked = gridIds[grid.dataItem(row).RequestWorkItemID];
+                if (checked) {
+                    $(row).addClass("k-state-selected");
+                    var selector = $(row).find(".chkMultiSelect");
+                    $(selector).prop("checked", checked);
+                }
+
+            });
 
         }
 
         function onResponseDetailExpand() {
+
+        }
+
+        function hotKeyDisplay() {
 
         }
 
@@ -539,8 +1177,11 @@
             handleKendoGridEvents: handleKendoGridEvents,
             showError: SubError,
             onDataBound: onDataBound,
+            onDetailDataBound: onDetailDataBound,
             onResponseDetailExpand: onResponseDetailExpand,
-            enableAssignUnAssignButtons : enableAssignUnAssignButtons
+            enableAssignUnAssignButtons: enableAssignUnAssignButtons,
+            hotKeyDisplay: hotKeyDisplay,
+            loadSupplierPlugIn: loadSupplierPlugIn
 
         };
     };
