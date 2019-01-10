@@ -117,7 +117,7 @@
                 var siblingRow = $("<div id='" + rowId + "' class='siblingrow'></div>");
                 var siblingInclude = $("<input type='checkbox' id='includedId_'" + rowId + " data-bind='checked: included'  style='margin-left: 10px'>");
                 var siblingDocumentId = $("<input type='text' id='documentId_'" + rowId + " data-auto-bind='false' data-bind='value: documentId' style='margin-left: 50px; width: 100px; height:18px; border: 0' value='2045798765' readonly='readonly'>");
-                var siblingRevisionTitle = $("<input type='text' id='revsionTitle_" + rowId + "' data-auto-bind='false' data-bind='value: exteredRevisionTitle, visible: isVisible' style='margin: 0px 0px 2px 10px; width:320px; height:18px;'>");
+                var siblingRevisionTitle = $("<input type='text' id='revsionTitle_" + rowId + "' data-auto-bind='false' data-bind='value: enteredRevisionTitle, visible: isVisible' style='margin: 0px 0px 2px 10px; width:320px; height:18px;'>");
 
                 siblingRow.append(siblingInclude, [siblingDocumentId, siblingRevisionTitle]);
                 p.append(siblingRow);
@@ -131,7 +131,7 @@
             return kdo.observable({
                 included: settings.siblingDataSource[rowId].Included,
                 documentId: settings.siblingDataSource[rowId].DocumentId,
-                exteredRevisionTitle: "",
+                enteredRevisionTitle: "",
                 isVisible: true
             });
         }
