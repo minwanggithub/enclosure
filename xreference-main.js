@@ -93,7 +93,11 @@
         var actionModals = { Resolve: "#mdlResolve", Obtainment: "#mdlObtainment", Pending: "#mdlPending", CustomerAction: "#mdlCustomerAction", RemoveWorkLoad: "#mdlRemove", Assign: "#mdlAssign", ViewHistory: "#mdlViewHistory", OnHold: "#mdlOnHold", RemoveOnHold: "#mdlRemoveOnHold" };
         var messages = {
             successMessages: { Saved: "Saved Successful" },
-            confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
+            confirmationMessages: {
+                UnAssigneRequests: "unassign these request item(s)",
+                AssignRequests: "assign these request item(s)",
+                OverwriteComments: "Overwrite previous customer action comments?"
+            },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
                 UserRequiredToAssign: "User required to assign selected request item(s)",
@@ -186,8 +190,8 @@
 
 
             if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
-                $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+                //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
 
             }
 
@@ -274,14 +278,77 @@
 
         //Toggle Customer Action Option for Notes
         xreferenceSearchObj.on("change", xreferenceObject.controls.dropdownlists.CustomerActionDropDownList, function () {
-            var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-            if (selCustomerAction.text() === "Other") {
-                $(xreferenceObject.controls.labels.NotesLabel).css("display", "inline");
-                $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "inline");
-            } else {
-                $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+
+            var txtNotes = $(xreferenceObject.controls.textBoxes.NotesTextBox);
+            var selNotes = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+
+            $(xreferenceObject.controls.labels.NotesLabel).css("display", "inline");
+            $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "inline");
+
+            // already entered text
+            var txtCustomerAction = txtNotes.val();
+            var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
+
+            // selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+
+            // content already in text
+            if (!emptyCustomerAction) {
+
+                var edited = true;
+                $(selNotes.dataSource.view()).each(function () {
+                    console.log("Comparing with" + this.Text);
+                    if (this.Text == txtCustomerAction) edited = false;
+                });
+
+                // if edited, prompt user for change confirmation.
+                if (edited) {
+
+                    var message = messages.confirmationMessages.OverwriteComments;
+                    var args = { message: message, header: 'Confirm comment overwrite.' };
+
+                    DisplayConfirmationModal(args, function () {
+                        $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+                    }, function () {
+                        // do nothing
+                    });
+
+                }
+                else
+                    $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+
             }
+            else {
+                $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+            }
+
+
+
+            //// previously text entered, confirm change.
+            //if (!emptyCustomerAction && selCustomerAction != txtCustomerAction) {
+
+            //    var message = messages.confirmationMessages.OverwriteComments;
+            //    var args = { message: message, header: 'Confirm Requests Selected' };
+
+            //    DisplayConfirmationModal(args, function () {
+            //        $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+            //    }, function () {
+            //        // do nothing
+            //    });
+
+            //}
+            //else {
+            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+            //}
+
+            //if (selCustomerAction.text() === "Other") {
+            //    $(xreferenceObject.controls.labels.NotesLabel).css("display", "inline");
+            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "inline");
+            //} else {
+            //    $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+            //}
         });
 
         //Toggle Pending Option for Notes
@@ -437,15 +504,23 @@
         //Save Request for Customer Action
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveCustomerActionButton, function () {
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
+
                 $(actionModals.CustomerAction).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
+
             } else {
-                var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-                if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
+
+                //var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                //.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                //if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
+
+                var selCustomerAction = $(xreferenceObject.controls.textBoxes.NotesTextBox).val();
+
+                if (selCustomerAction.replace(/ /g, "").length > 0) {
                     var data = {};
                     data['ids'] = selectedRequests;
                     data['customerAction'] = "Customer Action";
-                    data['notes'] = selCustomerAction.value();
+                    data['notes'] = selCustomerAction;
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
                     $(actionModals.CustomerAction).toggleModal();
@@ -757,8 +832,8 @@
                 $("#hdnDialogOpen").val("resolveOpen");
 
             if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
-                $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+                //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
             }
 
             //Obsolete this feature based on the TRECOMPLI-1271
@@ -782,8 +857,8 @@
 
 
                 if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
-                    $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                    $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+                    //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                    //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
                 }
 
                 //Obsolete this feature based on the TRECOMPLI-1271
