@@ -323,32 +323,6 @@
                 $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
             }
 
-
-
-            //// previously text entered, confirm change.
-            //if (!emptyCustomerAction && selCustomerAction != txtCustomerAction) {
-
-            //    var message = messages.confirmationMessages.OverwriteComments;
-            //    var args = { message: message, header: 'Confirm Requests Selected' };
-
-            //    DisplayConfirmationModal(args, function () {
-            //        $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
-            //    }, function () {
-            //        // do nothing
-            //    });
-
-            //}
-            //else {
-            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).val(selCustomerAction);
-            //}
-
-            //if (selCustomerAction.text() === "Other") {
-            //    $(xreferenceObject.controls.labels.NotesLabel).css("display", "inline");
-            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "inline");
-            //} else {
-            //    $(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-            //    $(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
-            //}
         });
 
         //Toggle Pending Option for Notes

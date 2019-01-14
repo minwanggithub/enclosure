@@ -158,13 +158,24 @@
         }
 
         // get cross reference results
-        var doCrossReferenceSearch = function () {
+        var doCrossReferenceSearch = function (initial) {
 
             // prevent another search being executed
             disableButtons();
 
             var url = controllerCalls.SearchRequests
-            var searchCriteria = JSON.stringify(getAdvancedSearchCriteria());
+            var searchCriteria = getAdvancedSearchCriteria();
+
+            if (searchCriteria.Criterias != null) {
+                if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
+                    $("#defaultSearch").html("");
+                }
+                else {
+                    $("#defaultSearch").html("Displaying all non-complete cross reference requests.");
+                }
+            }
+
+            if (!initial) searchCriteria = JSON.stringify(getAdvancedSearchCriteria());
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
                 .success(function (data) {
@@ -358,7 +369,7 @@
 
                 // if first one, set to default choice.
                 if (i == 0) {
-                    $(v).data("kendoDropDownList").value("AccountName");
+                    $(v).data("kendoDropDownList").value("AccountID");
                     $(v).data("kendoDropDownList").trigger("change");
                 }
                 else {
@@ -367,6 +378,9 @@
 
             });
 
+            // display init
+            init(null);
+
         });
 
         // clear search 
@@ -374,16 +388,53 @@
             doCrossReferenceSearch();
         });
 
-        //Toggle Customer Action Option for Notes
+        // customer notes action
         craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
-            var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-            if (selCustomerAction.text() === "Other") {
-                $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "inline");
-                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "inline");
-            } else {
-                $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "none");
-                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "none");
+
+            var txtNotes = $(crossReferenceObjects.controls.textBoxes.NotesTextBox);
+            var selNotes = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+
+            $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "inline");
+            $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "inline");
+
+            // already entered text
+            var txtCustomerAction = txtNotes.val();
+            var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
+
+            // selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+
+            // content already in text
+            if (!emptyCustomerAction) {
+
+                var edited = true;
+                $(selNotes.dataSource.view()).each(function () {
+                    console.log("Comparing with" + this.Text);
+                    if (this.Text == txtCustomerAction) edited = false;
+                });
+
+                // if edited, prompt user for change confirmation.
+                if (edited) {
+
+                    var message = messages.confirmationMessages.OverwriteComments;
+                    var args = { message: message, header: 'Confirm comment overwrite.' };
+
+                    DisplayConfirmationModal(args, function () {
+                        $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+                    }, function () {
+                        // do nothing
+                    });
+
+                }
+                else
+                    $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+
             }
+            else {
+                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+            }
+
         });
 
         // ---------------------------------------- ADVANCED SEARCH OPTIONS ---------------------------------------- 
@@ -808,13 +859,14 @@
             // no items selected ?
             if ((selectedIds || []).length > 0) {
 
-                var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-                if (selCustomerAction.select() > 0 || $(crossReferenceObjects.controls.textBoxes.NotesTextBox).text().length > 0) {
+                var selCustomerAction = $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val();
+
+                if (selCustomerAction.replace(/ /g, '').length > 0) {
 
                     var data = {};
                     data['ids'] = selectedIds;
                     data['customerAction'] = "Customer Action";
-                    data['notes'] = selCustomerAction.value();
+                    data['notes'] = selCustomerAction;
 
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                     
@@ -846,10 +898,7 @@
                     data['supplierId'] = Remove($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val(),
                         $(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
 
-                    alert(JSON.stringify(data));
-
                     //SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
-
 
                 } else {
 
@@ -859,45 +908,6 @@
                 }
 
             }
-
-            //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length === 0 || 
-            // $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "0" || 
-            // $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
-            //    $(actionModals.Obtainment).toggleModal();
-            //    $(this).displayError(messages.errorMessages.NoItemsSelected);
-            //} else {
-            //    if ($(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
-            //        var data = {};
-            //        data['ids'] = selectedRequests;
-            //        data['supplierId'] = Remove($(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val(), $(xreferenceObject.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
-            //        SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
-            //    } else {
-            //        $(actionModals.Obtainment).toggleModal();
-            //        $(this).displayError(messages.errorMessages.NoSupplierSelected);
-            //    }
-            //}
-
-            //// no items selected ?
-            //if ((selectedIds || []).length > 0) {
-
-            //    var selCustomerAction = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-            //    if (selCustomerAction.select() > 0 || $(crossReferenceObjects.controls.textBoxes.NotesTextBox).text().length > 0) {
-
-            //        var data = {};
-            //        data['ids'] = selectedIds;
-            //        data['customerAction'] = "Customer Action";
-            //        data['notes'] = selCustomerAction.value();
-
-            //        SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
-
-            //    } else {
-
-            //        // indicate no customer selected
-            //        $(this).displayError(messages.errorMessages.NoCustomerActionSelected);
-
-            //    }
-
-            //}
 
         }
 
@@ -993,7 +1003,7 @@
 
         function obtainmentSelSupplier(supplierSearchDialog) {
 
-            debugger;
+            return;
 
             var grid = $(crossReferenceObjects.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
             if (grid.dataSource.total() === 0) {
@@ -1006,7 +1016,6 @@
                 return;
             }
 
-            alert(data.id + "," + data.Name);
             $(crossReferenceObjects.controls.textBoxes.ProductIdTextBox).val(data.id + "," + data.Name);
 
             supplierSearchDialog.data("kendoWindow").close();
@@ -1128,11 +1137,11 @@
         }
 
         function init() {
-
+            // not implemented
         }
 
         function onDataBound() {
-           
+           // not implemented
         }
 
         function onDetailDataBound(sender) {
@@ -1161,11 +1170,11 @@
         }
 
         function onResponseDetailExpand() {
-
+            // not implemented
         }
 
         function hotKeyDisplay() {
-
+            // not implemented
         }
 
         return {
