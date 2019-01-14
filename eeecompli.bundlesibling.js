@@ -54,8 +54,7 @@
                 var bs = checkBox.get(0).kendoBindingTarget.source;
                 //var bs = $(siblingRows[index]).get(0).children[0].kendoBindingTarget.source;
                 //kendoConsole.log("Include: " + bs.included + " , DocumentId: " + bs.documentId + ", RevisionTitle: " + bs.exteredRevisionTitle);
-
-                if (bs != null && bs.included && bs.exteredRevisionTitle === "") {
+                if (bs != null && bs.included && bs.enteredRevisionTitle === "") {
                     alert("Please enter revision title for document: " + bs.documentId);
                     e.preventDefault();                    
                     return;
