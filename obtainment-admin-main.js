@@ -1,21 +1,21 @@
 ﻿; (function ($) {
 
-    if ($.fn.crossReferenceAdmin == null) {
-        $.fn.crossReferenceAdmin = {};
+    if ($.fn.obtainmentAdmin == null) {
+        $.fn.obtainmentAdmin = {};
 
     }
-    $.fn.crossReferenceAdmin = function () {
+    $.fn.obtainmentAdmin = function () {
 
         var currentUser = "LOGGEDINUSER";
 
         // initialize 
-        var craSearchObj = $("#CrossRefernceWFPanel");                          // panel container
-        var craAdvancedSearchObj = $("#CrossReferenceAdminSearchOptions");      // advanced search options
-        var craDetailObj = $("#CrossReferenceAdminWFGrid");
+        var obtSearchObj = $("#ObtainmentWFPanel");                             // panel container
+        var obtAdvancedSearchObj = $("#ObtainmentAdminSearchOptions");          // advanced search options
+        var obtDetailObj = $("#ObtainmentAdminWFGrid");
 
-        var workflowSearchObj = $("#IndexationWFPanel");                        // panel container
-        var workflowAdvancedSearchObj = $("#IndexationAdvancedSearchOptions");  // advanced search options
-        var workflowDetailObj = $("#IndexationWFGrid");                         // grid container 
+        var workflowSearchObj = $("#ObtainmentWFPanel");                        // panel container
+        var workflowAdvancedSearchObj = $("#ObtainmentAdvancedSearchOptions");  // advanced search options
+        var workflowDetailObj = $("#ObtainmentWFGrid");                         // grid container 
 
         var selectedIds = {};                                                   // ids of selected rows
         var gridIds = {};                                                       // traversed ids with selection state
@@ -26,16 +26,20 @@
         var selectedRows = new Array();
         var radioButtonSelected = "Group";
 
-        var crossReferenceObjects = {
+        var obtainmentObjects = {
 
             controls: {
 
                 buttons: {
                     AddAdvancedSearchOption: "#btnAddCriteria",                     // save settings (not implemented)
                     RemoveAdvancedSearchOption: "#btnDeleteCriteria",               // remove settings (not implemented)
-                    ClearCrossReferenceAdminBtn: "#clearCrossReferenceAdminBtn",    // clear advanced search options
-                    SearchCrossReferenceAdminBtn: "#searchCrossReferenceAdminBtn",  // search as per advanced options
+                    ClearObtainmentAdminBtn: "#clearObtainmentAdminBtn",        // clear advanced search options
+                    SearchObtainmentAdminBtn: "#searchObtainmentAdminBtn",      // search as per advanced options
+
                     SendToObtainmentBtn: "#btnSendToObtainment",                    // bulk action
+                    SendFirstEmail: "#btnSendFirstEmail",                           // bulk action
+                    SendSecondEmail: "#btnSendSecondEmail",                         // bulk action
+                    LogPhoneCall: "#btnLogPhoneCall",                               // bulk action
                     MatchToDocumentBtn: "#btnMatchToDocument",                      // bulk action
                     MakeCustomerActionBtn: "#btnMakeCustomerActionItem",            // bulk action
                     UnAssignFromButton: "#btnUnAssignFrom",
@@ -52,7 +56,7 @@
                 },
 
                 grids: {
-                    GridRequests: "#gdSearchCrossReference",
+                    GridRequests: "#gdSearchObtainment",
                     SearchSupplierNewGrid: "#gdSearchSupplierNew"
                 },
 
@@ -95,11 +99,11 @@
         };
 
         var controllerCalls = {
-            SearchRequestsCriteria: GetEnvironmentLocation() + "/Administration/CrossReference/GetSearchCriteria",
-            SearchRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SearchRequests",
-            SaveAssignedItems: GetEnvironmentLocation() + "/Administration/CrossReference/SaveAssignedItems",
+            SearchRequestsCriteria: GetEnvironmentLocation() + "/Administration/Obtainment/GetSearchCriteria",
+            SearchRequests: GetEnvironmentLocation() + "/Administration/Obtainment/SearchRequests",
+            SaveAssignedItems: GetEnvironmentLocation() + "/Administration/Obtainment/SaveAssignedItems",
             SaveObtainment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainment",
-            SaveActionRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SaveCustomerActionRequests",
+            SaveActionRequests: GetEnvironmentLocation() + "/Administration/Obtainment/SaveCustomerActionRequests",
             SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
         };
 
@@ -115,8 +119,10 @@
                 AssignRequests: "assign these request item(s)",
                 MatchDocuments: "match these request item(s)",
                 SendToObtainment: "send the request item(s) to obtainment",
-                AssignRequests: "set a customer action for the request item(s)",
-                OverwriteComments: "overwrite previously entered user action comment"
+                SendFirstEmail: "send the request item(s) for obtainment by the first email",
+                SendSecondEmail: "send the request item(s) to obtainment by a second email",
+                LogPhoneCall: "log a phone call for the request item(s)",
+                AssignRequests:"set a customer action for the request item(s)"
 
             },
             errorMessages: {
@@ -135,7 +141,7 @@
         };
 
         // query model
-        var crossReferenceAdminSearchModel = {
+        var obtainmentAdminSearchModel = {
             Criterias: []
         };
 
@@ -159,7 +165,7 @@
         }
 
         // get cross reference results
-        var doCrossReferenceSearch = function (initial) {
+        var doObtainmentSearch = function (initial) {
 
             // prevent another search being executed
             disableButtons();
@@ -180,7 +186,7 @@
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
                 .success(function (data) {
-                    craDetailObj.html(data);
+                    obtDetailObj.html(data);
                     enableButtons();
                 }).error(
                     function () {
@@ -268,7 +274,7 @@
 
                         // find all grids on the page by locating the master check control
 
-                        craDetailObj.find(".chkMasterMultiSelect").each((i, v) => {
+                        obtDetailObj.find(".chkMasterMultiSelect").each((i, v) => {
 
                             // uncheck the master control
                             $(v).prop('checked', false);
@@ -322,7 +328,7 @@
                 .error(function () { $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned); })
                 .complete(function (compData) {
 
-                    kendo.ui.progress(craDetailObj, false);
+                    kendo.ui.progress(obtDetailObj, false);
                     $(this).savedSuccessFully(messages.successMessages.Saved);
                     if (completeCallback)
                         completeCallback(compData);
@@ -353,12 +359,12 @@
         };
 
         getSelectedCategories = function () {
-            var list = $(crossReferenceObjects.controls.dropdownlists.CategoriesDropDownList).data("kendoMultiSelect").value();
+            var list = $(obtainmentObjects.controls.dropdownlists.CategoriesDropDownList).data("kendoMultiSelect").value();
             return list.join(",");
         };
 
         // clear search 
-        craSearchObj.on("click", crossReferenceObjects.controls.buttons.ClearCrossReferenceAdminBtn, function () {
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.ClearObtainmentAdminBtn, function () {
 
             // release all kendo controls
             $("#advancedSearchContainerTable").find("[data-role='datepicker']").each((i, v) => {
@@ -385,18 +391,18 @@
         });
 
         // clear search 
-        craSearchObj.on("click", crossReferenceObjects.controls.buttons.SearchCrossReferenceAdminBtn, function () {
-            doCrossReferenceSearch();
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.SearchObtainmentAdminBtn, function () {
+            doObtainmentSearch();
         });
 
         // customer notes action
-        craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
+        obtSearchObj.on("change", obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
 
-            var txtNotes = $(crossReferenceObjects.controls.textBoxes.NotesTextBox);
-            var selNotes = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+            var txtNotes = $(obtainmentObjects.controls.textBoxes.NotesTextBox);
+            var selNotes = $(obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
 
-            $(crossReferenceObjects.controls.labels.NotesLabel).css("display", "inline");
-            $(crossReferenceObjects.controls.textBoxes.NotesTextBox).css("display", "inline");
+            $(obtainmentObjects.controls.labels.NotesLabel).css("display", "inline");
+            $(obtainmentObjects.controls.textBoxes.NotesTextBox).css("display", "inline");
 
             // already entered text
             var txtCustomerAction = txtNotes.val();
@@ -422,18 +428,18 @@
                     var args = { message: message, header: 'Confirm comment overwrite.' };
 
                     DisplayConfirmationModal(args, function () {
-                        $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+                        $(obtainmentObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
                     }, function () {
                         // do nothing
                     });
 
                 }
                 else
-                    $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+                    $(obtainmentObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
 
             }
             else {
-                $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
+                $(obtainmentObjects.controls.textBoxes.NotesTextBox).val(selCustomerAction);
             }
 
         });
@@ -441,7 +447,7 @@
         // ---------------------------------------- ADVANCED SEARCH OPTIONS ---------------------------------------- 
 
         // ADD ADVANCED SEARCH OPTION
-        craSearchObj.on("click", crossReferenceObjects.controls.buttons.AddAdvancedSearchOption, function () {
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.AddAdvancedSearchOption, function () {
 
             // conditions
             var conditions = $("#advancedSearchContainerTable > div[id=row]").size();
@@ -458,11 +464,11 @@
         })
 
         // REMOVE ADVANCED SEARCH OPTION - all except the first are removable
-        craSearchObj.on("click", crossReferenceObjects.controls.buttons.RemoveAdvancedSearchOption, function (e) {
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.RemoveAdvancedSearchOption, function (e) {
             $(e.target).closest("[id^=row]").remove();
         })
 
-        craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.SearchCriteriaOption, function (e) {
+        obtSearchObj.on("change", obtainmentObjects.controls.dropdownlists.SearchCriteriaOption, function (e) {
             
         })
 
@@ -655,7 +661,7 @@
         // ---- 
 
         //Show Supplier
-        craSearchObj.on("click", crossReferenceObjects.controls.buttons.SearchSupplierButton, function () {
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.SearchSupplierButton, function () {
             // var activeSupplier = "txtSearchSupplierId";
             $("#supplierSearchWindow").data("kendoWindow").center().open();
             $(actionModals.Obtainment).toggleModal();
@@ -663,27 +669,27 @@
 
         // ---------------------------------  ASSIGN - UNASSIGN FUNCTIONS
 
-        craDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
+        obtDetailObj.on("change", "input[name=GroupIndividual]:radio", function () {
             radioButtonSelected = $(this).val();
             if ($(this).val() === "Group") {
-                $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").show();
-                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
-                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete").value("");
+                $(obtainmentObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").show();
+                $(obtainmentObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+                $(obtainmentObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete").value("");
             }
             else {
-                $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").show();
-                $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").hide();
+                $(obtainmentObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").show();
+                $(obtainmentObjects.controls.dropdownlists.GroupsDropDownList).closest(".k-widget").hide();
             }
         });
 
-        craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveAssignButton, function (e) {
+        obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveAssignButton, function (e) {
 
             e.preventDefault();
-            var userName = $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete");
+            var userName = $(obtainmentObjects.controls.textBoxes.IndividualTextBox).data("kendoAutoComplete");
             var selectedValue;
             if (radioButtonSelected === "Group") {
 
-                var ddlGroups = $(crossReferenceObjects.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
+                var ddlGroups = $(obtainmentObjects.controls.dropdownlists.GroupsDropDownList).data("kendoDropDownList");
 
                 selectedValue = ddlGroups.text();
                 if (ddlGroups.select() == 0) selectedValue = "";
@@ -745,7 +751,7 @@
 
             var _selectedIds = [];
 
-            var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
             $(grid.dataSource.view()).each(function (i, v) {
 
                 // locate row
@@ -832,6 +838,75 @@
 
         }
 
+        confirmFirstEmail = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.SendFirstEmail + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.Obtainment).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
+        confirmSecondEmail = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.SendSecondEmail + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.Obtainment).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
+        confirmLogPhoneCall = function () {
+
+            var _gridIds = getGridIds();
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.LogPhoneCall + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.Obtainment).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
         confirmCustomerAction = function () {
 
             var _gridIds = getGridIds();
@@ -860,7 +935,7 @@
             // no items selected ?
             if ((selectedIds || []).length > 0) {
 
-                var selCustomerAction = $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val();
+                var selCustomerAction = $(obtainmentObjects.controls.textBoxes.NotesTextBox).val();
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
 
@@ -892,12 +967,12 @@
             if ((selectedIds || []).length > 0) {
 
                 // if a supplier id was selected
-                if ($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
+                if ($(obtainmentObjects.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
 
                     var data = {};
                     data['ids'] = selectedRequests;
-                    data['supplierId'] = Remove($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val(),
-                        $(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
+                    data['supplierId'] = Remove($(obtainmentObjects.controls.textBoxes.SearchSupplierIdTextBox).val(),
+                        $(obtainmentObjects.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
 
                     //SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
 
@@ -914,7 +989,7 @@
 
         function SaveRequest(strUrl, dataArray, modalId, callback) {
             if (selectedIds.length > 0) {
-                kendo.ui.progress(craDetailObj, true);
+                kendo.ui.progress(obtDetailObj, true);
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
                     .success(function (successData) {
                         
@@ -940,7 +1015,7 @@
                     .done(function () {
 
                         // stop progress indicator
-                        kendo.ui.progress(craDetailObj, false);
+                        kendo.ui.progress(obtDetailObj, false);
 
                         // update the grids
                         
@@ -952,7 +1027,7 @@
         var loadRequests = function () {
 
             // bind grid
-            var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
 
             selectedIds = {};
@@ -962,41 +1037,52 @@
             disableSideMenuItems();
 
             // show the slide out tab
-            $(crossReferenceObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
+            $(obtainmentObjects.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
 
             // default to group
-            $(crossReferenceObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
+            $(obtainmentObjects.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
 
             // assign event handlers for assign/un-assign
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.UnAssignFromButton, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.UnAssignFromButton, function (e) {
                 batchUnassignWorkItems();
             });
 
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.AssignToButton, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.AssignToButton, function (e) {
                 batchAssignWorkItems();
             });
 
             // bulk operation confirmations
-
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SendToObtainmentBtn, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendToObtainmentBtn, function (e) {
                 confirmSendToObtainment();
             });
 
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.MatchToDocumentBtn, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendFirstEmail, function (e) {
+                confirmSendFirstEmail();
+            });
+
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendSecondEmail, function (e) {
+                confirmSendSecondEmail();
+            });
+
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.LogPhoneCall, function (e) {
+                confirmLogPhoneCall();
+            });
+
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.MatchToDocumentBtn, function (e) {
                 confirmMatchToDocument();
             });
 
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
                 confirmCustomerAction();
             });
 
             // bulk operation updates
 
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveObtainmentButton, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveObtainmentButton, function (e) {
                 saveSendToObtainment();
             });
 
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveCustomerActionButton, function (e) {
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveCustomerActionButton, function (e) {
                 saveCustomerAction();
             });
 
@@ -1006,7 +1092,7 @@
 
             return;
 
-            var grid = $(crossReferenceObjects.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
+            var grid = $(obtainmentObjects.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
             if (grid.dataSource.total() === 0) {
                 $(this).displayError(messages.errorMessages.NoRowSelected);
                 return;
@@ -1017,7 +1103,7 @@
                 return;
             }
 
-            $(crossReferenceObjects.controls.textBoxes.ProductIdTextBox).val(data.id + "," + data.Name);
+            $(obtainmentObjects.controls.textBoxes.ProductIdTextBox).val(data.id + "," + data.Name);
 
             supplierSearchDialog.data("kendoWindow").close();
             $(actionModals.Obtainment).displayModal();
@@ -1032,7 +1118,7 @@
 
             var supplierSearchDialog = $("#supplierSearchWindow");
 
-            $(crossReferenceObjects.controls.buttons.CancelSupplierSearch).click(function () {
+            $(obtainmentObjects.controls.buttons.CancelSupplierSearch).click(function () {
                 supplierSearchDialog.data("kendoWindow").close();
                 //DisableSideMenuItems();
                 //EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
@@ -1051,7 +1137,7 @@
 
         }
 
-        $(craDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
+        $(obtDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
 
             // master select state
             var checked = $(this).is(':checked');
@@ -1073,7 +1159,7 @@
 
         });
 
-        $(craDetailObj).on("click", ".chkMasterMultiSelect", function () {
+        $(obtDetailObj).on("click", ".chkMasterMultiSelect", function () {
 
             // master select state
             var checked = $(this).is(':checked');
