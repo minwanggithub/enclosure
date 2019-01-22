@@ -289,17 +289,18 @@
             var txtCustomerAction = txtNotes.val();
             var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
 
-            // selected customer action
+            // "fix" selected customer action
             var selCustomerAction = selNotes.text();
             if (selCustomerAction == "Select One") selCustomerAction = "";
+            selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
 
             // content already in text
             if (!emptyCustomerAction) {
 
                 var edited = true;
                 $(selNotes.dataSource.view()).each(function () {
-                    console.log("Comparing with" + this.Text);
-                    if (this.Text == txtCustomerAction) edited = false;
+                    var note = this.Text.split(" ").slice(2).join(" ");
+                    if (note == txtCustomerAction) edited = false;
                 });
 
                 // if edited, prompt user for change confirmation.
