@@ -2077,17 +2077,17 @@
                     cache: false,
                     url: controllerCalls.GetSiblingList,
                     data: { documentId: formData.model.DocumentId },
-                    success: function (result, textStatus, jqXHR) {                        
+                    success: function (result, textStatus, jqXHR) {
                         if (result.length > 0) {
                             var siblingList = [];
                             for (var idx = 0; idx < result.length; idx++) {
                                 siblingList.push(
                                     {
                                         DocumentId: result[idx].ReferenceId,
+                                        RevisionTitle: result[idx].RevisionTitle,
                                         Included: true
                                     });
-                            }
-
+                            }                            
                             var siblingLib = $("#siblingPopup").bundlesiblings({
                                 siblingDataSource: siblingList,
                                 submitForm: form,
@@ -2153,7 +2153,6 @@
 
 
         function submitInboundRevision(form, formData) {
-            debugger;
             var url = form.attr("action");
             $(this).ajaxCall(url, formData)
                 .success(function (data) {
@@ -2196,6 +2195,7 @@
                                     siblingList.push(
                                         {
                                             DocumentId: result[idx].ReferenceId,
+                                            RevisionTitle: result[idx].RevisionTitle,
                                             Included: true
                                         });
                                 }
