@@ -146,7 +146,11 @@
                 Saved: "Saved Successful",
                 SuperEmailDirection: "<br/><b>Please follow <a href='*'>this link</a> to submit your document. </b> <br/><br/>"
             },
-            confirmationMessages: { UnAssigneRequests: "unassign these request item(s)", AssignRequests: "assign these request item(s)" },
+            confirmationMessages: {
+                UnAssigneRequests: "unassign these request item(s)",
+                AssignRequests: "assign these request item(s)",
+                OverwriteComments: "Overwrite previous customer action comments?"
+            },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
                 UserRequiredToAssign: "User required to assign selected request item(s)",
@@ -505,6 +509,57 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnSaveConfirmNotAvailable, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "ConfirmNotAvailable", actionModals.ConfirmNotAvailable);
+        });
+
+        
+        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CustomerActionDropDownList, function () {
+
+            var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest);
+            var selNotes = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
+            
+            $(obtainmentObject.controls.labels.NotesLabel).css("display", "inline");
+            $(obtainmentObject.controls.textBoxes.NotesTextBox).css("display", "inline");
+
+            // already entered text
+            var txtCustomerAction = txtNotes.val();
+            var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
+
+            // "fix" selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+            selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
+
+            // content already in text
+            if (!emptyCustomerAction) {
+
+                var edited = true;
+                $(selNotes.dataSource.view()).each(function () {
+                    var note = this.Text.split(" ").slice(2).join(" ");
+                    if (note == txtCustomerAction) edited = false;
+                });
+
+                // if edited, prompt user for change confirmation.
+                if (edited) {
+
+                    var message = messages.confirmationMessages.OverwriteComments;
+                    var args = { message: message, header: 'Confirm comment overwrite.' };
+
+                    DisplayConfirmationModal(args, function () {
+                        $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val(selCustomerAction);
+                    }, function () {
+                        // do nothing
+                    });
+
+                }
+                else
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val(selCustomerAction);
+
+            }
+            else {
+                $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val(selCustomerAction);
+            }
+
+
         });
 
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
