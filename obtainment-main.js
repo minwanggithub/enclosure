@@ -63,7 +63,8 @@
                     SuperEmailSubject: "#txtSuperEmailSubject",
                     SuperObtainmentEmailBody: "#txtSuperEmailBody",
                     SupplierId: "#txtSupplierId",
-                    NotificationRecepient: "#txtNotificationRecepient"
+                    NotificationRecepient: "#txtNotificationRecepient",
+                    ObtainmentActionNotesConfirmNotAvailable:"#txtObtainmentActionNotesConfirmNotAvailable"
 
                 },
                 dateTime: {
@@ -81,6 +82,7 @@
                     NextStepsDropDownList: "#ddlNextSteps",
                     InternalNotes: "#ddlInternalNotes",
                     CloseRequestCustomerActionsDropDownList: "#ddlCustomerActions",
+                    ConfirmNotAvailableDropDownList: "#ddlConfirmNotAvailable",
                     CloseRequestReasonCode: "#ddlReasonCode",
                     SupplierContactList: "#ddlSupplierContactList",
                     SuperEmailRecepient: "#ddlSuperEmail",
@@ -171,6 +173,7 @@
                 UnderCoonstruction: "This option is still under construction.",
                 CannotRetrieveSentEmail: "Unable to retrieve sent email.",
                 NoCustomerActionNotesProvided: "Customer action notes required.",
+                NoConfirmNotAvailableActionNotesProvided: "Confirm not available action notes required.",
                 NoNoticeNumberInSuperEmailSubject: "A ||NoticeNumber|| token is mandatory in the super email subject.",
                 SuperEmailTargetNotSelected: "The targeted Obtainment type must be specified for a Super Email.",
                 NoNonSDSSubstitutionToken:"A ||SupplierPortal(link text)|| token is mandatory in the super email body.",
@@ -562,6 +565,53 @@
 
         });
 
+        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList, function () {
+
+            var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable);
+            var selNotes = $(obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList).data("kendoDropDownList");
+
+            // already entered text
+            var txtCustomerAction = txtNotes.val();
+            var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
+
+            // "fix" selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+            selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
+
+            // content already in text
+            if (!emptyCustomerAction) {
+
+                var edited = true;
+                $(selNotes.dataSource.view()).each(function () {
+                    var note = this.Text.split(" ").slice(2).join(" ");
+                    if (note == txtCustomerAction) edited = false;
+                });
+
+                // if edited, prompt user for change confirmation.
+                if (edited) {
+
+                    var message = messages.confirmationMessages.OverwriteComments;
+                    var args = { message: message, header: 'Confirm comment overwrite.' };
+
+                    DisplayConfirmationModal(args, function () {
+                        $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val(selCustomerAction);
+                    }, function () {
+                        // do nothing
+                    });
+
+                }
+                else
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val(selCustomerAction);
+
+            }
+            else {
+                $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val(selCustomerAction);
+            }
+
+
+        });
+
         obtainmentDetailWorkFlowObj.on("click", ".showHistory", function (e) {
             e.preventDefault();
             ShowHistory(this.id, null);
@@ -936,6 +986,10 @@
 
 
         function ShowActionModals() {
+
+            // clear text
+            $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val("");
+            $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
 
             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
@@ -1455,6 +1509,7 @@
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
+
                 var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
@@ -1484,7 +1539,7 @@
                     if (actionName == "CloseRequest" || actionName == "CustomerAction")
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
 
-                    // if this is a customer action - make sure that a not has been entered.
+                    // if this is a customer action - make sure that a note has been entered.
                     // no saving without a note.
 
                     if (customerAction) {
@@ -1494,6 +1549,18 @@
                             $(this).displayError(messages.errorMessages.NoCustomerActionNotesProvided);
                             return;
                         }
+
+                    }
+
+                    if (actionName == "ConfirmNotAvailable") {
+
+                        var closingNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val() + "";
+                        if (closingNotes.replace(/g/, "").length == 0) {
+                            $(this).displayError(messages.errorMessages.NoConfirmNotAvailableActionNotesProvided);
+                            return;
+                        }
+
+                        obtainmentMultipleWorkItemActionModel.Notes = closingNotes;
 
                     }
 
