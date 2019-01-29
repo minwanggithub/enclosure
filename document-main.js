@@ -13,6 +13,20 @@
         var productTreeName = "#tvProductSearchResult";
         var activeNode = "#tvProductSearchResult_tv_active";
 
+        var documentElementSelectors = {
+            buttons: {                
+                DocumentAddSibling: "#btnSibling_"
+            },            
+            grids: {              
+                DocumentSibling: "#gdDocumentSibling_"
+            }
+        };
+
+        var controllerCalls = {
+            AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSilibingDocumentList"
+        }
+
         // support mutltiple elements
         if (this.length > 1) {
             this.each(function () { $(this).complibDocument(); });
@@ -2496,6 +2510,32 @@
             $('#StatusNotesText').html(selectedData.Notes);
         };
 
+        var initializeDocumentSibling = function (did) {
+            $(documentElementSelectors.buttons.DocumentAddSibling + did).click(function (e) {
+                e.preventDefault();
+                var title = prompt("Please enter title for the sibling you want to create", "");
+                if (title != null) {
+                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
+                    $.post(controllerCalls.AddDocumentSibling,
+                        { documentId: did, documentTitle: title },
+                        function (data) {
+                            if (!data.Success) {
+                                $(this).displayError(data.Message);
+                                return;
+                            }
+                            var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+
+                            if (sbGrid.dataSource.view().length > 0) {
+                                sbGrid.dataSource.page(1);
+                            }
+                            sbGrid.dataSource.data([]);
+                            sbGrid.dataSource.read();
+                        });
+                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+                }
+            });
+        };
+
         // **************************************** Exposing Public Methods *****************************************************
         return {
             clearDocumentDetail: clearDocumentDetail,
@@ -2540,6 +2580,7 @@
             showSupplierPlugIn: showSupplierPlugIn,
             viewAndUpdateAttachments: viewAndUpdateAttachments,
             viewSingleSupplier: viewSingleSupplier,
+            initializeDocumentSibling: initializeDocumentSibling
         };
     };
 
