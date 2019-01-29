@@ -836,6 +836,7 @@
         confirmCustomerAction = function () {
 
             var _gridIds = getGridIds();
+            $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val("");
 
             // no items selected ?
             if (Object.keys(_gridIds).length == 0) {
