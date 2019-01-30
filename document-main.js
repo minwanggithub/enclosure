@@ -14,11 +14,17 @@
         var activeNode = "#tvProductSearchResult_tv_active";
 
         var documentElementSelectors = {
+            inputs: {
+                DocumentId: "#DocumentID"
+            }, 
             buttons: {                
                 DocumentAddSibling: "#btnSibling_"
             },            
             grids: {              
                 DocumentSibling: "#gdDocumentSibling_"
+            },
+            dropdownlists: {
+                DocumentContainerClassificationType: "#ContainerTypeId"
             }
         };
 
@@ -1836,7 +1842,7 @@
             };
         };
 
-        var fillUpKGContent = function() {
+        var fillUpKGContent = function () {
             var sbv = $("#KitGroupClassificationSetBitValue").val();
             var tid = $("#ContainerTypeId").val();
             
@@ -1844,11 +1850,11 @@
             if (sbv == "1") {
                 doKitParent();
                 $("#whichGridToAdd").val("gdKitSibling");
-                loadExistingChildren("gdKitSibling");
+                //loadExistingChildren("gdKitSibling");
 
             // KIT CHILDREN
             } else if (sbv == "2") {
-                doKitChildren();
+               doKitChildren();
 
             // GROUP PARENT
             } else if (sbv == "4" || tid == 3) {
@@ -1934,7 +1940,6 @@
         };
 
         var initKitAndGroup = function () {
-
             var url = getUrl("Operations", "Operations/Document/PlugInSupplierSearch");
             $.post(url, {
                 supplierId: 0
@@ -2510,30 +2515,49 @@
             $('#StatusNotesText').html(selectedData.Notes);
         };
 
-        var initializeDocumentSibling = function (did) {
-            $(documentElementSelectors.buttons.DocumentAddSibling + did).click(function (e) {
-                e.preventDefault();
-                var title = prompt("Please enter title for the sibling you want to create", "");
-                if (title != null) {
-                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
-                    $.post(controllerCalls.AddDocumentSibling,
-                        { documentId: did, documentTitle: title },
-                        function (data) {
-                            if (!data.Success) {
-                                $(this).displayError(data.Message);
-                                return;
-                            }
-                            var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+        var onAddSiblingRequest = function (did) {
+            //e.preventDefault();
+            var title = prompt("Please enter title for the sibling you want to create", "");
+            if (title != null) {
+                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
+                $.post(controllerCalls.AddDocumentSibling,
+                    { documentId: did, documentTitle: title },
+                    function (data) {
+                        if (!data.Success) {
+                            $(this).displayError(data.Message);
+                            return;
+                        }
+                        var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
 
-                            if (sbGrid.dataSource.view().length > 0) {
-                                sbGrid.dataSource.page(1);
-                            }
-                            sbGrid.dataSource.data([]);
-                            sbGrid.dataSource.read();
-                        });
-                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+                        if (sbGrid.dataSource.view().length > 0) {
+                            sbGrid.dataSource.page(1);
+                        }
+                        sbGrid.dataSource.data([]);
+                        sbGrid.dataSource.read();
+                    });
+                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+            }
+        }
+
+        var onDocumentContainerComponentsRequestStart = function (e) {
+            if (e.type == 'read') {
+                this.transport.options.read.data = {
+                    documentId: $(documentElementSelectors.inputs.DocumentId).val(),
+                        classificationType: $(documentElementSelectors.dropdownlists.DocumentContainerClassificationType).val()
+                };
+            }
+        };
+
+        function extractDocumentIdFromRequestUrl(url) {
+            if (url) {
+                var documentIdString = "documentId=";
+                var index = url.indexOf(documentIdString) + documentIdString.length;
+                if (index > 0 && index < url.length) {
+                    var documentId = url.substring(index);
+                    return documentId ? documentId : null;
                 }
-            });
+            }
+            return null;
         };
 
         // **************************************** Exposing Public Methods *****************************************************
@@ -2580,7 +2604,8 @@
             showSupplierPlugIn: showSupplierPlugIn,
             viewAndUpdateAttachments: viewAndUpdateAttachments,
             viewSingleSupplier: viewSingleSupplier,
-            initializeDocumentSibling: initializeDocumentSibling
+            onAddSiblingRequest: onAddSiblingRequest,
+            onDocumentContainerComponentsRequestStart: onDocumentContainerComponentsRequestStart
         };
     };
 

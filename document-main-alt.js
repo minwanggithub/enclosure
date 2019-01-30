@@ -828,32 +828,29 @@
             getRealNumberForProductAssociation(did);
         };
 
-        var initializeDocumentSibling = function (did) {
-            $(documentElementSelectors.buttons.DocumentAddSibling + did).click(function (e) {
-                e.preventDefault();
-                var title = prompt("Please enter title for the sibling you want to create", "");
-                if (title != null) {                    
-                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
-                    $.post(controllerCalls.AddDocumentSibling,
-                        { documentId: did, documentTitle: title },
-                        function (data) {
-                            if (!data.Success) {
-                                $(this).displayError(data.Message);
-                                return;
-                            }                            
-                            var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+        var onAddSiblingRequest = function (did) {
+            //e.preventDefault();
+            var title = prompt("Please enter title for the sibling you want to create", "");
+            if (title != null) {
+                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
+                $.post(controllerCalls.AddDocumentSibling,
+                    { documentId: did, documentTitle: title },
+                    function (data) {
+                        if (!data.Success) {
+                            $(this).displayError(data.Message);
+                            return;
+                        }
+                        var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
 
-                            if (sbGrid.dataSource.view().length > 0) {
-                                sbGrid.dataSource.page(1);
-                            }
-                            sbGrid.dataSource.data([]);
-                            sbGrid.dataSource.read();
-                        });
-                    kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
-                }
-            });
-        };
-
+                        if (sbGrid.dataSource.view().length > 0) {
+                            sbGrid.dataSource.page(1);
+                        }
+                        sbGrid.dataSource.data([]);
+                        sbGrid.dataSource.read();
+                    });
+                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+            }
+        }
 
         function refereshAssociationGrid(did) {
             var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
@@ -2716,7 +2713,7 @@
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
-            initializeDocumentSibling: initializeDocumentSibling,
+            onAddSiblingRequest: onAddSiblingRequest,
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
