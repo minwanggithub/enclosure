@@ -30,7 +30,7 @@
 
         var controllerCalls = {
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSilibingDocumentList"
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList"
         }
 
         // support mutltiple elements

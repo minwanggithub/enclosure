@@ -201,7 +201,7 @@
             AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSilibingDocumentList"
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList"
         }
 
         var documentMessages = {
@@ -830,6 +830,62 @@
 
         var onAddSiblingRequest = function (did) {
             //e.preventDefault();
+
+            //var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");            
+            ////$("<div>siblingRequest</div>").dialog({
+            //var rowModel;
+
+            //function GetBindingRow() {
+            //    return kendo.observable({
+            //        usingExistingDocument: false,
+            //        newDocumentTitle: "",
+            //        existingDocumentId: null,
+                    
+            //        onUsingExistingDocumentChange: function (e) {
+            //            //alert("check changed");
+            //        }
+            //    });
+            //}
+
+            //useExistingDocument.dialog({
+            //    title: "Please enter new sibling information",
+            //    autoOpen: true,
+            //    buttons: {
+            //        OK: function () {
+            //            if (rowModel.newDocumentTitle === "") {
+            //                alert("Sibling title is required.");
+            //                return;
+            //            }
+            //            else if (rowModel.usingExistingDocument && rowModel.existingDocumentId === null) {
+            //                alert("Existing document Id is required.");   //Need to verify DocumentId
+            //                return;
+            //            }
+            //            else    
+            //                $(this).dialog("close");
+            //        },
+            //        Cancel: function () {
+            //            //alert("Cancel!");
+            //            $(this).dialog("close");
+            //        }                    
+            //        //Maybe: function () {
+            //        //    alert("Maybe!");
+            //        //    $(this).dialog("close");
+            //        //}
+            //    },
+            //    width: "500px",
+            //    //dialogClass: 'no-close',   //Does not work
+            //    open: function (event, ui) {
+            //        $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+            //    },
+            //    create: function (e, ui) {
+            //        rowModel = GetBindingRow();
+            //        kendo.bind(useExistingDocument, rowModel);
+                    
+            //        //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
+            //        //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
+            //    }
+            //});
+
             var title = prompt("Please enter title for the sibling you want to create", "");
             if (title != null) {
                 kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
