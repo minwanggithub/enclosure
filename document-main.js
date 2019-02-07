@@ -1460,8 +1460,6 @@
         }
 
         function doBothChildren() {
-            setKGTopLabel("Kit Component and Group Element");
-            
             $('#rbtnGrpControlPanel').find('input').prop('checked', false);
             $('input[name=kgClassifierKitChildren], input[name=kgClassifierGroupChildren]').prop('checked', true);
 
@@ -1476,7 +1474,6 @@
         }
 
         function doGroupChildren() {
-            setKGTopLabel("Group Element");
             $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierGroupChildren"])').prop('checked', false);
 
             $('#lblGroupSibling').html("Other Sibling");
@@ -1487,7 +1484,6 @@
         }
 
         function doGroupParent() {
-            setKGTopLabel("Group");
             $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierGroupParent"])').prop('checked', false);
             $('#divParent, #divGroupParent, #divKitSibling').hide();
             $('#lblGroupSibling').html("Elements");
@@ -1497,7 +1493,6 @@
         }
 
         function doKitChildren() {
-            setKGTopLabel("Kit Component");
             $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierKitChildren"])').prop('checked', false);
 
             $('#lblParent').html("Parent");
@@ -1509,7 +1504,6 @@
         }
 
         function doKitParent() {
-            setKGTopLabel("Kit");
             $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierKitParent"])').prop('checked', false);
             $('#divParent, #divGroupParent, #divGroupSibling').hide();
             $("#divBody, #divKitSibling").show();
@@ -1520,7 +1514,6 @@
         }
 
         function doTopicParent() {
-            setKGTopLabel("Topic");
             $('#rbtnGrpControlPanel').find('input:not([id="kgClassifierTopicChildren"])').prop('checked', false);
             $("#divBody, #divTopicComponents").show();
             $('#lblTopicParent').html("Components");
@@ -1727,11 +1720,6 @@
             if (setPreviousContainerValue == true)
                 $("#previousContainerTypeId").val(containerTypeId);
         };
-
-        function setKGTopLabel(keyWord)
-        {
-            $("#pTopLabel").html("This is a <strong>" +keyWord + "</strong>.");
-        }
 
         function setPrevRadioButtonState(id1, id2) {
             prevRadioButtonState = [0, 0, 0, 0];
