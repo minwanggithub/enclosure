@@ -92,30 +92,8 @@
             var containerTypeId = $("#ContainerTypeId").val();
             if (containerTypeId == "2") {
                 setTimeout(setLblRevisionFileInfoDetaillib("Cover Sheet"), 100);
-
-                $("#btnDissembleKit").show();
-
-                $(document).off('click', "#btnDissembleKit");
-                $(document).on('click', "#btnDissembleKit", function (e) {
-                    DisplayConfirmationModal({ message: 'Are you sure you want to disassemble this kit?', header: 'Confirm for disassembling kit' }, function () {
-                        disembleKitOrGroup(2);
-                    });
-                });
-
             } else if (containerTypeId == "3") {
                 setTimeout(setLblRevisionFileInfoDetaillib("Attachments"), 100);
-
-                $("#btnDissembleKit").show();
-
-                $(document).off('click', "#btnDissembleKit");
-                $(document).on('click', "#btnDissembleKit", function (e) {
-                    DisplayConfirmationModal({ message: 'Are you sure to destroy or dissemble this group?', header: 'Confirm for disassembling group' }, function () {
-                        disembleKitOrGroup(3);
-                    });
-                });
-
-            } else {
-                $("#btnDissembleKit").hide();
             }
 
             //for existing doc/rev, show the attachment grid and label
