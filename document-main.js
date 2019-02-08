@@ -1870,11 +1870,6 @@
                 return;
             }
 
-
-        ################################
-            Save the list and refresh the grid 
-
-
             var itemsSaved = 0;
             var errorMessage = null;
             var childGridId = $("#whichGridToAdd").val();

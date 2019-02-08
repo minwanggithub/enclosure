@@ -2584,7 +2584,7 @@
                             if (errorMessage)
                                 displayError(errorMessage);
                             else
-                                refreshDocumentContainersGrid(grid.element.attr('id'));
+                                refreshDocumentContainersGrid(dataItem.ParentDocumentId);
                         })
                         .error(function () { displayError(documentMessages.errors.DocumentContainerComponentDelete); });
                 });
