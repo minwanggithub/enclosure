@@ -2533,7 +2533,6 @@
         function onDocumentAddContainerComponentsBtnClick(e) {
             e.preventDefault();
             var currentDocumentId = extractReferenceId(this.getAttribute('id'));
-
             if (displayDocumentPopUp) {
                 displayDocumentPopUp(function (data) {
                     var ddl = $(documentElementSelectors.dropdownlists.DocumentContainerClassificationType + currentDocumentId).data('kendoDropDownList');
@@ -2552,7 +2551,7 @@
                             if (errorMessage)
                                 displayError(errorMessage);
                             else
-                                refreshDocumentContainersGrid(ddl.element.attr('id'));
+                                refreshDocumentContainersGrid(currentDocumentId);
                         })
                         .error(function () { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
                 });
@@ -2592,13 +2591,10 @@
             }
         }
 
-        function refreshDocumentContainersGrid(documentHtmlId) {
-            var documentId = extractReferenceId(documentHtmlId);
-            if (documentId) {
-                var componentGrid = $(documentElementSelectors.grids.DocumentContainerComponents + documentId).data('kendoGrid');
-                if (componentGrid) {
-                    componentGrid.dataSource.read();
-                }
+        function refreshDocumentContainersGrid(documentId) {
+            var componentGrid = $(documentElementSelectors.grids.DocumentContainerComponents + documentId).data('kendoGrid');
+            if (componentGrid) {
+                componentGrid.dataSource.read();
             }
         }
 

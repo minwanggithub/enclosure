@@ -1870,6 +1870,11 @@
                 return;
             }
 
+
+        ################################
+            Save the list and refresh the grid 
+
+
             var itemsSaved = 0;
             var errorMessage = null;
             var childGridId = $("#whichGridToAdd").val();
@@ -1921,10 +1926,8 @@
             });
 
 
-            $("#divParent, #divKitSibling, #divGroupSibling, #divTopicComponents").hide();
+            $("#divParent, #divKitSibling, #divTopicComponents").hide();
 
-            //TODO: bring back group and childrens
-                //bring back the kit component
             if ($("#ParentDocumentId").val().length <= 0 || $("#ParentDocumentId").val() == "0") {
                 var docId = $("input#DocumentID.doc-ref-id").val();
                 if (docId != undefined && docId && docId.length > 0)
