@@ -30,7 +30,8 @@
 
         var controllerCalls = {
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList"
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
+            AddContainerComponents: GetEnvironmentLocation() + "/Operations/Document/SaveDocumentContainerComponent"
         }
 
         // support mutltiple elements
@@ -71,6 +72,23 @@
             DisplayError("Duplicate Names are not allowed");
             var grid = $("#DocumentDetail #gdRevisionNameNumber").data("kendoGrid");
             grid.dataSource.read();
+        }
+
+        function parseErrorMessage(data) {
+
+            var errorMessage = '';
+            if (data && data.Errors) {
+
+                var keys = Object.keys(data.Errors);
+                for (var idx = 0; idx < keys.length; idx++) {
+                    var errorobj = data.Errors[keys[idx]];
+                    if (errorobj.errors && errorobj.errors.length > 0) {
+                        errorMessage = errorobj.errors[0];
+                        break;
+                    }
+                }
+            }
+            return errorMessage;
         }
 
         var isInEditingMode = function () {
@@ -1874,35 +1892,68 @@
             var errorMessage = null;
             var childGridId = $("#whichGridToAdd").val();
 
-            selectedRows.each(function(index, row) {
+            var model = {};
+
+            //Might needed in the future for multiply select items
+            selectedRows.each(function (index, row) {
                 var uid = row.getAttribute('data-uid');
                 var dataItem = parent.dataSource.getByUid(uid);
-                if (dataItem) {
-                    var tempErrorMessage = addToChildGrid(childGridId, dataItem);
-                    if (tempErrorMessage)
-                        errorMessage = errorMessage || tempErrorMessage;
-                    else
-                        itemsSaved++;
+                if (dataItem.ContainerTypeId != 1) {
+                    DisplayError('Document with type other than SINGLE can not be attached');
+                    return;
                 }
+
+                model = {
+                    ChildDocumentId: dataItem.ReferenceId,
+                    ClassificationTypeId: $(documentElementSelectors.dropdownlists.DocumentContainerClassificationType).val(),
+                    ParentDocumentId: $(documentElementSelectors.inputs.DocumentId).val()
+                };
+                //if (dataItem) {
+                //    var tempErrorMessage = addToChildGrid(childGridId, dataItem);
+                //    if (tempErrorMessage)
+                //        errorMessage = errorMessage || tempErrorMessage;
+                //    else
+                //        itemsSaved++;
+                //}
             });
 
-            clearData();
+            if (typeof (model.ParentDocumentId) == "undefined") {
+                return;
+            }
+
+            //clearData();
             var documentSearchWindow = $("#documentSearchWindow_kg").data('kendoWindow');
             if (documentSearchWindow) documentSearchWindow.close();
 
-            if (itemsSaved > 0) {
+            $(this).ajaxCall(controllerCalls.AddContainerComponents, model)
+                .success(function (result) {
+                    var errorMessage = parseErrorMessage(result);
+                    if (errorMessage)
+                        DisplayError(errorMessage);
+                    else {
+                        var componentGrid = $("#gdKitSibling").data('kendoGrid');
+                        if (componentGrid) {
+                            componentGrid.dataSource.read();
+                        }
+                    }
+                })
+                .error(function() {
+                    DisplayError("Saving the document container component could not be completed. Please try again.");
+                });
 
-                if (shouldPostToServer())
-                    dispatch2($("#whichGridToAdd").val(), inferContainerTypeId($("#whichGridToAdd").val()));
+            //if (itemsSaved > 0) {
 
-                if (errorMessage)
-                    DisplayError('Warning: Some ' + errorMessage.toLowerCase());
+            //    if (shouldPostToServer())
+            //        dispatch2($("#whichGridToAdd").val(), inferContainerTypeId($("#whichGridToAdd").val()));
 
-            } else {
-                DisplayError(errorMessage ? errorMessage : 'No items were able to be attached');
-            }
+            //    if (errorMessage)
+            //        DisplayError('Warning: Some ' + errorMessage.toLowerCase());
 
-            setViewUpdateAttachmentText();
+            //} else {
+            //    DisplayError(errorMessage ? errorMessage : 'No items were able to be attached');
+            //}
+
+            //setViewUpdateAttachmentText();
         };
 
         var initKitAndGroup = function () {
@@ -2176,13 +2227,13 @@
             e.stopPropagation();
             $("#canViewConstituentDocument").val("0");
 
-            if (!CheckRemoveComponentsFromKits(e)) {
-                DisplayError("Component can not be removed from this Kits because a kit must contain at lease two components.");
-                return;
-            }
+            //if (!CheckRemoveComponentsFromKits(e)) {
+            //    DisplayError("Component can not be removed from this Kits because a kit must contain at lease two components.");
+            //    return;
+            //}
 
             var settings = {
-                message: 'Are you sure you want to delete this record',
+                message: 'Are you sure you want to remove this component?',
                 header: 'Confirm Record Deletion'
             };
 
@@ -2523,6 +2574,13 @@
             }
             return null;
         };
+
+        function refreshDocumentContainersGrid(documentId) {
+            var componentGrid = $(documentElementSelectors.grids.DocumentContainerComponents + documentId).data('kendoGrid');
+            if (componentGrid) {
+                componentGrid.dataSource.read();
+            }
+        }
 
         // **************************************** Exposing Public Methods *****************************************************
         return {

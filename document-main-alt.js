@@ -232,7 +232,7 @@
             modals: {
                 GeneralConfirm: "Confirmation Required",
                 DocumentDeleteContainerComponentHeader: "Delete Container Component Confirmation",
-                DocumentDeleteContainerComponentMessage: "Are you sure you want to delete this container component?",
+                DocumentDeleteContainerComponentMessage: "Are you sure you want to remove this component?",
                 DocumentDiscardChangesHeader: "Discard Document Changes",
                 DocumentDiscardChangesMessage: "You are going to discard your document changes. Are you sure you would like to continue?",
                 DocumentNewDocumentDiscardChangesHeader: "Discard New Document Changes",
