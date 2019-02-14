@@ -48,8 +48,10 @@
             //   e.preventDefault();
             //   win.fadeIn();
             // }            
-            if (cancelSave)
+            if (cancelSave) {
+                $(settings.target.currentTarget).removeClass('k-state-disabled');
                 return;
+            }
 
             var target = $(plugInOptions.Ids.SilbingSectionId);
             var siblingRows = target.find(".siblingrow");

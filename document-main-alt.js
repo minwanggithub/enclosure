@@ -118,6 +118,7 @@
                 DocumentContainerClassificationType: "#ClassificationType_",
                 DocumentDetailsContainerTypeExact: "#ContainerTypeId_",
                 DocumentDetailsContainerType: "[id^=ContainerTypeId_]",
+                DocumentDetailsDocumentTypeExact: "#DocumentTypeId_",
                 DocumentDetailsDocumentType: "[id^=DocumentTypeId_]",
                 DocumentDetailsLanguage: "[id^=DocumentLanguageId_]",
                 DocumentDetailsJurisdiction: "[id^=DocumentJurisdictionId_]",
@@ -885,7 +886,13 @@
             //        //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
             //    }
             //});
+            var documentTypeId = $(documentElementSelectors.dropdownlists.DocumentDetailsDocumentTypeExact + did).val();
 
+            if (documentTypeId != 3) {
+                alert("Sibling can only be created for SDS document.");
+                return;
+            }
+            
             var title = prompt("Please enter title for the sibling you want to create", "");
             if (title != null) {
                 kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
@@ -953,40 +960,26 @@
 
         /******************************** New Document Methods ********************************/
         function cancelNewDocumentForm(callbackFunc, clearFields, clearAttachments) {
-
             var container = $(documentElementSelectors.containers.NewDocument);
-            if (isContainerFieldsDirty(container) == true) {
+            var formData = {
+                files: getDocumentRevisionAttachments(container),
+                documentId: 0,
+                revisionId: 0
+            };
 
+            if (isContainerFieldsDirty(container) == true) {
                 var settings = {
                     message: documentMessages.modals.DocumentNewDocumentDiscardChangesMessage,
                     header: documentMessages.modals.DocumentNewDocumentDiscardChangesHeader,
                 };
-
                 displayConfirmationModal(settings, function () {
-
                     if (clearFields == true)
                         revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
-
-                    var formData = {
-                        files: getDocumentRevisionAttachments(container),
-                        documentId: 0,
-                        revisionId: 0
-                    };
-
-                    $.ajax({
-                        type: 'POST',
-                        url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
-                        data: formData,
-                        beforeSend: function () {
-                            if (clearAttachments == true)
-                                clearDocumentRevisionAttachments(container);
-                        }
-                    });
-
+                    clearFormAttachment(container, formData);
                     if (callbackFunc) callbackFunc();
                 });
-
             } else {
+                clearFormAttachment(container, formData);
                 if (callbackFunc) callbackFunc();
             }
         }
@@ -1689,24 +1682,42 @@
 
         function onDocumentNewRevisionDetailsCancelBtnClick(e) {
             e.preventDefault();
-
             var container = $(e.currentTarget).parents('ul' + documentElementSelectors.containers.DocumentNewRevisionDetails + ':first');
             if (container.length > 0) {
+                var formData = {
+                    files: getDocumentRevisionAttachments(container),
+                    documentId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val(),
+                    revisionId: 0
+                };
 
                 if (isContainerFieldsDirty(container) == true) {
                     var settings = {
                         message: documentMessages.modals.DocumentRevisionDiscardChangesMessage,
                         header: documentMessages.modals.DocumentRevisionDiscardChangesHeader,
                     };
+                    displayConfirmationModal(settings,
+                        function() {
+                            revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);                            
+                            clearFormAttachment(container, formData);
+                            container.hide(500);
+                        });
 
-                    displayConfirmationModal(settings, function () {
-                        revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);
-                        container.hide(500);
-                    });
-
-                } else
+                } else {
+                    clearFormAttachment(container, formData);
                     container.hide(500);
+                }
             }
+        }
+
+        function clearFormAttachment(container, formData) {
+            $.ajax({
+                type: 'POST',
+                url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
+                data: formData,
+                beforeSend: function () {               
+                     clearDocumentRevisionAttachments(container);
+                }
+            });
         }
 
         function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {            
@@ -2068,7 +2079,6 @@
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
-
             e.preventDefault();
 
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
@@ -2124,7 +2134,11 @@
                 //Prevent continuously click
                 $(e.currentTarget).addClass('k-state-disabled');
 
-                $.ajax({
+                if (formData.model.RevisionId > 0) {
+                    submitRevison(form, formData, e);
+                }
+                else
+                    $.ajax({
                     type: 'GET',
                     dataType: 'json',
                     cache: false,
@@ -2765,7 +2779,7 @@
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
-            onAddSiblingRequest: onAddSiblingRequest,
+            onAddSiblingRequest: onAddSiblingRequest,            
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
