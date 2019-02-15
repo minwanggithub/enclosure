@@ -899,6 +899,7 @@
                 $.post(controllerCalls.AddDocumentSibling,
                     { documentId: did, documentTitle: title },
                     function (data) {
+                        debugger;
                         if (!data.Success) {
                             $(this).displayError(data.Message);
                             return;
