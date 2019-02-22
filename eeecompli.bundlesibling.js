@@ -50,6 +50,7 @@
             // }            
             if (cancelSave) {
                 $(settings.target.currentTarget).removeClass('k-state-disabled');
+                //e.sender.destroy();
                 return;
             }
 
@@ -88,6 +89,7 @@
             if ($.isFunction(settings.inboundRevisionCallback)) {
                 settings.inboundRevisionCallback.call(this, settings.submitForm, settings.submitData);
             }
+            e.sender.destroy();
         }
 
 
@@ -201,10 +203,10 @@
                 width: "660px",
                 height: "500px",        
                 position: 'fixed',
-                close: onClose,
-                deactivate: function (e) {
-                    e.sender.destroy();
-                }
+                close: onClose
+                //deactivate: function (e) {
+                //    e.sender.destroy();
+                //}
             });
 
 
