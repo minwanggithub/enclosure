@@ -201,7 +201,10 @@
                 width: "660px",
                 height: "500px",        
                 position: 'fixed',
-                close: onClose
+                close: onClose,
+                deactivate: function (e) {
+                    e.sender.destroy();
+                }
             });
 
 
