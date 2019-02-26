@@ -125,6 +125,21 @@
 
         };
 
+        var SearchBySupplierIdAndName = function (supplierId, supplierName) {
+
+            viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, supplierId + ", " + supplierName);
+            viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, supplierId);
+
+            $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(viewModel) })
+                .success(function (data) {
+                    UIObject.sections.responseDetailGridSection().html(data);
+                }).error(
+                    function () {
+                        $(this).displayError(UIObject.errorMessage.GeneralError);
+             });
+
+        }
+
         var SearchBind = function () {
             viewModel = kendo.observable({
                 NoticeNumber: "",
@@ -839,7 +854,8 @@
             MasterExpand: MasterExpand,          
             MasterCollapse: MasterCollapse,
             OnResponseDetailExpand: onResponseDetailExpand,
-            setNotesModalSettings: setNotesModalSettings
+            setNotesModalSettings: setNotesModalSettings,
+            SearchBySupplierIdAndName: SearchBySupplierIdAndName
         };
     };
 })(jQuery);
