@@ -552,7 +552,7 @@
                     $("#hasInboundResponses").show();
                     $("#superEmailSupplier").parent().parent().nextAll().hide();
 
-                    var url = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/InboundResponse?supplierId=' + obtainment.supplierId;
+                    var url = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/InboundResponse?supplierId=' + obtainment.supplierId + "&supplierName=" + obtainment.supplierName;
                     $("#linkToInboundResponse").attr("href", url);
                     
                 }
