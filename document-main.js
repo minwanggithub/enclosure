@@ -135,7 +135,8 @@
         var controllerCalls = {
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
             GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
-            AddContainerComponents: GetEnvironmentLocation() + "/Operations/Document/SaveDocumentContainerComponent"
+            AddContainerComponents: GetEnvironmentLocation() + "/Operations/Document/SaveDocumentContainerComponent",
+            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?"
         }
 
 
@@ -1163,6 +1164,10 @@
             return html;
 
         };
+
+        var displaySingleDocument = function (documentObj) {
+            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");            
+        }
 
         var deleteDocument = function () {
 
@@ -3067,6 +3072,7 @@
             collectDataToDelete: collectDataToDelete,
             currentRevisionId: currentRevisionId,
             customDeleteAttachment: customDeleteAttachment,
+            displaySingleDocument: displaySingleDocument,
             deleteDocument: deleteDocument,
             documentQuery_kg: documentQuery_kg,
             error_handler: error_handler,
