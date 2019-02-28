@@ -202,7 +202,8 @@
             AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList"
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
+            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?"
         }
 
         var documentMessages = {
@@ -1503,6 +1504,15 @@
             changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
 
+        var displaySingleDocument = function (documentObj) {
+            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");
+            //return controllerCalls.LoadSingleDocument +
+            //    "documentId=" +
+            //    documentObj.DocumentID +
+            //    "&revisionId=" +
+            //    documentObj.RevisionID;
+        }
+
         function clearDocumentRevisionAttachments(container) {
             if (container) {
                 var grid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
@@ -2778,6 +2788,7 @@
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
+            displaySingleDocument: displaySingleDocument,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onAddSiblingRequest: onAddSiblingRequest,            
