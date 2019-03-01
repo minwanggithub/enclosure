@@ -353,15 +353,13 @@
         //    window.open(url, "_blank");
         //};
 
-        //var loadSupplierPlugIn = function () {
-
-        //    var url = "PlugInSupplierSearch";
-        //    $.post(url, { supplierId: 0 }, function (data) {
-        //        $("#dgSupplierPlugIn").html(data);
-        //    });
-
-        //    supplierSearchDialog = $("#supplierSearchWindow");
-        //};
+        var loadSupplierPlugIn = function () {
+            var url = "PlugInSupplierSearch";
+            $.post(url, { supplierId: 0 }, function (data) {
+                $("#dgSupplierPlugIn").html(data);
+            });
+            supplierSearchDialog = $("#supplierSearchWindow");
+        };
 
         var panelbarActivated = function () {
             $("#loadSingleDocBtn").click(function (e) {
@@ -3081,7 +3079,7 @@
             loadDocumentDetail: loadDocumentDetail,
             loadIndexation: loadIndexation,
             loadNewRevision: loadNewRevision,
-            //loadSupplierPlugIn: loadSupplierPlugIn,
+            loadSupplierPlugIn: loadSupplierPlugIn,
             onContainerTypeIdChange: onContainerTypeIdChange,
             onCustomCommand: onCustomCommand,
             onDataBound: onDataBound,
