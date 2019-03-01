@@ -489,17 +489,32 @@
                     linksOrProductsToken = regex.test(body);
                 }
 
-                // embedded URL
-                var hasEmbeddedUrl = true;
-                var regex = new RegExp("(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$", "i");
-                var m = regex.exec(body + "");
+                // embedded URL test
+                var hasEmbeddedUrl = false;
+                //var tokens = Array.from(body.replace(/[^\x20-\x7E]/g, ' ').trimRight().trimStart().split(" ")).filter(e => e.indexOf(".,") > 0);
+                var tokens = body.replace(/<[^>]+>/g, ' ').split(" ").filter(e => e.trim().length > 0);//
 
-                var tokens = body.split(".").forEach((v, i) => {
-                    
-                });
+                var tlds = [".com", ".net", ".org", ".mil", ".edu", ".gov", ".co.", ".local"];
+                var links = [];
 
+                for (var i = 0; i < tokens.length && !hasEmbeddedUrl; i++) {
 
-                hasEmbeddedUrl = false;
+                    var a = document.createElement('a');
+                    a.setAttribute('href', tokens[i]);
+
+                    console.log(a.hostname + " " + a.pathname + " " + tlds.some(e => a.hostname.indexOf(e) >= 0));
+
+                    //var hostname = (a.hostname + "").toLowerCase();
+
+                    if (tlds.some(e => a.hostname.endsWith(e) || a.pathname.endsWith(e))) {
+                        links.push(a.href);
+                    }
+
+                    //console.log(a.hostname);
+
+                }
+
+                hasEmbeddedUrl = (links.length > 0);
 
                 // validation
                 if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasEmbeddedUrl) {
