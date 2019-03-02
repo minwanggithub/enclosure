@@ -49,7 +49,9 @@
                     SearchSupplierId: "#txtSearchSupplierId",                    
                     ProductSearchProductName: "#txtProductSearchProductName",
                     ProductSearchProductId: "#txtProductSearchSearchProductId",
-                    ProductSearchResultTotal: "#lblProductSearchResultTotal"
+                    ProductSearchResultTotal: "#lblProductSearchResultTotal",
+                    ObtainmentActionNotes: "#txtObtainmentActionNotes"
+
                 },
                 checkBox: {
                     Obsolete: "#chkIsObsolete"
@@ -64,7 +66,8 @@
                     ProductStatus: "#ddlProductStatus",
                     PhysicalState: "#ddlPhysicalState",
                     ProductScope: "#ddlProductScope",
-                    ObtainmentType: "#ddlObtainmentType"
+                    ObtainmentType: "#ddlObtainmentType",
+                    ConfirmNotAvailable: "ddlConfirmNotAvailable"
                 },
 
                 divs: { NewProductDetail: "#divNewProductDetail" },
@@ -89,7 +92,8 @@
             confirmationMessages: {
                 RemoveThisDocument: "Are you sure you want to delete this document from product?",
                 ProductChangesReverted: "All product changes will be reverted. Are you sure you would like to reload the product?",
-                ObtainmentTypeSaved: "Obtainment Type Not Avaialbe Saved Succesfully"
+                ObtainmentTypeSaved: "Obtainment Type Not Avaialbe Saved Succesfully",
+                OverwriteComments: "Overwrite action notes ?"
             },
             errorMessages:{
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
@@ -103,7 +107,8 @@
                 ErrorAttachDocToProd: 'Cannot attach Document to product.',
                 ErrorAtIfExistsDocRev: 'Error at action IfExistsDocRev.',
                 ObtainmentTypeError: "Obtainment Type needs to be selected.",
-                ObtianmentTypeAlreadyAdded: "Obtainment Type has already been added"
+                ObtianmentTypeAlreadyAdded: "Obtainment Type has already been added.",
+                NoReasonNotes: "Reason specifying unavailability of obtainment type is required."
             }
         }
 
@@ -213,12 +218,18 @@
         }
 
         var ModifyNotAvailable = function(e) {
+
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             var pKey = dataItem["ProductID"];
+            var notes = dataItem["Notes"];
+
             $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Save Obtainment Type");
             $(actionModals.NotAvailable + "_" + pKey).toggleModal();
             var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList").value(dataItem["ObtainmentLkpID"]);
+
             $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", dataItem["Obsolete"]);
+            $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val(notes);
+
         }
 
         var DeleteDoc = function (e) {
@@ -640,28 +651,43 @@
                 var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
 
                 notAvailableModel.ProductID = pKey;
+
                 notAvailableModel.ObtainmentLkpID = ddlObtainmentType.value() === "" ? 0 : ddlObtainmentType.value();
                 notAvailableModel.Obsolete = $(productObject.controls.checkBox.Obsolete + "_" + pKey).is(":checked");
-                if (notAvailableModel.ObtainmentLkpID > 0) {
+                notAvailableModel.Notes = $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val();
+
+                var errors = [];
+
+                if ((notAvailableModel.Notes + "").trim() == "") {
+                    errors.push(messages.errorMessages.NoReasonNotes);
+                }
+
+                if (notAvailableModel.ObtainmentLkpID <= 0) {
+                    errors.push(messages.errorMessages.ObtainmentTypeError);
+                }
+
+                if (errors.length == 0) {
                     $(this).ajaxCall(controllerCalls.SaveObtainmentNotAvailable, { jsnotAvailableModel: JSON.stringify(notAvailableModel) })
-                   .success(function (data) {
-                       if (data == 0) {
-                           $(this).savedSuccessFully(messages.confirmationMessages.ObtainmentTypeSaved);
-                           var grid1 = $(productObject.controls.grids.GridNotAvailable + "_" + pKey).data("kendoGrid");
-                           grid1.dataSource.read();
-                           grid1.dataSource.page(1);
-                           $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-                       } else {
-                           $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-                           $(this).displayError(messages.errorMessages.ObtianmentTypeAlreadyAdded);
-                       }
-                               
+                        .success(function (data) {
+                            if (data == 0) {
+                                $(this).savedSuccessFully(messages.confirmationMessages.ObtainmentTypeSaved);
+                                var grid1 = $(productObject.controls.grids.GridNotAvailable + "_" + pKey).data("kendoGrid");
+                                grid1.dataSource.read();
+                                grid1.dataSource.page(1);
+                                $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                            } else {
+                                $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                                $(this).displayError(messages.errorMessages.ObtianmentTypeAlreadyAdded);
+                            }
+
                         }).error(
-                   function () {
-                       $(this).displayError(messages.errorMessages.GeneralError);
-                   });
-                } else
-                    $(this).displayError(messages.errorMessages.ObtainmentTypeError);
+                            function () {
+                                $(this).displayError(messages.errorMessages.GeneralError);
+                            });
+                } else {
+                    var html = "Validation failed:<br><br>" + errors.join("<br>");
+                    $(this).displayError(html);
+                }
 
             });
 
@@ -927,7 +953,7 @@
                 }
             });
         };
-       
+
         return {
             BindingSaveCancel: BindingSaveCancel,
             DeleteDoc: DeleteDoc,
