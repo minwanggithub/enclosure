@@ -67,7 +67,7 @@
                     PhysicalState: "#ddlPhysicalState",
                     ProductScope: "#ddlProductScope",
                     ObtainmentType: "#ddlObtainmentType",
-                    ConfirmNotAvailable: "ddlConfirmNotAvailable"
+                    ConfirmNotAvailable: "#ddlConfirmNotAvailable"
                 },
 
                 divs: { NewProductDetail: "#divNewProductDetail" },
@@ -226,6 +226,7 @@
             $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Save Obtainment Type");
             $(actionModals.NotAvailable + "_" + pKey).toggleModal();
             var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList").value(dataItem["ObtainmentLkpID"]);
+            $(productObject.controls.dropdownlists.ConfirmNotAvailable + "_" + pKey).data("kendoDropDownList").value(-1);
 
             $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", dataItem["Obsolete"]);
             $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val(notes);
