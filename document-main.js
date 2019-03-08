@@ -1997,11 +1997,11 @@
             };
         };
 
-        var fillUpKGContent = function () {
-            var sbv = $("#KitGroupClassificationSetBitValue").val();
+        var fillUpKGContent = function () {            
+            var sbv = $("#KitGroupClassificationSetBitValue").val();            
             var tid = $("#ContainerTypeId").val();
             // KIT PARENT
-            if (sbv == "1") {
+            if (sbv == "1" || sbv == "16") {
                 doKitParent();
                 $("#whichGridToAdd").val("gdKitSibling");
                 //loadExistingChildren("gdKitSibling");
@@ -2023,15 +2023,13 @@
             // BOTH KIT AND GROUP CHILDREN
             } else if (sbv == "10") {
                 doBothChildren();
-
-            // TOPIC PARENT
-            } else if (sbv == '16') {
-                doTopicParent();
-                $("#whichGridToAdd").val("gdTopicComponents");
-                loadExistingChildren("gdTopicComponents");
-
-            // SINGLE
-            } else {
+            }
+            //else if (sbv == '16') {
+            //    doTopicParent();
+            //    $("#whichGridToAdd").val("gdTopicComponents");
+            //    loadExistingChildren("gdTopicComponents");            
+            //}
+            else {
                 $("#divBody").hide();
             }
         };
