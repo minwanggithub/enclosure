@@ -507,7 +507,7 @@
                     //var hostname = (a.hostname + "").toLowerCase();
 
                     if (tlds.some(e => a.hostname.endsWith(e) || a.pathname.endsWith(e))) {
-                        links.push(a.href);
+                        if (a.href.indexOf("@") < 0) links.push(a.href);
                     }
 
                     //console.log(a.hostname);
