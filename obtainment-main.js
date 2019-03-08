@@ -945,6 +945,8 @@
             })
             .complete(function () {
                 if (superEmailModel.PreviewEmail) {
+
+                    $(actionModals.SuperMail).toggleModal();
                     ShowMessage("The super email request has been queued for processing.<br>" +
                         "A preview summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.");
                 } else {
