@@ -399,81 +399,85 @@
            
             $(productObject.controls.hiddenTextBoxes.HiddenProductName).val($(productObject.controls.textBoxes.ProductName + "_" + activeSaveButton).val());
 
-            //Verify duplicate product TRECOMPLI:3380
-            $.post(controllerCalls.ISProductExist, { jsProductSearchModel: JSON.stringify(queryText) }, function(data) {
-                if (!data || data.Exist) {
-                    if (confirm(data.DisplayMessage)) {
-                        $.post(controllerCalls.SaveProduct,
-                            { jsProductSearchModel: JSON.stringify(queryText) },
-                            function(data) {
-                                if (!data || data.ErrorMessage) {
-                                    var errorMessage = data.ErrorMessage || messages.errorMessages.ErrorSavingProduct;
-                                    $(this).displayError(errorMessage);
-                                    return false;
-                                }
-                                if (activeSaveButton == 0) {
-                                    $(productObject.controls.textBoxes.ProductId + "_" + activeSaveButton)
-                                        .val(data.ReferenceId);
-                                    if ($(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
-                                        .hasClass("k-state-disabled")) {
-                                        $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
-                                            .removeClass("k-state-disabled");
-                                        $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
-                                            .click(function() {
 
-                                                newProductActive = true;
-                                                activeProduct = data.ReferenceId;
-                                                $(productObject.controls.dropdownlists.ProductStatus +
-                                                        "_" +
-                                                        activeSaveButton)
-                                                    .data('kendoDropDownList')
-                                                    .enable(true);
+            var existPromise = $.post(controllerCalls.ISProductExist,{jsProductSearchModel: JSON.stringify(queryText) });
 
-                                                if (displayDocumentPopUp) {
-                                                    displayDocumentPopUp(function(data) {
-                                                        var doclists = [];
-                                                        doclists.push(data.ReferenceId);
-                                                        addDocumentListToProduct(doclists);
-                                                    });
-                                                }
-                                            });
-                                    }
-
-                                    UnBindingSaveCancel(0);
-                                    deactivateLayout(activeSaveButton);
-                                    $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductId)
-                                        .val(data.ReferenceId);
-                                    $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
-
-                                    $(productObject.controls.divs.NewProductDetail).html("");
-
-                                    var grid = $(productObject.controls.grids.GridSearchProduct).data('kendoGrid');
-                                    if (grid) {
-                                        grid.bind("dataBound",
-                                            function addNewProductDataBound() {
-                                                var productRow = grid.wrapper.find('tr.k-master-row:first');
-                                                grid.select(productRow);
-                                                grid.expandRow(productRow);
-                                                grid.unbind("dataBound", addNewProductDataBound);
-                                            });
-
-                                        grid.dataSource.read();
-                                    }
-                                } else {
-                                    $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton)
-                                        .val('');
-                                    reloadProductHistoryGrid(activeSaveButton);
-                                    setProductGridDataSourceItem(data);
-                                }
-                                updateProductStatusLayout(productId, selectedStatusId);
-                            });
-                    } else {
-                        BindingSaveCancel(activeSaveButton);
+            $.when(existPromise)
+                .done(function (result) {                    
+                    if (!result || result.Exist) {
+                        if (!confirm(result.DisplayMessage)) {
+                            BindingSaveCancel(activeSaveButton);
+                            return;
+                        }                        
                     }
-                }
-            });
+                    $.post(controllerCalls.SaveProduct,
+                        { jsProductSearchModel: JSON.stringify(queryText) },
+                        function (data) {
+                            if (!data || data.ErrorMessage) {
+                                var errorMessage = data.ErrorMessage || messages.errorMessages.ErrorSavingProduct;
+                                $(this).displayError(errorMessage);
+                                return false;
+                            }
+                            if (activeSaveButton == 0) {
+                                $(productObject.controls.textBoxes.ProductId + "_" + activeSaveButton)
+                                    .val(data.ReferenceId);
+                                if ($(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
+                                    .hasClass("k-state-disabled")) {
+                                    $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
+                                        .removeClass("k-state-disabled");
+                                    $(productObject.controls.buttons.AddDocToProduct + "_" + activeSaveButton)
+                                        .click(function () {
 
-            
+                                            newProductActive = true;
+                                            activeProduct = data.ReferenceId;
+                                            $(productObject.controls.dropdownlists.ProductStatus +
+                                                "_" +
+                                                activeSaveButton)
+                                                .data('kendoDropDownList')
+                                                .enable(true);
+
+                                            if (displayDocumentPopUp) {
+                                                displayDocumentPopUp(function (data) {
+                                                    var doclists = [];
+                                                    doclists.push(data.ReferenceId);
+                                                    addDocumentListToProduct(doclists);
+                                                });
+                                            }
+                                        });
+                                }
+
+                                UnBindingSaveCancel(0);
+                                deactivateLayout(activeSaveButton);
+                                $("#divSearchSection " + productObject.controls.textBoxes.ProductSearchProductId)
+                                    .val(data.ReferenceId);
+                                $("#divSearchSection " + productObject.controls.buttons.ProductSearch).click();
+
+                                $(productObject.controls.divs.NewProductDetail).html("");
+
+                                var grid = $(productObject.controls.grids.GridSearchProduct).data('kendoGrid');
+                                if (grid) {
+                                    grid.bind("dataBound",
+                                        function addNewProductDataBound() {
+                                            var productRow = grid.wrapper.find('tr.k-master-row:first');
+                                            grid.select(productRow);
+                                            grid.expandRow(productRow);
+                                            grid.unbind("dataBound", addNewProductDataBound);
+                                        });
+
+                                    grid.dataSource.read();
+                                }
+                            } else {
+                                $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton)
+                                    .val('');
+                                reloadProductHistoryGrid(activeSaveButton);
+                                setProductGridDataSourceItem(data);
+                            }
+                            updateProductStatusLayout(productId, selectedStatusId);
+                        });
+                })
+                .fail(function (e) {                   
+                    $(this).displayError(messages.errorMessages.ErrorSavingProduct);
+                });
         }
 
         // Method to set the datasource item based on the data passed through
