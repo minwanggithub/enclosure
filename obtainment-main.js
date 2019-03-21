@@ -514,7 +514,8 @@
 
                 }
 
-                hasEmbeddedUrl = (links.length > 0);
+                //hasEmbeddedUrl = (links.length > 0);
+                hasEmbeddedUrl = false;
 
                 // validation
                 if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasEmbeddedUrl) {
