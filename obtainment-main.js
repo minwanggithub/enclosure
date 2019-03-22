@@ -447,7 +447,7 @@
                 }
 
             });
-            
+
             // ---- wire super email send
             $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).click(function () {
 
@@ -489,33 +489,44 @@
                     linksOrProductsToken = regex.test(body);
                 }
 
+                //var tokens = Array.from(body.replace(/[^\x20-\x7E]/g, ' ').trimRight().trimStart().split(" ")).filter(e => e.indexOf(".,") > 0);
+
                 // embedded URL test
                 var hasEmbeddedUrl = false;
-                //var tokens = Array.from(body.replace(/[^\x20-\x7E]/g, ' ').trimRight().trimStart().split(" ")).filter(e => e.indexOf(".,") > 0);
                 var tokens = body.replace(/<[^>]+>/g, ' ').split(" ").filter(e => e.trim().length > 0);//
 
-                var tlds = [".com", ".net", ".org", ".mil", ".edu", ".gov", ".co.", ".local"];
+                var protocols = ["http://", "https://", "file://", "ftp://"];
+                var tlds = [".com", ".net", ".org", ".mil", ".edu", ".gov", ".co", ".local"];
+
                 var links = [];
 
+                // iterate through tokens
                 for (var i = 0; i < tokens.length && !hasEmbeddedUrl; i++) {
 
-                    var a = document.createElement('a');
-                    a.setAttribute('href', tokens[i]);
+                    // to lowercase for comparison
+                    var url = tokens[0].toLowerCase().replace("\\", "/").split("?")[0];
 
-                    console.log(a.hostname + " " + a.pathname + " " + tlds.some(e => a.hostname.indexOf(e) >= 0));
+                    // if the token begins with a protocol, flag it
+                    if (protocols.some(e => url.startsWith(e))) {
+                        links.push(tokens[i]);
+                    }
+                    else {
+                        
+                        // test domain 
+                        url = url.split("/")[0];
 
-                    //var hostname = (a.hostname + "").toLowerCase();
-
-                    if (tlds.some(e => a.hostname.endsWith(e) || a.pathname.endsWith(e))) {
-                        if (a.href.indexOf("@") < 0) links.push(a.href);
+                        if (tlds.some(e => url.endsWith(e))) {
+                            links.push(tokens[i]);
+                        }
+                        else if (tlds.some(e => url.lastIndexOf(e + ".") == (url.length - e.length - 3))){
+                            links.push(tokens[i]);
+                        }
                     }
 
-                    //console.log(a.hostname);
-
+                    //if (is_url(tokens[i])) links.push(tokens[i]);
                 }
 
-                //hasEmbeddedUrl = (links.length > 0);
-                hasEmbeddedUrl = false;
+                hasEmbeddedUrl = (links.length > 0);
 
                 // validation
                 if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasEmbeddedUrl) {
@@ -534,7 +545,9 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
-                    if (hasEmbeddedUrl) message += messages.errorMessages.EmailBodyHasEmbeddedUrls;
+                    if (hasEmbeddedUrl) {
+                        message += messages.errorMessages.EmailBodyHasEmbeddedUrls + "<br><br>" + links.join("<br>");
+                    }
 
                     SubError(message);
 
