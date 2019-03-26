@@ -187,7 +187,43 @@
 
         // Document Methods
         function addDocumentListToProduct(doclists) {
-            $.post(controllerCalls.AddDocumentListToProduct, { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
+            $.post(controllerCalls.AddDocumentListToProduct + "Enhanced", { productId: activeProduct, documentList: JSON.stringify(doclists) }, function (data) {
+
+                data = Array.from(data);
+
+                // some of the documents could not be added
+                if (data.some(e => e != 0)) {
+
+                    // map messages
+                
+                    var errors = [null, null, messages.errorMessages.DocumentAlreadyExistsCannotAttach,
+                        messages.errorMessages.OnlyOneCombinationLanguageJur, messages.errorMessages.DocumentAndProductSameMFR, null];
+
+                    var flag = Math.min(data.filter(e => e > 0));
+                    $(this).displayError(errors[flag]);
+
+                }
+                else {
+
+                    // all documents were successfully added
+
+                    var gridId = (newProductActive) ? productObject.controls.grids.GridProductDocuments + "_0" : productObject.controls.grids.GridProductDocuments + "_" + activeProduct;
+                    var curGdProductDoc = $(gridId).data("kendoGrid");
+                    if (curGdProductDoc) {
+                        curGdProductDoc.dataSource.page(1);
+                        curGdProductDoc.dataSource.read();
+                    }
+
+                    var currentProductAttributes = (newProductActive) ? productObject.controls.textBoxes.ProductAttributes + "_0" : productObject.controls.textBoxes.ProductAttributes + "_" + activeProduct;
+                    $.post(controllerCalls.GetProductNameNumberById, { productId: activeProduct }, function (nameNumber) {
+                        $(currentProductAttributes).val(nameNumber);
+                    });
+
+                }
+
+                /*
+                 
+                DEPRECATED
 
                 var flag = data.substring(5, 6);
                 if (flag == '0') {
@@ -211,6 +247,9 @@
                     $(this).displayError(messages.errorMessages.DocumentAndProductSameMFR);
                 else if (flag == '5')
                     $(this).displayError(messages.errorMessages.OnlyOneCombinationLanguageJur);
+
+                */
+
             });
         };
 
