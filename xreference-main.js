@@ -879,7 +879,9 @@
 
 
         function initializeMultiSelectCheckboxes(obj) {
-            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+
+            obj.on(/*"mouseup MSPointerUp"*/ "click", ".chkMultiSelect", function (e) {
+
                 selectedRequests = new Array();
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -888,11 +890,16 @@
                     var selectedRow = $(this).parent().parent();
                     var dataItem = kgrid.dataItem($(this).closest('tr'));
                     if (dataItem) {
-                        dataItem.set('IsSelected', !checked);
+
+                        dataItem.set('IsSelected', checked);
                         if (selectedRow.length > 0) {
-                            if ($(this).is(':checked')) {
+
+                            //if ($(this).is(':checked')) {
+                            if (!checked) {
+
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
+                                $("#hdnProductPartNumber").val("").trigger('change');
                                 $("#hdnSupplier").val("").trigger('change');
                                 $("#lblProductName").text("");
                                 $("#lblSupplierName").text("");
@@ -900,21 +907,21 @@
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
-                                if (typeof performXrefProductSearch != "undefined")
-                                    performXrefProductSearch();
 
                             } else {
-                                
+
                                 if (dataItem["ProductName"] !== $("#hdnProductName").val() || dataItem["SupplierID"] !== $("#hdnSupplier").val() ) {
                                     $("#hdnSupplierName").val(dataItem["SupplierName"]).trigger('change');
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
+                                    $("#hdnProductPartNumber").val(dataItem["ProductPartNumber"]).trigger('change');
                                     $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
-
-                                    if (typeof performXrefProductSearch != "undefined")
-                                        performXrefProductSearch();
                                 }
+
                                 selectedRows.push(selectedRow.attr('data-uid'));
                             }
+
+                            if (typeof performXrefProductSearch != "undefined")
+                                performXrefProductSearch(checked);
 
                         }
                     }
@@ -980,6 +987,11 @@
                     } else
                         return false;
                 }
+
+                // if 
+                if (typeof performXrefProductSearch != "undefined")
+                    performXrefProductSearch(false);
+
             });
         }
 
