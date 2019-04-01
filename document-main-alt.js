@@ -202,8 +202,10 @@
             AssociateDocumentToAllManufacturerProducts: GetEnvironmentLocation() + "/Configuration/ProductManager/AssociateDocumentAllItsManufacturerProducts",
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
+            AddExistDocumentAsSibling: GetEnvironmentLocation() + "/Operations/Document/AddExistDocumentAsSibling",
             GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
-            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?"
+            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",
+            IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist"
         }
 
         var documentMessages = {
@@ -833,89 +835,117 @@
         var onAddSiblingRequest = function (did) {
             //e.preventDefault();
 
-            //var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");            
-            ////$("<div>siblingRequest</div>").dialog({
-            //var rowModel;
-
-            //function GetBindingRow() {
-            //    return kendo.observable({
-            //        usingExistingDocument: false,
-            //        newDocumentTitle: "",
-            //        existingDocumentId: null,
-                    
-            //        onUsingExistingDocumentChange: function (e) {
-            //            //alert("check changed");
-            //        }
-            //    });
-            //}
-
-            //useExistingDocument.dialog({
-            //    title: "Please enter new sibling information",
-            //    autoOpen: true,
-            //    buttons: {
-            //        OK: function () {
-            //            if (rowModel.newDocumentTitle === "") {
-            //                alert("Sibling title is required.");
-            //                return;
-            //            }
-            //            else if (rowModel.usingExistingDocument && rowModel.existingDocumentId === null) {
-            //                alert("Existing document Id is required.");   //Need to verify DocumentId
-            //                return;
-            //            }
-            //            else    
-            //                $(this).dialog("close");
-            //        },
-            //        Cancel: function () {
-            //            //alert("Cancel!");
-            //            $(this).dialog("close");
-            //        }                    
-            //        //Maybe: function () {
-            //        //    alert("Maybe!");
-            //        //    $(this).dialog("close");
-            //        //}
-            //    },
-            //    width: "500px",
-            //    //dialogClass: 'no-close',   //Does not work
-            //    open: function (event, ui) {
-            //        $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
-            //    },
-            //    create: function (e, ui) {
-            //        rowModel = GetBindingRow();
-            //        kendo.bind(useExistingDocument, rowModel);
-                    
-            //        //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
-            //        //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
-            //    }
-            //});
             var documentTypeId = $(documentElementSelectors.dropdownlists.DocumentDetailsDocumentTypeExact + did).val();
 
             if (documentTypeId != 3) {
                 alert("Sibling can only be created for SDS document.");
                 return;
             }
-            
-            var title = prompt("Please enter title for the sibling you want to create", "");
-            if (title != null) {
-                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
-                $.post(controllerCalls.AddDocumentSibling,
-                    { documentId: did, documentTitle: title },
-                    function (data) {
-                        debugger;
-                        if (!data.Success) {
-                            $(this).displayError(data.Message);
+
+            var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");            
+            //$("<div>siblingRequest</div>").dialog({
+            var rowModel;
+
+            function GetBindingRow() {
+                return kendo.observable({
+                    usingExistingDocument: false,
+                    newDocumentTitle: "",
+                    existingDocumentId: null,
+                    
+                    onUsingExistingDocumentChange: function (e) {
+                        //alert("check changed");
+                    }
+                });
+            }
+
+            useExistingDocument.dialog({
+                title: "Please enter new sibling information",
+                autoOpen: true,
+                buttons: {
+                    OK: function () {
+                        if (!rowModel.usingExistingDocument && rowModel.newDocumentTitle === "") {
+                            alert("Sibling title is required.");
                             return;
                         }
-                        var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
-
-                        if (sbGrid.dataSource.view().length > 0) {
-                            sbGrid.dataSource.page(1);
+                        else if (rowModel.usingExistingDocument && rowModel.existingDocumentId === null) {
+                            alert("Existing document Id is required.");   //Need to verify DocumentId
+                            return;
                         }
-                        sbGrid.dataSource.data([]);
-                        sbGrid.dataSource.read();
-                    });
-                kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
-            }
+                        else if (rowModel.usingExistingDocument && rowModel.existingDocumentId != null) {
+                            $.post(controllerCalls.IsDocumentExist,
+                                { documentId: rowModel.existingDocumentId },
+                                function(exist) {
+                                    if (!exist) {
+                                        alert("Provided Document Id does not exist!");
+                                        return;
+                                    }
+                                });                                
+                            $(this).dialog("close");
+                            SaveSiblingAsExistDocument(did, rowModel.existingDocumentId, rowModel.newDocumentTitle);                            
+                        } else {
+                            $(this).dialog("close");
+                            SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle);
+                        }
+                    },
+                    Cancel: function () {
+                        $(this).dialog("close");
+                    }                    
+                },
+                width: "500px",
+                //dialogClass: 'no-close',   //Does not work
+                open: function (event, ui) {
+                    $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+                },
+                create: function (e, ui) {
+                    rowModel = GetBindingRow();
+                    kendo.bind(useExistingDocument, rowModel);
+                    
+                    //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
+                    //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
+                }
+            });
         }
+
+        function SaveSiblingAsNewDocument(did, title) {
+            kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
+            $.post(controllerCalls.AddDocumentSibling,
+                { documentId: did, documentTitle: title },
+                function (data) {
+                    if (!data.Success) {
+                        $(this).displayError(data.Message);
+                        return;
+                    }
+                    var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+
+                    if (sbGrid.dataSource.view().length > 0) {
+                        sbGrid.dataSource.page(1);
+                    }
+                    sbGrid.dataSource.data([]);
+                    sbGrid.dataSource.read();
+                });
+            kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), false);
+        }
+
+        function SaveSiblingAsExistDocument(didFrom, didTo, title) {
+            kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + didFrom), true);
+            $.post(controllerCalls.AddExistDocumentAsSibling,
+                { documentIdFrom: didFrom, documentIdTo: didTo, documentTitle: title },
+                function (data) {
+                    if (!data.Success) {
+                        $(this).displayError(data.Message);
+                        return;
+                    }
+                    var sbGrid = $(documentElementSelectors.grids.DocumentSibling + didFrom).data("kendoGrid");
+
+                    if (sbGrid.dataSource.view().length > 0) {
+                        sbGrid.dataSource.page(1);
+                    }
+                    sbGrid.dataSource.data([]);
+                    sbGrid.dataSource.read();
+                });
+            kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + didFrom), false);
+        }
+
 
         function refereshAssociationGrid(did) {
             var gProudct = $(documentElementSelectors.grids.DocumentProduct + did).data("kendoGrid");
