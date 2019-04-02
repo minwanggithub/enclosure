@@ -87,6 +87,8 @@
                 DocumentSearchIncludeDeleted: "[id^=chkIncludeDeletedDocument]",
                 DocumentSearchLatestRevision: "[id^=chkLatestRevision]",
                 DocumentSearchSupplierIdCheckBox: "[id^=rdMfgId]",
+                DocumentIsExposureScenario: "[id^=IsExposureScenario_]",
+
             },
             containers: {
                 CreatedMessage: "#CreatedMessage",
@@ -193,7 +195,8 @@
                 DocumentShowAllResults: "[id^=ShowAllResults]",
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
-                DocumentSearchResultTotal: "#lblDocumentSearchResultTotal"
+                DocumentSearchResultTotal: "#lblDocumentSearchResultTotal",
+                DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",
             }
         };
 
@@ -454,6 +457,25 @@
                 element.attr('data-is-dirty', true);
             else
                 element.removeAttr('data-is-dirty');
+        }
+
+        function parseErrorMessages(data) {
+
+            var errorMessages = [];
+            if (data && data.Errors) {
+
+                var keys = Object.keys(data.Errors);
+
+                for (var idx = 0; idx < keys.length; idx++) {
+                    var errorobj = data.Errors[keys[idx]];
+                    if (errorobj.errors && errorobj.errors.length > 0) {
+                        errorMessages.push(errorobj.errors[0]);
+                    }
+                }
+            }
+
+            return errorMessages;
+
         }
 
         function parseErrorMessage(data) {
@@ -1046,6 +1068,8 @@
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
+                    IsExposureScenario: container.find(documentElementSelectors.checkboxes.DocumentIsExposureScenario).is(":checked"),
+                    ExposureScenarioStartingPage: container.find(documentElementSelectors.textboxes.DocumentExposureScenarioStartingPage).val()
                 };
 
                 if (extractCompanyIdFromTemplate) {
@@ -1098,8 +1122,9 @@
 
                 $(this).ajaxCall(url, formData)
                     .success(function (data) {
-                        var errorMessage = parseErrorMessage(data);
-                        if (!errorMessage) {
+
+                        var errorMessages = parseErrorMessages(data);
+                        if (errorMessages.length == 0) {
 
                             if (clearFields == true)
                                 revertContainerFieldValues(form, checkNewDocumentDirtyStatus);
@@ -1109,8 +1134,12 @@
 
                             if (callbackFunc) callbackFunc(data.DocumentId);
 
-                        } else
+                        } else {
+
+                            var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
                             displayError(errorMessage);
+
+                        }
                     })
                     .error(function () { displayError(documentMessages.errors.SaveNewDocumentError); });
             } else
@@ -1496,6 +1525,8 @@
             container.on('click', documentElementSelectors.buttons.DocumentDetailsSave, onDisabledButtonClick);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
+            container.on('change', documentElementSelectors.dropdownlists.DocumentDetailsDocumentType, enableDisableExposureScenario);
+            container.on('click', documentElementSelectors.checkboxes.DocumentIsExposureScenario, enableDisableExposureScenarioPage);
 
             // Revision
             container.on('change', documentElementSelectors.containers.DocumentRevisionDetailsForm + ' input', onDocumentRevisionFieldChange);
@@ -1527,6 +1558,38 @@
                 container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers, onDocumentRevisionMultipleNameNumbersKeyUp);
             }
         };
+
+        function enableDisableExposureScenario(e) {
+
+            // determine document type selection
+            var isSDS = ($(e.currentTarget).data("kendoDropDownList").value() == 3);
+
+            // reset on any change
+            $("#ExposureScenarioStartingPage_New").val("");
+            $("#ExposureScenarioStartingPage_New").attr("disabled", true);
+            $("#IsExposureScenario_New").prop("checked", false);
+
+            if (!isSDS)
+                $("#IsExposureScenario_New").attr("disabled", true);
+            else
+                $("#IsExposureScenario_New").removeAttr("disabled");
+
+        }
+
+        function enableDisableExposureScenarioPage(e) {
+
+            var isChecked = $(e.currentTarget).is(":checked");
+            var parent = $(e.currentTarget).closest("fieldset");
+            var text = parent.find(documentElementSelectors.textboxes.DocumentExposureScenarioStartingPage);
+
+            if (isChecked)
+                $(text).removeAttr("disabled");
+            else 
+                $(text).attr("disabled", true);
+
+            $(text).val("");
+
+        }
 
         /******************************** Revision Methods ********************************/
         function checkDocumentRevisionDirtyStatus(container) {           
@@ -1628,7 +1691,9 @@
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
-                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
+                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked"),
+                    IsExposureScenario: container.find(documentElementSelectors.checkboxes.DocumentIsExposureScenario).is(":checked"),
+                    ExposureScenarioStartingPage: container.find(documentElementSelectors.textboxes.DocumentExposureScenarioStartingPage).val()
                 };
 
                 if (extractCompanyIdFromTemplate) {
