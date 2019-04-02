@@ -183,8 +183,8 @@
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
-                NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected",
-                EmailBodyHasEmbeddedUrls: "Email body has embeddded URL(s)"
+                NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
+                HasEmbeddedKeywords: "Email body has illegal keyword(s)."
             }
         };
 
@@ -489,47 +489,11 @@
                     linksOrProductsToken = regex.test(body);
                 }
 
-                //var tokens = Array.from(body.replace(/[^\x20-\x7E]/g, ' ').trimRight().trimStart().split(" ")).filter(e => e.indexOf(".,") > 0);
-
                 // embedded URL test
-                var hasEmbeddedUrl = false;
-                var tokens = body.replace(/<[^>]+>/g, ' ').split(" ").filter(e => e.trim().length > 0);//
-
-                var protocols = ["http://", "https://", "file://", "ftp://"];
-                var tlds = [".com", ".net", ".org", ".mil", ".edu", ".gov", ".co", ".local"];
-
-                var links = [];
-
-                // iterate through tokens
-                for (var i = 0; i < tokens.length && !hasEmbeddedUrl; i++) {
-
-                    // to lowercase for comparison
-                    var url = tokens[0].toLowerCase().replace("\\", "/").split("?")[0];
-
-                    // if the token begins with a protocol, flag it
-                    if (protocols.some(e => url.startsWith(e))) {
-                        links.push(tokens[i]);
-                    }
-                    else {
-                        
-                        // test domain 
-                        url = url.split("/")[0];
-
-                        if (tlds.some(e => url.endsWith(e))) {
-                            links.push(tokens[i]);
-                        }
-                        else if (tlds.some(e => url.lastIndexOf(e + ".") == (url.length - e.length - 3))){
-                            links.push(tokens[i]);
-                        }
-                    }
-
-                    //if (is_url(tokens[i])) links.push(tokens[i]);
-                }
-
-                hasEmbeddedUrl = (links.length > 0);
+                var hasKeywords = (body.toUpperCase().indexOf("NETHUB") >= 0);
 
                 // validation
-                if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasEmbeddedUrl) {
+                if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasKeywords) {
 
                     //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
@@ -545,9 +509,7 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
-                    if (hasEmbeddedUrl) {
-                        message += messages.errorMessages.EmailBodyHasEmbeddedUrls + "<br><br>" + links.join("<br>");
-                    }
+                    if (hasKeywords) messages.errorMessages.HasEmbeddedKeywords + "<br>";
 
                     SubError(message);
 
