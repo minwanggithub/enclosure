@@ -1895,6 +1895,9 @@
                                 if (dataItem.DocumentId == 0) {
                                     $('#addNewFilesBtn_New').removeClass('k-state-disabled');
                                 }
+                                else if (dataItem.DocumentId > 0 && dataItem.RevisionId == 0) {
+                                    $('#addNewFilesBtn_' + dataItem.DocumentId + "_" + dataItem.RevisionId).removeClass('k-state-disabled');
+                                }
                             }
                         })
                         .error(function () {

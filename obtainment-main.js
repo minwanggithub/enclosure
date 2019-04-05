@@ -1479,9 +1479,17 @@
 
             }
 
+            var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+
             if (valid) {
 
-                var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+                if ((body + "").toUpperCase().indexOf("NETHUB") >= 0) {
+                    $(this).displayError(messages.errorMessages.HasEmbeddedKeywords);
+                    valid = false;
+                }
+            }
+
+            if (valid) {
 
                 if (body.indexOf("||") >= 0) {
 
