@@ -79,6 +79,7 @@
             GetProductPartNumberById: GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductPartNumberById",
             GetProductNameNumberById: GetEnvironmentLocation() + "/Configuration/ProductManager/GetProductNameNumberById",
             LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",
+            //LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
             DeleteProductDocument: GetEnvironmentLocation() + "/Configuration/ProductManager/DeleteProductDocument",
             LoadSingleSupplier: GetEnvironmentLocation() + "/Operations/Company/LoadSingleSupplier?",
             GetStatusAction: GetEnvironmentLocation() + "/Configuration/ProductManager/GetStatusAction",
@@ -514,8 +515,8 @@
                             updateProductStatusLayout(productId, selectedStatusId);
                         });
                 })
-                .fail(function (e) {                   
-                    $(this).displayError(messages.errorMessages.ErrorSavingProduct);
+                .fail(function (xhr, status, error) {                   
+                    $(this).displayError(messages.errorMessages.ErrorSavingProduct + ": " + error);
                 });
         }
 

@@ -206,8 +206,9 @@
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
             AddExistDocumentAsSibling: GetEnvironmentLocation() + "/Operations/Document/AddExistDocumentAsSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
-            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",            
+            //LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
+            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",            
             IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist"
         }
 
@@ -713,9 +714,31 @@
             }
         }
 
-        var onDataBound = function (e) {
+        var onDataBound = function (e) {            
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch);
             searchGrid.find("tr").click(DocumentRowSelect);
+
+            var documentId = getQueryVariable("documentId");
+            if (documentId != null) {
+                var rowCount = $('#gdSearchDocument  tr.k-master-row').length;
+                if (rowCount == 1) {
+                    this.expandRow(this.tbody.find("tr.k-master-row").first());
+                }
+
+                $("#docSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));                
+            }
+        }
+
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split('=');
+                if (decodeURIComponent(pair[0]) == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+            return null;
         }
 
         /******************************** Search Methods (Pop-Up) ********************************/
@@ -1598,12 +1621,7 @@
         }
 
         var displaySingleDocument = function (documentObj) {
-            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");
-            //return controllerCalls.LoadSingleDocument +
-            //    "documentId=" +
-            //    documentObj.DocumentID +
-            //    "&revisionId=" +
-            //    documentObj.RevisionID;
+            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");            
         }
 
         function clearDocumentRevisionAttachments(container) {
