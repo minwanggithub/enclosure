@@ -728,7 +728,7 @@
             }
         }
 
-        var onSiblingDataBound = function (e) {
+        var onGenericDataBound = function (e) {
             var grid = this;
             grid.tbody.find("tr").dblclick(function (e) {
                 var dataItem = grid.dataItem(this);
@@ -2782,10 +2782,6 @@
             }
         };
 
-        var onDocumentContainerComponentDataBound = function () {
-            // TODO: Method kept for the meantime since I forgot what was here to begin with
-        };
-
         var onDocumentContainerComponentsRequestStart = function (e) {
             if (e.type == 'read') {
                 var documentId = extractDocumentIdFromRequestUrl(this.transport.options.read.url);
@@ -2919,7 +2915,6 @@
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
             onDocumentContainerClassificationTypeRequestStart: onDocumentContainerClassificationTypeRequestStart,
-            onDocumentContainerComponentDataBound: onDocumentContainerComponentDataBound,
             onDocumentContainerComponentsRequestStart: onDocumentContainerComponentsRequestStart,
             onDocumentMainPanelActivate: onDocumentMainPanelActivate,
             onDocumentMainPanelActivateReadOnly: onDocumentMainPanelActivateReadOnly,
@@ -2938,7 +2933,7 @@
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
             onDataBound: onDataBound,
-            onSiblingDataBound: onSiblingDataBound,
+            onGenericDataBound: onGenericDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
