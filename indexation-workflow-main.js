@@ -7,6 +7,7 @@
     $.fn.complibIndexationWorkflow = function () {
 
         var currentUser = "LOGGEDINUSER";
+        var userIsSupervisor = false;
 
         // initialize 
         var workflowSearchObj = $("#IndexationWFPanel");                        // panel container
@@ -139,7 +140,10 @@
                 WorkflowStartForOneSelectedItemOnly: "Workflow for only one work item can be started at a time.",
                 WorkflowCompleted: "This indexation workflow item has already been completed.",
                 OneOrMoreIndexationWorkflowItemsMustBeSelected: "One or more indexation workflow items must be selected",
-                NoIndexingWorkloadAvailable: "No indexing workload available.",
+                NoIndexingWorkloadAvailable: "The indexing workload items you have selected have not been assigned to you.<br>" +
+                    "Please contact your supervisor, who will assign a workload to you.",
+                SupervisorNoIndexingWorkloadAvailable: "The indexing workload items you have selected have not been assigned to you.<br>" +
+                    "Please assign yourself a workload using the 'Assign To' option above.",
             }
         };
 
@@ -185,9 +189,13 @@
 
         }
 
+        var isSupervisor = function() {
+            return userIsSupervisor;
+        }
 
+        var loadRequests = function (readWrite) {
 
-        var loadRequests = function () {
+            userIsSupervisor = readWrite;
 
             // bind grid
             var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
@@ -258,8 +266,10 @@
 
                         // something happened. workload no longer assigne to user or some such thing
                         // happened.
-
-                        $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
+                        if (isSupervisor())
+                            $(this).displayError(messages.errorMessages.SupervisorNoIndexingWorkloadAvailable);
+                        else
+                            $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
 
                     } else {
 
