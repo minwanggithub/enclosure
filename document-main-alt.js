@@ -884,6 +884,16 @@
             getRealNumberForProductAssociation(did);
         };
 
+        var onRefreshSiblingRequest = function(did) {
+            var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+
+            if (sbGrid.dataSource.view().length > 0) {
+                sbGrid.dataSource.page(1);
+            }
+            sbGrid.dataSource.data([]);
+            sbGrid.dataSource.read();
+        }
+
         var onAddSiblingRequest = function (did) {
             //e.preventDefault();
 
@@ -2911,6 +2921,7 @@
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onAddSiblingRequest: onAddSiblingRequest,            
+            onRefreshSiblingRequest: onRefreshSiblingRequest,
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
