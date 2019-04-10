@@ -207,8 +207,7 @@
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
             AddExistDocumentAsSibling: GetEnvironmentLocation() + "/Operations/Document/AddExistDocumentAsSibling",
             GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",            
-            //LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
-            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/LoadSingleDocument?",            
+            LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
             IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist"
         }
 
