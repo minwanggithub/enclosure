@@ -728,6 +728,14 @@
             }
         }
 
+        var onSiblingDataBound = function (e) {
+            var grid = this;
+            grid.tbody.find("tr").dblclick(function (e) {
+                var dataItem = grid.dataItem(this);
+                displaySingleDocument({ DocumentID: dataItem.ReferenceId, RevisionID: 0 });
+            });
+        }
+
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
             var vars = query.split('&');
@@ -2930,6 +2938,7 @@
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
             onDataBound: onDataBound,
+            onSiblingDataBound: onSiblingDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
