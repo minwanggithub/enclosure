@@ -1641,6 +1641,12 @@
             window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");            
         }
 
+        var displayAllParents = function (parents) {
+            parents.forEach(function (parent) {
+                window.open(controllerCalls.LoadSingleDocument + "documentId=" + parent + "&revisionId=0", "_blank");
+            });
+        }
+
         function clearDocumentRevisionAttachments(container) {
             if (container) {
                 var grid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
@@ -2918,6 +2924,7 @@
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             displaySingleDocument: displaySingleDocument,
+            displayAllParents: displayAllParents,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onAddSiblingRequest: onAddSiblingRequest,            
