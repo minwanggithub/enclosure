@@ -71,7 +71,7 @@
                 },
                 multiSelectLists: { CategoriesMultiSelect: "#mltCategories" },
                 dateTime: { DateAssigned: "#DateAssigned", DateCreated: "#DateCreated" },                
-                labels: { NotesLabel: "#lblNotes", PendingNotesLabel: "#lblPendingNotes" },
+                labels: { NotesLabel: "#lblNotes", PendingNotesLabel: "#lblPendingNotes", PhysicalState: "#lblPhysicalState" },
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
             }
         }
@@ -96,7 +96,9 @@
             confirmationMessages: {
                 UnAssigneRequests: "unassign these request item(s)",
                 AssignRequests: "assign these request item(s)",
-                OverwriteComments: "Overwrite previous customer action comments?"
+                OverwriteComments: "Overwrite previous customer action comments?",
+                CrossReferenceResolutionStateMismatch: "The physical state of the selected product does not match the physical state of one or more of the cross reference requests.<br>" +
+                  "Proceed with the match ?"
             },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
@@ -423,17 +425,51 @@
                 $(this).displayError(messages.errorMessages.SelectFilter);
         });
 
+        function resolveRequests() {
+            var data = {};
+            data['ids'] = selectedRequests;
+            data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
+            SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
+        }
+
         //Save Request to be Resolved
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveResolveButton, function () {
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length === 0) {
                 $(actionModals.Resolve).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
+
                 if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0 && $("#lblProductName").text().length > 0 && $("#lblSupplierName").text().length > 0) {
-                    var data = {};
-                    data['ids'] = selectedRequests;
-                    data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
-                    SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
+
+                    // prompt for confirmation if the physical state requested in the xref and the
+                    // product selected do not match.
+
+                    var states = [];
+                    var physicalState = $(xreferenceObject.controls.labels.PhysicalState).val();
+
+                    // get the physical states of the selected rows
+                    var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
+                    Array.from(grid).forEach(i => {
+                        if (selectedRequests.indexOf(i.RequestWorkItemID) >= 0 && i.PhysicalState != null) {
+                            states.push(i.PhysicalState);
+                        }
+                    });
+
+                    if (Array.from(states).some(e => e != physicalState)) {
+
+                        var message = messages.confirmationMessages.CrossReferenceResolutionStateMismatch;
+                        var args = { message: message, header: 'Confirm cross reference resolution.' };
+
+                        DisplayConfirmationModal(args, function () {
+                            resolveRequests();
+                        }, function () {
+                            // do nothing
+                        });
+                    }
+                    else {
+                        resolveRequests();
+                    }
+
                 } else {
                     $(actionModals.Resolve).toggleModal();
                     $(this).displayError(messages.errorMessages.NoProductSelected);
@@ -902,6 +938,7 @@
                                 $("#hdnProductPartNumber").val("").trigger('change');
                                 $("#hdnSupplier").val("").trigger('change');
                                 $("#lblProductName").text("");
+                                $("#lblSupplierName").text("");
                                 $("#lblSupplierName").text("");
                                 
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
