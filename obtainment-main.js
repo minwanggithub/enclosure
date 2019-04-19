@@ -1662,7 +1662,7 @@
                             return;
                         }
 
-                        obtainmentMultipleWorkItemActionModel.Notes = closingNotes;
+                        //obtainmentMultipleWorkItemActionModel.Notes += closingNotes;
 
                     }
 
@@ -1674,7 +1674,7 @@
                             return;
                         }
 
-                        obtainmentMultipleWorkItemActionModel.Notes = closingNotes;
+                        //obtainmentMultipleWorkItemActionModel.Notes += closingNotes;
 
                     }
 
