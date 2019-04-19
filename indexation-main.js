@@ -3611,7 +3611,8 @@
                     codevalid: function(input) {
                         if (input.is('[id="StatementHCode"]') && !$('#HCodePhraseID').val() && $('#OtherHCode').is(':disabled')) {
                             return false;
-                        } else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
+                        //} else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
+                        } else if ((input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
                             return false;
                         } else {
                             return true;
@@ -3634,7 +3635,7 @@
                             return "Statement/PCode is required";
                         } else if (input.is('[id="OtherPCode"]')) {
                             return "Other PCode is required";
-                        } else {
+                        } else if (input.is('[id="OtherPStatement"]')) {
                             return "Other Statement is required";
                         }
                     }
@@ -3643,7 +3644,8 @@
                     statementvalid: function(input) {
                         if (input.is('[id="StatementPCode"]') && !$('#PrecautionaryStatementId').val() && $('#OtherPCode').is(':disabled')) {
                             return false;
-                        } else if ((input.is('[id="OtherPCode"]') || input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
+                        //} else if ((input.is('[id="OtherPCode"]') || input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
+                        } else if ((input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
                             return false;
                         } else {
                             return true;
