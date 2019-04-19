@@ -1662,8 +1662,6 @@
                             return;
                         }
 
-                        //obtainmentMultipleWorkItemActionModel.Notes += closingNotes;
-
                     }
 
                     if (actionName == "ConfirmNotAvailable") {
@@ -1673,8 +1671,6 @@
                             $(this).displayError(messages.errorMessages.NoConfirmNotAvailableActionNotesProvided);
                             return;
                         }
-
-                        //obtainmentMultipleWorkItemActionModel.Notes += closingNotes;
 
                     }
 
@@ -1721,9 +1717,9 @@
             if (obtainmentActionCloseRequest.ReasonCodeId == "") obtainmentActionCloseRequest.ReasonCodeId = null;
             var reasonCode = ddlReasonCodes.text();
 
-            if (actionName == "CustomerAction") {
-                strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + ddlReasonCodes.text() + "<br>Notes:";
-            }
+//          if (actionName == "CustomerAction") {
+//              strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + ddlReasonCodes.text() + "<br>Notes:";
+//          }
 
             obtainmentMultipleWorkItemActionModel.Notes = strCustomerAction + $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val();
 
