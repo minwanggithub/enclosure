@@ -711,7 +711,7 @@
         });
 
         
-        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CustomerActionDropDownList, function () {
+        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList, function () {
 
             var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest);
             var selNotes = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
@@ -725,8 +725,10 @@
 
             // "fix" selected customer action
             var selCustomerAction = selNotes.text();
-            if (selCustomerAction == "Select One") selCustomerAction = "";
-            selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
+            if (selCustomerAction == "Select One")
+                selCustomerAction = "";
+            else
+                selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
 
             // content already in text
             if (!emptyCustomerAction) {
@@ -1606,7 +1608,7 @@
         }
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
-
+            
             var customerAction = false;
 
             if (actionName == "CustomerAction") {
@@ -1659,6 +1661,8 @@
                             $(this).displayError(messages.errorMessages.NoCustomerActionNotesProvided);
                             return;
                         }
+
+                        obtainmentMultipleWorkItemActionModel.Notes = closingNotes;
 
                     }
 
