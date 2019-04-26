@@ -147,6 +147,7 @@
                 DocumentPartNumSearchOptions: "input[name=radiogroupPartNumSearchOption]",
                 DocumentUPCSearchOptions: "input[name=radiogroupUPCSearchOption]",
                 DocumentSupplierNameSearchOptions: "input[name=radiogroupSupplierNameSearchOption]",
+                DocumentAliasSearchOptions: "input[name=radiogroupAliasSearchOption]",
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -187,6 +188,7 @@
                 DocumentSearchDocumentId: "[id^=txtSearchDocumentId]",
                 DocumentSearchPartNumber: "[id^=txtSearchPartNumber]",
                 DocumentSearchRevisionTitle: "[id^=txtRevisionTitle]",
+                DocumentSearchDocumentAlias: "[id^=txtDocumentAlias]",
                 DocumentSearchSupplierId: "[id^=txtSearchSupplierId]",
                 DocumentSearchSupplierName: "[id^=txtDocSearchSupplierName]",
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
@@ -327,6 +329,19 @@
                 { caption: "End With", value: "3" }
             ]
         });
+
+        var dsAliasSearchOption = kendo.observable({
+            selectedValue: "0",
+            id: "radiogroupAliasSearchOption",
+            items: [
+                { caption: "Contains", value: "0" },
+                { caption: "Exact Match", value: "1" },
+                { caption: "Start With", value: "2" },
+                { caption: "End With", value: "3" }
+            ]
+        });
+
+
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {            
@@ -585,6 +600,8 @@
                         DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
                         DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
                         ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                        Alias : container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
+                        AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
                     };
                 keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
@@ -2915,6 +2932,7 @@
             kendo.bind($("#searchDateOptionDiv"), dsDateSearchOption);
             kendo.bind($("#searchUPCOptionDiv"), dsUPCSearchOption);
             kendo.bind($("#searchPartNumOptionDiv"), dsPartNumSearchOption);
+            kendo.bind($("#searchAliasOptionDiv"), dsAliasSearchOption);
             kendo.bind($("#searchDocSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
             $("#btnDocSupplierNameOperatorDropdown").prop("disabled", true);
             switchBetweenMfgNameAndID();
