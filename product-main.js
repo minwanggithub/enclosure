@@ -141,8 +141,20 @@
             ]
         });
 
+        var dsAliasSearchOption = kendo.observable({
+            selectedValue: "3",
+            id: "radiogroupAliasSearchOption",
+            items: [
+                { caption: "Contains", value: "3" },
+                { caption: "Exact Match", value: "0" },
+                { caption: "Start With", value: "1" },
+                { caption: "End With", value: "2" }
+            ]
+        });
+
         var initializeSearchOperator = function () {
             kendo.bind($("#searchTitleOptionDivPre"), dsProductNameOption);
+            kendo.bind($("#searchAliasOptionDivPre"), dsAliasSearchOption);
             kendo.bind($("#searchSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
         };
 
