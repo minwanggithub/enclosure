@@ -682,7 +682,8 @@
                 if ($(this).get(0).id.startsWith("drpLanguage") || $(this).get(0).id.startsWith("drpDocumentType") || $(this).get(0).id.startsWith("drpCountry")) {
                     //skip all the events
                 }
-                else if ($(this).val().toLowerCase().endsWith("id")) {
+
+                else if ($(this).val().toLowerCase().endsWith("id") && !($(this).val().toLowerCase().endsWith("clientproductid"))) {
                     drpContains.select(criteriaCondition.ExactMatch);
                     drpContains.enable(false);                    
                     $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,            
@@ -690,6 +691,15 @@
                             this.value = this.value.replace(/[^0-9$,]/g, '');
                    });
                 }
+                else if ($(this).val().toLowerCase().endsWith("clientproductid")) {
+                    drpContains.select(criteriaCondition.ExactMatch);
+                    drpContains.enable(false);
+                    $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,
+                        function () {
+                            this.value = this.value;
+                        });
+                }
+                
                 else if (!$.isNumeric($(this).val())) {
                     drpContains.select(criteriaCondition.Contains);
                     drpContains.enable(true);
