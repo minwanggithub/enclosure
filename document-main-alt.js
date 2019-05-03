@@ -1552,7 +1552,6 @@
             var element = $(e.currentTarget);
             checkDocumentDetailsDirtyStatus(element.parents(documentElementSelectors.containers.DocumentDetailsForm + ":first"));
 
-            // ARINDAM
             if ((element.attr("id").indexOf("IsPublic_") >= 0)) {
 
                 var isChecked = element.is(":checked");

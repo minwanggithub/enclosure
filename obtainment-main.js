@@ -393,8 +393,6 @@
         // SUPER EMAIL BUTTON CLICK HANDLER
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
 
-            // ARINDAM
-
             // ---- reset event handlers 
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).off("click");
             $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).off("click");
@@ -1181,8 +1179,6 @@
 
                 case obtainmentActions.SendEmail:
 
-                        // ---- ARINDAM
-
                         try {
 
                         // at least one contact must be selected.
@@ -1812,8 +1808,6 @@
         }
 
         function selectedSuperMailSupplierId() {
-
-            // ARINDAM
 
             var supplierId = null;
             var supplierName = null;
