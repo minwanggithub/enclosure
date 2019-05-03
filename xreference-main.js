@@ -936,6 +936,7 @@
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
                                 $("#hdnProductPartNumber").val("").trigger('change');
+                                $("#hdnPhysicalState").val("").trigger('change');
                                 $("#hdnSupplier").val("").trigger('change');
                                 $("#lblProductName").text("");
                                 $("#lblSupplierName").text("");
@@ -951,7 +952,9 @@
                                     $("#hdnSupplierName").val(dataItem["SupplierName"]).trigger('change');
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
                                     $("#hdnProductPartNumber").val(dataItem["ProductPartNumber"]).trigger('change');
+                                    $("#hdnPhysicalState").val(dataItem["PhysicalState"]).trigger('change');
                                     $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
+                                    
                                 }
 
                                 selectedRows.push(selectedRow.attr('data-uid'));
