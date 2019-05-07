@@ -823,6 +823,16 @@
             ShowAccount(this.id, null);
         });
 
+        obtainmentDetailWorkFlowObj.on("dblclick", '.k-state-selected', function (e) {
+
+            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+            var x = grid.dataItem(grid.select());
+
+            var url = GetEnvironmentLocation() + "/Operations/XReference/XReferenceMain?productId=" + x.ProductID;
+            window.open(url, '_blank');
+
+        });
+
         var enableSuperEmail = function () {
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");

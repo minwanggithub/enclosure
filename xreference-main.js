@@ -396,6 +396,10 @@
                         criteria.SearchFor = drpCountry.value();
                     }
 
+                    if (criteria.SearchFor == null) {
+                        criteria.SearchFor = $("div #row #right " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val();
+                    }
+
                     if (criteria.SearchFor.length > 0)
                         criteriaList.push(criteria);
 
