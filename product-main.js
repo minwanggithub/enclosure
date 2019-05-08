@@ -100,6 +100,7 @@
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
                 DocumentAndProductSameMFR: "Documents and product should have the same manufacturer.",
                 OnlyOneCombinationLanguageJur: "Only one combination of language/Jurisdiction for a document type by product.",
+                KitsParentsDonotHaveEnoughChildren: "Attach kit parent to product, it must have two or more children.",
                 PleaseSelectDocumentToDelete: "Please select document(s) to delete.",
                 ErrorSavingProduct: "Error occured while saving the product",
                 NoRowSelected: "No row selected",
@@ -207,9 +208,12 @@
                 if (data.some(e => e != 0)) {
 
                     // map messages
-                
+                    debugger;
                     var errors = [null, null, messages.errorMessages.DocumentAlreadyExistsCannotAttach,
-                        messages.errorMessages.OnlyOneCombinationLanguageJur, messages.errorMessages.DocumentAndProductSameMFR, null];
+                        messages.errorMessages.OnlyOneCombinationLanguageJur,
+                        messages.errorMessages.DocumentAndProductSameMFR,
+                        null,
+                        messages.errorMessages.KitsParentsDonotHaveEnoughChildren];
 
                     var flag = Math.min(data.filter(e => e > 0));
                     $(this).displayError(errors[flag]);

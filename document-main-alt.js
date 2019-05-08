@@ -210,7 +210,8 @@
             AddExistDocumentAsSibling: GetEnvironmentLocation() + "/Operations/Document/AddExistDocumentAsSibling",
             GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",            
             LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
-            IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist"
+            IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist",
+            DocumentContainerComponentsCount: GetEnvironmentLocation() + "/Operations/Document/DocumentContainerComponentsCount"
         }
 
         var documentMessages = {
@@ -236,7 +237,8 @@
                 SaveDocumentRevisionError: "Save the document revision could not be completed. Please review your changes and try again.",
                 SaveNewDocumentAttachmentError: "New documents cannot be created without an attachment. Add an attachment and please try again.",
                 SaveNewDocumentError: "Save the new document could not be completed. Please review you changes and try again.",
-                SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again."
+                SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again.",
+                KitsComponentsTotalError: "This component can not be removed, kits must have two or more components"
             },
             modals: {
                 GeneralConfirm: "Confirmation Required",
@@ -885,18 +887,27 @@
         var initializeProductAssociation = function (did) {
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
-                DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
-                    kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
-                    kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
+                //Make sure if the did is kit, then it must contain at least two children
+                $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
+                    if (data != 'True') {
+                        alert("In order to associate to a product, kits parent document must have at least two children.");
+                        return;
+                    }
+                    DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                        kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
+                        kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
 
-                    $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
-                        if (!data.Success) {
-                            $(this).displayError(data.Message);
-                            return;
-                        }
-                        refereshAssociationGrid(did);
+                        $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
+                            if (!data.Success) {
+                                $(this).displayError(data.Message);
+                                return;
+                            }
+                            refereshAssociationGrid(did);
+                        });
                     });
                 });
+
+
             });
             getRealNumberForProductAssociation(did);
         };
@@ -2738,9 +2749,14 @@
             }
         }
 
-        function onDocumentDeleteContainerComponentBtnClick() {
+        function onDocumentDeleteContainerComponentBtnClick() {                        
             var currentRow = $(this).parents('tr[role="row"]');
             var grid = $(this).parents('.k-grid:first').data('kendoGrid');
+            if (grid.dataSource.total() <= 2) {
+                alert(documentMessages.errors.KitsComponentsTotalError);
+                return;
+            }
+
             var dataItem = grid ? grid.dataItem(currentRow) : null;
             if (dataItem) {
 
@@ -2749,8 +2765,7 @@
                     message: documentMessages.modals.DocumentDeleteContainerComponentMessage,
                 };
 
-                displayConfirmationModal(settings, function () {
-
+                if (confirm(documentMessages.modals.DocumentDeleteContainerComponentMessage)) {
                     var data = {
                         ChildDocumentId: dataItem.ChildDocumentId,
                         ContainerTypeId: dataItem.ContainerTypeId,
@@ -2767,7 +2782,7 @@
                                 refreshDocumentContainersGrid(dataItem.ParentDocumentId);
                         })
                         .error(function () { displayError(documentMessages.errors.DocumentContainerComponentDelete); });
-                });
+                }
             }
         }
 
