@@ -198,6 +198,7 @@
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
                 DocumentSearchResultTotal: "#lblDocumentSearchResultTotal",
+                DocumentSearchFiltering: "#lblDocumentSearchFilter",
                 DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",
             }
         };
@@ -554,6 +555,7 @@
 
         /******************************** Search Methods ********************************/
         function clearDocumentSearchFields(container) {
+
             if (container && container.length > 0) {
                 container.find(documentElementSelectors.dropdownlists.DocumentSearchDropDownLists).each(function () {
                     var ddl = $(this).data("kendoDropDownList");
@@ -562,8 +564,11 @@
                     }
                 });
 
+                // clear check boxes
                 container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked', false);
                 container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).prop('checked', true);
+
+                // clear text boxes
                 container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
@@ -571,7 +576,21 @@
                 container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val('');
 
+                // reset filters
+                $(container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions)[0]).prop("checked", true);
+                $(container.find(documentElementSelectors.general.DocumentPartNumSearchOptions)[0]).prop("checked", true);
+                $(container.find(documentElementSelectors.general.DocumentSearchOptions)[0]).prop("checked", true);
+                $(container.find(documentElementSelectors.general.DocumentUPCSearchOptions)[0]).prop("checked", true);
+                $(container.find(documentElementSelectors.general.DocumentDateSearchOptions)[0]).prop("checked", true);
+                $(container.find(documentElementSelectors.general.DocumentAliasSearchOptions)[0]).prop("checked", true);
+
+                // hide filter and count
+                $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("&nbsp;");
+                $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
+                $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("&nbsp;");
+                $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
 
             }
         }
@@ -641,6 +660,8 @@
 
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if (searchGrid && searchGrid.dataSource) {
+                searchGrid.dataSource.filter({});
+                $("form.k-filter-menu button[type='reset']").trigger("click");
                 searchGrid.dataSource.data([]);
             }
         }
@@ -673,6 +694,10 @@
         }
 
         function updateDocumentSearchResultTotal(model) {
+
+            $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
+            $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("");
+
             $.ajax({
                 type: 'GET',
                 dataType: 'json',
@@ -680,7 +705,10 @@
                 url: GetEnvironmentLocation() + '/Document/GetDocumentResultCount',
                 data: model,
                 success: function (result, textStatus, jqXHR) {
-                    $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
+                    if (result.Message.trim() != "") {
+                        $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
+                        $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "" });
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     //Parent will throw error
@@ -732,7 +760,22 @@
             }
         }
 
-        var onDataBound = function (e) {            
+        function parseFilters(filters, fields){
+            Array.from(filters.filters).forEach((i, e) => {
+                if (i.field === undefined)
+                    parseFilters(i, fields);
+                else
+                    fields.push(i);
+            });
+            
+        }
+
+        var onDataBound = function (e) {  
+
+            // remove filtering details
+            $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("");
+            $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
+
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch);
             searchGrid.find("tr").click(DocumentRowSelect);
 
@@ -745,6 +788,28 @@
 
                 $("#docSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));                
             }
+
+            // display filtering
+
+            var grid = searchGrid.data("kendoGrid");
+            var dataSource = grid.dataSource;
+            var columns = grid.columns;
+            var filters = dataSource.filter();
+
+            if (filters != null) {
+
+                var fields = [];
+                parseFilters(filters, fields);
+
+                var list = new Set(Array.from(fields).map((i, e) => { return columns.find(e => e.field == i.field).title; }));
+                list = Array.from(list).join(",");
+                
+                // update filtering details
+                $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("Rows filtered by: " + list);
+                $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "" });
+                
+            }
+
         }
 
         var onGenericDataBound = function (e) {
