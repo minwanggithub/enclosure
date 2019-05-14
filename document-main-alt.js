@@ -2368,7 +2368,8 @@
                 if (quitPost)
                     return false;
 
-                if (formData.model.RevisionId == 0 && formData.attachments.length == 0) {
+                var containerType = $(documentElementSelectors.containers.DocumentDetailsFormExact + formData.model.DocumentId).find(documentElementSelectors.dropdownlists.DocumentDetailsContainerType).val();
+                if (formData.model.RevisionId == 0 && formData.attachments.length == 0 && containerType != 2) {
                     displayError(documentMessages.errors.SaveNewDocumentRevisionAttachmentError);
                     return false;
                 }
