@@ -449,7 +449,7 @@
                     // product selected do not match.
 
                     var states = [];
-                    var physicalState = $(xreferenceObject.controls.labels.PhysicalState).val();
+                    var physicalState = $(xreferenceObject.controls.labels.PhysicalState).text();
 
                     // get the physical states of the selected rows
                     var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
