@@ -1356,7 +1356,7 @@
 
 
         var onGdSupplierNotesDataBound = function () {
-
+            
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdSupplierNotes");
@@ -1812,14 +1812,15 @@
         // Supplier Identification Methods
         var initSupplierIdentification = function(errorCallback, onDeactivateContentLoad) {
             onErrorCallback = errorCallback;
-
+            
             // Set up observer to hide all save/cancel/add/delete buttons
             var statusDdl = $('#SelectStatusId').data('kendoDropDownList');
+            var deactivatedLabel = $('#lblSupplierDeactivated');
+
             if (statusDdl && statusDdl.value() == '14') {
 
                 // Display deactivated label
-                var deactivatedLabel = $('#lblSupplierDeactivated');
-                if (deactivatedLabel.length > 0) 
+                if (deactivatedLabel.length > 0)
                     deactivatedLabel.show();
 
                 if (onDeactivateContentLoad) {
@@ -1829,11 +1830,15 @@
 
                         var ktabstrip = $('#SupplierTabstrip').data('kendoTabStrip');
                         if (ktabstrip) {
-                                ktabstrip.bind('contentLoad', onDeactivateContentLoad);
+                            ktabstrip.bind('contentLoad', onDeactivateContentLoad);
                             ktabstrip.trigger('contentLoad');
                         }
                     }
                 }
+            }
+            else {
+                if (deactivatedLabel.length > 0)
+                    deactivatedLabel.hide();
             }
         };
 

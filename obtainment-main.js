@@ -1189,12 +1189,16 @@
 
                 case obtainmentActions.SendEmail:
 
-                        try {
+                    try {
 
                         // at least one contact must be selected.
                         var contactsGrid = $(obtainmentObject.controls.grids.GridContactEmail).data("kendoGrid");
                         var selectedItems = contactsGrid.dataItem(contactsGrid.select());
-                        console.log(selectedItems);
+
+                        if (selectedItems == null || selectedItems.length == 0) {
+                            $(this).displayError(messages.errorMessages.NoContactSelcted);
+                            break;
+                        }
 
                         if (selectedItems != null) {
 
@@ -1209,46 +1213,46 @@
                             $.ajax({
 
                                 url: strUrl,
-                                    data: JSON.stringify(cdata),
-                                    type: "POST",
-                                    contentType: 'application/json; charset=utf-8',
-                                    error: function () {
-                                        $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
-                                    },
-                                    success: function (data) {
+                                data: JSON.stringify(cdata),
+                                type: "POST",
+                                contentType: 'application/json; charset=utf-8',
+                                error: function () {
+                                    $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                                },
+                                success: function (data) {
 
-                                        // valid selections ?
-                                        if (!data.success) {
-                                            $(this).displayError(data.message);
-                                            return;
-                                        }
-
-                                        if (data != '') {
-
-                                            // defaults
-                                            data.subject = "";
-                                            data.body = "";
-                                            data.files =[];
-
-                                            // set the next step
-                                            SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
-
-                                            // set up the form
-                                            PopulateEmailActionModal(data, false);
-
-                                            // display upload interface
-                                            $(actionModals.SendEmail).displayModal();
-
-                                        }
-                                    },
-                                    done: function () {
-                                        $(this).savedSuccessFully(messages.successMessages.Saved);
+                                    // valid selections ?
+                                    if (!data.success) {
+                                        $(this).displayError(data.message);
+                                        return;
                                     }
-                                });
+
+                                    if (data != '') {
+
+                                        // defaults
+                                        data.subject = "";
+                                        data.body = "";
+                                        data.files = [];
+
+                                        // set the next step
+                                        SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+
+                                        // set up the form
+                                        PopulateEmailActionModal(data, false);
+
+                                        // display upload interface
+                                        $(actionModals.SendEmail).displayModal();
+
+                                    }
+                                },
+                                done: function () {
+                                    $(this).savedSuccessFully(messages.successMessages.Saved);
+                                }
+                            });
 
                         }
 
-                        } catch (e) {
+                    } catch (e) {
 
                         // contact must be selected
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
