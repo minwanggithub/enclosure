@@ -212,7 +212,10 @@
             GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",            
             LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
             IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist",
-            DocumentContainerComponentsCount: GetEnvironmentLocation() + "/Operations/Document/DocumentContainerComponentsCount"
+            DocumentContainerComponentsCount: GetEnvironmentLocation() + "/Operations/Document/DocumentContainerComponentsCount",
+            GetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/GetSupplierOrDocumentLevelAccessibility",
+            SetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/SetSupplierOrDocumentLevelAccessibility"
+
         }
 
         var documentMessages = {
@@ -254,7 +257,9 @@
                 DocumentRevisionDiscardChangesHeader: "Discard Revision Changes",
                 DocumentRevisionDiscardChangesMessage: "You are going to discard your revision changes. Are you sure you would like to continue?",
                 SaveRevisionWothoutAttachment: "Are you sure you want to save revision without attachment?",
-                PrivateAccessForDocument: "This document is being marked private. Only documents marked public will be searchable on certain client systems."
+                PrivateAccessForDocument: "This document is being marked private. Only documents marked public will be searchable on certain client systems.",
+                PublicAccessForDocument: "This document is being marked public. Only Documents marked public will be searchable on certain client systems.",
+                DocumentAccessConfirmation: "Document access change confirmation.",
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -449,7 +454,24 @@
                                 $(e.target).val(data);
                             });
                         }
+
+                        var id = $(e.currentTarget).attr("id");
+
+                        // if we are adding a new document set the public flag to the same visibility
+                        // as is set at the supplier level. if the manufacturer is set at the revision
+                        // level, do not make any changes. changes for revisions will be handled only
+                        // at the document level
+
+                        if (id.toLowerCase().indexOf("_new") > 0) {
+
+                            $.post(controllerCalls.GetSupplierOrDocumentLevelAccessibility, { supplierId: companyId }, function (data) {
+                                id = id.replace("txtSupplierId_", "#IsPublic_");
+                                $(id).prop("checked", data.IsPublic);
+                            });
+                        }
+
                     }
+
                 });
             }
         }
@@ -1368,9 +1390,54 @@
 
             var element = $(e.currentTarget);
             if ((element.attr("id") == "IsPublic_New")) {
-                var model = getNewDocumentData();
-                if (!model.IsPublic) {
-                    displayError(documentMessages.modals.PrivateAccessForDocument);
+
+                var supplierId = "#txtSupplierId_New";
+                supplierId = parseInt($(supplierId).val());
+                var isPublic = getNewDocumentData().IsPublic;
+
+                if (!isNaN(supplierId)) {
+
+                    // get global accessibility
+                    $.post(controllerCalls.GetSupplierOrDocumentLevelAccessibility, { supplierId: supplierId }, function (data) {
+
+                        var isPublic = data.IsPublic;               // supplier level selection
+                        var isChecked = element.is(":checked");     // document level selection
+
+                        var msg = null;
+
+                        if (isPublic != isChecked) {
+
+                            // confirm 
+                            var msg = "This document is being marked '" + (isChecked ? "Public" : "Private") + "' where as document " +
+                                "accessibility at the supplier level is '" + (isPublic ? "Public" : "Private") + "'.";
+
+                            msg += "<br><br>Mark document as '" + (isChecked ? "Public" : "Private") + "'?";
+
+                            var settings = {
+                                message: msg,
+                                header: documentMessages.modals.DocumentAccessConfirmation
+                            };
+
+                            displayConfirmationModal(settings, function () {
+                                // do nothing
+                            }, function () {
+                                element.prop("checked", !isChecked);
+                            });
+
+                        }
+                        else {
+                            if (!isPublic) {
+                                displayError(documentMessages.modals.PrivateAccessForDocument);
+                            }
+                        }
+
+                    });
+
+                }
+                else {
+                    if (!isPublic) {
+                        displayError(documentMessages.modals.PrivateAccessForDocument);
+                    }
                 }
             }
 
@@ -1628,13 +1695,58 @@
             var element = $(e.currentTarget);
             checkDocumentDetailsDirtyStatus(element.parents(documentElementSelectors.containers.DocumentDetailsForm + ":first"));
 
-            if ((element.attr("id").indexOf("IsPublic_") >= 0)) {
+            var id = element.attr("id");
 
-                var isChecked = element.is(":checked");
-                if (!isChecked) {
-                    displayError(documentMessages.modals.PrivateAccessForDocument);
+            // if this is an existing document, lookup the visibility status at the 
+            // supplier level. if there is a difference prompt user
+
+            // selected document 
+            var documentId = id.replace("IsPublic_", "#DocumentId_");
+            documentId = $(documentId).val();
+
+            // get global settings
+            $.post(controllerCalls.GetSupplierOrDocumentLevelAccessibility, { documentId: documentId }, function (data) {
+
+                var isPublic = data.IsPublic;               // supplier level selection
+                var isChecked = element.is(":checked");     // document level selection
+
+                var msg = null;
+
+                if (isPublic != isChecked) {
+
+                    msg = "Document #" + documentId + " is being marked '" + (isChecked ? "Public" : "Private") + "' where as document " +
+                        "accessibility at the supplier level is '" + (isPublic ? "Public" : "Private") + "'.";
+
+                    if (!isChecked) msg += "<br>" + "A change to 'Private' access will make this document unsearchable on certain client systems.";
+
                 }
-            }
+                else {
+                    msg = !isChecked ? documentMessages.modals.PrivateAccessForDocument : documentMessages.modals.PublicAccessForDocument;
+                }
+
+                msg += "<br><br>" + "Proceed with access change and republish document ? ";
+
+                var settings = {
+                    message: msg,
+                    header: documentMessages.modals.DocumentAccessConfirmation
+                };
+
+                displayConfirmationModal(settings, function () {
+
+                    // set document accessibility
+                    $.post(controllerCalls.SetSupplierOrDocumentLevelAccessibility, { documentId: documentId, isPublic: isChecked }, function (data) {
+
+                    });
+
+                }, function () {
+                    element.prop("checked", !isChecked);
+                });
+
+            });
+
+
+
+
         }
 
         function onDocumentDetailsSaveBtnClick(e) {

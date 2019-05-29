@@ -1941,7 +1941,47 @@
         $("#DetailSupplier").on("click", '#btnDiscardMultipleFacilityEmails', function () {
             $('#DetailSupplier #txtMultipleEmails').val("");
             $('#mdlMultipleFacilityEmails').modal("toggle");
-         });
+        });
+
+        function republishDocuments(supplierId, state) {
+
+
+        }
+
+        $("#DetailSupplier").on("click", '#Published', function (e) {
+
+            var checked = $(this).is(":checked");       // public/private 
+            var supplierId = $("#SupplierId").val();    // company id
+
+            if (supplierId > 0) {
+
+                var args = {
+                    header: 'Confirm Document Access for Public',
+                    message: 'Do you wish to republish the Documents associated to this manufacturer?'
+                };
+
+                DisplayConfirmationModal(args, function () {
+
+                    // ===========================================================
+
+                    var url = GetEnvironmentLocation() + "/Operations/Company/SetAllDocumentVisibility";
+                    
+                    $.ajax({
+                        url: url,
+                        data: JSON.stringify({ supplierId: $("#SupplierId").val(), state: checked }),
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8'
+                    });
+
+                    // ===========================================================
+                }, function () {
+                    $('#Published').prop("checked", !checked);
+                });
+
+            }
+
+  
+        });
 
         $("#DetailSupplier").on("click", '#btnSaveMultipleFacilityEmails', function (e) {
             if ($('#DetailSupplier #txtMultipleEmails').val() == "") {
