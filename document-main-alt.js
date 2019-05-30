@@ -271,7 +271,8 @@
                 DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
-                InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?"
+                InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
+                IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components."
             }
         };
 
@@ -1288,6 +1289,10 @@
                                 clearDocumentRevisionAttachments(form);
 
                             if (callbackFunc) callbackFunc(data.DocumentId);
+
+                            if (formData.model.ContainerTypeId == 2) {
+                                displayError(documentMessages.warnings.IncompleteKitsReminder);                                
+                            }
 
                         } else {
 
