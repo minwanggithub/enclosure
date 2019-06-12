@@ -1857,7 +1857,8 @@
                 if (NextObtainmentStepLkpID == "6") {
                     return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 } else {
-                    return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='Add Revision',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                    //return "<a href='../Document/AddNewRevision?id=" + OSourceId + "&revisionObtainmentRequestId=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                    return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 }                
             }
             else if (OWType == "New") {
@@ -1868,7 +1869,8 @@
                 }                
             }
             else {
-                return "";
+                //Due to old data obtainmentworkitem records not able to identify OWType, in that case display product page.
+                return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
             }
         }
 

@@ -166,7 +166,8 @@
             hidden: {
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
                 DocumentRevisionNameNumberDocument: "#hdnMultipleNameDocument",
-                DocumentRevisionNameNumberRevision: "#hdnMultipleNameRevision"
+                DocumentRevisionNameNumberRevision: "#hdnMultipleNameRevision",
+                DocumentRevisionDetailsRevisionObtainmentWorkitemId: "[id^=RevisionObtainmentWorkitemId_]"
             },
             radiobuttons: {
                 DocumentRevisionDetailsIsBadImage: "[id^=IsBadImage_]",
@@ -2146,7 +2147,15 @@
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
-                setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
+                //check if New Revision called from ObtainmentWorkLoad page, RevisionObtainmentWorkItemId has value and don't call function to set default values onyl set RevisionDate as ''.
+                var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();
+                if (revisionObtainmentWorkItemId.length <= 0) {
+                    setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
+                }
+                else {
+                    //set default values onyl set RevisionDate as '' when New Revision called from ObtainmentWorkLoad page
+                    newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
+                }
                 newRevisionContainer.show(650);
             }
         }
