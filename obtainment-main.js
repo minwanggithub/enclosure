@@ -1836,14 +1836,14 @@
                 if (selectedItems != null) {
                     supplierId = selectedItems.ObtainmentWorkItemID.split("-")[0];
                     supplierName = selectedItems.SupplierName;
-                    responses = selectedItems.InboundNoticeNumber
+                    responses = selectedItems.InboundNoticeNumber;
                 }
 
                 return {
                     supplierId: supplierId,
                     supplierName: supplierName,
                     responses: responses
-                };
+                    };
 
             } catch (e) {
 
@@ -1852,12 +1852,23 @@
             }
         }
 
-        function ObtainmentDetailRoute(OWType, OSourceId, ProductId) {
-            if (OWType == 'Revision') {
-                return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+        function ObtainmentDetailRoute(OWType, OSourceId, ProductId, NextObtainmentStepLkpID, ObtainmentWorkItemID, SupplierId) {
+            if (OWType == "Revision") {
+                if (NextObtainmentStepLkpID == "6") {
+                    return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                } else {
+                    return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='Add Revision',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                }                
+            }
+            else if (OWType == "New") {
+                if (NextObtainmentStepLkpID == "6") {
+                    return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                } else {
+                    return "<a href='../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Document',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                }                
             }
             else {
-                return '';
+                return "";
             }
         }
 
