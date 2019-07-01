@@ -7,6 +7,7 @@
         var clearAttachmentCacheOnConfirm = false;
         var parentCallback = null;
         var parentArgsCallback = null;
+        var dpeCallback = null;
         var uploadError = false;
         var uploadStake = [];
 
@@ -117,6 +118,9 @@
             e.preventDefault();
             disableFileUploadLayout();
 
+            if (dpeCallback)
+                dpeCallback(uploadStake);
+
             if (parentCallback) {
                 var promise = parentCallback(uploadStake);
                 if (promise && promise.done) {
@@ -129,13 +133,15 @@
                 clearConfirmFileUploadCache();
             else
                 closeFileUploadModal();
+
         }
 
-        var displayFileUploadModal = function (uploadArgsFunc, callbackFunc, confirmClearAttachmentCache) {
+        var displayFileUploadModal = function (uploadArgsFunc, callbackFunc, dpeCallbackFunc, confirmClearAttachmentCache) {
 
             clearAttachmentCacheOnConfirm = confirmClearAttachmentCache == false ? confirmClearAttachmentCache : true;
             parentArgsCallback = uploadArgsFunc;
             parentCallback = callbackFunc;
+            dpeCallback = dpeCallbackFunc;
 
             uploadError = false;
             uploadStake = [];

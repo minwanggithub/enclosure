@@ -175,6 +175,10 @@
                 DocumentRevisionDetailsReplicateIndexationData: "[id^=ReplicateIndexationData_]",
                 DocumentRevisionDetailsAutomateIndexationData: "[id^=AutomateIndexationData_]",
             },
+            image: {
+                MsdsOcrImageNew: "#MsdsOcr_New",
+                MsdsOcrImage: "[id^=MsdsOcr_]",
+            },
             textboxes: {
                 DocumentDetailsDocumentId: "[id^=DocumentId_]",
                 DocumentNotes: "#Notes",
@@ -215,7 +219,9 @@
             IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist",
             DocumentContainerComponentsCount: GetEnvironmentLocation() + "/Operations/Document/DocumentContainerComponentsCount",
             GetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/GetSupplierOrDocumentLevelAccessibility",
-            SetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/SetSupplierOrDocumentLevelAccessibility"
+            SetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/SetSupplierOrDocumentLevelAccessibility",
+            GetDpeRevisionIndexationAsync: GetEnvironmentLocation() + "/Operations/Document/GetDpeRevisionIndexationAsync",
+            GetAsynchData: GetEnvironmentLocation() + "/Operations/Document/GetAsynchData"
 
         }
 
@@ -273,7 +279,8 @@
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
                 InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
-                IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components."
+                IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
+                OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for yor?"
             }
         };
 
@@ -1353,11 +1360,11 @@
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
-
+            
             if (displayUploadModal) {
                 var documentId = 0;
                 var revisionId = 0;
-
+                
                 displayUploadModal(function () {
                     return { documentId: documentId, revisionId: revisionId };
                 }, function (data) {
@@ -1377,12 +1384,39 @@
                             });
                         }
                     }
+                    }, function (data) {
+                    if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {                       
+                        return;
+                    }   
 
+                    var filename = data[0].physicalPath;
+                    //Prompt for OCR and show animation                    
+                    $(documentElementSelectors.image.MsdsOcrImageNew).show();
+
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        cache: false,
+                        //url: controllerCalls.GetAsynchData,
+                        url: controllerCalls.GetDpeRevisionIndexationAsync,
+                        data: { fn: filename},
+                        success: function (result, textStatus, jqXHR) {
+                            alert(result);
+                        },
+                        error: function (jqXHR, status, errorThrown) {
+                        },
+                        complete: function() {
+                            $(documentElementSelectors.image.MsdsOcrImageNew).hide();
+                        }
+                    });
                 }, false);
 
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
         }
+
+
+
 
         function onNewDocumentCancelBtnClick(e) {
 
@@ -1507,6 +1541,26 @@
             $(documentElementSelectors.containers.NewDocument).on('change', 'input', onNewDocumentFieldChange);
             $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onNewDocumentAddAttachmentBtnClick);
             $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
+
+            $(documentElementSelectors.containers.NewDocument).on('click', "#tempAddNewTest",
+                function () {
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        cache: false,
+                        url: window.location.origin + "/msdsboiler/Operations/Home/GetAsynchData",
+                        data: { fn: "Mytestfile.pdf" },
+                        success: function (result, textStatus, jqXHR) {
+                            alert(result);
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                        }
+                    });
+                });
+            
+
+
+
 
             // If we are within the popup window display the panel
             var addNewDocumentPopUp = $(documentElementSelectors.containers.NewDocument).parents(documentElementSelectors.containers.NewDocumentPopUp);
