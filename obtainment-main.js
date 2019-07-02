@@ -65,7 +65,7 @@
                     SupplierId: "#txtSupplierId",
                     NotificationRecepient: "#txtNotificationRecepient",
                     ObtainmentActionNotesConfirmNotAvailable:"#txtObtainmentActionNotesConfirmNotAvailable"
-
+                    
                 },
                 dateTime: {
                     NextStepDueDate: "#dteNextStepDueDate",
@@ -1146,40 +1146,49 @@
                     var owid = $("#hdnOwid").val().replace("Owid: ", "");
                     var companyid = owid.split('-')[0];
                     var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
-                    var selectedItem = contactgrid.dataItem(contactgrid.select());
 
-                    $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
-                        .success(function (data) {
-                            //update contact list
-                            $("#ddlSupplierContactList").kendoDropDownList({
-                                "dataSource": data,
-                                "dataTextField": "Text",
-                                "autoBind": false,
-                                "dataValueField": "Value",
-                                "optionLabel" : "Select",
-                                "change": onChangeContactName,
-                    });
+                    try {
 
-                    if (selectedItem != null) {
-                                var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
-                                ddlContactList.value(selectedItem.SupplierContactName);
+                        var selectedItem = contactgrid.dataItem(contactgrid.select());
+
+                        $(this).ajaxCall(controllerCalls.GetContactList, { supplierid: companyid })
+                            .success(function (data) {
+                                //update contact list
+                                $("#ddlSupplierContactList").kendoDropDownList({
+                                    "dataSource": data,
+                                    "dataTextField": "Text",
+                                    "autoBind": false,
+                                    "dataValueField": "Value",
+                                    "optionLabel" : "Select",
+                                    "change": onChangeContactName,
+                                });
+
+                                if (selectedItem != null) {
+                                    var ddlContactList = $(obtainmentObject.controls.dropdownlists.SupplierContactList).data("kendoDropDownList");
+                                    ddlContactList.value(selectedItem.SupplierContactName);
                                 }
 
-                                })
-                        .error(function () {
-                            $(this).displayError(messages.errorMessages.GeneralError);
+                            })
+                            .error(function () {
+                                $(this).displayError(messages.errorMessages.GeneralError);
                             });
 
 
                         if (selectedItem != null) {
-                        var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
-                        phoneContactGrid.dataSource.read();
-                        phoneContactGrid.refresh();
-                        SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
-                        $(actionModals.LogPhoneCall).displayModal();
+                            var phoneContactGrid = $(obtainmentObject.controls.grids.GridContactPhone).data("kendoGrid");
+                            phoneContactGrid.dataSource.read();
+                            phoneContactGrid.refresh();
+                            SetNextStep(nextStepsValues.FollowUpPhoneCall, "PhoneCall", true);
+                            $(actionModals.LogPhoneCall).displayModal();
 
-                } else
+                        } else
+                            $(this).displayError(messages.errorMessages.NoContactSelcted);
+
+                    }
+                    catch (e) {
                         $(this).displayError(messages.errorMessages.NoContactSelcted);
+                    }
+
                     break;
 
                 case obtainmentActions.LogWebSearch:

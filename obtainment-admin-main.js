@@ -33,13 +33,13 @@
                 buttons: {
                     AddAdvancedSearchOption: "#btnAddCriteria",                     // save settings (not implemented)
                     RemoveAdvancedSearchOption: "#btnDeleteCriteria",               // remove settings (not implemented)
-                    ClearObtainmentAdminBtn: "#clearObtainmentAdminBtn",        // clear advanced search options
-                    SearchObtainmentAdminBtn: "#searchObtainmentAdminBtn",      // search as per advanced options
+                    ClearObtainmentAdminBtn: "#clearObtainmentAdminBtn",            // clear advanced search options
+                    SearchObtainmentAdminBtn: "#searchObtainmentAdminBtn",          // search as per advanced options
 
                     SendToObtainmentBtn: "#btnSendToObtainment",                    // bulk action
                     SendFirstEmail: "#btnSendFirstEmail",                           // bulk action
                     SendSecondEmail: "#btnSendSecondEmail",                         // bulk action
-                    LogPhoneCall: "#btnLogPhoneCall",                               // bulk action
+                    LogPhoneCall: "#btnLogPhone",                                   // bulk action
                     MatchToDocumentBtn: "#btnMatchToDocument",                      // bulk action
                     MakeCustomerActionBtn: "#btnMakeCustomerActionItem",            // bulk action
                     UnAssignFromButton: "#btnUnAssignFrom",
@@ -53,19 +53,37 @@
                     SaveCustomerActionButton: "#btnSaveCustomerAction",
                     SearchSupplierButton: "#searchSupplierIdBtn",                   // bring up supplier search
                     CancelSupplierSearch: "#btnCancelSupplierSearch",               // exit supplier search
+                    CancelPhoneCall: "#btnCancelPhoneCall",
+                    SavePhoneCall: "#btnSavePhoneCall",
+                    CancelSuperEmail: "#btnCancelSuperEmail",
+                    SendSuperEmail: "#btnSendSuperEmail",
                 },
 
                 grids: {
                     GridRequests: "#gdSearchObtainment",
-                    SearchSupplierNewGrid: "#gdSearchSupplierNew"
+                    SearchSupplierNewGrid: "#gdSearchSupplierNew",
+                    SupplierContactsGrid: "#gdSupplierContacts",
+                    SupplierContactEmailGrid: "#gdContactEmail",
+                    SupplierContactPhoneGrid: "",
+                    ContactPhoneObtainment: "#gdContactPhoneObtainment",
+                    ContactPhone: "#gdContactPhone"
                 },
 
                 dateTime: {
+                    NextStepDueDatePhoneCall: "#dteNextStepDueDatePhoneCall",
+                    SuperEmailNextStepDueDate: "#dteSuperEmailNextStepDueDate",
+
                 },
 
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
                     CustomerActionDropDownList: "#selCustomerAction",
+                    SupplierContactsList: "#ddlSupplierContactList",
+                    NextStepsPhoneCall: "#ddlNextStepsPhoneCall",
+                    InternalNotes: "#ddlInternalNotes",
+                    SuperEmailNextStep: "#ddlSuperEmailNextStep",
+                    EmailTargets: "#ddlEmailTarget"
+
                 },
 
                 textBoxes: {
@@ -73,9 +91,26 @@
                     NotesTextBox: "#txtNotes",
                     ProductIdTextBox: "#txtProductId",
                     SearchSupplierIdTextBox: "#txtSearchSupplierId",
+                    SupplierContactName: "#SupplierContactName",
+                    SupplierContactId: "#SupplierContactId",
+                    SupplierContactPhone: "#SupplierContactPhone",
+                    SupplierContactPhoneId: "#SupplierContactPhoneId",
+                    ObtainmentActionNotesPhoneCall: "#txtObtainmentActionNotesPhoneCall",
+                    ObtainmentInternalNotes: "#txtInternalNotes",
+                    SupplierName: "#SupplierName",
+                    NotificationRecepient: "#txtNotificationRecepient",
+                    SuperEmailSubject: "#txtSuperEmailSubject",
+                    SuperEmailBody: "#txtSuperEmailBody",
+                    SuperEmailId: "#txtSuperEmailId",
+
+
                 },
 
                 checkboxes: {
+                    LiveCall: "#chkLiveCall",
+                    InsertProductsList: "#chkInsertProductsList",
+                    InsertSuppliersLink: "#chkInsertSuppliersLink",
+                    IsPreview: "#chkIsPreview"
                 },
 
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" },
@@ -93,6 +128,8 @@
             Resolve: "#mdlResolve",
             Obtainment: "#mdlObtainment",
             CustomerAction: "#mdlCustomerAction",
+            LogPhoneCall: "#mdlLogPhoneCall",
+            SendEmail: "#mdlSendSuperEmail",
         };
 
         var kendoWindows = {
@@ -105,6 +142,13 @@
             SaveObtainment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainment",
             SaveActionRequests: GetEnvironmentLocation() + "/Administration/Obtainment/SaveCustomerActionRequests",
             SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
+            SupplierDetail: GetEnvironmentLocation() + "/Administration/Obtainment/GetSupplierDetail",
+            SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
+            AreObtainmentsForSDSDocuments: GetEnvironmentLocation() + "/Administration/Obtainment/AreObtainmentsForSDSDocuments",
+            ValidateObtainmentsForEmail: GetEnvironmentLocation() + "/Administration/Obtainment/ValidateObtainmentsForEmail",
+            ValidateObtainmentsForDocumentId: GetEnvironmentLocation() + "/Administration/Obtainment/ValidateObtainmentsForDocumentId",
+            SendSuperEmail: GetEnvironmentLocation() + "/Administration/Obtainment/SendSuperEmail",
+
         };
 
 
@@ -136,7 +180,41 @@
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 GeneralError: "Error Occurred",
                 SelectedStateForSqlError: "Selected State is only for SQL Search",
-                SelectedStateForEsError: "Selected State is only for Elastic Search"
+                SelectedStateForEsError: "Selected State is only for Elastic Search",
+                NoSupplierContactSelected: "No supplier contact has been selected",
+                NoSupplierContactPhone: "A phone for the supplier contact phone has not been selected",
+                NoSupplierContactEmail: "An email for the supplier contact phone has not been selected",
+                SelectGroup: "Please select a group to assign request item(s)",
+                UserRequiredToAssign: "User required to assign selected request item(s)",
+                SelectFilter: "A filter must be selected to execute a search",
+                NoItemsSelected: "No items have been selected",
+                NoRowSelected: "No row selected",
+                NoStepSelected: "Invalid Next Step",
+                NoActionSelected: "No action has been selected",
+                RequestsCouldNotBeSaved: "Requests could not be saved",
+                RequestsCouldNotBeAssigned: "Requests could not be assigned",
+                NoContactSelcted: "No contact has been selected from Contact Information",
+                NoPhoneSelected: "No contact phone has been selected",
+                GeneralError: "Error Occurred",
+                EmailPartsMissing: "Email must have subject, body and the ||ProductsList|| placement token.",
+                EmailAddressMissing: "Email address needs to be selected",
+                CannotGenerateNoticeNumber: "Cannot generate notice number",
+                ResponseReceived: "A notice number is associated with one or several request(s) that are being processed",
+                UnderCoonstruction: "This option is still under construction.",
+                CannotRetrieveSentEmail: "Unable to retrieve sent email.",
+                NoCustomerActionNotesProvided: "Customer action notes required.",
+                NoConfirmNotAvailableActionNotesProvided: "Confirm not available action notes required.",
+                NoNoticeNumberInSuperEmailSubject: "A ||NoticeNumber|| token is mandatory in the super email subject.",
+                SuperEmailTargetNotSelected: "The targeted Obtainment type must be specified for a Email.",
+                NoNonSDSSubstitutionToken: "A ||SupplierPortal(link text)|| token is mandatory in the email body.",
+                NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS email body.",
+                EmailBodyMissing: "Email body is missing.",
+                NextStepMissing: "Obtainment next step has not been selected.",
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
+                InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
+                NotificationRecepientMissing: "Super email notification recipient missing.",
+                NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
+                HasEmbeddedKeywords: "Email body has illegal keyword(s)."
             }
         };
 
@@ -735,7 +813,7 @@
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
                 // row preselected ?
-                var checked = (gridIds[v.RequestWorkItemID] == true);
+                var checked = (gridIds[v.ObtainmentWorkItemId] == true);
 
                 // locate checkbox
                 $(row).find(".chkMultiSelect").prop("checked", checked);
@@ -760,7 +838,7 @@
                 // selected ?
                 var selected = $(row).hasClass("k-state-selected");
 
-                if (selected) _selectedIds.push(v.RequestWorkItemID);
+                if (selected) _selectedIds.push(v.ObtainmentWorkItemId);
 
             });
 
@@ -884,7 +962,432 @@
 
         }
 
-        confirmLogPhoneCall = function () {
+        function PopulateEmailActionModal(data, resend) {
+
+            if (data != null) {
+
+                // reset all upload state
+                fUploadlib.initialize(data.files);
+
+                // set up notice number
+                $('#txtNoticeNum').val("Notice Number: " + data.noticeNumber);
+
+                // set up subject
+                $("#txtObtainmentEmailSendEmailSubject").val(data.subject);
+
+                $("#txtObtainmentEmailSendEmailTo").val(data.emailTo);
+                $("#txtObtainmentEmailSendEmailTo").attr({readonly:"readonly"});
+
+                debugger;
+
+                // set the check boxes
+                $(obtainmentObjects.controls.checkboxes.InsertProductsList).removeAttr("checked");
+                $(obtainmentObjects.controls.checkboxes.InsertSuppliersLink).removeAttr("checked");
+                $("[for='" + obtainmentObjects.controls.checkboxes.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": "1" });
+
+                $(obtainmentObjects.controls.checkboxes.InsertSuppliersLink).removeAttr("disabled");
+
+                if (data.sdsObtainments) {
+                    $(obtainmentObjects.controls.checkboxes.InsertProductsList).prop("checked", true);
+
+                    $(obtainmentObjects.controls.checkboxes.InsertSuppliersLink).prop("disabled", true);
+                    $("[for='" + obtainmentObjects.controls.checkboxes.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
+                }
+
+                if (!data.sdsObtainments) {
+                    $(obtainmentObjects.controls.checkboxes.InsertSuppliersLink).prop("checked", true);
+                }
+
+                // reset the email body and re-initialize the kendo editor
+                var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
+                editor.value(data.body);
+
+                try {
+
+                    // destroy and create the kendo upload control each time.
+                    // the control may not have been created yet.
+                    $("#files").data("kendoUpload").destroy();
+
+                    // force clean up the mark up added by kendo 
+                    $(".upload-section").html('<input autocomplete="off" multiple="multiple" data-role="upload" id="files" name="files" type="file">');
+
+
+                } catch (e) {
+
+                }
+
+                // set selections - note the grid is not updated                    
+                preSelectedRequests = data.ids;
+                if (!resend) preSelectedRequests = null;
+
+                $("#files").kendoUpload({
+                    "success": fUploadlib.onFileUploadSuccess,
+                    "select": fUploadlib.onFileUploadSelect,
+                    "error": fUploadlib.onFileUploadError,
+                    "upload": fUploadlib.onFileUploadUpload,
+                    "remove": fUploadlib.onFileUploadRemove,
+                    "localization": { "select": "Attach file" },
+                    "async": {
+                        "saveUrl": controllerCalls.SaveEmailAttachment,
+                        "autoUpload": true,
+                        "removeUrl": controllerCalls.RemoveEmailAttachment
+                    },
+                    "files": data.files
+                });
+
+                // re-set 
+                //$("#txtObtainmentEmailNethubLinks").val("No NETHUB links to add.");
+                $("#txtObtainmentEmailNethubLinks").val("");
+
+                if (data.links != null && data.links.length > 0) {
+
+                    var text = "Nethub links for the following products will replace the ||ProductsList|| token : ";
+                    if (data.sdsObtainments) text = "The following list of products will replace the ||ProductsList|| token :"
+
+                    for (var i = 0; i < data.links.length; i++) {
+                        text += data.links[i];
+                        if (i < data.links.length - 1) text += ", ";
+                    }
+
+                    if (!data.sdsObtainments) text += ". Use the ||SupplierPortal(link text)|| token to provide a link to the supplier portal.";
+
+                    $("#txtObtainmentEmailNethubLinks").val(text);
+
+                }
+
+                // change caption as needed
+                $("#mdlSendEmail").find("#myModalLabel").html(resend ? "Resend Email" : "Send Email");
+
+            }
+        }
+
+        $(obtainmentObjects.controls.buttons.SendSuperEmail).click(function () {
+
+                // -- email target
+                var emailTarget = $(obtainmentObjects.controls.dropdownlists.EmailTargets).val();
+                var hasTarget = !(emailTarget == '' || emailTarget == 'Select One')
+
+                // recepient selected ?
+                var recepient = $(obtainmentObjects.controls.dropdownlists.SuperEmailRecepient).val();
+                var hasRecepient = !(recepient == '' || recepient == 'Select One')
+
+                // next step selected ?
+                var nextStep = $(obtainmentObjects.controls.dropdownlists.SuperEmailNextStep).val();
+                var hasNextStep = !(nextStep == '' || nextStep == 'Select One')
+
+                // notice number selected ?
+                var subject = $(obtainmentObjects.controls.textBoxes.SuperEmailSubject).val() + "";
+                var hasNoticeNumber = (subject.toUpperCase().indexOf("||NOTICENUMBER||") >= 0);
+
+                // email body
+                var body = $(obtainmentObjects.controls.textBoxes.SuperEmailBody).data("kendoEditor").value() + "";
+                var hasBody = (body.trimRight() != "");
+
+                // email preview mode ?
+                var isPreview = $(obtainmentObjects.controls.checkboxes.PreviewEmail).is(":checked");
+
+                // notification
+                var notificationRecepient = ($(obtainmentObjects.controls.textBoxes.NotificationRecepient).val() + "");
+                var hasNotificationRecepient = (notificationRecepient.trimRight() != "");
+
+                // do not allow Supplier Links if SDS Obtainment
+
+                var sdsObtainment = (emailTarget != "1");
+
+                // supplier portal mandatory for Non SDS super email
+                var linksOrProductsToken = true;
+                if (!sdsObtainment) {
+                    var regex = /\|\|SUPPLIERPORTAL\([a-zA-Z\s0-9]+?\)\|\|/;
+                    linksOrProductsToken = regex.test(body);
+                }
+
+                // embedded URL test
+                var hasKeywords = (body.toUpperCase().indexOf("NETHUB") >= 0);
+
+                // validation
+                if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasKeywords) {
+
+                    //$(actionModals.SuperMail).hide();
+                    $("#errorReport").on('hidden', function () {
+                        $(actionModals.SuperMail).show();
+                        $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
+                    })
+
+                    var message = "Please correct the following issue(s): <br><br>";
+
+                    if (!hasTarget) message += messages.errorMessages.SuperEmailTargetNotSelected + "<br>";
+                    if (!hasRecepient) message += messages.errorMessages.EmailAddressMissing + "<br>";
+                    if (!hasNoticeNumber) message += messages.errorMessages.NoNoticeNumberInSuperEmailSubject + "<br>";
+                    if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
+                    if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
+                    if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
+                    if (hasKeywords) messages.errorMessages.HasEmbeddedKeywords + "<br>";
+
+                    SubError(message);
+
+                }
+                else {
+
+                    // deliver with ids
+                    DeliverSuperMain(emailTarget, getSupplierAndContactId().supplierId, Object.keys(getGridIds()));
+
+                }
+        });
+
+        function DeliverSuperMain(emailTarget, supplierId, ids) {
+
+            var model = {}
+
+            // super email model
+            model.Recepients = $(obtainmentObjects.controls.textBoxes.SuperEmailId).val();
+            model.Subject = $(obtainmentObjects.controls.textBoxes.SuperEmailSubject).val();
+            model.MessageBody = $(obtainmentObjects.controls.textBoxes.SuperEmailBody).data("kendoEditor").value() + "";
+            model.SupplierId = supplierId;
+            model.NextStepId = $(obtainmentObjects.controls.dropdownlists.SuperEmailNextStep).val();
+            model.DueDate = ($(obtainmentObjects.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value() + "").substring(0, 10);
+            model.AddProductsList = $(obtainmentObjects.controls.checkboxes.InsertProductsList.replace("#", ".")).is(":checked");
+            model.AddSupplierPortalLink = $(obtainmentObjects.controls.checkboxes.InsertSuppliersLink.replace("#", ".")).is(":checked");
+            model.NotificationRecepient = $(obtainmentObjects.controls.textBoxes.NotificationRecepient).val();
+            model.PreviewEmail = $(obtainmentObjects.controls.checkboxes.PreviewEmail).is(":checked");
+            model.EmailTarget = emailTarget;
+
+            $(this).ajaxCall(controllerCalls.SendSuperEmail, { model : model, ids : ids })
+                .success(function (data) {
+
+                })
+                .complete(function () {
+                    if (model.PreviewEmail) {
+
+                        $(actionModals.SuperMail).toggleModal();
+                        ShowMessage("The super email request has been queued for processing.<br>" +
+                            "A preview summary will be emailed to " + model.NotificationRecepient + " upon completion.");
+                    } else {
+
+                        $(actionModals.SuperMail).toggleModal();
+                        ShowMessage("The email request has been queued for processing.<br>" +
+                            "A summary will be emailed to " + model.NotificationRecepient + " upon completion.<br>");
+
+                        // reset fields
+                        $(obtainmentObjects.controls.checkboxes.PreviewEmail).prop("checked", true);
+
+                    }
+
+                });
+
+        }
+
+
+        // SUPER EMAIL BUTTON CLICK HANDLER
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.SendSuperEmail, function () {
+
+            // ---- reset event handlers 
+            $(obtainmentObjects.controls.buttons.CancelSuperEmailButton).off("click");
+            $(obtainmentObjects.controls.buttons.SendSuperEmailButton).off("click");
+            $(obtainmentObjects.controls.dropdownlists.EmailTargets).data("kendoDropDownList").unbind("change");
+
+            // ---- wire modal close
+            $(obtainmentObjects.controls.buttons.btnCancelSuperEmailButton).click(function () {
+                $(actionModals.SuperMail).toggleModal();
+            });
+
+            // ---- wire email target
+            $(obtainmentObjects.controls.dropdownlists.EmailTargets).data("kendoDropDownList").bind("change", function () {
+
+                // determine which target was selected 1 = non-sds, 2 = sds
+                var emailTarget = $(obtainmentObject.controls.dropdownlists.EmailTargets).val();
+
+                // reset product options
+                $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("checked", false);
+                $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("disabled", true);
+                $("[for='" + obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", "") + "']").css({ "opacity": ".5" });
+
+                // reset supplier options
+                $(obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("checked", false);
+                $(obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("disabled", true);
+                $("[for='" + obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
+
+                // SDS
+                if (emailTarget == "2") {
+
+                    // enable product list option
+                    $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("disabled", false);
+                    $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("checked", true);
+
+                    $("[for='" + obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", "") + "']").css({ "opacity": "1" });
+
+                }
+                // Non-SDS
+                else if (emailTarget == "1") {
+
+                    // default
+                    $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("checked", true);
+                    $(obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("checked", true);
+
+                    $(obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", ".")).prop("disabled", false);
+                    $(obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("disabled", false);
+
+                    $("[for='" + obtainmentObjects.controls.checkBox.InsertProductsList.replace("#", "") + "']").css({ "opacity": "1" });
+                    $("[for='" + obtainmentObjects.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": "1" });
+
+                }
+
+            });
+
+            // ---- wire super email send
+            
+
+        });
+
+        function confirmSendEmail(first) {
+
+            try {
+
+                // verify that a contact has been selected.
+                debugger;
+                // at least one contact must be selected.
+                var grid = $(obtainmentObjects.controls.grids.SupplierContactEmailGrid).data("kendoGrid");
+                var selection = grid.select();
+                var data = grid.dataItem(grid.select());
+
+                var emailTo = data.Email;
+
+                console.log(data);
+
+                var selectedItems = Object.keys(getGridIds());
+
+                if (selectedItems == null || selectedItems.length == 0) {
+                    $(this).displayError(messages.errorMessages.NoItemsSelected);
+                    return;
+                }
+
+                if (selectedItems != null) {
+
+                    // url to invoke for notice number 
+                    var strUrl = controllerCalls.AreObtainmentsForSDSDocuments;
+                    var cdata = new Object();
+                    cdata.ids = selectedItems;
+                    cdata.firstEmail = first;
+
+                    $.ajax({
+
+                        url: strUrl,
+                        data: JSON.stringify(cdata),
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        error: function () {
+                            $(this).displayError(messages.errorMessages.CannotGenerateNoticeNumber);
+                        },
+                        success: function (data) {
+
+                            console.log(data);
+
+                            // set up email controls
+
+                            $("#superEmailSupplier").html($(obtainmentObjects.controls.textBoxes.SupplierName).val());  // maufacturer name
+                            $(obtainmentObjects.controls.textBoxes.SuperEmailId).val(emailTo);                          // who the email is going out to
+                            $(obtainmentObjects.controls.textBoxes.SuperEmailSubject).val("");                          // clean up subject
+
+
+
+                            //// valid selections ?
+                            //if (!data.success) {
+                            //    $(this).displayError(data.message);
+                            //    return;
+                            //}
+
+                            //if (data != '') {
+
+                            //    // defaults
+                            //    data.subject = "";
+                            //    data.body = "";
+                            //    data.emailTo = emailTo;
+                            //    data.files = [];
+
+                            //    // set the next step
+                            //    //SetNextStepForSendEmail(nextStepsValues.FirstAutomatedEmail, "SendEmail", selectedItems);
+
+                            //    // set up the form
+                            PopulateEmailActionModal(data, false);
+
+                                // display upload interface
+                            $(actionModals.SendEmail).displayModal();
+
+
+
+                            //}
+                        },
+                        done: function () {
+                            $(this).savedSuccessFully(messages.successMessages.Saved);
+                        }
+                    });
+
+                }
+
+            } catch (e) {
+
+                // contact must be selected
+                $(this).displayError(messages.errorMessages.NoContactSelcted);
+
+            }
+        }
+
+        function saveSendEmailAction() {
+
+        }
+
+        function savePhoneCall() {
+
+            // get values
+            var liveCall = $(obtainmentObjects.controls.checkboxes.LiveCall).is(":checked");
+            var internalNotes = $(obtainmentObjects.controls.dropdownlists.InternalNotes).val();
+            var notes = $(obtainmentObjects.controls.textBoxes.ObtainmentActionNotesPhoneCall).val();
+            var nextStep = $(obtainmentObjects.controls.dropdownlists.NextStepsPhoneCall).data("kendoDropDownList").value();
+            var nextStepDueDate = $(obtainmentObjects.controls.dateTime.NextStepDueDatePhoneCall).data("kendoDatePicker").value();
+
+            // see if phone selected
+            var grid = $(obtainmentObjects.controls.grids.ContactPhone).data("kendoGrid");
+            var data = grid.dataItem(grid.select());
+
+            var contactPhoneId = data.CompanyContactPhoneId;
+
+            // validate selections
+
+            // make call to save phone call details
+
+            var model = {}
+
+            model.ObtainmentWorkItemIDs = Object.keys(getGridIds());    // selected ids
+            model.ObtainmentActionLkpID = 1;                            // phone call
+            model.NextObtainmentStepLkpID = nextStep;                   // next step
+            model.Notes = notes;                                        // notes
+            model.NextObtainmentStepDueDate = nextStepDueDate;          // next step due date
+
+            var phoneCallModel = {};
+
+            phoneCallModel.LiveCall = $(obtainmentObjects.controls.checkboxes.LiveCall).is(":checked");
+            phoneCallModel.CompanyContactId = getSupplierAndContactId().supplierContactId;
+            phoneCallModel.CompanyContactPhoneId = contactPhoneId;
+            phoneCallModel.InternalNotesLkpId = $(obtainmentObjects.controls.dropdownlists.InternalNotes).val() != "" ? $(obtainmentObjects.controls.dropdownlists.InternalNotes).val() : null;
+
+            model.ObtianActionLogPhoneCallModel = phoneCallModel;
+
+            $(this).ajaxJSONCall(controllerCalls.SaveObtainmentWorkItemAction, JSON.stringify(model))
+                .success(function (successData) {
+                    if (successData.success == true) {
+
+                        //kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
+                        $(actionModals.LogPhoneCall).hideModal();
+                        $(this).savedSuccessFully(messages.successMessages.Saved);
+
+                    } else
+                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                }).error(function () {
+                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                });
+
+        }
+
+        function confirmLogPhoneCall() {
 
             var _gridIds = getGridIds();
 
@@ -893,14 +1396,60 @@
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
 
-                // display confirmation dialog
-                var message = 'Are you sure you would like to ' + messages.confirmationMessages.LogPhoneCall + '?';
-                var args = { message: message, header: 'Confirm Requests Selected' };
-                DisplayConfirmationModal(args, function () {
-                    $(actionModals.Obtainment).displayModal();
-                }, function () {
-                    // do nothing
-                });
+                // is any contact selected ?
+                // is a phone number active ?
+
+                var selection = getSupplierAndContactId();
+                if (selection.supplierContactId == 0) {
+                    $(this).displayError(messages.errorMessages.NoSupplierContactSelected);
+                    return;
+                }
+
+                // locate the contact name from the contacts grid
+                var grid = $(obtainmentObjects.controls.grids.SupplierContactsGrid).data("kendoGrid");
+                var data = grid.dataItem(grid.select());
+
+                console.log(data);
+
+                $(obtainmentObjects.controls.textBoxes.SupplierContactName).val(data.SupplierContactName);
+                $(obtainmentObjects.controls.textBoxes.SupplierContactId).val(data.SupplierContactId);
+
+                // see if phone selected
+                grid = $(obtainmentObjects.controls.grids.ContactPhone).data("kendoGrid");
+                data = grid.dataItem(grid.select());
+
+                if (data != null) {
+
+                    // clean up
+                    if (isNaN(data.InternationalDialingCode)) data.InternationalDialingCode = 0;
+                    if (isNaN(data.CityOrAreaCode)) data.CityOrAreaCode = 0;
+                    if (isNaN(data.InternationalDialingCode)) data.InternationalDialingCode = 0;
+
+                    /*CityOrAreaCode: 203
+                    CompanyContactId: 115860
+                    CompanyContactPhoneId: 164489
+                    CountryLkpId: null
+                    Extension: 0
+                    InternationalDialingCode: 0
+                    LocalNumber: 9124344
+                    SelectPhoneTypeId: null
+                    dirty: false*/
+
+                    var phone = "";
+                    if (data.InternationalDialingCode != 0) phone += "(" + data.InternationalDialingCode + ")";
+                    if (data.CityOrAreaCode != 0) phone += "" + data.CityOrAreaCode + "-";
+                    phone += data.LocalNumber;
+                    
+                    $(obtainmentObjects.controls.textBoxes.SupplierContactPhone).val(phone);
+                    $(obtainmentObjects.controls.textBoxes.SupplierContactPhoneId).val(data.CompanyContactPhoneId);
+                }
+                else {
+                    $(this).displayError(messages.errorMessages.NoSupplierContactPhone);
+                    return;
+                }
+
+                $(actionModals.LogPhoneCall).displayModal();
+
             }
 
             return false;
@@ -910,7 +1459,7 @@
         confirmCustomerAction = function () {
 
             var _gridIds = getGridIds();
-            $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val("");
+            $(obtainmentObjects.controls.textBoxes.NotesTextBox).val("");
 
             // no items selected ?
             if (Object.keys(_gridIds).length == 0) {
@@ -922,6 +1471,30 @@
                 var args = { message: message, header: 'Confirm Requests Selected' };
                 DisplayConfirmationModal(args, function () {
                     $(actionModals.CustomerAction).displayModal();
+                }, function () {
+                    // do nothing
+                });
+            }
+
+            return false;
+
+        }
+
+        confirmLogPhoneCallAction = function () {
+
+            var _gridIds = getGridIds();
+            
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.AssignRequests + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.LogPhoneCall).displayModal();
                 }, function () {
                     // do nothing
                 });
@@ -1058,11 +1631,11 @@
             });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendFirstEmail, function (e) {
-                confirmSendFirstEmail();
+                confirmSendEmail(true);
             });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendSecondEmail, function (e) {
-                confirmSendSecondEmail();
+                confirmSendEmail(false);
             });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.LogPhoneCall, function (e) {
@@ -1074,6 +1647,7 @@
             });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
+                alert("");
                 confirmCustomerAction();
             });
 
@@ -1085,6 +1659,14 @@
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveCustomerActionButton, function (e) {
                 saveCustomerAction();
+            });
+
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.CancelPhoneCall, function (e) {
+                $(actionModals.LogPhoneCall).hideModal();
+            });
+
+            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SavePhoneCall, function (e) {
+                savePhoneCall();
             });
 
         };
@@ -1153,7 +1735,7 @@
             $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
             // set state of row
-            gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
+            gridIds[grid.dataItem(row).ObtainmentWorkItemId] = checked;
 
             // after select actions
             doPostGridRowAction();
@@ -1187,7 +1769,7 @@
                     $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
                     // flag selection state
-                    gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
+                    gridIds[grid.dataItem(row).ObtainmentWorkItemId] = checked;
                 }
 
             });
@@ -1228,8 +1810,34 @@
             // not implemented
         }
 
-        function onDataBound() {
-           // not implemented
+        function onDataBound(sender) {
+
+            ////$("#SupplierInformationPanel").hide();
+            ////$("#SupplierInformationPanel").html("");
+
+            ////$('#DetailSupplier').html("");
+
+            //var grid = sender.sender;
+            //var supplierIds = Array.from(grid.dataSource.data()).filter(e => e.SupplierID != null).map(e => e.SupplierID);
+            //var distinctIds = new Set(supplierIds);
+            
+            //if (distinctIds.size == 1) {
+
+            //    var supplierId = supplierIds[0];
+
+            //    $("#SupplierId").val(supplierId);
+
+            //    $.post(controllerCalls.SupplierDetail, {
+            //        supplierId: supplierId
+            //    }, function (data) {
+            //        //$("#SupplierInformationPanel").show();
+            //        var panelBar = $("#SupplierInformationPanel").data("kendoPanelBar");
+            //        // reload the panel bar
+            //        panelBar.reload("> .k-item");
+            //    });
+
+            //}
+            
         }
 
         function onDetailDataBound(sender) {
@@ -1240,13 +1848,13 @@
 
             pageData.forEach((v, i) => {
 
-                // see if the RequestWorkItemID for the row is in the selected list.
+                // see if the ObtainmentWorkItemId for the row is in the selected list.
                 // if yes, highlight the row.
 
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
                 $(row).removeClass("k-state-selected");
 
-                var checked = gridIds[grid.dataItem(row).RequestWorkItemID];
+                var checked = gridIds[grid.dataItem(row).ObtainmentWorkItemId];
                 if (checked) {
                     $(row).addClass("k-state-selected");
                     var selector = $(row).find(".chkMultiSelect");
@@ -1265,6 +1873,43 @@
             // not implemented
         }
 
+        var gdSupplierContacts_Change = function (e) {
+            e.preventDefault();
+            var data = this.dataItem(this.select());
+
+            // required by phone and email
+            $("#ReadOnlySupplierId").val(data.SupplierId);
+            $("#ReadOnlySupplierContactId").val(data.SupplierContactId);
+
+            //var url = '@Url.Action("GetSupplierContactDetail", "Company")';
+            var url = GetEnvironmentLocation() +  "/Administration/Obtainment/GetSupplierContactDetail";
+            $.post(url, { supplierId: data.SupplierId, supplierContactId: data.SupplierContactId }, function (result) {
+                $("#CompanyContactDetailResult").html($(result));
+            });
+        };
+
+        var getSupplierId = function () {
+            var supplierId = parseInt($("#ReadOnlySupplierId").val());
+            return isNaN(supplierId) ? 0 : supplierId;
+        }
+
+        var getSupplierContactId = function () {
+            var supplierContactId = parseInt($("#ReadOnlySupplierContactId").val());
+            return { supplierContactId: isNaN(supplierContactId) ? 0 : supplierContactId };
+        }
+
+        var getSupplierAndContactId = function () {
+            var supplierId = parseInt($("#ReadOnlySupplierId").val());
+            var supplierContactId = parseInt($("#ReadOnlySupplierContactId").val());
+
+            //alert("here");
+
+            return {
+                supplierContactId: isNaN(supplierContactId) ? 0 : supplierContactId,
+                supplierId: isNaN(supplierId) ? 0 : supplierId
+            };
+        }
+
         return {
 
             init: init,
@@ -1278,7 +1923,10 @@
             onResponseDetailExpand: onResponseDetailExpand,
             enableAssignUnAssignButtons: enableAssignUnAssignButtons,
             hotKeyDisplay: hotKeyDisplay,
-            loadSupplierPlugIn: loadSupplierPlugIn
+            loadSupplierPlugIn: loadSupplierPlugIn,
+            gdSupplierContacts_Change: gdSupplierContacts_Change,
+            getSupplierId: getSupplierId,
+            getSupplierAndContactId: getSupplierAndContactId
 
         };
     };
