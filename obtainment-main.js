@@ -1507,6 +1507,10 @@
                 if ((body + "").toUpperCase().indexOf("NETHUB") >= 0) {
                     $(this).displayError(messages.errorMessages.HasEmbeddedKeywords);
                     valid = false;
+
+                    // make availabe again
+                    $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
+
                 }
             }
 
