@@ -1819,6 +1819,7 @@
             checkDocumentDetailsDirtyStatus(element.parents(documentElementSelectors.containers.DocumentDetailsForm + ":first"));
 
             var id = element.attr("id");
+            if (id.indexOf("IsPublic_") < 0) return;
 
             // if this is an existing document, lookup the visibility status at the 
             // supplier level. if there is a difference prompt user
