@@ -87,7 +87,7 @@
                 DocumentSearchIncludeDeleted: "[id^=chkIncludeDeletedDocument]",
                 DocumentSearchLatestRevision: "[id^=chkLatestRevision]",
                 DocumentSearchSupplierIdCheckBox: "[id^=rdMfgId]",
-                DocumentIsExposureScenario: "[id^=IsExposureScenario_]",
+                DocumentIsExposureScenario: "[id^=IsExposureScenario_]"
 
             },
             containers: {
@@ -114,7 +114,9 @@
             },
             datepickers: {
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
-                DocumentRevisionDetailsVerifyDate: "[id^=VerifyDate_]"
+                DocumentRevisionDetailsVerifyDate: "[id^=VerifyDate_]",
+                DocumentRevisionDate_New: "#RevisionDate_New",
+                DocumentVerifyDate_New: "#VerifyDate_New"
             },
             dropdownlists: {
                 DocumentContainerClassificationType: "#ClassificationType_",
@@ -178,6 +180,8 @@
             image: {
                 MsdsOcrImageNew: "#MsdsOcr_New",
                 MsdsOcrImage: "[id^=MsdsOcr_]",
+                EmojiHappy_New: "#EmojiHappy_New",
+                EmojiSad_New: "#EmojiSad_New"
             },
             textboxes: {
                 DocumentDetailsDocumentId: "[id^=DocumentId_]",
@@ -204,7 +208,12 @@
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
                 DocumentSearchResultTotal: "#lblDocumentSearchResultTotal",
                 DocumentSearchFiltering: "#lblDocumentSearchFilter",
-                DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",
+                DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",                
+                DocumentRevisionTitle_New: "#RevisionTitle_New",
+                DocumentIdentification_New: "#DocumentIdentification_New",
+                DocumentVersion_New: "#DocumentVersion_New",
+                DocumentManufacturerId_New: "#txtManufacturerId_New",
+                DocumentSupplierId_New: "#txtSupplierId_New"
             }
         };
 
@@ -280,7 +289,7 @@
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
                 InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
-                OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for yor?"
+                OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?"
             }
         };
 
@@ -484,6 +493,16 @@
                 });
             }
         }
+
+        function DoLookUpSupplierOnKeyEnter(cntrlid) {
+            //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company", new {Area = "Operations"})';
+            var url = '../Company/LookUpSupplierOnKeyEnter';
+            var supplierInfo = $(cntrlid).val();
+            $.post(url, { supplierInfo: supplierInfo }, function (data) {
+                $(cntrlid).val(data);
+            });
+        }
+
 
         function onDisabledButtonClick(e) {
             e.preventDefault();
@@ -1384,14 +1403,16 @@
                             });
                         }
                     }
-                    }, function (data) {
+                    }, function (data) {                    
                     if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {                       
                         return;
                     }   
 
                     var filename = data[0].physicalPath;
                     //Prompt for OCR and show animation                    
-                    $(documentElementSelectors.image.MsdsOcrImageNew).show();
+                        $(documentElementSelectors.image.MsdsOcrImageNew).show();
+                        $(documentElementSelectors.image.EmojiHappy_New).hide();
+                        $(documentElementSelectors.image.EmojiSad_New).hide();
 
                     $.ajax({
                         type: 'POST',
@@ -1400,10 +1421,16 @@
                         //url: controllerCalls.GetAsynchData,
                         url: controllerCalls.GetDpeRevisionIndexationAsync,
                         data: { fn: filename},
-                        success: function (result, textStatus, jqXHR) {
-                            alert(result);
+                        success: function (dpeData, textStatus, jqXHR) {
+                            if (dpeData != null) {
+                                DpeDataExtraction(dpeData);
+                            } else {
+                                $(documentElementSelectors.image.EmojiSad_New).show();
+                            }
                         },
                         error: function (jqXHR, status, errorThrown) {
+                            displayError(errorThrown);
+                            $(documentElementSelectors.image.EmojiSad_New).show();
                         },
                         complete: function() {
                             $(documentElementSelectors.image.MsdsOcrImageNew).hide();
@@ -1416,7 +1443,43 @@
         }
 
 
+        function DpeDataExtraction(dpeData) {
+            if (dpeData.RevisionDate != null) {
+                var revisionDate = new Date(parseInt(dpeData.RevisionDate.replace("/Date(", "").replace(")/", ""), 10));
+                $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value(revisionDate);
+            }
+            if (dpeData.VerifyDate != null) {
+                var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
+                $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value(confirmDate);
+            }
+            if (dpeData.RevisionTitle != null && dpeData.RevisionTitle != '') {
+                $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val(dpeData.RevisionTitle);
+            }
+            if (dpeData.DocumentIdentification != null && dpeData.DocumentIdentification != '') {
+                $(documentElementSelectors.textboxes.DocumentIdentification_New).val(dpeData.DocumentIdentification);
+            }
+            if (dpeData.VersionOnDocument != null && dpeData.VersionOnDocument != '') {
+                $(documentElementSelectors.textboxes.DocumentVersion_New).val(dpeData.VersionOnDocument);
+            }
+            if (dpeData.ManufacturerId != null && dpeData.ManufacturerId != '') {
+                $(documentElementSelectors.textboxes.DocumentManufacturerId_New).val(dpeData.ManufacturerId);
+                DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentManufacturerId_New);
 
+                //Can not get it work
+                //var e = $.Event("keypress", { keyCode: 13 });
+                //$(documentElementSelectors.textboxes.DocumentManufacturerId_New).focus();
+                //var e = jQuery.Event('keydown', { which: $.ui.keyCode.ENTER });
+                //$("txtManufacturerId_New").trigger(e);
+                //setTimeout(function () { $(documentElementSelectors.textboxes.DocumentManufacturerId_New).keypress(); }, 2000);
+
+            }
+            if (dpeData.SupplierId != null && dpeData.SupplierId != '') {
+                $(documentElementSelectors.textboxes.DocumentSupplierId_New).val(dpeData.SupplierId);
+                DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentSupplierId_New);
+            }
+            $(documentElementSelectors.image.EmojiHappy_New).prop('title', JSON.stringify(dpeData));
+            $(documentElementSelectors.image.EmojiHappy_New).show();
+        }
 
         function onNewDocumentCancelBtnClick(e) {
 
@@ -2185,6 +2248,8 @@
                                 else if (dataItem.DocumentId > 0 && dataItem.RevisionId == 0) {
                                     $('#addNewFilesBtn_' + dataItem.DocumentId + "_" + dataItem.RevisionId).removeClass('k-state-disabled');
                                 }
+                                $(documentElementSelectors.image.EmojiHappy_New).hide();
+                                $(documentElementSelectors.image.EmojiSad_New).hide();
                             }
                         })
                         .error(function () {
