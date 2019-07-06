@@ -926,27 +926,36 @@
             superEmailModel.EmailTarget = emailTarget;
 
             $(this).ajaxCall(controllerCalls.SendSuperEmail, superEmailModel)
-            .success(function (data) {
-                
-            })
-            .complete(function () {
-                if (superEmailModel.PreviewEmail) {
+                .success(function (data) {
+
+                })
+                .complete(function () {
+
+                    var prompts = {};
+
+                    prompts.header = "Super Email Queued.";
+                    
+                    if (superEmailModel.PreviewEmail) {
+                        prompts.message = "The super email request has been queued for processing.<br>" +
+                            "A preview summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.";
+                    } else {
+
+
+                        prompts.message = "The super email request has been queued for processing.<br>" +
+                            "A summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.<br>";
+
+                        // reset fields
+                        $(obtainmentObject.controls.checkBox.PreviewEmail).prop("checked", true);
+
+                    }
 
                     $(actionModals.SuperMail).toggleModal();
-                    ShowMessage("The super email request has been queued for processing.<br>" +
-                        "A preview summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.");
-                } else {
 
-                    $(actionModals.SuperMail).toggleModal();
-                    ShowMessage("The super email request has been queued for processing.<br>" +
-                        "A summary will be emailed to " + superEmailModel.NotificationRecepient + " upon completion.<br>");
+                    DisplayErrorMessageInPopUp(prompts, function () {
+                        $(actionModals.SuperMail).toggleModal();
+                    });
 
-                    // reset fields
-                    $(obtainmentObject.controls.checkBox.PreviewEmail).prop("checked", true);   
-
-                }
-
-            });
+                });
 
         }
 
