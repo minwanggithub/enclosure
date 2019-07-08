@@ -507,7 +507,7 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
-                    if (hasKeywords) messages.errorMessages.HasEmbeddedKeywords + "<br>";
+                    if (hasKeywords) messages += messages.errorMessages.HasEmbeddedKeywords + "<br>";
 
                     SubError(message);
 
