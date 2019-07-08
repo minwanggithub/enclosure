@@ -1404,9 +1404,7 @@
                         }
                     }
                     }, function (data) {                    
-                    if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {                       
                         return;
-                    }   
 
                     var filename = data[0].physicalPath;
                     //Prompt for OCR and show animation                    
