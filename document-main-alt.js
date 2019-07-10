@@ -181,7 +181,8 @@
                 MsdsOcrImageNew: "#MsdsOcr_New",
                 MsdsOcrImage: "[id^=MsdsOcr_]",
                 EmojiHappy_New: "#EmojiHappy_New",
-                EmojiSad_New: "#EmojiSad_New"
+                EmojiSad_New: "#EmojiSad_New",
+                EmojiConfuse_New: "#EmojiConfuse_New"
             },
             textboxes: {
                 DocumentDetailsDocumentId: "[id^=DocumentId_]",
@@ -208,7 +209,7 @@
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
                 DocumentSearchResultTotal: "#lblDocumentSearchResultTotal",
                 DocumentSearchFiltering: "#lblDocumentSearchFilter",
-                DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",                
+                DocumentExposureScenarioStartingPage: "[id^=ExposureScenarioStartingPage_]",
                 DocumentRevisionTitle_New: "#RevisionTitle_New",
                 DocumentIdentification_New: "#DocumentIdentification_New",
                 DocumentVersion_New: "#DocumentVersion_New",
@@ -223,7 +224,7 @@
             IsManufacturerProductionSelectionValid: GetEnvironmentLocation() + "/Operations/Document/IsManufacturerProductionSelectionValid",
             AddDocumentSibling: GetEnvironmentLocation() + "/Operations/Document/AddDocumentSibling",
             AddExistDocumentAsSibling: GetEnvironmentLocation() + "/Operations/Document/AddExistDocumentAsSibling",
-            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",            
+            GetSiblingList: GetEnvironmentLocation() + "/Operations/Document/GetSiblingDocumentList",
             LoadSingleDocument: GetEnvironmentLocation() + "/Operations/Document/DocumentMainAlt?",
             IsDocumentExist: GetEnvironmentLocation() + "/Operations/Document/IsDocumentExist",
             DocumentContainerComponentsCount: GetEnvironmentLocation() + "/Operations/Document/DocumentContainerComponentsCount",
@@ -293,13 +294,37 @@
             }
         };
 
+        var dpeFields = {
+            fileds: {
+                RevisionTitle: documentElementSelectors.textboxes.DocumentRevisionTitle_New,
+                DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_New,
+                DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_New,
+                RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_New,
+                ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_New,
+                ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_New,
+                SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_New,
+                DpeManufacturerName: "DpeManufacturerName",
+                DpeSupplierName: "DpeManufacturerName"
+            }
+        };
+
+        var dpeFieldsStatus = {
+            IncludeRevisionTitle: false,
+            IncludeRevisionVersion: false,
+            IncludeRevisionIdentification: false,
+            IncludeRevisionDate: false,
+            IncludeVerifiyDate: false,
+            IncludeManufacturerId: false,
+            IncludIdSupplierId: false,
+        };
+
         var keyCodeValues = {
             Enter: 13,
             V: 86,
             ctrlKeyState:
-                {
-                    Pressed: false
-                }
+            {
+                Pressed: false
+            }
         };
 
         var dsSearchOption = kendo.observable({
@@ -370,7 +395,7 @@
 
 
         /******************************** Local Methods ********************************/
-        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {            
+        function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
@@ -648,32 +673,32 @@
         function getContainerSearchCriteria(container) {
             if (container && container.length > 0) {
                 var result =
-                    {
-                        ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                        DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                        DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                        DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                        DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                        IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                        LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                        PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                        PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
-                        PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                        ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                        SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
-                        SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
-                        SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
-                        SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
-                        UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
-                        UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
-                        DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
-                        DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
-                        DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
-                        ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                        Alias : container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
-                        AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
-                    };
+                {
+                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
+                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
+                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
+                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
+                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
+                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
+                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
+                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                    PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
+                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
+                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
+                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
+                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                    SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
+                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
+                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
+                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
+                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
+                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
+                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                    Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
+                    AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
+                };
                 keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
@@ -810,17 +835,17 @@
             }
         }
 
-        function parseFilters(filters, fields){
+        function parseFilters(filters, fields) {
             Array.from(filters.filters).forEach((i, e) => {
                 if (i.field === undefined)
                     parseFilters(i, fields);
                 else
                     fields.push(i);
             });
-            
+
         }
 
-        var onDataBound = function (e) {  
+        var onDataBound = function (e) {
 
             // remove filtering details
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("");
@@ -836,7 +861,7 @@
                     this.expandRow(this.tbody.find("tr.k-master-row").first());
                 }
 
-                $("#docSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));                
+                $("#docSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));
             }
 
             // display filtering
@@ -853,11 +878,11 @@
 
                 var list = new Set(Array.from(fields).map((i, e) => { return columns.find(e => e.field == i.field).title; }));
                 list = Array.from(list).join(",");
-                
+
                 // update filtering details
                 $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("Rows filtered by: " + list);
                 $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "" });
-                
+
             }
 
         }
@@ -1027,7 +1052,7 @@
             getRealNumberForProductAssociation(did);
         };
 
-        var onRefreshSiblingRequest = function(did) {
+        var onRefreshSiblingRequest = function (did) {
             var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
 
             if (sbGrid.dataSource.view().length > 0) {
@@ -1047,7 +1072,7 @@
                 return;
             }
 
-            var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");            
+            var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");
             //$("<div>siblingRequest</div>").dialog({
             var rowModel;
 
@@ -1056,7 +1081,7 @@
                     usingExistingDocument: false,
                     newDocumentTitle: "",
                     existingDocumentId: null,
-                    
+
                     onUsingExistingDocumentChange: function (e) {
                         //alert("check changed");
                     }
@@ -1079,14 +1104,14 @@
                         else if (rowModel.usingExistingDocument && rowModel.existingDocumentId != null) {
                             $.post(controllerCalls.IsDocumentExist,
                                 { documentId: rowModel.existingDocumentId },
-                                function(exist) {
+                                function (exist) {
                                     if (!exist) {
                                         alert("Provided Document Id does not exist!");
                                         return;
                                     }
-                                });                                
+                                });
                             $(this).dialog("close");
-                            SaveSiblingAsExistDocument(did, rowModel.existingDocumentId, rowModel.newDocumentTitle);                            
+                            SaveSiblingAsExistDocument(did, rowModel.existingDocumentId, rowModel.newDocumentTitle);
                         } else {
                             $(this).dialog("close");
                             SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle);
@@ -1094,7 +1119,7 @@
                     },
                     Cancel: function () {
                         $(this).dialog("close");
-                    }                    
+                    }
                 },
                 width: "500px",
                 //dialogClass: 'no-close',   //Does not work
@@ -1104,7 +1129,7 @@
                 create: function (e, ui) {
                     rowModel = GetBindingRow();
                     kendo.bind(useExistingDocument, rowModel);
-                    
+
                     //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
                     //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
                 }
@@ -1318,7 +1343,7 @@
                             if (callbackFunc) callbackFunc(data.DocumentId);
 
                             if (formData.model.ContainerTypeId == 2) {
-                                displayError(documentMessages.warnings.IncompleteKitsReminder);                                
+                                displayError(documentMessages.warnings.IncompleteKitsReminder);
                             }
 
                         } else {
@@ -1379,11 +1404,11 @@
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
-            
+
             if (displayUploadModal) {
                 var documentId = 0;
                 var revisionId = 0;
-                
+
                 displayUploadModal(function () {
                     return { documentId: documentId, revisionId: revisionId };
                 }, function (data) {
@@ -1403,22 +1428,20 @@
                             });
                         }
                     }
-                    }, function (data) {                    
-                        return;
-
-                    var filename = data[0].physicalPath;
+                }, function (data) {
                     //Prompt for OCR and show animation                    
-                        $(documentElementSelectors.image.MsdsOcrImageNew).show();
-                        $(documentElementSelectors.image.EmojiHappy_New).hide();
-                        $(documentElementSelectors.image.EmojiSad_New).hide();
-
+                    if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {
+                        return;
+                    }
+                    var filename = data[0].physicalPath;
+                    $(documentElementSelectors.image.MsdsOcrImageNew).show();
                     $.ajax({
                         type: 'POST',
                         dataType: 'json',
                         cache: false,
                         //url: controllerCalls.GetAsynchData,
                         url: controllerCalls.GetDpeRevisionIndexationAsync,
-                        data: { fn: filename},
+                        data: { fn: filename },
                         success: function (dpeData, textStatus, jqXHR) {
                             if (dpeData != null) {
                                 DpeDataExtraction(dpeData);
@@ -1430,7 +1453,7 @@
                             displayError(errorThrown);
                             $(documentElementSelectors.image.EmojiSad_New).show();
                         },
-                        complete: function() {
+                        complete: function () {
                             $(documentElementSelectors.image.MsdsOcrImageNew).hide();
                         }
                     });
@@ -1442,41 +1465,106 @@
 
 
         function DpeDataExtraction(dpeData) {
+            var uncertain_replacement = false;
+
             if (dpeData.RevisionDate != null) {
-                var revisionDate = new Date(parseInt(dpeData.RevisionDate.replace("/Date(", "").replace(")/", ""), 10));
-                $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value(revisionDate);
+                var frmRevisionDate = $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value();
+
+                if (frmRevisionDate == null) {
+                    var revisionDate = new Date(parseInt(dpeData.RevisionDate.replace("/Date(", "").replace(")/", ""), 10));
+                    $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value(revisionDate);
+                    dpeFieldsStatus.IncludeRevisionDate = true;
+                }
+                else
+                    uncertain_replacement = true;
             }
+
             if (dpeData.VerifyDate != null) {
-                var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
-                $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value(confirmDate);
+                var frmVerifyDate = $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value();
+
+                if (frmVerifyDate == null) {
+                    var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
+                    $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value(confirmDate);
+                    dpeFieldsStatus.IncludeVerifiyDate = true;
+                }
+                else
+                    uncertain_replacement = true;
             }
+
             if (dpeData.RevisionTitle != null && dpeData.RevisionTitle != '') {
-                $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val(dpeData.RevisionTitle);
-            }
+                var frmRevisionTitle = $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val();
+
+                if (frmRevisionTitle == '') {
+                    $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val(dpeData.RevisionTitle);
+                    dpeFieldsStatus.IncludeRevisionTitle = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }      
+
             if (dpeData.DocumentIdentification != null && dpeData.DocumentIdentification != '') {
-                $(documentElementSelectors.textboxes.DocumentIdentification_New).val(dpeData.DocumentIdentification);
+                var frmRevisionIdentification = $(documentElementSelectors.textboxes.DocumentIdentification_New).val();
+
+                if (frmRevisionIdentification == '') {
+                    $(documentElementSelectors.textboxes.DocumentIdentification_New).val(dpeData.DocumentIdentification);
+                    dpeFieldsStatus.IncludeRevisionIdentification = true;
+                }
+                else
+                    uncertain_replacement = true;
             }
+
             if (dpeData.VersionOnDocument != null && dpeData.VersionOnDocument != '') {
-                $(documentElementSelectors.textboxes.DocumentVersion_New).val(dpeData.VersionOnDocument);
+                var frmRevisionVersion = $(documentElementSelectors.textboxes.DocumentVersion_New).val();
+
+                if (frmRevisionVersion == '') {
+                    $(documentElementSelectors.textboxes.DocumentVersion_New).val(dpeData.VersionOnDocument);
+                    dpeFieldsStatus.IncludeRevisionVersion = true;
+                }
+                else
+                    uncertain_replacement = true;
             }
+
             if (dpeData.ManufacturerId != null && dpeData.ManufacturerId != '') {
-                $(documentElementSelectors.textboxes.DocumentManufacturerId_New).val(dpeData.ManufacturerId);
-                DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentManufacturerId_New);
+                var frmManufacturerId = $(documentElementSelectors.textboxes.DocumentManufacturerId_New).val();
 
-                //Can not get it work
-                //var e = $.Event("keypress", { keyCode: 13 });
-                //$(documentElementSelectors.textboxes.DocumentManufacturerId_New).focus();
-                //var e = jQuery.Event('keydown', { which: $.ui.keyCode.ENTER });
-                //$("txtManufacturerId_New").trigger(e);
-                //setTimeout(function () { $(documentElementSelectors.textboxes.DocumentManufacturerId_New).keypress(); }, 2000);
-
+                if (frmManufacturerId == '') {
+                    $(documentElementSelectors.textboxes.DocumentManufacturerId_New).val(dpeData.ManufacturerId);
+                    DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentManufacturerId_New);
+                    dpeFieldsStatus.IncludeManufacturerId = true;
+                    //Can not get it work
+                    //var e = $.Event("keypress", { keyCode: 13 });
+                    //$(documentElementSelectors.textboxes.DocumentManufacturerId_New).focus();
+                    //var e = jQuery.Event('keydown', { which: $.ui.keyCode.ENTER });
+                    //$("txtManufacturerId_New").trigger(e);
+                    //setTimeout(function () { $(documentElementSelectors.textboxes.DocumentManufacturerId_New).keypress(); }, 2000);
+                }
+                else
+                    uncertain_replacement = true;
             }
+
             if (dpeData.SupplierId != null && dpeData.SupplierId != '') {
-                $(documentElementSelectors.textboxes.DocumentSupplierId_New).val(dpeData.SupplierId);
-                DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentSupplierId_New);
+                var frmSupplierId = $(documentElementSelectors.textboxes.DocumentSupplierId_New).val();
+
+                if (frmSupplierId == '') {
+                    $(documentElementSelectors.textboxes.DocumentSupplierId_New).val(dpeData.SupplierId);
+                    DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentSupplierId_New);
+                    dpeFieldsStatus.IncludIdSupplierId = true;
+                }
+                else
+                    uncertain_replacement = true;
             }
-            $(documentElementSelectors.image.EmojiHappy_New).prop('title', JSON.stringify(dpeData));
-            $(documentElementSelectors.image.EmojiHappy_New).show();
+
+            //$(documentElementSelectors.image.EmojiHappy_New).prop('title', JSON.stringify(dpeData));
+            if (uncertain_replacement) {
+                $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata', dpeData);
+                $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata_status', dpeFieldsStatus);
+                $(documentElementSelectors.image.EmojiConfuse_New).show();
+            }
+            else {
+                $(documentElementSelectors.image.EmojiHappy_New).data('dpedata', dpeData);
+                $(documentElementSelectors.image.EmojiHappy_New).data('dpedata_status', dpeFieldsStatus);
+                $(documentElementSelectors.image.EmojiHappy_New).show();
+            }
         }
 
         function onNewDocumentCancelBtnClick(e) {
@@ -1603,26 +1691,6 @@
             $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onNewDocumentAddAttachmentBtnClick);
             $(documentElementSelectors.containers.NewDocument).on('click', documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
 
-            $(documentElementSelectors.containers.NewDocument).on('click', "#tempAddNewTest",
-                function () {
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'json',
-                        cache: false,
-                        url: window.location.origin + "/msdsboiler/Operations/Home/GetAsynchData",
-                        data: { fn: "Mytestfile.pdf" },
-                        success: function (result, textStatus, jqXHR) {
-                            alert(result);
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                        }
-                    });
-                });
-            
-
-
-
-
             // If we are within the popup window display the panel
             var addNewDocumentPopUp = $(documentElementSelectors.containers.NewDocument).parents(documentElementSelectors.containers.NewDocumentPopUp);
             if (addNewDocumentPopUp.length > 0) {
@@ -1649,7 +1717,7 @@
 
         }
 
-        var onNewRevisionPanelActivate = function (e) {            
+        var onNewRevisionPanelActivate = function (e) {
             var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
 
@@ -1950,7 +2018,7 @@
 
             if (isChecked)
                 $(text).removeAttr("disabled");
-            else 
+            else
                 $(text).attr("disabled", true);
 
             $(text).val("");
@@ -1958,13 +2026,13 @@
         }
 
         /******************************** Revision Methods ********************************/
-        function checkDocumentRevisionDirtyStatus(container) {           
+        function checkDocumentRevisionDirtyStatus(container) {
             var isExistingRevision = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val() != "0";
             changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
 
         var displaySingleDocument = function (documentObj) {
-            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");            
+            window.open(controllerCalls.LoadSingleDocument + "documentId=" + documentObj.DocumentID + "&revisionId=" + documentObj.RevisionID, "_blank");
         }
 
         var displayAllParents = function (parents) {
@@ -2169,8 +2237,8 @@
                         header: documentMessages.modals.DocumentRevisionDiscardChangesHeader,
                     };
                     displayConfirmationModal(settings,
-                        function() {
-                            revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);                            
+                        function () {
+                            revertContainerFieldValues(container, checkDocumentRevisionDirtyStatus);
                             clearFormAttachment(container, formData);
                             container.hide(500);
                         });
@@ -2187,13 +2255,13 @@
                 type: 'POST',
                 url: generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RemoveRevisionAttachment),
                 data: formData,
-                beforeSend: function () {               
-                     clearDocumentRevisionAttachments(container);
+                beforeSend: function () {
+                    clearDocumentRevisionAttachments(container);
                 }
             });
         }
 
-        function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {            
+        function onDocNewRevDetailsCancelForInboundResponseBtnClick(e) {
             e.preventDefault();
             window.opener = self;
 
@@ -2626,41 +2694,41 @@
                 }
                 else
                     $.ajax({
-                    type: 'GET',
-                    dataType: 'json',
-                    cache: false,
-                    url: controllerCalls.GetSiblingList,
-                    data: { documentId: formData.model.DocumentId },
-                    success: function (result, textStatus, jqXHR) {
-                        if (result.length > 0) {
-                            var siblingList = [];
-                            for (var idx = 0; idx < result.length; idx++) {
-                                siblingList.push(
-                                    {
-                                        DocumentId: result[idx].ReferenceId,
-                                        RevisionTitle: result[idx].RevisionTitle,
-                                        Included: true
-                                    });
+                        type: 'GET',
+                        dataType: 'json',
+                        cache: false,
+                        url: controllerCalls.GetSiblingList,
+                        data: { documentId: formData.model.DocumentId },
+                        success: function (result, textStatus, jqXHR) {
+                            if (result.length > 0) {
+                                var siblingList = [];
+                                for (var idx = 0; idx < result.length; idx++) {
+                                    siblingList.push(
+                                        {
+                                            DocumentId: result[idx].ReferenceId,
+                                            RevisionTitle: result[idx].RevisionTitle,
+                                            Included: true
+                                        });
+                                }
+                                var siblingLib = $("#siblingPopup").bundlesiblings({
+                                    siblingDataSource: siblingList,
+                                    submitForm: form,
+                                    submitData: formData,
+                                    target: e,
+                                    revisionCallback: function (form, formData, e) {
+                                        submitRevison(form, formData, e);
+                                    },
+                                    inboundRevisionCallback: null
+                                });
                             }
-                            var siblingLib = $("#siblingPopup").bundlesiblings({
-                                siblingDataSource: siblingList,
-                                submitForm: form,
-                                submitData: formData,                                
-                                target: e,
-                                revisionCallback: function (form, formData, e) {                                    
-                                    submitRevison(form, formData, e);
-                                },
-                                inboundRevisionCallback: null
-                            });                
+                            else {
+                                submitRevison(form, formData, e);
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            //Parent will throw error
                         }
-                        else {
-                            submitRevison(form, formData, e);
-                        }
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        //Parent will throw error
-                    }
-                });
+                    });
             } else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
@@ -2758,7 +2826,7 @@
                                     siblingDataSource: siblingList,
                                     submitForm: form,
                                     submitData: formData,
-                                    target: null,                                    
+                                    target: null,
                                     revisionCallback: null,
                                     inboundRevisionCallback: function (form, formData) {
                                         submitInboundRevision(form, formData);
@@ -3059,7 +3127,7 @@
             }
         }
 
-        function onDocumentDeleteContainerComponentBtnClick() {                        
+        function onDocumentDeleteContainerComponentBtnClick() {
             var currentRow = $(this).parents('tr[role="row"]');
             var grid = $(this).parents('.k-grid:first').data('kendoGrid');
             if (grid.dataSource.total() <= 2) {
@@ -3262,6 +3330,20 @@
             switchBetweenMfgNameAndID();
         };
 
+        var onEmojiHappyClick = function (e) {
+            var dpeData = $("#" + e.id).data('dpedata');
+            var dpeDataStatus = $("#" + e.id).data('dpedata_status');
+
+            var dpeDataLib = $("#dpeExtractDataPopup").dpedataresult({
+                dpeDataSource: dpeData,
+                dpeFields: dpeFields,
+                dpeFieldsStatus: dpeDataStatus,
+                ManufacturerCallBack: function (target) {
+                    DoLookUpSupplierOnKeyEnter(target);
+                }
+            });
+        };
+
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
@@ -3269,7 +3351,7 @@
             displayAllParents: displayAllParents,
             initializeDocumentComponents: initializeDocumentComponents,
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
-            onAddSiblingRequest: onAddSiblingRequest,            
+            onAddSiblingRequest: onAddSiblingRequest,
             onRefreshSiblingRequest: onRefreshSiblingRequest,
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
@@ -3297,7 +3379,8 @@
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
-            performDocumentSearch: performDocumentSearch
+            performDocumentSearch: performDocumentSearch,
+            onEmojiHappyClick: onEmojiHappyClick
         };
     };
 
