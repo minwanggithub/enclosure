@@ -49,6 +49,7 @@
                     SaveCustomerActionButton: "#btnSaveCustomerAction",
                     SearchSupplierButton: "#searchSupplierIdBtn",                   // bring up supplier search
                     CancelSupplierSearch: "#btnCancelSupplierSearch",               // exit supplier search
+                    ResolveActionButton: "#btnSaveResolve",                         // resolve the selected work items
                 },
 
                 grids: {
@@ -89,6 +90,7 @@
             Resolve: "#mdlResolve",
             Obtainment: "#mdlObtainment",
             CustomerAction: "#mdlCustomerAction",
+            Assign:"#mdlAssign"
         };
 
         var kendoWindows = {
@@ -101,6 +103,7 @@
             SaveObtainment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainment",
             SaveActionRequests: GetEnvironmentLocation() + "/Administration/CrossReference/SaveCustomerActionRequests",
             SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
+            ResolveRequests: GetEnvironmentLocation() + "/Administration/CrossReference/ResolveRequests",
         };
 
 
@@ -113,7 +116,7 @@
             confirmationMessages: {
                 UnAssigneRequests: "unassign these request item(s)",
                 AssignRequests: "assign these request item(s)",
-                MatchDocuments: "match these request item(s)",
+                MatchDocuments: "match a document these request item(s)",
                 SendToObtainment: "send the request item(s) to obtainment",
                 AssignRequests: "set a customer action for the request item(s)",
                 OverwriteComments: "overwrite previously entered user action comment"
@@ -130,7 +133,9 @@
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
                 GeneralError: "Error Occurred",
                 SelectedStateForSqlError: "Selected State is only for SQL Search",
-                SelectedStateForEsError: "Selected State is only for Elastic Search"
+                SelectedStateForEsError: "Selected State is only for Elastic Search",
+                NoProductIdSpecified: "No product id has been specified to resolve requests with",
+
             }
         };
 
@@ -265,55 +270,8 @@
                     debugger;
 
                     if (successData.success === true) {
-
-                        // find all grids on the page by locating the master check control
-
-                        craDetailObj.find(".chkMasterMultiSelect").each((i, v) => {
-
-                            // uncheck the master control
-                            $(v).prop('checked', false);
-
-                            // unselect all identifiers in view
-                            var grid = $(v).parents('.k-grid:first').data().kendoGrid;
-                            
-                            // data source
-                            $(grid.dataSource.view()).each(function (_i, _v) {
-
-                                // locate row
-                                var row = grid.table.find("[data-uid=" + _v.uid + "]");
-
-                                // locate checkbox
-                                $(row).find(".chkMultiSelect").prop("checked", false);
-
-                                // set row state
-                                $(row).removeClass("k-state-selected");
-
-                            });
-
-                            // reset identifiers
-                            selectedIds = [];
-                            gridIds = [];
-
-                        });
-
+                        reloadGrids();
                         return true;
-
-
-                        // un check all selected rows
-
-                        // update the assigned to value for all grids
-
-                        // no need to refresh ?
-
-                        // Uncheck the master select checkbox if checked
-                        //var checkbox = $(grid.element).find('.chkMasterMultiSelect');
-                        //if (checkbox && checkbox.is(':checked'))
-                        //    checkbox.attr('checked', false);
-
-
-                        //grid = $(targetGridSelector).data("kendoGrid");
-                        //grid.dataSource.read();
-
                     } else
                     {
                         $(this).displayError(messages.errorMessages.GeneralError);
@@ -801,9 +759,8 @@
                 var message = 'Are you sure you would like to ' + messages.confirmationMessages.MatchDocuments + '?';
                 var args = { message: message, header: 'Confirm Requests Selected' };
                 DisplayConfirmationModal(args, function () {
-                    batchAssignUnassign(false, null, null);
+                                        
                 }, function () {
-                    // do nothing
                 });
             }
 
@@ -823,7 +780,7 @@
                 var message = 'Are you sure you would like to ' + messages.confirmationMessages.SendToObtainment + '?';
                 var args = { message: message, header: 'Confirm Requests Selected' };
                 DisplayConfirmationModal(args, function () {
-                    $(actionModals.Obtainment).displayModal();
+                    $(actionModals.Resolve).displayModal();
                 }, function () {
                     // do nothing
                 });
@@ -888,25 +845,27 @@
             return str.substr(0, startIndex);
         }
 
-        saveSendToObtainment = function () {
+        resolveCrossReference = function () {
 
             // safety
             if ((selectedIds || []).length > 0) {
 
-                // if a supplier id was selected
-                if ($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().length > 0) {
+                var productId = parseInt($(crossReferenceObjects.controls.textBoxes.ProductIdTextBox).val());
+
+                // product id is valid integer
+                if (!(isNaN(productId) || productId < 0)) {
 
                     var data = {};
-                    data['ids'] = selectedRequests;
-                    data['supplierId'] = Remove($(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val(),
-                        $(crossReferenceObjects.controls.textBoxes.SearchSupplierIdTextBox).val().indexOf(","));
+                    data['ids'] = selectedIds;
+                    data['productId'] = productId;
 
-                    //SaveRequest(controllerCalls.SaveObtainment, data, actionModals.Obtainment);
+                    // make a call to resolve requests
+                    SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
 
                 } else {
 
-                    $(actionModals.Obtainment).toggleModal();
-                    $(this).displayError(messages.errorMessages.NoSupplierSelected);
+                    $(actionModals.Resolve).toggleModal();
+                    $(this).displayError(messages.errorMessages.NoProductIdSpecified);
 
                 }
 
@@ -914,8 +873,47 @@
 
         }
 
+        function reloadGrids() {
+
+            craDetailObj.find(".chkMasterMultiSelect").each((i, v) => {
+
+                // uncheck the master control
+                $(v).prop('checked', false);
+
+                // unselect all identifiers in view
+                var grid = $(v).parents('.k-grid:first').data().kendoGrid;
+
+                var rowsSelected = false;
+
+                // data source
+                $(grid.dataSource.view()).each(function (_i, _v) {
+
+                    // locate row
+                    var row = grid.table.find("[data-uid=" + _v.uid + "]");
+
+                    if ($(row).find(".chkMultiSelect").is(":checked")) rowsSelected = true;
+
+                    // locate checkbox
+                    $(row).find(".chkMultiSelect").prop("checked", false);
+
+                    // set row state
+                    $(row).removeClass("k-state-selected");
+
+                });
+
+                // reset identifiers
+                selectedIds = [];
+                gridIds = [];
+
+                if (rowsSelected) grid.dataSource.read();
+
+            });
+        }
+
         function SaveRequest(strUrl, dataArray, modalId, callback) {
+
             if (selectedIds.length > 0) {
+
                 kendo.ui.progress(craDetailObj, true);
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
                     .success(function (successData) {
@@ -943,12 +941,13 @@
 
                         // stop progress indicator
                         kendo.ui.progress(craDetailObj, false);
-
-                        // update the grids
+                        reloadGrids();
                         
                     });
 
             }
+
+            kendo.ui.progress(craDetailObj, false);
         }
 
         var loadRequests = function () {
@@ -993,9 +992,8 @@
             });
 
             // bulk operation updates
-
-            craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveObtainmentButton, function (e) {
-                saveSendToObtainment();
+            craDetailObj.on("click", crossReferenceObjects.controls.buttons.ResolveActionButton, function (e) {
+                resolveCrossReference();
             });
 
             craDetailObj.on("click", crossReferenceObjects.controls.buttons.SaveCustomerActionButton, function (e) {
@@ -1005,8 +1003,6 @@
         };
 
         function obtainmentSelSupplier(supplierSearchDialog) {
-
-            return;
 
             var grid = $(crossReferenceObjects.controls.grids.SearchSupplierNewGrid).data("kendoGrid");
             if (grid.dataSource.total() === 0) {
@@ -1045,9 +1041,8 @@
                 obtainmentSelSupplier(supplierSearchDialog);
             });
 
-            //This is for Supplier plugIn
+            // supplier search plugin
             $("#searchSupplierIdSelect").click(function () {
-                alert("Selected");
                 obtainmentSelSupplier(supplierSearchDialog);
             });
 
