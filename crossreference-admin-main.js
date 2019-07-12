@@ -484,7 +484,7 @@
                 $(textField1).kendoDatePicker();
                 textParent.show();
             }
-            else if (["ACCOUNTID", "DOCUMENTID"].indexOf(option) >= 0) {
+            else if (["ACCOUNTID", "DOCUMENTID", "SUPPLIERID"].indexOf(option) >= 0) {
                 $(textField).css({ visibility: '', width: "100px" });
                 textParent.show();
             }
@@ -578,7 +578,7 @@
                     }
 
                 }
-                else if (["ACCOUNTID", "DOCUMENTID"].indexOf(criteriaFieldName) >= 0) {
+                else if (["ACCOUNTID", "DOCUMENTID", "SUPPLIERID"].indexOf(criteriaFieldName) >= 0) {
                     whereOperator = "Exact Match";
                     searchFor = $(textFieldId).val();
                 }
