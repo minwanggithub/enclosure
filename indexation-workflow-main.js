@@ -560,7 +560,7 @@
                         // reset master select and rebind grid
                         var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
 
-                        //$(grid.element).find(".chkMultiSelect").prop("checked", false);
+                        $(grid.element).find(".chkMultiSelect").prop("checked", false);
 
                         var checkbox = $(grid.element).find('.chkMasterMultiSelect');
                         checkbox.prop("checked", false);
