@@ -554,8 +554,8 @@
                     if (successData.success === true) {
 
                         // reset selected ids
-                        //selectedIds = [];
-                        //gridIds = {};
+                        selectedIds = [];
+                        gridIds = {};
 
                         // reset master select and rebind grid
                         var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
