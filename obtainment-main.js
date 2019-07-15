@@ -181,6 +181,7 @@
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
+                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be perfromed on Revisions.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
@@ -1124,22 +1125,23 @@
                 return;
             }
 
-            if (ddlActions.value() == obtainmentActions.ConfirmAsCurrent) {
-                var newSelected = false;
-                var grid = $("#gdDetailRequests").data("kendoGrid");
-                $.each(grid._data, function () {
-                    if (this['IsSelected']) {
-                        if ((this['OWType']).toUpperCase().indexOf("NEW") >= 0) {
-                            newSelected = true;
-                        }
+            var newSelected = false;
+            var grid = $("#gdDetailRequests").data("kendoGrid");
+            $.each(grid._data, function () {
+                if (this['IsSelected']) {
+                    if ((this['OWType']).toUpperCase().indexOf("NEW") >= 0) {
+                        newSelected = true;
                     }
-                });
+                }
+            });
 
-                if (newSelected) {
+            if (ddlActions.value() == obtainmentActions.ConfirmAsCurrent && newSelected) {
                     $(this).displayError(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
                     return;
-                }
-
+            }
+            if (ddlActions.value() == obtainmentActions.FlagDiscontinued && newSelected) {
+                $(this).displayError(messages.errorMessages.DiscontinuedActionForRevisionOnly);
+                return;
             }
 
             switch (ddlActions.value()) {
@@ -1648,7 +1650,7 @@
                 customerAction = true;
             }
 
-
+            debugger;
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
