@@ -215,6 +215,9 @@
                 DocumentVersion_New: "#DocumentVersion_New",
                 DocumentManufacturerId_New: "#txtManufacturerId_New",
                 DocumentSupplierId_New: "#txtSupplierId_New"
+            },
+            label: {
+                DocumentLinkToAllMfrProductWarning: "#lblDuplicateAssociation_",
             }
         };
 
@@ -1024,6 +1027,17 @@
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchUPC, onDocumentSearchPopUpFieldKeyUp);
         };
 
+        function duplicateObtainmentTypeTextWaring(did) {
+            var x = 0;
+            var intervalID = setInterval(function () {
+                $(documentElementSelectors.label.DocumentLinkToAllMfrProductWarning + did).fadeOut(500);
+                $(documentElementSelectors.label.DocumentLinkToAllMfrProductWarning + did).fadeIn(500);
+                if (++x === 5) {
+                    window.clearInterval(intervalID);
+                }
+            }, 500);
+        };
+
         var initializeProductAssociation = function (did) {
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
@@ -1036,6 +1050,7 @@
                     DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
                         kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
                         kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
+                        duplicateObtainmentTypeTextWaring(did);                
 
                         $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
                             if (!data.Success) {
