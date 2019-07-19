@@ -116,7 +116,9 @@
                 DocumentRevisionDetailsRevisionDate: "[id^=RevisionDate_]",
                 DocumentRevisionDetailsVerifyDate: "[id^=VerifyDate_]",
                 DocumentRevisionDate_New: "#RevisionDate_New",
-                DocumentVerifyDate_New: "#VerifyDate_New"
+                DocumentVerifyDate_New: "#VerifyDate_New",
+                DocumentRevisionDate_Revision: "#RevisionDate_",
+                DocumentVerifyDate_Revision: "#VerifyDate_"
             },
             dropdownlists: {
                 DocumentContainerClassificationType: "#ClassificationType_",
@@ -182,7 +184,11 @@
                 MsdsOcrImage: "[id^=MsdsOcr_]",
                 EmojiHappy_New: "#EmojiHappy_New",
                 EmojiSad_New: "#EmojiSad_New",
-                EmojiConfuse_New: "#EmojiConfuse_New"
+                EmojiConfuse_New: "#EmojiConfuse_New",
+                MsdsOcrImageRevision: "#MsdsOcr_Revision",
+                EmojiHappy_Revision: "#EmojiHappy_Revision",
+                EmojiSad_Revision: "#EmojiSad_Revision",
+                EmojiConfuse_Revision: "#EmojiConfuse_Revision"
             },
             textboxes: {
                 DocumentDetailsDocumentId: "[id^=DocumentId_]",
@@ -214,7 +220,12 @@
                 DocumentIdentification_New: "#DocumentIdentification_New",
                 DocumentVersion_New: "#DocumentVersion_New",
                 DocumentManufacturerId_New: "#txtManufacturerId_New",
-                DocumentSupplierId_New: "#txtSupplierId_New"
+                DocumentSupplierId_New: "#txtSupplierId_New",
+                DocumentRevisionTitle_Revision: "#RevisionTitle_",
+                DocumentIdentification_Revision: "#DocumentIdentification_",
+                DocumentVersion_Revision: "#DocumentVersion_",
+                DocumentManufacturerId_Revision: "#txtManufacturerId_",
+                DocumentSupplierId_Revision: "#txtSupplierId_"
             },
             label: {
                 DocumentLinkToAllMfrProductWarning: "#lblDuplicateAssociation_",
@@ -297,17 +308,38 @@
             }
         };
 
-        var dpeFields = {
-            fileds: {
-                RevisionTitle: documentElementSelectors.textboxes.DocumentRevisionTitle_New,
-                DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_New,
-                DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_New,
-                RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_New,
-                ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_New,
-                ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_New,
-                SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_New,
-                DpeManufacturerName: "DpeManufacturerName",
-                DpeSupplierName: "DpeManufacturerName"
+        let dpeFields = {
+            fields: {
+                New: {
+                    RevisionTitle: documentElementSelectors.textboxes.DocumentRevisionTitle_New,
+                    DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_New,
+                    DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_New,
+                    RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_New,
+                    ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_New,
+                    ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_New,
+                    SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_New,
+                    DpeManufacturerName: "DpeManufacturerName",
+                    DpeSupplierName: "DpeManufacturerName"
+                },
+                Revision: {
+                    RevisionTitle: documentElementSelectors.textboxes.DocumentRevisionTitle_Revision,
+                    DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_Revision,
+                    DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_Revision,
+                    RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_Revision,
+                    ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_Revision,
+                    ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_Revision,
+                    SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_Revision,
+                    DpeManufacturerName: "DpeManufacturerName",
+                    DpeSupplierName: "DpeManufacturerName"
+                },
+                Resequence: function (inFields, sequenceId, versionId) {
+                    var outFields = {};
+                    $.each(inFields, function (key, element) {
+                        //newFields.push({ key: element + '_' + sequenceId
+                        outFields[key] = element + sequenceId + '_' + versionId;
+                    });
+                    return outFields;
+                }
             }
         };
 
@@ -340,6 +372,19 @@
                 { caption: "End With", value: "3" }
             ]
         });
+
+        function getDsSearchOptionWithSequence(index) {
+            return kendo.observable({
+                selectedValue: "0",
+                id: "radiogroupTitleSearchOption_" + index,
+                items: [
+                    { caption: "Contains", value: "0" },
+                    { caption: "Exact Match", value: "1" },
+                    { caption: "Start With", value: "2" },
+                    { caption: "End With", value: "3" }
+                ]
+            });
+        }
 
         var dsUPCSearchOption = kendo.observable({
             selectedValue: "0",
@@ -1050,7 +1095,7 @@
                     DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
                         kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
                         kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
-                        duplicateObtainmentTypeTextWaring(did);                
+                        duplicateObtainmentTypeTextWaring(did);
 
                         $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
                             if (!data.Success) {
@@ -1459,7 +1504,7 @@
                         data: { fn: filename },
                         success: function (dpeData, textStatus, jqXHR) {
                             if (dpeData != null) {
-                                DpeDataExtraction(dpeData);
+                                DpeDataExtractionNew(dpeData, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
                             } else {
                                 $(documentElementSelectors.image.EmojiSad_New).show();
                             }
@@ -1479,9 +1524,8 @@
         }
 
 
-        function DpeDataExtraction(dpeData) {
+        function DpeDataExtractionNew(dpeData, happyTarget, confuseTarget) {
             var uncertain_replacement = false;
-
             if (dpeData.RevisionDate != null) {
                 var frmRevisionDate = $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value();
 
@@ -1515,7 +1559,7 @@
                 }
                 else
                     uncertain_replacement = true;
-            }      
+            }
 
             if (dpeData.DocumentIdentification != null && dpeData.DocumentIdentification != '') {
                 var frmRevisionIdentification = $(documentElementSelectors.textboxes.DocumentIdentification_New).val();
@@ -1571,16 +1615,132 @@
 
             //$(documentElementSelectors.image.EmojiHappy_New).prop('title', JSON.stringify(dpeData));
             if (uncertain_replacement) {
-                $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata', dpeData);
-                $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata_status', dpeFieldsStatus);
-                $(documentElementSelectors.image.EmojiConfuse_New).show();
+                $(confuseTarget).data('dpedata', dpeData);
+                $(confuseTarget).data('dpedata_status', dpeFieldsStatus);
+                $(confuseTarget).show();
             }
             else {
-                $(documentElementSelectors.image.EmojiHappy_New).data('dpedata', dpeData);
-                $(documentElementSelectors.image.EmojiHappy_New).data('dpedata_status', dpeFieldsStatus);
-                $(documentElementSelectors.image.EmojiHappy_New).show();
+                $(happyTarget).data('dpedata', dpeData);
+                $(happyTarget).data('dpedata_status', dpeFieldsStatus);
+                $(happyTarget).show();
+            }
+            //if (uncertain_replacement) {
+            //    $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata', dpeData);
+            //    $(documentElementSelectors.image.EmojiConfuse_New).data('dpedata_status', dpeFieldsStatus);
+            //    $(documentElementSelectors.image.EmojiConfuse_New).show();
+            //}
+            //else {
+            //    $(documentElementSelectors.image.EmojiHappy_New).data('dpedata', dpeData);
+            //    $(documentElementSelectors.image.EmojiHappy_New).data('dpedata_status', dpeFieldsStatus);
+            //    $(documentElementSelectors.image.EmojiHappy_New).show();
+            //}
+        }
+
+        function DpeDataExtractionRevision(dpeData, sequenceId, versionId, happyTarget, confuseTarget) {
+            var uncertain_replacement = false;
+            var sequencedFields = dpeFields.fields.Resequence(dpeFields.fields.Revision, sequenceId, versionId);
+            happyTarget = happyTarget + '_' + sequenceId;
+            confuseTarget = confuseTarget + '_' + sequenceId;
+            debugger;
+            if (dpeData.RevisionDate != null) {
+                var frmRevisionDate = $(sequencedFields.RevisionDate).data("kendoDatePicker").value();
+
+                if (frmRevisionDate == null) {
+                    var revisionDate = new Date(parseInt(dpeData.RevisionDate.replace("/Date(", "").replace(")/", ""), 10));
+                    $(sequencedFields.RevisionDate).data("kendoDatePicker").value(revisionDate);
+                    dpeFieldsStatus.IncludeRevisionDate = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.VerifyDate != null) {
+                var frmVerifyDate = $(sequencedFields.ConfirmationDate).data("kendoDatePicker").value();
+
+                if (frmVerifyDate == null) {
+                    var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
+                    $(sequencedFields.ConfirmationDate).data("kendoDatePicker").value(confirmDate);
+                    dpeFieldsStatus.IncludeVerifiyDate = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.RevisionTitle != null && dpeData.RevisionTitle != '') {
+                var frmRevisionTitle = $(sequencedFields.RevisionTitle).val();
+
+                if (frmRevisionTitle == '') {
+                    $(sequencedFields.RevisionTitle).val(dpeData.RevisionTitle);
+                    dpeFieldsStatus.IncludeRevisionTitle = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.DocumentIdentification != null && dpeData.DocumentIdentification != '') {
+                var frmRevisionIdentification = $(sequencedFields.DocumentIdentification).val();
+
+                if (frmRevisionIdentification == '') {
+                    $(sequencedFields.DocumentIdentification).val(dpeData.DocumentIdentification);
+                    dpeFieldsStatus.IncludeRevisionIdentification = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.VersionOnDocument != null && dpeData.VersionOnDocument != '') {
+                var frmRevisionVersion = $(sequencedFields.DocumentVersion).val();
+
+                if (frmRevisionVersion == '') {
+                    $(sequencedFields.DocumentVersion).val(dpeData.VersionOnDocument);
+                    dpeFieldsStatus.IncludeRevisionVersion = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.ManufacturerId != null && dpeData.ManufacturerId != '') {
+                var frmManufacturerId = $(sequencedFields.ManufacturerId).val();
+
+                if (frmManufacturerId == '') {
+                    $(sequencedFields.ManufacturerId).val(dpeData.ManufacturerId);
+                    DoLookUpSupplierOnKeyEnter(sequencedFields.ManufacturerId);
+                    dpeFieldsStatus.IncludeManufacturerId = true;
+                    //Can not get it work
+                    //var e = $.Event("keypress", { keyCode: 13 });
+                    //$(documentElementSelectors.textboxes.DocumentManufacturerId_New).focus();
+                    //var e = jQuery.Event('keydown', { which: $.ui.keyCode.ENTER });
+                    //$("txtManufacturerId_New").trigger(e);
+                    //setTimeout(function () { $(documentElementSelectors.textboxes.DocumentManufacturerId_New).keypress(); }, 2000);
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (dpeData.SupplierId != null && dpeData.SupplierId != '') {
+                var frmSupplierId = $(sequencedFields.SupplierId).val();
+
+                if (frmSupplierId == '') {
+                    $(sequencedFields.SupplierId).val(dpeData.SupplierId);
+                    DoLookUpSupplierOnKeyEnter(sequencedFields.SupplierId);
+                    dpeFieldsStatus.IncludIdSupplierId = true;
+                }
+                else
+                    uncertain_replacement = true;
+            }
+
+            if (uncertain_replacement) {
+                $(confuseTarget).data('dpedata', dpeData);
+                $(confuseTarget).data('dpedata_status', dpeFieldsStatus);
+                $(confuseTarget).show();
+            }
+            else {
+                $(happyTarget).data('dpedata', dpeData);
+                $(happyTarget).data('dpedata_status', dpeFieldsStatus);
+                $(happyTarget).show();
             }
         }
+
 
         function onNewDocumentCancelBtnClick(e) {
 
@@ -2193,6 +2353,7 @@
             return null;
         }
 
+        //For new revision only
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
             e.preventDefault();
 
@@ -2227,11 +2388,39 @@
                             }
                         }
 
-                    }, false);
+                        }, function (data) {
+                            return;
+                        //Prompt for OCR and show animation                    
+                        //if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {
+                        //    return;
+                        //}
+                        var filename = data[0].physicalPath;
+                        $(documentElementSelectors.image.MsdsOcrImageRevision + '_' + documentId).show();
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            cache: false,
+                            url: controllerCalls.GetDpeRevisionIndexationAsync,
+                            data: { fn: filename },
+                            success: function (dpeData, textStatus, jqXHR) {
+                                if (dpeData != null) {
+                                    DpeDataExtractionRevision(dpeData, documentId, 0, documentElementSelectors.image.EmojiHappy_Revision, documentElementSelectors.image.EmojiConfuse_Revision);
+                                } else {
+                                    $(documentElementSelectors.image.EmojiSad_Revision + '_' + documentId).show();
+                                }
+                            },
+                            error: function (jqXHR, status, errorThrown) {
+                                displayError(errorThrown);
+                                $(documentElementSelectors.image.EmojiSad_Revision + '_' + documentId).show();
+                            },
+                            complete: function () {
+                                $(documentElementSelectors.image.MsdsOcrImageRevision + '_' + documentId).hide();
+                            }
+                        });
+                    },
+                        false);
                 } else
                     displayError(documentMessages.errors.DocumentRevisionAttachmentData);
-
-
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
         }
@@ -2520,7 +2709,6 @@
         }
 
         function onDocumentRevisionDetailsAddAttachmentBtnClick(e) {
-
             e.preventDefault();
 
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
@@ -3138,7 +3326,7 @@
                                 refreshDocumentContainersGrid(currentDocumentId);
                         })
                         .error(function () { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
-                });
+                }, dsDateSearchOption);
             }
         }
 
@@ -3336,7 +3524,6 @@
 
         var initializeSearchOperator = function () {
             kendo.bind($("#searchTitleOptionDiv"), dsSearchOption);
-            kendo.bind($("#searchDateOptionDiv"), dsDateSearchOption);
             kendo.bind($("#searchUPCOptionDiv"), dsUPCSearchOption);
             kendo.bind($("#searchPartNumOptionDiv"), dsPartNumSearchOption);
             kendo.bind($("#searchAliasOptionDiv"), dsAliasSearchOption);
@@ -3345,13 +3532,27 @@
             switchBetweenMfgNameAndID();
         };
 
-        var onEmojiHappyClick = function (e) {
+        var onEmojiHappyNewClick = function (e) {
             var dpeData = $("#" + e.id).data('dpedata');
             var dpeDataStatus = $("#" + e.id).data('dpedata_status');
 
             var dpeDataLib = $("#dpeExtractDataPopup").dpedataresult({
                 dpeDataSource: dpeData,
-                dpeFields: dpeFields,
+                dpeFields: dpeFields.fileds.New,
+                dpeFieldsStatus: dpeDataStatus,
+                ManufacturerCallBack: function (target) {
+                    DoLookUpSupplierOnKeyEnter(target);
+                }
+            });
+        };
+
+        var onEmojiHappyRevisionClick = function (e, docSequenceId, versionId) {
+            var dpeData = $("#" + e.id).data('dpedata');
+            var dpeDataStatus = $("#" + e.id).data('dpedata_status');
+            
+            var dpeDataLib = $("#dpeExtractDataPopup").dpedataresult({
+                dpeDataSource: dpeData,
+                dpeFields: dpeFields.fields.Resequence(dpeFields.fields.Revision, docSequenceId, versionId),
                 dpeFieldsStatus: dpeDataStatus,
                 ManufacturerCallBack: function (target) {
                     DoLookUpSupplierOnKeyEnter(target);
@@ -3395,7 +3596,8 @@
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
             performDocumentSearch: performDocumentSearch,
-            onEmojiHappyClick: onEmojiHappyClick
+            onEmojiHappyNewClick: onEmojiHappyNewClick,
+            onEmojiHappyRevisionClick: onEmojiHappyRevisionClick
         };
     };
 

@@ -27,8 +27,7 @@
              //if (!confirm("are you sure?")) {
              //  e.preventDefault();
              //  win.fadeIn();
-             //}                
-            //e.sender.destroy();
+             //}                            
         }
 
         function GetDpeObservable() {
@@ -68,49 +67,49 @@
                 isVerifyDateVisible: true,
                 onIncludeRevisionTitleChange: function (e) {
                     if (e.currentTarget.checked && dpeRevisionTitle.value != '')
-                        $(settings.dpeFields.fileds.RevisionTitle).val(dpeRevisionTitle.value);
+                        $(settings.dpeFields.RevisionTitle).val(dpeRevisionTitle.value);
                     else
-                        $(settings.dpeFields.fileds.RevisionTitle).val('');
+                        $(settings.dpeFields.RevisionTitle).val('');
                 },
                 onIncludeRevisionVersionChange: function (e) {
                     if (e.currentTarget.checked && dpeRevisionVersion.value != '')
-                        $(settings.dpeFields.fileds.DocumentVersion).val(dpeRevisionVersion.value);
+                        $(settings.dpeFields.DocumentVersion).val(dpeRevisionVersion.value);
                     else
-                        $(settings.dpeFields.fileds.DocumentVersion).val('');
+                        $(settings.dpeFields.DocumentVersion).val('');
                 },
                 onIncludeRevisionIdentificationChange: function (e) {
                     if (e.currentTarget.checked && dpeRevisionIdentification.value != '')
-                        $(settings.dpeFields.fileds.DocumentIdentification).val(dpeRevisionIdentification.value);
+                        $(settings.dpeFields.DocumentIdentification).val(dpeRevisionIdentification.value);
                     else
-                        $(settings.dpeFields.fileds.DocumentIdentification).val('');
+                        $(settings.dpeFields.DocumentIdentification).val('');
                 },
                 onIncludeRevisionDateChange: function (e) {
                     if (e.currentTarget.checked && dpeRevisionDate.value != '')
-                        $(settings.dpeFields.fileds.RevisionDate).data("kendoDatePicker").value(new Date(dpeRevisionDate.value));
+                        $(settings.dpeFields.RevisionDate).data("kendoDatePicker").value(new Date(dpeRevisionDate.value));
                     else
-                        $(settings.dpeFields.fileds.RevisionDate).data("kendoDatePicker").value('');
+                        $(settings.dpeFields.RevisionDate).data("kendoDatePicker").value('');
                 },
                 onIncludeVerifyDateChange: function (e) {
                     if (e.currentTarget.checked && dpeVerifyDate.value != '')
-                        $(settings.dpeFields.fileds.VerifyDate).data("kendoDatePicker").value(new Date(dpeVerifyDate.value));
+                        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value(new Date(dpeVerifyDate.value));
                     else
-                        $(settings.dpeFields.fileds.VerifyDate).data("kendoDatePicker").value('');
+                        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value('');
                 },
                 onIncludeMfgIdChange: function (e) {
                     if (e.currentTarget.checked && dpeMfgId.value != '' && $.isFunction(settings.ManufacturerCallBack)) {
-                        $(settings.dpeFields.fileds.ManufacturerId).val(dpeMfgId.value);
-                        settings.ManufacturerCallBack.call(this, settings.dpeFields.fileds.ManufacturerId);
+                        $(settings.dpeFields.ManufacturerId).val(dpeMfgId.value);
+                        settings.ManufacturerCallBack.call(this, settings.dpeFields.ManufacturerId);
                     }
                     else
-                        $(settings.dpeFields.fileds.ManufacturerId).val('');
+                        $(settings.dpeFields.ManufacturerId).val('');
                 },
                 onIncludeSupplierIdChange: function (e) {
                     if (e.currentTarget.checked && dpeSupplierId.value != '' && $.isFunction(settings.ManufacturerCallBack)) {
-                        $(settings.dpeFields.fileds.SupplierId).val(dpeSupplierId.value);
-                        settings.ManufacturerCallBack.call(this, settings.dpeFields.fileds.SupplierId);
+                        $(settings.dpeFields.SupplierId).val(dpeSupplierId.value);
+                        settings.ManufacturerCallBack.call(this, settings.dpeFields.SupplierId);
                     }
                     else
-                        $(settings.dpeFields.fileds.SupplierId).val('');
+                        $(settings.dpeFields.SupplierId).val('');
                 },
                 onSelectRevisionDateChange: function (e) {
 
@@ -220,7 +219,9 @@
                 height: "500px",
                 pinned: true,
                 //position: 'fixed',
-                close: onClose
+                open: function (e) { $("html, body").css("overflow", "hidden"); },
+                close: function (e) { $("html, body").css("overflow", ""); },
+                //close: onClose
                 //deactivate: function (e) {
                 //    e.sender.destroy();
                 //}
