@@ -508,9 +508,15 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
-                    if (hasKeywords) messages += messages.errorMessages.HasEmbeddedKeywords + "<br>";
+                    if (hasKeywords) message += messages.errorMessages.HasEmbeddedKeywords + "<br>";
 
-                    SubError(message);
+                    var prompt = {};
+                    prompt.header = "Incomplete Data";
+                    prompt.message = message;
+
+                    DisplayErrorMessageInPopUp(prompt, function () {
+                        // do nothing
+                    });
 
                 }
                 else {
