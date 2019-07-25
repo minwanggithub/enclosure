@@ -118,7 +118,7 @@
                 AssignRequests: "assign these request item(s)",
                 MatchDocuments: "match a document these request item(s)",
                 SendToObtainment: "send the request item(s) to obtainment",
-                AssignRequests: "set a customer action for the request item(s)",
+                CustomerAction: "set a customer action for the request item(s)",
                 OverwriteComments: "overwrite previously entered user action comment"
 
             },
@@ -801,7 +801,7 @@
             } else {
 
                 // display confirmation dialog
-                var message = 'Are you sure you would like to ' + messages.confirmationMessages.AssignRequests + '?';
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
                 var args = { message: message, header: 'Confirm Requests Selected' };
                 DisplayConfirmationModal(args, function () {
                     $(actionModals.CustomerAction).displayModal();
