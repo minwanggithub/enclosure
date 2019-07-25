@@ -50,6 +50,14 @@
         };
 
         var documentElementSelectors = {
+            div: {
+                titleOptiondiv: "div[id^=searchTitleOptionDiv]",
+                searchUPCOptionDiv: "div[id^=searchUPCOptionDiv]",
+                searchPartNumOptionDiv: "div[id^=searchPartNumOptionDiv]",
+                searchDateOptionDiv: "div[id^=searchDateOptionDiv]",
+                searchAliashOptionDiv: "div[id^=searchAliasOptionDiv]",
+                searchDocSupplierNameOptionDivPre: "div[id^=searchDocSupplierNameOptionDivPre]"
+            },
             buttons: {
                 DocumentAddContainerComponents: "[id^=btnAddContainerComponent_]",
                 DocumentDeleteContainerComponent: ".document-container-delete",
@@ -77,7 +85,8 @@
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
-                DocumentAddSibling: "#btnSibling_"
+                DocumentAddSibling: "#btnSibling_",
+                btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -315,7 +324,7 @@
                     DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_New,
                     DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_New,
                     RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_New,
-                    ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_New,
+                    //ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_New,
                     ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_New,
                     SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_New,
                     DpeManufacturerName: "DpeManufacturerName",
@@ -326,7 +335,7 @@
                     DocumentIdentification: documentElementSelectors.textboxes.DocumentIdentification_Revision,
                     DocumentVersion: documentElementSelectors.textboxes.DocumentVersion_Revision,
                     RevisionDate: documentElementSelectors.datepickers.DocumentRevisionDate_Revision,
-                    ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_Revision,
+                    //ConfirmationDate: documentElementSelectors.datepickers.DocumentVerifyDate_Revision,
                     ManufacturerId: documentElementSelectors.textboxes.DocumentManufacturerId_Revision,
                     SupplierId: documentElementSelectors.textboxes.DocumentSupplierId_Revision,
                     DpeManufacturerName: "DpeManufacturerName",
@@ -348,7 +357,7 @@
             IncludeRevisionVersion: false,
             IncludeRevisionIdentification: false,
             IncludeRevisionDate: false,
-            IncludeVerifiyDate: false,
+            //IncludeVerifiyDate: false,
             IncludeManufacturerId: false,
             IncludIdSupplierId: false,
         };
@@ -373,19 +382,7 @@
             ]
         });
 
-        function getDsSearchOptionWithSequence(index) {
-            return kendo.observable({
-                selectedValue: "0",
-                id: "radiogroupTitleSearchOption_" + index,
-                items: [
-                    { caption: "Contains", value: "0" },
-                    { caption: "Exact Match", value: "1" },
-                    { caption: "Start With", value: "2" },
-                    { caption: "End With", value: "3" }
-                ]
-            });
-        }
-
+     
         var dsUPCSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupUPCSearchOption",
@@ -397,6 +394,7 @@
             ]
         });
 
+       
         var dsPartNumSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupPartNumSearchOption",
@@ -408,6 +406,7 @@
             ]
         });
 
+       
         var dsDateSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupDateSearchOption",
@@ -418,6 +417,7 @@
             ]
         });
 
+      
         var dsSupplierNameSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupSupplierNameSearchOption",
@@ -429,6 +429,7 @@
             ]
         });
 
+       
         var dsAliasSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupAliasSearchOption",
@@ -440,8 +441,7 @@
             ]
         });
 
-
-
+     
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
             if (container != null && container.length > 0) {
@@ -1489,36 +1489,36 @@
                         }
                     }
                 }, function (data) {
-                    //Prompt for OCR and show animation                    
-                    if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {
-                        return;
-                    }
-                    var filename = data[0].physicalPath;
-                    $(documentElementSelectors.image.MsdsOcrImageNew).show();
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'json',
-                        cache: false,
-                        //url: controllerCalls.GetAsynchData,
-                        url: controllerCalls.GetDpeRevisionIndexationAsync,
-                        data: { fn: filename },
-                        success: function (dpeData, textStatus, jqXHR) {
-                            if (dpeData != null) {
-                                DpeDataExtractionNew(dpeData, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
-                            } else {
-                                $(documentElementSelectors.image.EmojiSad_New).show();
-                            }
-                        },
-                        error: function (jqXHR, status, errorThrown) {
-                            displayError(errorThrown);
-                            $(documentElementSelectors.image.EmojiSad_New).show();
-                        },
-                        complete: function () {
-                            $(documentElementSelectors.image.MsdsOcrImageNew).hide();
-                        }
+                    DisplayConfirmationModal({
+                        header: 'Please confirm',
+                        message: documentMessages.warnings.OcrSilverLevelIndexData
+                    }, function () {
+                            var filename = data[0].physicalPath;
+                            $(documentElementSelectors.image.MsdsOcrImageNew).show();
+                            $.ajax({
+                                type: 'POST',
+                                dataType: 'json',
+                                cache: false,
+                                //url: controllerCalls.GetAsynchData,
+                                url: controllerCalls.GetDpeRevisionIndexationAsync,
+                                data: { fn: filename },
+                                success: function (dpeData, textStatus, jqXHR) {
+                                    if (!dpeData.Error && !dpeData.NoData) {
+                                        DpeDataExtractionNew(dpeData, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
+                                    } else {
+                                        $(documentElementSelectors.image.EmojiSad_New).show();
+                                    }
+                                },
+                                error: function (jqXHR, status, errorThrown) {
+                                    displayError(errorThrown);
+                                    $(documentElementSelectors.image.EmojiSad_New).show();
+                                },
+                                complete: function () {
+                                    $(documentElementSelectors.image.MsdsOcrImageNew).hide();
+                                }
+                            });
                     });
                 }, false);
-
             } else
                 displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
         }
@@ -1534,21 +1534,23 @@
                     $(documentElementSelectors.datepickers.DocumentRevisionDate_New).data("kendoDatePicker").value(revisionDate);
                     dpeFieldsStatus.IncludeRevisionDate = true;
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludeRevisionDate = false;
                     uncertain_replacement = true;
-            }
-
-            if (dpeData.VerifyDate != null) {
-                var frmVerifyDate = $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value();
-
-                if (frmVerifyDate == null) {
-                    var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
-                    $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value(confirmDate);
-                    dpeFieldsStatus.IncludeVerifiyDate = true;
                 }
-                else
-                    uncertain_replacement = true;
             }
+
+            //if (dpeData.VerifyDate != null) {
+            //    var frmVerifyDate = $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value();
+
+            //    if (frmVerifyDate == null) {
+            //        var confirmDate = new Date(parseInt(dpeData.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
+            //        $(documentElementSelectors.datepickers.DocumentVerifyDate_New).data("kendoDatePicker").value(confirmDate);
+            //        dpeFieldsStatus.IncludeVerifiyDate = true;
+            //    }
+            //    else
+            //        uncertain_replacement = true;
+            //}
 
             if (dpeData.RevisionTitle != null && dpeData.RevisionTitle != '') {
                 var frmRevisionTitle = $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val();
@@ -1557,8 +1559,10 @@
                     $(documentElementSelectors.textboxes.DocumentRevisionTitle_New).val(dpeData.RevisionTitle);
                     dpeFieldsStatus.IncludeRevisionTitle = true;
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludeRevisionTitle = false;
                     uncertain_replacement = true;
+                }
             }
 
             if (dpeData.DocumentIdentification != null && dpeData.DocumentIdentification != '') {
@@ -1568,8 +1572,10 @@
                     $(documentElementSelectors.textboxes.DocumentIdentification_New).val(dpeData.DocumentIdentification);
                     dpeFieldsStatus.IncludeRevisionIdentification = true;
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludeRevisionIdentification = false;
                     uncertain_replacement = true;
+                }
             }
 
             if (dpeData.VersionOnDocument != null && dpeData.VersionOnDocument != '') {
@@ -1579,8 +1585,10 @@
                     $(documentElementSelectors.textboxes.DocumentVersion_New).val(dpeData.VersionOnDocument);
                     dpeFieldsStatus.IncludeRevisionVersion = true;
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludeRevisionVersion = false;
                     uncertain_replacement = true;
+                }
             }
 
             if (dpeData.ManufacturerId != null && dpeData.ManufacturerId != '') {
@@ -1597,8 +1605,10 @@
                     //$("txtManufacturerId_New").trigger(e);
                     //setTimeout(function () { $(documentElementSelectors.textboxes.DocumentManufacturerId_New).keypress(); }, 2000);
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludeManufacturerId = false;
                     uncertain_replacement = true;
+                }
             }
 
             if (dpeData.SupplierId != null && dpeData.SupplierId != '') {
@@ -1609,8 +1619,10 @@
                     DoLookUpSupplierOnKeyEnter(documentElementSelectors.textboxes.DocumentSupplierId_New);
                     dpeFieldsStatus.IncludIdSupplierId = true;
                 }
-                else
+                else {
+                    dpeFieldsStatus.IncludIdSupplierId = false;
                     uncertain_replacement = true;
+                }
             }
 
             //$(documentElementSelectors.image.EmojiHappy_New).prop('title', JSON.stringify(dpeData));
@@ -1641,7 +1653,6 @@
             var sequencedFields = dpeFields.fields.Resequence(dpeFields.fields.Revision, sequenceId, versionId);
             happyTarget = happyTarget + '_' + sequenceId;
             confuseTarget = confuseTarget + '_' + sequenceId;
-            debugger;
             if (dpeData.RevisionDate != null) {
                 var frmRevisionDate = $(sequencedFields.RevisionDate).data("kendoDatePicker").value();
 
@@ -3522,13 +3533,18 @@
             }
         };
 
-        var initializeSearchOperator = function () {
-            kendo.bind($("#searchTitleOptionDiv"), dsSearchOption);
-            kendo.bind($("#searchUPCOptionDiv"), dsUPCSearchOption);
-            kendo.bind($("#searchPartNumOptionDiv"), dsPartNumSearchOption);
-            kendo.bind($("#searchAliasOptionDiv"), dsAliasSearchOption);
-            kendo.bind($("#searchDocSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
-            $("#btnDocSupplierNameOperatorDropdown").prop("disabled", true);
+        var initializeSearchOperator = function (index = 0) {
+            if ($.type(index) != 'number')
+                return;
+
+            kendo.bind($(documentElementSelectors.div.titleOptiondiv)[index], dsSearchOption);
+            kendo.bind($(documentElementSelectors.div.searchDateOptionDiv)[index], dsDateSearchOption);
+            kendo.bind($(documentElementSelectors.div.searchUPCOptionDiv)[index], dsUPCSearchOption);
+            kendo.bind($(documentElementSelectors.div.searchPartNumOptionDiv)[index], dsPartNumSearchOption);
+            kendo.bind($(documentElementSelectors.div.searchAliashOptionDiv)[index], dsAliasSearchOption);
+            kendo.bind($(documentElementSelectors.div.searchDocSupplierNameOptionDivPre)[index], dsSupplierNameSearchOption);
+            
+            $($(documentElementSelectors.buttons.btnDocSupplierNameOperatorDropdown)[index]).prop("disabled", true);
             switchBetweenMfgNameAndID();
         };
 
@@ -3538,7 +3554,7 @@
 
             var dpeDataLib = $("#dpeExtractDataPopup").dpedataresult({
                 dpeDataSource: dpeData,
-                dpeFields: dpeFields.fileds.New,
+                dpeFields: dpeFields.fields.New,
                 dpeFieldsStatus: dpeDataStatus,
                 ManufacturerCallBack: function (target) {
                     DoLookUpSupplierOnKeyEnter(target);

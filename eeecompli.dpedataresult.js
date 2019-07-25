@@ -32,7 +32,7 @@
 
         function GetDpeObservable() {
             var revisionDate;
-            var confirmDate;
+            //var confirmDate;
 
             if (settings.dpeDataSource.RevisionDate != null) {
                 revisionDate = new Date(parseInt(settings.dpeDataSource.RevisionDate.replace("/Date(", "").replace(")/", ""), 10));
@@ -40,25 +40,25 @@
             else
                 revisionDate = '';
 
-            if (settings.dpeDataSource.VerifyDate != null) {
-                confirmDate = new Date(parseInt(settings.dpeDataSource.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
-            }
-            else
-                confirmDate = '';
+            //if (settings.dpeDataSource.VerifyDate != null) {
+            //    confirmDate = new Date(parseInt(settings.dpeDataSource.VerifyDate.replace("/Date(", "").replace(")/", ""), 10));
+            //}
+            //else
+            //    confirmDate = '';
 
             return kdo.observable({
                 cbRevisionTitle: settings.dpeFieldsStatus.IncludeRevisionTitle,
                 cbRevisionVersion: settings.dpeFieldsStatus.IncludeRevisionVersion,
                 cbRevisionIdentification: settings.dpeFieldsStatus.IncludeRevisionIdentification,
                 cbRevisionDate: settings.dpeFieldsStatus.IncludeRevisionDate,
-                cbVerifyDate: settings.dpeFieldsStatus.IncludeVerifiyDate,
+               //cbVerifyDate: settings.dpeFieldsStatus.IncludeVerifiyDate,
                 cbMfgId: settings.dpeFieldsStatus.IncludeManufacturerId,
                 cbSupplierId: settings.dpeFieldsStatus.IncludIdSupplierId,
                 dpeRevisionTitle: settings.dpeDataSource.RevisionTitle,
                 dpeRevisionVersion: settings.dpeDataSource.VersionOnDocument,
                 dpeRevisionIdentification: settings.dpeDataSource.DocumentIdentification,
                 dpeRevisionDate: revisionDate,
-                dpeVerifyDate: confirmDate,
+                //dpeVerifyDate: confirmDate,
                 dpeMfgId: settings.dpeDataSource.ManufacturerId,
                 dpeMfgName: settings.dpeDataSource.ManufacturerName,
                 dpeSupplierId: settings.dpeDataSource.SupplierId,
@@ -89,12 +89,12 @@
                     else
                         $(settings.dpeFields.RevisionDate).data("kendoDatePicker").value('');
                 },
-                onIncludeVerifyDateChange: function (e) {
-                    if (e.currentTarget.checked && dpeVerifyDate.value != '')
-                        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value(new Date(dpeVerifyDate.value));
-                    else
-                        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value('');
-                },
+                //onIncludeVerifyDateChange: function (e) {
+                //    if (e.currentTarget.checked && dpeVerifyDate.value != '')
+                //        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value(new Date(dpeVerifyDate.value));
+                //    else
+                //        $(settings.dpeFields.ConfirmationDate).data("kendoDatePicker").value('');
+                //},
                 onIncludeMfgIdChange: function (e) {
                     if (e.currentTarget.checked && dpeMfgId.value != '' && $.isFunction(settings.ManufacturerCallBack)) {
                         $(settings.dpeFields.ManufacturerId).val(dpeMfgId.value);
@@ -154,12 +154,13 @@
             revisionDateRow.append(revisionDateInclude, [revisionDateField, revisionDateText]);
             datatable.append(revisionDateRow);
 
-            var VerifyDateRow = $("<tr class='VerifyDateRow'></tr>");
-            var verifyDateInclude = $("<td colspan='1'><input type='checkbox' id='cbVerifyDate' data-bind='checked: cbVerifyDate, events: { change: onIncludeVerifyDateChange}' style='margin-left: 10px'></td>");
-            var verifyDateField = $("<td colspan='2'><b id='lblVerifyDate'style='padding-right:5px;'>Confirm Date</b></td>");
-            var verifyDateText = $("<td colspan='5'><input type='text' id='dpeVerifyDate' data-auto-bind='false' data-bind='value: dpeVerifyDate' readonly='readonly' style='width:344px; height:16px;'><input data-role='datepicker' data-bind='visible: isVerifyDateVisible, value: dpeVerifyDate, events: { change: onSelectVerifyDateChange }' style='width: 123px;padding-left:2px;'></td>");
-            VerifyDateRow.append(verifyDateInclude, [verifyDateField, verifyDateText]);
-            datatable.append(VerifyDateRow);
+            //No more verifydate information
+            //var VerifyDateRow = $("<tr class='VerifyDateRow'></tr>");
+            //var verifyDateInclude = $("<td colspan='1'><input type='checkbox' id='cbVerifyDate' data-bind='checked: cbVerifyDate, events: { change: onIncludeVerifyDateChange}' style='margin-left: 10px'></td>");
+            //var verifyDateField = $("<td colspan='2'><b id='lblVerifyDate'style='padding-right:5px;'>Confirm Date</b></td>");
+            //var verifyDateText = $("<td colspan='5'><input type='text' id='dpeVerifyDate' data-auto-bind='false' data-bind='value: dpeVerifyDate' readonly='readonly' style='width:344px; height:16px;'><input data-role='datepicker' data-bind='visible: isVerifyDateVisible, value: dpeVerifyDate, events: { change: onSelectVerifyDateChange }' style='width: 123px;padding-left:2px;'></td>");
+            //VerifyDateRow.append(verifyDateInclude, [verifyDateField, verifyDateText]);
+            //datatable.append(VerifyDateRow);
 
             var mfgRow = $("<tr class='ManufacturerRow'></tr>");
             var mfgInclude = $("<td colspan='1'><input type='checkbox' id='cbMfgId' data-bind='checked: cbMfgId, events: { change: onIncludeMfgIdChange}' style='margin-left: 10px'></td>");
