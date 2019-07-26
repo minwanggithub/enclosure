@@ -1489,7 +1489,7 @@
                         }
                     }
                 }, function (data) {
-                    DisplayConfirmationModal({
+                    _DisplayConfirmationModal({
                         header: 'Please confirm',
                         message: documentMessages.warnings.OcrSilverLevelIndexData
                     }, function () {
