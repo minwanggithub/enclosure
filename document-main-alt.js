@@ -893,6 +893,18 @@
 
         }
 
+        var onRevisionDataBound = function (e) {
+            var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
+            grid.table.kendoDraggable({
+                filter: "tbody > tr",
+                group: "target-group",
+                threshold: 100,
+                hint: function (e) {
+                    return $('<div class="span6 k-grid k-widget"><table><tbody><tr>' + e.html() + '</tr></tbody></table></div>');
+                }
+            });
+        }
+
         var onDataBound = function (e) {
 
             // remove filtering details
@@ -2549,8 +2561,8 @@
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
                 //check if New Revision called from ObtainmentWorkLoad page, RevisionObtainmentWorkItemId has value and don't call function to set default values onyl set RevisionDate as ''.
-                var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();
-                if (revisionObtainmentWorkItemId.length <= 0) {
+                var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();                
+                if (revisionObtainmentWorkItemId == '' || revisionObtainmentWorkItemId.length <= 0) {
                     setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
                 }
                 else {
@@ -3533,6 +3545,24 @@
             }
         };
 
+        var cloneNextNewRevision = function (dataItem) {
+            var sequenceId = dataItem.DocumentId;
+            $(documentElementSelectors.textboxes.DocumentRevisionTitle_Revision + sequenceId + "_0").val(dataItem.RevisionTitle);
+            $(documentElementSelectors.textboxes.DocumentManufacturerId_Revision + sequenceId + "_0").val(dataItem.ManufacturerId);
+            DoLookUpSupplierOnKeyEnter($(documentElementSelectors.textboxes.DocumentManufacturerId_Revision + sequenceId + "_0"));
+            $(documentElementSelectors.textboxes.DocumentSupplierId_Revision + sequenceId + "_0").val(dataItem.SupplierId);
+            DoLookUpSupplierOnKeyEnter($(documentElementSelectors.textboxes.DocumentSupplierId_Revision + sequenceId + "_0"));
+            $(documentElementSelectors.textboxes.DocumentIdentification_Revision + sequenceId + "_0").val(dataItem.DocumentIdentification);
+            $(documentElementSelectors.textboxes.DocumentVersion_Revision + sequenceId + "_0").val(dataItem.DocumentVersion);
+            var newDate = new Date(dataItem.RevisionDate);
+            newDate.setDate(newDate.getDate() + 1);
+            $(documentElementSelectors.datepickers.DocumentRevisionDate_Revision + sequenceId + "_0").data("kendoDatePicker").value(newDate);
+            var newDate = new Date(dataItem.VerifyDate);
+            newDate.setDate(newDate.getDate() + 1);
+            $(documentElementSelectors.datepickers.DocumentVerifyDate_Revision + sequenceId + "_0").data("kendoDatePicker").value(newDate);
+        };
+        
+
         var initializeSearchOperator = function (index = 0) {
             if ($.type(index) != 'number')
                 return;
@@ -3607,10 +3637,12 @@
             onNewRevisionPanelActivate: onNewRevisionPanelActivate,
             onDisplayNewDocumentPopUp: onDisplayNewDocumentPopUp,
             onDataBound: onDataBound,
+            onRevisionDataBound: onRevisionDataBound,
             onGenericDataBound: onGenericDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
+            cloneNextNewRevision: cloneNextNewRevision,
             performDocumentSearch: performDocumentSearch,
             onEmojiHappyNewClick: onEmojiHappyNewClick,
             onEmojiHappyRevisionClick: onEmojiHappyRevisionClick
