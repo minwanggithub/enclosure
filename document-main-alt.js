@@ -905,6 +905,8 @@
             });
         }
 
+
+
         var onDataBound = function (e) {
 
             // remove filtering details
@@ -3561,6 +3563,45 @@
             newDate.setDate(newDate.getDate() + 1);
             $(documentElementSelectors.datepickers.DocumentVerifyDate_Revision + sequenceId + "_0").data("kendoDatePicker").value(newDate);
         };
+
+        var addFieldClone = function (sequenceId) {
+            $(".form-horizontal, .form-condensed, .target-group").kendoDropTarget(
+                {
+                    group: "target-group",
+                    drop: function (e) {
+                        if (!e.ctrlKey)
+                            return;
+                        var sourceGrid = $(e.draggable.currentTarget).closest("[data-role=grid]");
+                        var dataItem = sourceGrid.data("kendoGrid").dataItem($(e.draggable.currentTarget).closest("tr"));
+                        cloneNextNewRevision(dataItem);
+                    }
+                })
+
+            $(documentElementSelectors.datepickers.DocumentRevisionDate_Revision + sequenceId + "_0").kendoDraggable({
+                hint: function () {
+                    return $("#draggableRevDate").clone();
+                }
+            });
+
+            $(documentElementSelectors.datepickers.DocumentVerifyDate_Revision + sequenceId + "_0").kendoDropTarget({
+                drop: function (e) {
+                    e.dropTarget.val(e.draggable.currentTarget.val());
+                }
+            });
+
+            $(documentElementSelectors.textboxes.DocumentManufacturerId_Revision + sequenceId + "_0").kendoDraggable({
+                hint: function (e) {
+                    return $(documentElementSelectors.textboxes.DocumentManufacturerId_Revision + sequenceId + "_0").clone().width($(documentElementSelectors.textboxes.DocumentManufacturerId_Revision + sequenceId + "_0").width());
+
+                }
+            });
+
+            $(documentElementSelectors.textboxes.DocumentSupplierId_Revision + sequenceId + "_0").kendoDropTarget({
+                drop: function (e) {
+                    e.dropTarget.val(e.draggable.currentTarget.val());
+                }
+            });
+        };
         
 
         var initializeSearchOperator = function (index = 0) {
@@ -3643,6 +3684,7 @@
             afterSaveNameNumber: afterSaveNameNumber,
             initializeSearchOperator: initializeSearchOperator,
             cloneNextNewRevision: cloneNextNewRevision,
+            addFieldClone: addFieldClone,
             performDocumentSearch: performDocumentSearch,
             onEmojiHappyNewClick: onEmojiHappyNewClick,
             onEmojiHappyRevisionClick: onEmojiHappyRevisionClick
