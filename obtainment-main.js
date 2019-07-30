@@ -185,7 +185,8 @@
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
-                HasEmbeddedKeywords: "Email body has illegal keyword(s)."
+                HasEmbeddedKeywords: "Email body has illegal keyword(s).",
+                SubjectHasEmbeddedKeywords: "Email subject has illegal keyword(s).",
             }
         };
 
@@ -489,10 +490,12 @@
                 }
 
                 // embedded URL test
-                var hasKeywords = (body.toUpperCase().indexOf("NETHUB") >= 0);
+                var emailBodyHasKeywords = (body.toUpperCase().indexOf("NETHUB") >= 0);
+                var emailSubjectHasKeywords = (subject.toUpperCase().indexOf("NETHUB") >= 0);
 
                 // validation
-                if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient || hasKeywords) {
+                if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient
+                        || emailBodyHasKeywords || emailSubjectHasKeywords) {
 
                     //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
@@ -508,10 +511,11 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
-                    if (hasKeywords) message += messages.errorMessages.HasEmbeddedKeywords + "<br>";
+                    if (emailBodyHasKeywords) message += messages.errorMessages.HasEmbeddedKeywords + "<br>";
+                    if (emailSubjectHasKeywords) message += messages.errorMessages.SubjectHasEmbeddedKeywords + "<br>";
 
                     var prompt = {};
-                    prompt.header = "Incomplete Data";
+                    prompt.header = "Invalid or incomplete email definition.";
                     prompt.message = message;
 
                     DisplayErrorMessageInPopUp(prompt, function () {
@@ -1530,6 +1534,19 @@
 
                 }
             }
+
+            if (valid) {
+
+                if ((subject + "").toUpperCase().indexOf("NETHUB") >= 0) {
+                    $(this).displayError(messages.errorMessages.SubjectHasEmbeddedKeywords);
+                    valid = false;
+
+                    // make availabe again
+                    $(obtainmentObject.controls.buttons.SendEmailButton).css("visibility", "");
+
+                }
+            }
+
 
             if (valid) {
 

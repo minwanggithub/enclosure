@@ -254,7 +254,7 @@
                     $("#defaultSearch").html("");
                 }
                 else {
-                    $("#defaultSearch").html("Displaying all non-complete cross reference requests.");
+                    $("#defaultSearch").html("Displaying all incomplete obtainment requests.");
                 }
             }
 
