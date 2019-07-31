@@ -1522,6 +1522,7 @@
             }
 
             var body = $(obtainmentObject.controls.textBoxes.ObtainmentEmailBody).val();
+            var subject = $(obtainmentObject.controls.textBoxes.ObtainmentEmailSubject).val();
 
             if (valid) {
 
