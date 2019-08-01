@@ -1068,7 +1068,8 @@
             viewSingleSupplier: viewSingleSupplier,
             onProductPhysicalStateChange: onProductPhysicalStateChange,
             resetSupplierNameOptionObservable: resetSupplierNameOptionObservable,
-            updateProductStatusLayout: updateProductStatusLayout
+            updateProductStatusLayout: updateProductStatusLayout,
+            dsProductNameOption: dsProductNameOption
         };
     };
 
