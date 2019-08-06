@@ -2916,7 +2916,7 @@
 
                 //Prevent continuously click
                 $(e.currentTarget).addClass('k-state-disabled');
-
+               
                 if (formData.model.RevisionId > 0) {
                     submitRevison(form, formData, e);
                 }
@@ -2984,6 +2984,13 @@
                                     revisionGrid.dataSource.read();
                                 }
                             }
+
+                            //Refersh Silbing if it already displayed
+                            var btnSibliing = $("#btnRefreshSibling_" + formData.model.DocumentId);                            
+                            if (btnSibliing != null) {
+                                btnSibliing.click();
+                            }
+
                             clearDocumentRevisionAttachments(form);
 
                         } else {
