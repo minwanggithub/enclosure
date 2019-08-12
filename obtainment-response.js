@@ -128,8 +128,9 @@
         var SearchBySupplierIdAndName = function (supplierId, supplierName) {
 
             viewModel.set(UIObject.controls.textBoxes.SupplierNameAndIdObjField, supplierId + ", " + supplierName);
-            viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, supplierId);
-
+            viewModel.set(UIObject.controls.textBoxes.SupplierIdObjField, supplierId); 
+            viewModel.set(UIObject.controls.checkBoxes.chkHasNotes, null); 
+            
             $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(viewModel) })
                 .success(function (data) {
                     UIObject.sections.responseDetailGridSection().html(data);
