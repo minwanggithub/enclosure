@@ -1033,8 +1033,6 @@
                 // set up subject
                 $("#txtObtainmentEmailSendEmailSubject").val(data.subject);
                 
-                debugger;
-
                 // set the check boxes
                 $(obtainmentObject.controls.checkBox.InsertProductsList).removeAttr("checked");
                 $(obtainmentObject.controls.checkBox.InsertSuppliersLink).removeAttr("checked");
@@ -1610,8 +1608,6 @@
                     obtainmentActionSendEmailModel.Files = fUploadlib.getAttachments();
                     obtainmentActionSendEmailModel.AddProductsList = $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).is(":checked");
                     obtainmentActionSendEmailModel.AddSupplierPortalLink = $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).is(":checked");
-
-                    debugger;
                     obtainmentMultipleWorkItemActionModel.ObtainmentActionSendEmailModel = obtainmentActionSendEmailModel;
 
                     $.ajax({
@@ -1674,7 +1670,6 @@
                 customerAction = true;
             }
 
-            debugger;
             if ($(obtainmentObject.controls.textBoxes.NumberOfItemsTextBox).val().length == 0) {
                 $(modalId).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
