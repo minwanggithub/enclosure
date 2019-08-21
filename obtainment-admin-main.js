@@ -100,9 +100,7 @@
                     NotificationRecepient: "#txtNotificationRecepient",
                     SuperEmailSubject: "#txtSuperEmailSubject",
                     SuperEmailBody: "#txtSuperEmailBody",
-                    SuperEmailId: "#txtSuperEmailId",
-
-
+                    SuperEmailId: "#txtSuperEmailId"
                 },
 
                 checkboxes: {
@@ -110,6 +108,9 @@
                     InsertProductsList: "#chkInsertProductsList",
                     InsertSuppliersLink: "#chkInsertSuppliersLink",
                     IsPreview: "#chkIsPreview"
+                },
+                radiobuttons: {
+                    GroupByAccount: "GroupByAccount"
                 },
 
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" },
@@ -246,9 +247,7 @@
             // prevent another search being executed
             disableButtons();
 
-            var url = controllerCalls.SearchRequests
-            var searchCriteria = getAdvancedSearchCriteria();
-
+            var searchCriteria = getAdvancedSearchCriteria();            
             if (searchCriteria.Criterias != null) {
                 if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
                     $("#defaultSearch").html("");
@@ -258,7 +257,7 @@
                 }
             }
 
-            if (!initial) searchCriteria = JSON.stringify(getAdvancedSearchCriteria());
+            if (!initial) searchCriteria = JSON.stringify(searchCriteria);
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
                 .success(function (data) {
@@ -573,7 +572,7 @@
 
             var data = new Object();
             data.Criterias = criteria;
-
+            data.GroupByAccount = $('input[name="' + obtainmentObjects.controls.radiobuttons.GroupByAccount + '"]:checked').val()
             return data;
 
         }
@@ -1387,7 +1386,15 @@
         }
 
         function onDataBound(sender) {
-            // not implemented
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");            
+            if ($('input[name="' + obtainmentObjects.controls.radiobuttons.GroupByAccount + '"]:checked').val() == "True") {
+                grid.hideColumn("SupplierID");
+                grid.hideColumn("SupplierName");
+            }
+            else {
+                grid.hideColumn("AccountID");
+                grid.hideColumn("AccountName");
+            }
         }
 
         function onDetailDataBound(sender) {
