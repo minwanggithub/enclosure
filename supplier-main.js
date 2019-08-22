@@ -798,9 +798,30 @@
                 });
         };
 
+        var SelectSupplierCommunications = function (e) {
+            e.preventDefault();
+
+            var selectedObj = this.select();
+            var selectedData = this.dataItem(selectedObj);
+            console.log(selectedData);
+
+            $('#SupplierCommunicationsText').html(selectedData.Note);
+
+            //this.element.attr("SelectedSupplierNotesId", selectedData.SupplierNotesId);
+            ////var url = '@Url.Action("GetSupplierNotesText", "Company")';
+            //var url = "../Company/GetSupplierCommunicationsText";
+            //$.post(url, { supplierId: getSupplierId(), companyCommunicationId: selectedData.CompanyCommunicationId },
+            //    function (data) {
+            //        $('#SupplierCommunicationsText').html(data);
+            //    });
+        };
 
         var ClearNoteText = function () {
             $('#SupplierNotesText').html("");
+        };
+
+        var ClearCommunicationText = function () {
+            $('#SupplierCommunicationsText').html("");
         };
 
         var additionalDataContact = function () {
@@ -1384,6 +1405,34 @@
                     }
                 }
                 
+            }); //outer loop
+
+        };
+
+        var onGdSupplierCommunicationsDataBound = function () {
+
+            var selectedsuppliernotesid = $('#gdSupplierNotes').attr("selectedsuppliernotesid");
+            $('td', '#gdSupplierCommunications').each(function () {
+                var txt = $(this).html();
+                console.log(txt);
+                //var i = txt.indexOf("SupplierNotesId");
+                //if (i >= 0) {
+                //    var suppliernotesid = txt.substr(17, txt.length);
+                //    if (suppliernotesid == selectedsuppliernotesid) {
+                //        var parent = $(this).parent();
+                //        parent.addClass("k-state-selected");
+
+                //        $('td', parent).each(function () {
+                //            var note = $(this).html();
+                //            var ii = note.indexOf("SupplierNoteText");
+                //            if (ii >= 0) {
+                //                var notesText = note.substr(18, note.length);
+                //                $('#SupplierNotesText').html(notesText);
+                //            }
+                //        }); //inner loop
+                //    }
+                //}
+
             }); //outer loop
 
         };
@@ -2160,6 +2209,7 @@
             EditSupplierNotes: EditSupplierNotes,
 
             SelectSupplierNotes: SelectSupplierNotes,
+            SelectSupplierCommunications: SelectSupplierCommunications,
             ClearNoteText: ClearNoteText,
             additionalDataContact: additionalDataContact,
             additionalDataFacility: additionalDataFacility,
@@ -2190,6 +2240,7 @@
             onGdFacilityIdentifiersDataBound: onGdFacilityIdentifiersDataBound,
             onGdFacilityIdentifierEdit: onGdFacilityIdentifierEdit,
             onGdSupplierNotesDataBound: onGdSupplierNotesDataBound,
+            onGdSupplierCommunicationsDataBound: onGdSupplierCommunicationsDataBound,
             onGdSupplierContactsDataBound: onGdSupplierContactsDataBound,
             onGdContactAddressDataBound: onGdContactAddressDataBound,
             onGdContactAddressChange: onGdContactAddressChange,
