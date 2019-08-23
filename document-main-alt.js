@@ -2565,7 +2565,8 @@
                 //check if New Revision called from ObtainmentWorkLoad page, RevisionObtainmentWorkItemId has value and don't call function to set default values onyl set RevisionDate as ''.
                 var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();                
                 if (revisionObtainmentWorkItemId == '' || revisionObtainmentWorkItemId.length <= 0) {
-                    setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
+                    // we are copying over data from previous revision, do not clean up controls
+                    //setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
                 }
                 else {
                     //set default values onyl set RevisionDate as '' when New Revision called from ObtainmentWorkLoad page
