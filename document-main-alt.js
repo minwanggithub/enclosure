@@ -366,9 +366,9 @@
             Enter: 13,
             V: 86,
             ctrlKeyState:
-            {
-                Pressed: false
-            }
+                {
+                    Pressed: false
+                }
         };
 
         var dsSearchOption = kendo.observable({
@@ -382,7 +382,7 @@
             ]
         });
 
-     
+
         var dsUPCSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupUPCSearchOption",
@@ -394,7 +394,7 @@
             ]
         });
 
-       
+
         var dsPartNumSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupPartNumSearchOption",
@@ -406,7 +406,7 @@
             ]
         });
 
-       
+
         var dsDateSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupDateSearchOption",
@@ -417,7 +417,7 @@
             ]
         });
 
-      
+
         var dsSupplierNameSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupSupplierNameSearchOption",
@@ -429,7 +429,7 @@
             ]
         });
 
-       
+
         var dsAliasSearchOption = kendo.observable({
             selectedValue: "0",
             id: "radiogroupAliasSearchOption",
@@ -441,7 +441,7 @@
             ]
         });
 
-     
+
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
             if (container != null && container.length > 0) {
@@ -721,32 +721,32 @@
         function getContainerSearchCriteria(container) {
             if (container && container.length > 0) {
                 var result =
-                {
-                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                    PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
-                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
-                    SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
-                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
-                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
-                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
-                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
-                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
-                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
-                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
-                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                    Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
-                    AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
-                };
+                    {
+                        ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
+                        DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
+                        DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
+                        DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
+                        DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
+                        IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
+                        LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
+                        PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                        PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
+                        PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
+                        ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
+                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
+                        SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                        SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                        SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
+                        SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
+                        UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                        UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
+                        DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
+                        DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
+                        DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
+                        ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                        Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
+                        AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
+                    };
                 keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
@@ -1507,30 +1507,30 @@
                         header: 'Please confirm',
                         message: documentMessages.warnings.OcrSilverLevelIndexData
                     }, function () {
-                            var filename = data[0].physicalPath;
-                            $(documentElementSelectors.image.MsdsOcrImageNew).show();
-                            $.ajax({
-                                type: 'POST',
-                                dataType: 'json',
-                                cache: false,
-                                //url: controllerCalls.GetAsynchData,
-                                url: controllerCalls.GetDpeRevisionIndexationAsync,
-                                data: { fn: filename },
-                                success: function (dpeData, textStatus, jqXHR) {
-                                    if (!dpeData.Error && !dpeData.NoData) {
-                                        DpeDataExtractionNew(dpeData, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
-                                    } else {
-                                        $(documentElementSelectors.image.EmojiSad_New).show();
-                                    }
-                                },
-                                error: function (jqXHR, status, errorThrown) {
-                                    displayError(errorThrown);
+                        var filename = data[0].physicalPath;
+                        $(documentElementSelectors.image.MsdsOcrImageNew).show();
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            cache: false,
+                            //url: controllerCalls.GetAsynchData,
+                            url: controllerCalls.GetDpeRevisionIndexationAsync,
+                            data: { fn: filename },
+                            success: function (dpeData, textStatus, jqXHR) {
+                                if (!dpeData.Error && !dpeData.NoData) {
+                                    DpeDataExtractionNew(dpeData, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
+                                } else {
                                     $(documentElementSelectors.image.EmojiSad_New).show();
-                                },
-                                complete: function () {
-                                    $(documentElementSelectors.image.MsdsOcrImageNew).hide();
                                 }
-                            });
+                            },
+                            error: function (jqXHR, status, errorThrown) {
+                                displayError(errorThrown);
+                                $(documentElementSelectors.image.EmojiSad_New).show();
+                            },
+                            complete: function () {
+                                $(documentElementSelectors.image.MsdsOcrImageNew).hide();
+                            }
+                        });
                     });
                 }, false);
             } else
@@ -2413,8 +2413,8 @@
                             }
                         }
 
-                        }, function (data) {
-                            return;
+                    }, function (data) {
+                        return;
                         //Prompt for OCR and show animation                    
                         //if (!confirm(documentMessages.warnings.OcrSilverLevelIndexData)) {
                         //    return;
@@ -2563,16 +2563,21 @@
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
                 //check if New Revision called from ObtainmentWorkLoad page, RevisionObtainmentWorkItemId has value and don't call function to set default values onyl set RevisionDate as ''.
-                var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();                
-                if (revisionObtainmentWorkItemId == '' || revisionObtainmentWorkItemId.length <= 0) {
-                    // we are copying over data from previous revision, do not clean up controls
-                    //setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
-                }
-                else {
-                    //set default values onyl set RevisionDate as '' when New Revision called from ObtainmentWorkLoad page
-                    newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
-                }
+                var revisionObtainmentWorkItemId = newRevisionContainer.find(documentElementSelectors.hidden.DocumentRevisionDetailsRevisionObtainmentWorkitemId).val();
+
+                //if (revisionObtainmentWorkItemId == '' || revisionObtainmentWorkItemId.length <= 0) {
+                //    // we are copying over data from previous revision, do not clean up controls
+                //    //setDocumentRevisionDetailsDefaultValues(newRevisionContainer, documentId);
+                //    clearRevisionDates(newRevisionContainer, documentId);
+                //}
+                //else {
+                //    //set default values onyl set RevisionDate as '' when New Revision called from ObtainmentWorkLoad page
+                //    newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
+                //}
+
+                newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
                 newRevisionContainer.show(650);
+
             }
         }
 
@@ -2917,7 +2922,7 @@
 
                 //Prevent continuously click
                 $(e.currentTarget).addClass('k-state-disabled');
-               
+
                 if (formData.model.RevisionId > 0) {
                     submitRevison(form, formData, e);
                 }
@@ -2987,7 +2992,7 @@
                             }
 
                             //Refersh Silbing if it already displayed
-                            var btnSibliing = $("#btnRefreshSibling_" + formData.model.DocumentId);                            
+                            var btnSibliing = $("#btnRefreshSibling_" + formData.model.DocumentId);
                             if (btnSibliing != null) {
                                 btnSibliing.click();
                             }
@@ -3128,6 +3133,11 @@
                 .error(function (xhr, textStatus, error) { displayError(error); });
         }
 
+        function clearRevisionDates(container, documentId) {
+            if (container && container.length > 0) {
+                container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
+            }
+        }
 
         function setDocumentRevisionDetailsDefaultValues(container, documentId) {
             if (container && container.length > 0) {
