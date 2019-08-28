@@ -131,9 +131,9 @@
             ]
         });
 
-        var dsSupplierNameSearchOption = kendo.observable({
+        var dsProductSupplierNameSearchOption = kendo.observable({
             selectedValue: "3",
-            id: "radiogroupSupplierNameSearchOption",
+            id: "radiogroupProductSupplierNameSearchOption",     //radiogroupSupplierNameSearchOption
             items: [
                 { caption: "Contains", value: "3" },
                 { caption: "Exact Match", value: "0" },
@@ -156,11 +156,11 @@
         var initializeSearchOperator = function () {
             kendo.bind($("#searchTitleOptionDivPre"), dsProductNameOption);
             kendo.bind($("#searchAliasOptionDivPre"), dsAliasSearchOption);
-            kendo.bind($("#searchSupplierNameOptionDivPre"), dsSupplierNameSearchOption);
+            kendo.bind($("#productSearchSupplierNameOptionDiv"), dsProductSupplierNameSearchOption);
         };
 
         var resetSupplierNameOptionObservable = function (value) {            
-            dsSupplierNameSearchOption.set("selectedValue", value);
+            dsProductSupplierNameSearchOption.set("selectedValue", value);
         };
 
         function deactivateLayout(productId) {
