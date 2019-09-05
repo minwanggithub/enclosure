@@ -162,7 +162,8 @@
             confirmationMessages: {
                 SendEmail: "send emails for the selected obtainment item(s)",
                 LogPhoneCall: "log a phone call for the selected obtainment item(s)",
-                CustomerAction:"set a customer action for the selected obtainment item(s)"
+                CustomerAction: "set a customer action for the selected obtainment item(s)",
+                OverwriteComments: "Overwrite previously entered action note ?"
 
             },
             errorMessages: {
