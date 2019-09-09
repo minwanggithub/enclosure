@@ -747,7 +747,6 @@
                         Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
                         AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
                     };
-                keyCodeValues.ctrlKeyState.Pressed = false;
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
                     result.DateRangeFrom = "";
@@ -794,7 +793,7 @@
                 onKeyPressEnter(e, performDocumentSearch);
         }
 
-        function onDocumentSearchSearchBtnClick(e) {
+        function onDocumentSearchSearchBtnClick(e) {            
             keyCodeValues.ctrlKeyState.Pressed = e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
@@ -894,15 +893,17 @@
         }
 
         var onRevisionDataBound = function (e) {
-            var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
-            grid.table.kendoDraggable({
-                filter: "tbody > tr",
-                group: "target-group",
-                threshold: 100,
-                hint: function (e) {
-                    return $('<div class="span6 k-grid k-widget"><table><tbody><tr>' + e.html() + '</tr></tbody></table></div>');
-                }
-            });
+            if (keyCodeValues.ctrlKeyState.Pressed) {
+                var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
+                grid.table.kendoDraggable({
+                    filter: "tbody > tr",
+                    group: "target-group",
+                    threshold: 100,
+                    hint: function (e) {
+                        return $('<div class="span6 k-grid k-widget"><table><tbody><tr>' + e.html() + '</tr></tbody></table></div>');
+                    }
+                });
+            }
         }
 
 
