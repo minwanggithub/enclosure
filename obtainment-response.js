@@ -28,15 +28,15 @@
                 },
                 controls: {
                     buttons: {
-                        CancelResponseAll: "[id^=btnResponseCancel]",
-                        CancelResponseSpecific: "btnResponseCancel",
-                        EditSupplierAll: "[id^=EditSupplierBtn]",
-                        EditSupplierSpecific: "EditSupplierBtn",
+                        CancelResponseAll: "[id^=btnResponseCancel_]",
+                        CancelResponseSpecific: "btnResponseCancel_",
+                        EditSupplierAll: "[id^=EditSupplierBtn_]",
+                        EditSupplierSpecific: "EditSupplierBtn_",
                         SaveResponseAll: "[id^=btnResponseSave]",
-                        SaveResponseSpecific: "btnResponseSave",
+                        SaveResponseSpecific: "btnResponseSave_",
                         ShowCollapseObjField: "ShowCollapse",
                         ResendObtainmentEmail: "[id^=btnResendObtainmentEmail]",
-                        ResendObtainmentEmailSpecific: "btnResendObtainmentEmail",
+                        ResendObtainmentEmailSpecific: "btnResendObtainmentEmail_",
                         SetStatus: "#setStatusBtn",
                         ResendPreviewEmail: "#btnResendPreviewEmail", // preview functionality
                         CancelPreviewEmail: "#btnCancelPreviewEmail"
@@ -48,7 +48,7 @@
                     dropdownlists: {
                         ResponseStatusAll: "[id^=ddlResponseStatus]",
                         ResponseStatusId: "ResponseStatusId",
-                        ResponseStatusSpecific: "ddlResponseStatus",
+                        ResponseStatusSpecific: "ddlResponseStatus_",
                         ResponseHasNotes: "#HasNotes"
                     },
                     grids: {
@@ -58,7 +58,8 @@
                     labels: {
                         SupplierInfo: "lblSupplierInfoForResponseDetail",
                         UnprocessedResponsesCount: "lblUnprocessedCount",
-                        LblFlagBy: "#lblFlagBy"
+                        LblFlagBy: "#lblFlagBy",
+                        LblNoticeNumberSpecific: "#lblNoticeNumber_"
                     },
                     textBoxes: {
                         Description: "divDescription",
@@ -78,10 +79,12 @@
                         PreviewSubject: "PreviewSubject",
                         PreviewBody: "PreviewBody",
                         PreviewAttachments: "PreviewAttachments",
-
                     },
                     checkBoxes: {
                         chkHasNotes: "HasNotes"
+                    },
+                    tabstrip: {
+                        tabObtainmentResponseDetail: "#tbObtainmentResponseDetail_"
                     }
             },
             popWindow: {
@@ -113,16 +116,7 @@
         };
 
         var Initialize = function () {
-
             InitializeSearch();
-
-            // wire up event handlers
-            UIObject.sections.responseDetailGridSection().on("change", UIObject.controls.dropdownlists.ResponseStatusAll, onDdlResponseStatusesChange);
-            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.CancelResponseAll, onBtnResponseCancelClick);
-            UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.SaveResponseAll, onDisabledButtonClick);
-            UIObject.sections.responseDetailGridSection().on("click", "#" + UIObject.controls.labels.UnprocessedResponsesCount, onUnprocessedResponseLabelClick);
-            UIObject.sections.responseDetailGridSection().on("keyup", UIObject.controls.textBoxes.StatusNotesFieldAll, onStatusesNotesChange);
-
         };
 
         var SearchBySupplierIdAndName = function (supplierId, supplierName) {
@@ -141,6 +135,70 @@
 
         }
 
+        function GetResponseDetailView() {
+            return new kendo.observable({
+                InboundResponseId: 0,
+                SupplierNameAndId: "",
+                SupplierId: 0,
+                SupplierName: "",                
+                ResponseStatusId: 0,                
+                HasNotes: false,
+                ResponseNotes: "",
+                isSaveButtonEnabled: false,
+                isCancelButtonEnabled: false,
+                Dirty: false,
+                
+                onSearchSupplierClick: function (e) {
+                    e.preventDefault();
+                    //var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.EditSupplierSpecific.length);
+                    //var parsedValue = parseInt(inboundResponseId);
+                    //this.set("ExistingInboundResponseId", (IsNumeric(parsedValue, false) == true) ? parsedValue : 0);
+                    viewModel.set("ExistingInboundResponseId", this.InboundResponseId);
+                    viewModel.set("DetailViewModel", this);
+                    UIObject.popWindow.supplierSearchDialog().center().open();
+                },
+                onBtnResponseCancelClick: function (e) {
+                    e.preventDefault();
+                    
+                    var currentView = this;    //Context will change after the dialog displayed
+                    if (this.Dirty) {
+                        var settings = {
+                            message: "You are going to discard your response changes. Are you sure you would like to continue?",
+                            header: "Discard Inbound Response Changes",
+                        };
+                        
+                        _DisplayConfirmationModal(settings, function () {
+                            var tabStrip = $(UIObject.controls.tabstrip.tabObtainmentResponseDetail + currentView.InboundResponseId).kendoTabStrip().data("kendoTabStrip");
+                            tabStrip.reload("li:first");                    
+                        });
+
+                    } 
+                },
+                onBtnResponseSaveClick: function (e) {
+                    e.preventDefault();
+                    var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.SaveResponseSpecific.length);
+                    var saveBtn = $('#' + UIObject.controls.buttons.SaveResponseSpecific + inboundResponseId);
+                    if (saveBtn != null) {
+                        var dataBindingSource = saveBtn.get(0).kendoBindingTarget.source;
+
+                        var formData = {};
+                        formData['InboundResponseId'] = dataBindingSource.InboundResponseId;
+                        formData['SupplierId'] = dataBindingSource.SupplierId;
+                        formData['ResponseStatusId'] = dataBindingSource.ResponseStatusId;
+                        formData['ResponseNotes'] = dataBindingSource.ResponseNotes;
+
+                        saveResponse(formData, function () {
+                            dataBindingSource.set("Dirty", false);                            
+                        });
+                    }
+                },
+                onBtnResponseResendClick: function (e) {
+                    e.preventDefault();
+                    BtnResendObtainmentEmailClick(e);
+                }
+            });
+        }
+
         var SearchBind = function () {
             viewModel = kendo.observable({
                 NoticeNumber: "",
@@ -148,13 +206,14 @@
                 SupplierId: 0,
                 SupplierName: "",
                 ShowCollapse: "none",
-                ResponseStatusId: "0",
+                ResponseStatusId: "1",
                 ExistingInboundResponseId: 0,
                 HasNotes: false,
                 DateRangeFrom: null,
                 DateRangeTo: null,
                 BodyText: "",
-                AccountId:"",
+                AccountId: "",
+                DetailViewModel: null,
                 SearchClick: function (e) {
                     e.preventDefault();
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);                    
@@ -189,6 +248,7 @@
 
                 },
 
+                
                 ClearClick: function (e) {
 
                     e.preventDefault();
@@ -202,6 +262,7 @@
                     $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
                     $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
                     $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value("");
+                    //$(UIObject.controls.dropdownlists.ResponseStatusId).data("kendoDropDownList").value("");
 
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
@@ -236,34 +297,26 @@
                         onDisplayError(UIObject.warnings.NoRowSelected);
                         return;
                     }
-
                     var item = UIObject.controls.grids.SearchSupplier().dataItem(UIObject.controls.grids.SearchSupplier().select());
                     if (item == null) {
                         onDisplayError(UIObject.warnings.NoRowSelected);
                         return;
                     }
-
                     if (this.ExistingInboundResponseId > 0) {
 
-                        var supplierLabel = $('#lblSupplierInfoForResponseDetail' + this.ExistingInboundResponseId);
+                        var supplierLabel = $('#lblSupplierInfoForResponseDetail_' + this.ExistingInboundResponseId);
                         if (supplierLabel.length > 0) {
-                            var newValue = item.CompanyId + ", " + item.Name;
-                            var previousValue = supplierLabel.attr('data-previous-value');
-                            if (newValue != previousValue)
-                                supplierLabel.attr('data-is-dirty', true);
-                            else
-                                supplierLabel.removeAttr('data-is-dirty');
-
+                            var newValue = item.CompanyId + ", " + item.Name;                         
                             supplierLabel.text(newValue);
-                            changeLayoutOnInputChange(this.ExistingInboundResponseId);
-
-                            // set the obtainments link
-                            var supplierLink = $('#lnkSupplierInfoForResponseDetail' + this.ExistingInboundResponseId);
+                            this.DetailViewModel.set("SupplierNameAndId", newValue);                            
+                            this.DetailViewModel.set("SupplierId", item.CompanyId);
+                            this.DetailViewModel.set("SupplierName", item.Name);
+                            var supplierLink = $('#lnkSupplierInfoForResponseDetail_' + this.ExistingInboundResponseId);
                             var link = supplierLink.attr("href").split("=")[0] + "=" + item.CompanyId;
                             supplierLink.attr("href", link);
                                               
                         }
-
+                        this.set("DetailViewModel", null);
                         this.set("ExistingInboundResponseId", 0);
 
                     } else {
@@ -282,12 +335,33 @@
                     UIObject.popWindow.supplierSearchDialog().center().open();
                 },
 
-                onViewSupplierClick: function (e) {
+                onViewSupplierClick: function (e) {                    
                     e.preventDefault();
                     var supplierId = viewModel.get(UIObject.controls.textBoxes.SupplierIdObjField);
 
                     if (supplierId > 0)
                         window.open(UIObject.controllerCalls.LoadSingleSupplier + "supplierId=" + supplierId, "_blank");
+                },
+
+                onBtnResponseCancelClick: function (e) {
+                    //DoBtnResponseCancelClick(e);
+                    e.preventDefault();
+                    var inboundResponseId = e.target.id.substring(UIObject.controls.buttons.CancelResponseSpecific.length);
+                    var dirtyCount = $('input[id$=' + inboundResponseId + '][data-is-dirty="true"]').length;
+                    if (dirtyCount > 0) {
+
+                        var settings = {
+                            message: "You are going to discard your response changes. Are you sure you would like to continue?",
+                            header: "Discard Inbound Response Changes",
+                        };
+
+                        DisplayConfirmationModal(settings, function () {
+                            refreshResponseLayout(inboundResponseId);
+                        });
+
+                    } else {
+                        refreshResponseLayout(inboundResponseId);
+                    }
                 }
             });
 
@@ -366,7 +440,7 @@
             $("#" + UIObject.controls.containers.InboundResponsePanel + " .k-header:first").trigger('click');
         }
 
-        // Response Detail Section
+        // Response Detail Section, need review, not efficient logic
         function changeLayoutOnInputChange(inboundResponseId) {
             if (inboundResponseId) {
                 var dirtyCount = $('span[id$=' +inboundResponseId + '][data-is-dirty="true"], input[id$=' +inboundResponseId + '][data-is-dirty="true"]').length;
@@ -391,27 +465,29 @@
             }
         }
 
-        function onBtnResponseCancelClick(e) {
-            e.preventDefault();
-
-            var inboundResponseId = this.id.substring(UIObject.controls.buttons.CancelResponseSpecific.length);
-            var dirtyCount = $('input[id$=' + inboundResponseId + '][data-is-dirty="true"]').length;
-            if (dirtyCount > 0) {
+        //Obsoleted
+        //function DoBtnResponseCancelClick(e) {
+        //    e.preventDefault();
+        //    var inboundResponseId = this.id.substring(UIObject.controls.buttons.CancelResponseSpecific.length);
+        //    var dirtyCount = $('input[id$=' + inboundResponseId + '][data-is-dirty="true"]').length;
+        //    if (dirtyCount > 0) {
                 
-                    var settings = {
-                        message: "You are going to discard your response changes. Are you sure you would like to continue?",
-                        header: "Discard Inbound Response Changes",
-                    };
+        //            var settings = {
+        //                message: "You are going to discard your response changes. Are you sure you would like to continue?",
+        //                header: "Discard Inbound Response Changes",
+        //            };
 
-                    DisplayConfirmationModal(settings, function () {
-                        refreshResponseLayout(inboundResponseId);
-                    });
+        //            DisplayConfirmationModal(settings, function () {
+        //                refreshResponseLayout(inboundResponseId);
+        //            });
 
-            } else {
-                refreshResponseLayout(inboundResponseId);
-            }
-        }
+        //    } else {
+        //        refreshResponseLayout(inboundResponseId);
+        //    }
+        //}
 
+
+        //Need to review
         function onBtnResponseSaveClick(e) {
             e.preventDefault();
 
@@ -469,25 +545,13 @@
         }
 
         function saveResponse(data, successFunc) {
-            
             $(this).ajaxJSONCall(UIObject.controllerCalls.SaveResponseDetail, JSON.stringify(data))
                     .success(function (successData) {
-                        
                         // Attempt to save the information to the database
                         if (typeof successData.displayMessage != 'undefined') {
-
-                            if (notesModalSettings) {
-                                notesModalSettings.displayStatusNoteConfirmation(successData, function (eval) {
-                                    $('#' + UIObject.controls.textBoxes.StatusNotes + data.InboundResponseId).val(eval.modalNotes);
-                                    data['StatusNotes'] = eval.modalNotes;
-                                    saveResponse(data, successFunc);
-                                });
-
-                            } else {
-                                $(this).displayError("Error occurred.");
-                            }
-
-                        } else if (successData == true) {
+                            $(this).displayError("Error occurred.");
+                        }
+                        else if (successData == true) {
                             $(this).savedSuccessFully("Inbound response detail saved.");
                             if (successFunc) successFunc();
                         } else {
@@ -518,8 +582,7 @@
             UIObject.popWindow.resendEmailDialog().close();
         }
 
-        function onBtnResendPreviewEmail() {
-
+        function onBtnResendPreviewEmail() {                    
             var formData = {
                 'inboundResponseId': previewInboundResponseId,
                 'noticeNumber': previewNoticeNumber,
@@ -543,12 +606,11 @@
 
         };
 
-        function onBtnResendObtainmentEmailClick(e) {
-
-            var inboundResponseId = this.id.substring(UIObject.controls.buttons.ResendObtainmentEmailSpecific.length);
+        function BtnResendObtainmentEmailClick(e) {
+            var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.ResendObtainmentEmailSpecific.length);            
             if (inboundResponseId) {
 
-                var noticeNumber = $("#lblNoticeNumber" + inboundResponseId).text();
+                var noticeNumber = $(UIObject.controls.labels.LblNoticeNumberSpecific + inboundResponseId).text();
 
                 previewInboundResponseId = inboundResponseId;
                 previewNoticeNumber = noticeNumber;
@@ -574,7 +636,6 @@
                             $("#previewBody").html(result.data.Body);
 
                             var attachments = result.attachments;
-                            debugger;
                             if (result.attachmentsCount > 0 && result.attachmentsAvailable == false) {
                                 attachments = "<b>Attachments are no longer available.</b><br>" +
                                                 "<strike>" + attachments + "</strike>";
@@ -594,20 +655,42 @@
                         }
                     })
                     .error(function () {
-            
                         // the attachments associated with the email are no longer available on disk
                         // the email can not be re-sent
-
                         $(this).displayError('An error occurred while resending the email assocaited with this response.');
-
-
                     });
             }
 
         }
 
-        function onResponseDetailExpand(e) {
+        //This needs to be changed once kendo upgrade happens
+        var onInboundResponseDetailStatusChange = function (e) {
+            var selectIndex = e.sender.selectedIndex;
+            var inboundResponseId = this.element.attr("id").substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length);
+            var cancelBtn = $('#' + UIObject.controls.buttons.CancelResponseSpecific + inboundResponseId);
+            if (cancelBtn != null) {
+                cancelBtn.get(0).kendoBindingTarget.source.set("ResponseStatusId", selectIndex);
+            }
 
+        };
+
+        var onInboundResponseDetailBinding = function (templateRow, irModel) {
+            var detailVM = GetResponseDetailView();
+            detailVM.set("InboundResponseId", irModel.InboundResponseId);
+            detailVM.set("ResponseNotes", irModel.ResponseNotes);
+
+            detailVM.bind("change", function (e) {
+                if (e.field == "Dirty")
+                    return;
+                detailVM.set("Dirty", true);
+            });
+            kendo.bind(templateRow, detailVM);
+            
+            $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
+            $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
+        };
+
+        function onResponseDetailExpand(e) {
             var detailRow = e.detailRow.find('[id="InboundResponseSection"]');
             if(detailRow.length > 0) {
                 var searchButton = detailRow.find(UIObject.controls.buttons.EditSupplierAll);
@@ -841,10 +924,6 @@
 
         });
 
-        // wire resend once
-        UIObject.sections.responseDetailGridSection().on("click", UIObject.controls.buttons.ResendObtainmentEmail, onBtnResendObtainmentEmailClick);
-        $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
-        $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
@@ -856,7 +935,9 @@
             MasterCollapse: MasterCollapse,
             OnResponseDetailExpand: onResponseDetailExpand,
             setNotesModalSettings: setNotesModalSettings,
-            SearchBySupplierIdAndName: SearchBySupplierIdAndName
+            SearchBySupplierIdAndName: SearchBySupplierIdAndName,
+            onInboundResponseDetailStatusChange: onInboundResponseDetailStatusChange,
+            onInboundResponseDetailBinding: onInboundResponseDetailBinding
         };
     };
 })(jQuery);
