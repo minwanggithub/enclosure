@@ -147,7 +147,8 @@
                 isSaveButtonEnabled: false,
                 isCancelButtonEnabled: false,
                 Dirty: false,
-                
+                ResponseStatusLkp: null,
+
                 onSearchSupplierClick: function (e) {
                     e.preventDefault();
                     //var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.EditSupplierSpecific.length);
@@ -195,6 +196,10 @@
                 onBtnResponseResendClick: function (e) {
                     e.preventDefault();
                     BtnResendObtainmentEmailClick(e);
+                },
+
+                onResponseStatusChange: function (e) {
+                    //Also triggered by detailVM.bind change, so no need to check the dirty status
                 }
             });
         }
@@ -662,22 +667,12 @@
             }
 
         }
-
-        //This needs to be changed once kendo upgrade happens
-        var onInboundResponseDetailStatusChange = function (e) {
-            var selectIndex = e.sender.selectedIndex;
-            var inboundResponseId = this.element.attr("id").substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length);
-            var cancelBtn = $('#' + UIObject.controls.buttons.CancelResponseSpecific + inboundResponseId);
-            if (cancelBtn != null) {
-                cancelBtn.get(0).kendoBindingTarget.source.set("ResponseStatusId", selectIndex);
-            }
-
-        };
-
         var onInboundResponseDetailBinding = function (templateRow, irModel) {
             var detailVM = GetResponseDetailView();
             detailVM.set("InboundResponseId", irModel.InboundResponseId);
             detailVM.set("ResponseNotes", irModel.ResponseNotes);
+            detailVM.set("ResponseStatusLkp", irModel.ResponseStatusLkp);
+            detailVM.set("ResponseStatusId", irModel.ResponseStatusId);
 
             detailVM.bind("change", function (e) {
                 if (e.field == "Dirty")
@@ -690,6 +685,19 @@
             $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
         };
 
+        var ReRouteIdDetail = function (whereTo, routeId) {
+            if (routeId === null)
+                return '';
+
+            if (whereTo === 'Product')
+            //return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + productId + "' title='View Product Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + routeId + "' title='View Product Detail',  target='_blank'>" + routeId + "</a>";
+            else if (whereTo === 'Document')
+                return "<a href='../../Operations/Document/DocumentMainAlt?documentId=" + routeId + "' title='View Document Detail',  target='_blank'>" + routeId + "</a>";
+        };
+
+
+        //Need to obsolete
         function onResponseDetailExpand(e) {
             var detailRow = e.detailRow.find('[id="InboundResponseSection"]');
             if(detailRow.length > 0) {
@@ -731,6 +739,7 @@
 
         }
 
+        //Need to obsolete
         function onInputFieldChange(e) {
             var element = $(e.currentTarget);
             var defaultValue = element.is(':checkbox, :radio') ? element[0].defaultChecked : element[0].defaultValue;
@@ -750,6 +759,7 @@
                 element.removeAttr('data-is-dirty');
         }
 
+        //Need to obsolete
         function refreshResponseLayout(inboundResponseId) {
             if (inboundResponseId) {
 
@@ -805,6 +815,7 @@
             }
         }
 
+        //Need to obsolete
         function resetFieldDefaultValue(field) {
 
             // Check if field is an input or label
@@ -935,9 +946,9 @@
             MasterCollapse: MasterCollapse,
             OnResponseDetailExpand: onResponseDetailExpand,
             setNotesModalSettings: setNotesModalSettings,
-            SearchBySupplierIdAndName: SearchBySupplierIdAndName,
-            onInboundResponseDetailStatusChange: onInboundResponseDetailStatusChange,
-            onInboundResponseDetailBinding: onInboundResponseDetailBinding
+            SearchBySupplierIdAndName: SearchBySupplierIdAndName,            
+            onInboundResponseDetailBinding: onInboundResponseDetailBinding,
+            ReRouteIdDetail: ReRouteIdDetail
         };
     };
 })(jQuery);
