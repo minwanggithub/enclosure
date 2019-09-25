@@ -20,6 +20,8 @@
         var selectedIds = {};                                                   // ids of selected rows
         var gridIds = {};                                                       // traversed ids with selection state
 
+        var gridMasterIds = new Array();                                       // master grid rows
+
         var itemsChecked = 0;
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
@@ -232,6 +234,7 @@
             $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
                 $(v).enableControl(false);
                 $(v).addClass("disabled-link");
+                $(v).attr("disabled", "disabled");
             });
         }
 
@@ -239,6 +242,7 @@
             $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
                 $(v).enableControl(true);
                 $(v).removeClass("disabled-link");
+                $(v).removeAttr("disabled");
             });
         }
 
@@ -248,7 +252,9 @@
             // prevent another search being executed
             disableButtons();
 
-            var searchCriteria = getAdvancedSearchCriteria();            
+            var searchCriteria = getAdvancedSearchCriteria();
+            if (searchCriteria.Errors.length > 0) return null;
+
             if (searchCriteria.Criterias != null) {
                 if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
                     $("#defaultSearch").html("");
@@ -281,13 +287,15 @@
         };
 
         getGridIds = function () {
-            return gridIds;
+            return gridMasterIds;
         }
 
         getSelectedCategories = function () {
             var list = $(obtainmentObjects.controls.dropdownlists.CategoriesDropDownList).data("kendoMultiSelect").value();
             return list.join(",");
         };
+
+
 
         // clear search 
         obtSearchObj.on("click", obtainmentObjects.controls.buttons.ClearObtainmentAdminBtn, function () {
@@ -461,10 +469,20 @@
                 $(textField).css({ visibility: '', width: "100px" });
                 textParent.show();
             }
-            else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO"].indexOf(option) >= 0) {
+            else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO", "DAYSINPROGRESS"].indexOf(option) >= 0) {
                 $(textField1).css({ width: "0px" });
                 $(textField).css({ visibility: '', width: "200px" });
+
                 $(condition).css({ visibility: '' });
+
+                $(condition).find("option[block=2]").css({ visibility: 'hidden' });
+                $(condition).find("option[block=1]").css({ visibility: '' });
+
+                if (["DAYSINPROGRESS"].indexOf(option) >= 0) {
+                    $(condition).find("option[block=1]").css({ visibility: 'hidden' });
+                    $(condition).find("option[block=2]").css({ visibility: '' });
+                }
+
                 textParent.show();
             }
             else {
@@ -473,9 +491,128 @@
                 $(ddid).show();
             }
 
+                            /*
+                
+                    model.SupplierObtainmentSettings = Lookup.SupplierObtainmentSettings().ToList();
+			        model.DocumentTypes = Lookup.DocumentTypes().ToList();
+			        model.DocumentLevels = Lookup.DocumentLevels().ToList();
+			        model.Languages = Lookup.Languages().ToList();
+			        model.Countries = Lookup.Countries().ToList();
+			        model.NextSteps = Lookup.LoadNextStep().ToList();
+                
+                */
+
+        }
+
+        getAdvancedSearchCriteriaAlt = function () {
+
+            var criteria = [];
+            var errors = [];
+
+            var data = new Object();
+            data.Criterias = criteria;
+            data.Errors = errors;
+            data.GroupByAccount = $('input[name="' + obtainmentObjects.controls.radiobuttons.GroupByAccount + '"]:checked').val();
+
+            $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {
+
+                var searchFor = null;
+
+                // differentiator
+                var timeId = $(v).attr("id").split("_").reverse()[0];
+
+                var criteriaField = $("#drpFields_" + timeId).data("kendoDropDownList");        // always has a value
+
+                var ddlFields = "#drpFields_" + timeId;                                         // this is selected or
+                var textFieldId = "#txtFreeField_" + timeId;                                    // values provided in text fields
+                var textField1Id = "#txtFreeField_1_" + timeId;
+
+                var containsDropDown = $("#drpContains_" + timeId).data("kendoDropDownList");   // always has a value
+
+                console.log(i + " " + $(v).attr("id"));
+
+                var fieldDropDown = $("#drpDropDown_" + criteriaField.text().replace(/ /g, "") + "_" + timeId).data("kendoDropDownList");
+
+                // criteria definition
+                var fieldName = criteriaField.value();
+                var whereOperator = containsDropDown.value();
+                var searchFor = $(textFieldId).val().replace(/ /g, "");
+                
+
+                debugger;
+
+                var criteriaFieldName = criteriaField.value().toUpperCase();
+
+                if (["DAYSINPROGRESS", "ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
+                    searchFor = $(textFieldId).val();
+                }
+                else {
+                    whereOperator = "Exact Match";
+                    searchFor = fieldDropDown.value();
+                }
+
+                if (searchFor.replace(/ /g, "") != "") {
+
+                    // validation
+
+                    if (["DAYSINPROGRESS"].indexOf(criteriaFieldName) == 0) {
+
+                        searchFor = $(textFieldId).val()
+                        if (["Greater Than", "Less Than"].indexOf(whereOperator) < 0) {
+                            errors.push("'" + whereOperator + "' is not valid operator for '" + criteriaField.text() + "' criteria.");
+                        }
+
+                        if (isNaN(parseInt(searchFor))) {
+                            errors.push("'" + searchFor + "' is not valid value for '" + criteriaField.text() + "' criteria.");
+                        }
+
+                    }
+                    // > and < are not supported conditions
+                    else if (["ASSIGNEDTO"].indexOf(criteriaFieldName) == 0) {
+                        searchFor = $(textFieldId).val()
+                        if (["Greater Than", "Less Than"].indexOf(whereOperator) >= 0) {
+                            errors.push("'" + whereOperator + "' is not valid operator for '" + criteriaField.text() + "' criteria.");
+                        }
+                    }
+
+                    criteria.push({
+                        FieldName: fieldName,
+                        WhereOperator: whereOperator,
+                        SearchFor: searchFor
+                    })
+                };
+               
+
+            });
+
+            console.log(criteria);
+
+            // remove all non empty criteria
+            criteria = (criteria.find(e => e.SearchFor != "") || []);
+
+            if (errors.length > 0) {
+
+                var prompt = {};
+                prompt.header = "Invalid filter criteria selection.";
+                prompt.message = errors.join("<br>");
+
+                DisplayErrorMessageInPopUp(prompt, function () {
+                    
+                });
+
+                return data;
+
+            }
+
+            console.log(data);
+
+            return data;
+
         }
 
         getAdvancedSearchCriteria = function () {
+
+            return getAdvancedSearchCriteriaAlt();
 
             var criteria = [];
 
@@ -497,7 +634,6 @@
 
                 var fieldDropDown = $("#drpDropDown_" + criteriaField.text().replace(/ /g, "") + "_" + timeId).data("kendoDropDownList");
                 
-
                 // criteria definition
                 var fieldName = criteriaField.value();
                 var whereOperator = containsDropDown.value();
@@ -556,6 +692,10 @@
                     searchFor = $(textFieldId).val();
                 }
                 else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
+                    // validate where operator
+                    searchFor = $(textFieldId).val()
+                }
+                else if (["DAYSINPROGRESS"].indexOf(criteriaFieldName) >= 0) {
                     searchFor = $(textFieldId).val()
                 }
                 else {
@@ -568,6 +708,17 @@
                     WhereOperator: whereOperator,
                     SearchFor: searchFor
                 });
+
+                /*
+                
+                    model.SupplierObtainmentSettings = Lookup.SupplierObtainmentSettings().ToList();
+			        model.DocumentTypes = Lookup.DocumentTypes().ToList();
+			        model.DocumentLevels = Lookup.DocumentLevels().ToList();
+			        model.Languages = Lookup.Languages().ToList();
+			        model.Countries = Lookup.Countries().ToList();
+			        model.NextSteps = Lookup.LoadNextStep().ToList();
+                
+                */
 
             });
 
@@ -1057,7 +1208,8 @@
 
         function doCustomerActionAction() {
 
-            var _gridIds = getGridIds();
+            var _gridIds = getSelectedActionBlockIds();
+            alert(_gridIds);
             $(obtainmentObjects.controls.textBoxes.NotesTextBox).val("");
 
             // no items selected ?
@@ -1132,17 +1284,24 @@
 
         function saveCustomerAction() {
 
+            debugger;
+
             // no items selected ?
-            if ((selectedIds || []).length > 0) {
+            //if ((selectedIds || []).length > 0) {
+
+                selectedIds = getSelectedActionBlockIds();
 
                 var selCustomerAction = $(obtainmentObjects.controls.textBoxes.NotesTextBox).val();
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
 
+
                     var data = {};
                     data['ids'] = selectedIds;
                     data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction;
+
+                    // set selected ids before each call
 
                     saveRequests(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                     
@@ -1153,7 +1312,7 @@
 
                 }
 
-            }
+            //}
 
         }
 
@@ -1162,7 +1321,8 @@
                 kendo.ui.progress(obtDetailObj, true);
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
                     .success(function (successData) {
-                        
+
+                        debugger;
                         if (successData.success === true) {
 
                             // display message and hide modal
@@ -1387,6 +1547,7 @@
         }
 
         function onDataBound(sender) {
+
             var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");            
             if ($('input[name="' + obtainmentObjects.controls.radiobuttons.GroupByAccount + '"]:checked').val() == "True") {
                 grid.hideColumn("SupplierID");
@@ -1396,7 +1557,118 @@
                 grid.hideColumn("AccountID");
                 grid.hideColumn("AccountName");
             }
+
+            // after databinding, highlight all previously selected rows
+
+            //var view = grid.dataSource.view();
+            //console.log(view);
+
+            //view.forEach(e => {
+
+            //    // matching ids
+            //    if (gridMasterIds.some(f => f.uid == e.uid)) {
+            //        grid.table.find("tr[data-uid='" + e.uid + "']").addClass("k-state-selected");
+            //    }
+
+            //});
+
+            // unbind any existing handlers
+            $(obtainmentObjects.controls.grids.GridRequests).unbind("click");
+
+            // rebind handler
+            $(obtainmentObjects.controls.grids.GridRequests).on("click", "tr", function (e) {
+
+                //var rowElement = this;
+                //var row = $(rowElement);
+                //var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");  
+
+                //var itemToRemove = grid.dataItem(row);
+                //console.log(row);
+
+                //if (row.hasClass("k-state-selected")) {
+
+                //    //e.stopPropagation();                  
+                //    //console.log(itemToRemove.uid + " SELECTED");
+
+                //    //gridMasterIds = gridMasterIds.filter(e => e.uid == itemToRemove.uid);
+                //    //gridMasterIds.push({ uid: itemToRemove.uid, actionBlockId: itemToRemove.ObtainmentWorkItemIDs });
+                //    //gridMasterIds = Array.from((new Set(gridMasterIds)));
+
+                //    //console.log(gridMasterIds);
+
+                //    // if (!(gridMasterIds.some(f => f.uid == itemToRemove.uid))){
+                //    //      gridMasterIds.push(itemToRemove.uid);
+                //    //      console.log(gridMasterIds);
+                //    // }
+
+                //    //var selected = grid.select();
+
+                //    //selected = $.grep(selected, function (x) {
+                //    //    var itemToRemove = grid.dataItem(row);
+                //    //    var currentItem = grid.dataItem(x);
+
+                //    //    return itemToRemove.OrderID != currentItem.OrderID
+                //    //})
+
+                //    //grid.clearSelection();
+
+                //    //grid.select(selected);
+
+                    
+                //    //e.stopPropagation();
+                //    //console.log("SELECTED");
+
+                //} else {
+
+                //    //grid.select(row)
+
+                //    //e.stopPropagation();
+                //    //console.log(itemToRemove.uid + " UNSELECTED");
+
+                //    //gridMasterIds = gridMasterIds.filter(e=> e.uid != itemToRemove.uid);
+                //    //console.log(gridMasterIds);
+
+                //}
+
+                // determine whether to hide/show action links
+
+                gridMasterIds = getSelectedActionBlockIds();
+
+                if ((gridMasterIds || []).length > 0) {
+                    enableAssignUnAssignButtons(true);
+                    enableSideMenuItems();
+                } else {
+                    enableAssignUnAssignButtons(false);
+                    disableSideMenuItems();
+                }
+
+            });
+
         }
+
+        function getSelectedActionBlockIds(sender) {
+
+            var ids = new Array();
+
+            // highlight rows selected
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
+            var pageData = grid.dataSource.view();
+
+            pageData.forEach((v, i) => {
+
+                // see if the ObtainmentWorkItemId for the row is in the selected list.
+                // if yes, highlight the row.
+
+                var row = grid.table.find("[data-uid=" + v.uid + "]");
+                if ($(row).hasClass("k-state-selected")) ids.push(grid.dataItem(row).ObtainmentWorkItemIDs);
+                console.log(grid.dataItem(row));
+
+            });
+
+            return ids;
+
+        }
+
 
         function onDetailDataBound(sender) {
 

@@ -667,6 +667,9 @@
             //only execute this code if the dropdownlist is other than the dropdownlist on grid for paging
             var drpContains;
             if (this.id.length > 0) {
+
+                if (this.id.toLowerCase() == "mltcategories") return;
+
                 var elementId = $(this).attr("id");
                 var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
