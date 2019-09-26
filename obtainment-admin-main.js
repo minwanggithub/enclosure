@@ -469,24 +469,26 @@
                 $(textField).css({ visibility: '', width: "100px" });
                 textParent.show();
             }
-            else if (["ACCOUNTNAME", "PRODUCTNAME", "MANUFACTURERNAME", "ASSIGNEDTO", "DAYSINPROGRESS"].indexOf(option) >= 0) {
+            else if (["ASSIGNEDTO"].indexOf(option) >= 0) {
+
                 $(textField1).css({ width: "0px" });
                 $(textField).css({ visibility: '', width: "200px" });
 
                 $(condition).css({ visibility: '' });
-
-                $(condition).find("option[block=2]").css({ visibility: 'hidden' });
-                $(condition).find("option[block=1]").css({ visibility: '' });
-
-                if (["DAYSINPROGRESS"].indexOf(option) >= 0) {
-                    $(condition).find("option[block=1]").css({ visibility: 'hidden' });
-                    $(condition).find("option[block=2]").css({ visibility: '' });
-                }
-
                 textParent.show();
             }
+
+            else if (["DAYSINPROGRESS"].indexOf(option) >= 0) {
+
+                $(condition).css({ visibility: '' });
+                var ddid = "#dvDropDown_" + optionTag.text().replace(/ /g, "") + id;
+                $(ddid).show();
+
+            }
+
             else {
 
+                //$(condition).find("option[block=1]").css({ visibility: '' });
                 var ddid = "#dvDropDown_" + optionTag.text().replace(/ /g, "") + id;
                 $(ddid).show();
             }
@@ -543,8 +545,11 @@
 
                 var criteriaFieldName = criteriaField.value().toUpperCase();
 
-                if (["DAYSINPROGRESS", "ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
+                if (["ASSIGNEDTO"].indexOf(criteriaFieldName) >= 0) {
                     searchFor = $(textFieldId).val();
+                }
+                else if (["DAYSINPROGRESS"].indexOf(criteriaFieldName) >= 0) {
+                    searchFor = fieldDropDown.value();
                 }
                 else {
                     whereOperator = "Exact Match";
@@ -557,7 +562,7 @@
 
                     if (["DAYSINPROGRESS"].indexOf(criteriaFieldName) == 0) {
 
-                        searchFor = $(textFieldId).val()
+                        searchFor = fieldDropDown.value();
                         if (["Greater Than", "Less Than"].indexOf(whereOperator) < 0) {
                             errors.push("'" + whereOperator + "' is not valid operator for '" + criteriaField.text() + "' criteria.");
                         }
@@ -696,7 +701,7 @@
                     searchFor = $(textFieldId).val()
                 }
                 else if (["DAYSINPROGRESS"].indexOf(criteriaFieldName) >= 0) {
-                    searchFor = $(textFieldId).val()
+                    searchFor = fieldDropDown.value();
                 }
                 else {
                     whereOperator = "Exact Match";
