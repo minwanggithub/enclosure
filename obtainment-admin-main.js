@@ -151,6 +151,8 @@
             ValidateObtainmentsForDocumentId: GetEnvironmentLocation() + "/Administration/Obtainment/ValidateObtainmentsForDocumentId",
             SendSuperEmail: GetEnvironmentLocation() + "/Administration/Obtainment/SendSuperEmail",
             ResolveRequests: GetEnvironmentLocation() + "/Administration/Obtainment/ResolveRequests",
+            SaveCustomerAction: GetEnvironmentLocation() + "/Administration/Obtainment/SaveCustomerAction"
+
 
         };
 
@@ -1214,8 +1216,9 @@
         function doCustomerActionAction() {
 
             var _gridIds = getSelectedActionBlockIds();
-            alert(_gridIds);
+
             $(obtainmentObjects.controls.textBoxes.NotesTextBox).val("");
+            $(obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList").value("");
 
             // no items selected ?
             if (Object.keys(_gridIds).length == 0) {
@@ -1300,15 +1303,16 @@
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
 
-
+                    debugger;
                     var data = {};
+
+                    data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
                     data['ids'] = selectedIds;
-                    data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction;
 
                     // set selected ids before each call
 
-                    saveRequests(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
+                    saveRequests(controllerCalls.SaveCustomerAction, data, actionModals.CustomerAction);
                     
                 } else {
 
@@ -1665,7 +1669,7 @@
                 // if yes, highlight the row.
 
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
-                if ($(row).hasClass("k-state-selected")) ids.push(grid.dataItem(row).ObtainmentWorkItemIDs);
+                if ($(row).hasClass("k-state-selected")) ids.push(grid.dataItem(row).AccountID || grid.dataItem(row).SupplierID );
                 console.log(grid.dataItem(row));
 
             });
