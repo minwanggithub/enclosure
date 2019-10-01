@@ -1336,6 +1336,11 @@
 
                             // display message and hide modal
                             $(this).savedSuccessFully(messages.successMessages.Saved);
+                            $(this).displayError("Customer Action was performed on the following obtainment work item ids:" + successData.ids + "<br>" + 
+                                successData.message);
+
+                            removeGridSelections();
+
                             if (modalId != null) $(modalId).hideModal();                         
 
                         } else {
@@ -1651,6 +1656,19 @@
                     disableSideMenuItems();
                 }
 
+            });
+
+        }
+
+        function removeGridSelections() {
+
+            // highlight rows selected
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
+            var pageData = grid.dataSource.view();
+
+            pageData.forEach((v, i) => {
+                var row = grid.table.find("[data-uid=" + v.uid + "]");
+                $(row).removeClass("k-state-selected");
             });
 
         }
