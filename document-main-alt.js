@@ -904,6 +904,14 @@
                     }
                 });
             }
+
+            var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
+            var dataSource = grid.dataSource;
+
+            if (dataSource.total() == 1)
+            {
+                grid.hideColumn("Actions");
+            }
         }
 
 
