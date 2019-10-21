@@ -206,6 +206,7 @@
                 DocumentRevisionDetailsDocumentIdentification: "[id^=DocumentIdentification_]",
                 DocumentRevisionDetailsDocumentVersion: "[id^=DocumentVersion_]",
                 DocumentRevisionDetailsRevisionId: "[id^=RevisionId_]",
+                DocumentRevisionDetailsCloneOfRevisionId: "[id^=CloneOfRevisionId_]",
                 DocumentRevisionDetailsManufacturerId: "[id^=txtManufacturerId_]",
                 DocumentRevisionDetailsRevisionTitle: "[id^=RevisionTitle_]",
                 DocumentRevisionDetailsSupplierId: "[id^=txtSupplierId_]",
@@ -1356,6 +1357,7 @@
                     ManufacturerId: null,
                     RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
                     RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                    CloneOfRevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsCloneOfRevisionId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
@@ -2237,7 +2239,8 @@
         /******************************** Revision Methods ********************************/
         function checkDocumentRevisionDirtyStatus(container) {
             var isExistingRevision = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val() != "0";
-            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave, documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
+            changeContainerButtonDirtyStatusLayout(container, documentElementSelectors.buttons.DocumentRevisionDetailsSave,
+                documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionSaveBtnClick, isExistingRevision);
         }
 
         var displaySingleDocument = function (documentObj) {
@@ -2332,6 +2335,7 @@
                     ManufacturerId: null,
                     RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
                     RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                    CloneOfRevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsCloneOfRevisionId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
@@ -2369,6 +2373,7 @@
                     ManufacturerId: null,
                     RevisionDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val(),
                     RevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionId).val(),
+                    CloneOfRevisionId: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsCloneOfRevisionId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsRevisionTitle).val(),
                     DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
                     SupplierId: null,
