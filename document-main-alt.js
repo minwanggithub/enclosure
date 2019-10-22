@@ -255,7 +255,8 @@
             GetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/GetSupplierOrDocumentLevelAccessibility",
             SetSupplierOrDocumentLevelAccessibility: GetEnvironmentLocation() + "/Operations/Document/SetSupplierOrDocumentLevelAccessibility",
             GetDpeRevisionIndexationAsync: GetEnvironmentLocation() + "/Operations/Document/GetDpeRevisionIndexationAsync",
-            GetAsynchData: GetEnvironmentLocation() + "/Operations/Document/GetAsynchData"
+            GetAsynchData: GetEnvironmentLocation() + "/Operations/Document/GetAsynchData",
+            RetrieveLatestDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/RetrieveLatestDocumentRevision",
 
         }
 
@@ -2576,9 +2577,22 @@
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
+                
+                // make call to get latest revision details
+                $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
+                    .success(function (data) {
 
-                newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
-                newRevisionContainer.show(650);
+                        if (data == null) return;
+
+                        $("#txtSupplierId_" + documentId + "_0").val(getCompanyTemplate(data.SupplierId, data.SupplierName));
+                        $("#txtManufacturerId_" + documentId + "_0").val(getCompanyTemplate(data.ManufacturerId, data.ManufacturerName));
+                        $("#RevisionTitle_" + documentId + "_0").val(data.RevisionTitle);
+
+
+                        newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
+                        newRevisionContainer.show(650);
+
+                    });
 
             }
         }
