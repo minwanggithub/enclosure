@@ -1744,8 +1744,12 @@
 
                 //var url = '@Url.Action("SaveObtainmentSettingDetail", "ObtainmentSettings")';
                 var url = "../ObtainmentSettings/SaveObtainmentSettingDetail";
-                $.post(url, { jsObtainmentSettingsModel: JSON.stringify(queryText) }, function (data) {
-                    if (data == '0')
+                $.post(url, { jsObtainmentSettingsModel: JSON.stringify(queryText) }, function (data) {                    
+                    if (data == -1)
+                    {
+                        onDisplayError('Can not save duplicate obtainment setting.');
+                    }
+                    else if (data == '0')
                         onDisplayError('Error occured while saving the contact details');
                     else {
                         var obtID = $("#ObtainmentSettingID").val();
