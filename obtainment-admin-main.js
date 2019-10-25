@@ -1309,6 +1309,7 @@
                     data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
                     data['ids'] = selectedIds;
                     data['notes'] = selCustomerAction;
+                    data['immediate'] = $("#chkImmediate").is(":checked");
 
                     // set selected ids before each call
 
@@ -1336,8 +1337,7 @@
 
                             // display message and hide modal
                             $(this).savedSuccessFully(messages.successMessages.Saved);
-                            $(this).displayError("Customer Action was performed on the following obtainment work item ids:" + successData.ids + "<br>" + 
-                                successData.message);
+                            $(this).displayError(successData.message);
 
                             removeGridSelections();
 
