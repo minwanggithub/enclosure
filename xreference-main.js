@@ -464,7 +464,7 @@
                         var message = messages.confirmationMessages.CrossReferenceResolutionStateMismatch;
                         var args = { message: message, header: 'Confirm cross reference resolution.' };
 
-                        DisplayConfirmationModal(args, function () {
+                        _DisplayConfirmationModal(args, function () {
                             resolveRequests();
                         }, function () {
                             // do nothing
@@ -524,9 +524,8 @@
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
 
             } else {
-
-                //var selCustomerAction = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
-                //.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                var selCustomerActionCtl = $(xreferenceObject.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                var actionId = selCustomerActionCtl.selectedIndex;
                 //if (selCustomerAction.text().length > 0 || $(xreferenceObject.controls.textBoxes.NotesTextBox).text().length > 0) {
 
                 var selCustomerAction = $(xreferenceObject.controls.textBoxes.NotesTextBox).val();
@@ -536,6 +535,7 @@
                     data['ids'] = selectedRequests;
                     data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction;
+                    data['actionId'] = actionId;
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
                     $(actionModals.CustomerAction).toggleModal();
