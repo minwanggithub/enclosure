@@ -912,10 +912,30 @@
 
             if (dataSource.total() == 1)
             {
+                //var col = grid.columns[5].toString();
+                //alert(col);
                 grid.hideColumn("Actions");
+                grid.hideColumn("Action");
+                //var gridData = grid.dataSource.view();
+                //for (var i = 0; i < gridData.length; i++) {
+                //    var gridItem = gridData[i];
+                //    var currenRow = grid.table.find("tr[data-uid='" + gridItem.uid + "']");
+                //    var deleteButton = $(currenRow).find(".k-grid-delete");
+                //    deleteButton.hide();
+                //}
             }
         }
 
+        //var hideRevisionDeleteButton = function(e) {
+        //    var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
+        //    var dataSource = grid.dataSource;
+
+        //    if (dataSource.total() == 1) {
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
 
 
         var onDataBound = function (e) {
