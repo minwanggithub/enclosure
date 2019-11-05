@@ -115,24 +115,31 @@
 
         function onAttachmentConfirmBtnClick(e) {
 
-            e.preventDefault();
-            disableFileUploadLayout();
+            // do not process confirmation if there was an 
+            // error while upload ing the file.
 
-            if (dpeCallback)
-                dpeCallback(uploadStake);
+            if (!uploadError) {
 
-            if (parentCallback) {
-                var promise = parentCallback(uploadStake);
-                if (promise && promise.done) {
-                    promise.done(clearConfirmFileUploadCache).always(resetFileUploadLayout);
-                }
-                else
+                e.preventDefault();
+                disableFileUploadLayout();
+
+                if (dpeCallback)
+                    dpeCallback(uploadStake);
+
+                if (parentCallback) {
+                    var promise = parentCallback(uploadStake);
+                    if (promise && promise.done) {
+                        promise.done(clearConfirmFileUploadCache).always(resetFileUploadLayout);
+                    }
+                    else
+                        clearConfirmFileUploadCache();
+
+                } else if (uploadStake.length > 0)
                     clearConfirmFileUploadCache();
+                else
+                    closeFileUploadModal();
 
-            } else if (uploadStake.length > 0)
-                clearConfirmFileUploadCache();
-            else
-                closeFileUploadModal();
+            }
 
         }
 
@@ -152,13 +159,28 @@
                 $('#fileUploadWindow').data('kendoWindow').center();
                 $('#fileUploadWindow').data('kendoWindow').open();
             }
+
         };
 
-        var initializeAttachmentPopUp = function () {
+        function disableConfirmButton() {
+            disableFileUploadLayout();
+        }
+
+        function enableConfirmButton() {
+            resetFileUploadLayout();
+        }
+
+        var onFileUploadErrorCallback = null;
+
+        var initializeAttachmentPopUp = function (handlers) {
 
             var window = $('#fileUploadWindow');
             window.on('click', '#uploadFilesConfirmSelect', onAttachmentConfirmBtnClick);
             window.on('click', '#uploadFilesCancelSelect', onAttachmentCancelBtnClick);
+
+            onFileUploadErrorCallback = handlers.onFileUploadErrorCallback;
+            
+
         };
 
         var onFileUploadWindowClose = function (e) {
@@ -172,9 +194,19 @@
         // ***************************************** File Loading Methods ******************************************************
         var onFileUploadError = function (e) {
 
-            if (uploadError != true) {
+            // disable the confirm button 
+            // find catch all event to enable "confirm" button
+
+            if (e.XMLHttpRequest.status == 409) {
                 uploadError = true;
-                displayError('An error occurred uploading the file(s) specified.');
+                if (onFileUploadErrorCallback != null) onFileUploadErrorCallback(e);
+
+            } else {
+
+                if (uploadError != true) {
+                    uploadError = true;
+                    displayError('An error occurred uploading the file(s) specified.');
+                }
             }
         };
 
@@ -241,6 +273,16 @@
             }
         };
 
+        var clearOnConflictedFileUpload = function (e) {
+            // remove file from session memory
+            clearAttachmentSessionCache();
+            // sreset the file layout
+            resetFileUploadLayout();
+            // reset variables
+            var uploadError = false;
+            var uploadStake = [];
+        }
+
         return {
             displayFileUploadModal: displayFileUploadModal,
             initializeAttachmentPopUp: initializeAttachmentPopUp,
@@ -249,7 +291,10 @@
             onFileUploadSelect: onFileUploadSelect,
             onFileUploadSuccess: onFileUploadSuccess,
             onFileUploadUpload: onFileUploadUpload,
-            onFileUploadWindowClose: onFileUploadWindowClose
+            onFileUploadWindowClose: onFileUploadWindowClose,
+            disableConfirmButton: disableConfirmButton,
+            enableConfirmButton: enableConfirmButton,
+            clearOnConflictedFileUpload: clearOnConflictedFileUpload
         };
     };
 

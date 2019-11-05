@@ -86,7 +86,8 @@
                 DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
                 DocumentAddSibling: "#btnSibling_",
-                btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]"
+                btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
+                ConflictingFileUploadClose: "#btnConflictingFileUploadClose"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -113,6 +114,7 @@
                 DocumentRevisionDetailsForm: "[id^=frmDocumentRevision_]",
                 DocumentRevisionDetails: "[id^=pnlRevisionDetail_]",
                 DocumentRevisionMultipleNameNumbers: "#mdlMultipleNames",
+                ConflictingFileUpload: "mdlConflicingFileUpload",
                 DocumentStatusHistory: "#StatusNotesText_",
                 NewDocument: "#pnlNewDocument",
                 NewDocumentForm: "#frmNewDocument",
@@ -3701,6 +3703,48 @@
             });
         };
 
+        var conflictingFileUpload = function (e) {
+
+            var response = $.parseJSON(e.XMLHttpRequest.response);
+            console.log(response)
+
+            var prompt = {};
+            prompt.message = "File " + response[0].FileName + " is already associated with " + 
+                "one or more Document(s)/Revision(s). <br>Click on 'Yes' to view the list of matches."
+            prompt.header = "View Associated Document(s)/Revision(s)";
+
+            fUploadlib.clearOnConflictedFileUpload();
+
+            DisplayConfirmationModal(prompt,
+            function () {
+
+                // load
+                $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', ($.parseJSON(e.XMLHttpRequest.response))[0],
+                    function (response) {
+
+                        $("body").css("cursor", "");
+
+                        var prompt = {};
+                        prompt.message = response;
+                        prompt.header = "File ";
+
+                        DisplayErrorMessageInPopUp(prompt, function (e) {
+                            console.log(e);
+                        });
+
+                    }
+                );
+
+            },
+            function () {
+
+
+            });
+
+            return;
+
+        }
+
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
             getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
@@ -3741,7 +3785,8 @@
             addFieldClone: addFieldClone,
             performDocumentSearch: performDocumentSearch,
             onEmojiHappyNewClick: onEmojiHappyNewClick,
-            onEmojiHappyRevisionClick: onEmojiHappyRevisionClick
+            onEmojiHappyRevisionClick: onEmojiHappyRevisionClick,
+            onConflictingFileUpload: conflictingFileUpload
         };
     };
 
