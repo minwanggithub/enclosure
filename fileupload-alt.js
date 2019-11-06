@@ -194,12 +194,15 @@
         // ***************************************** File Loading Methods ******************************************************
         var onFileUploadError = function (e) {
 
+            console.log(e);
+
             // disable the confirm button 
             // find catch all event to enable "confirm" button
 
-            if (e.XMLHttpRequest.status == 409) {
+            if (e.XMLHttpRequest.response.indexOf("CONFLICTINGFILEUPLOADED:") >= 0) {
                 uploadError = true;
-                if (onFileUploadErrorCallback != null) onFileUploadErrorCallback(e);
+                var response = e.XMLHttpRequest.response.replace("CONFLICTINGFILEUPLOADED:", "");
+                if (onFileUploadErrorCallback != null) onFileUploadErrorCallback(response);
 
             } else {
 

@@ -3703,9 +3703,9 @@
             });
         };
 
-        var conflictingFileUpload = function (e) {
+        var conflictingFileUpload = function (response) {
 
-            var response = $.parseJSON(e.XMLHttpRequest.response);
+            var response = $.parseJSON(response);
             console.log(response)
 
             var prompt = {};
@@ -3719,7 +3719,7 @@
             function () {
 
                 // load
-                $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', ($.parseJSON(e.XMLHttpRequest.response))[0],
+                $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response[0],
                     function (response) {
 
                         $("body").css("cursor", "");
