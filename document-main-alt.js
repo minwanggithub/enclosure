@@ -914,17 +914,17 @@
 
             if (dataSource.total() == 1)
             {
-                //var col = grid.columns[5].toString();
-                //alert(col);
-                grid.hideColumn("Actions");
-                grid.hideColumn("Action");
-                //var gridData = grid.dataSource.view();
-                //for (var i = 0; i < gridData.length; i++) {
-                //    var gridItem = gridData[i];
-                //    var currenRow = grid.table.find("tr[data-uid='" + gridItem.uid + "']");
-                //    var deleteButton = $(currenRow).find(".k-grid-delete");
-                //    deleteButton.hide();
-                //}
+                //Not using this column instead using Command.Destroy 
+                //grid.hideColumn("Actions");
+
+                //Hide the Command.Destroy button if there is only one revision
+                var gridData = grid.dataSource.view();
+                for (var i = 0; i < gridData.length; i++) {
+                    var gridItem = gridData[i];
+                    var currenRow = grid.table.find("tr[data-uid='" + gridItem.uid + "']");
+                    var deleteButton = $(currenRow).find(".k-grid-delete");
+                    deleteButton.hide();
+                }
             }
         }
 
