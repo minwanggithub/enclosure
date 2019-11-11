@@ -2188,6 +2188,11 @@
             var container = $(documentElementSelectors.containers.DocumentMain);
             if (container.length == 0) return;
 
+            // Associated document
+            $(documentElementSelectors.buttons.ConflictingFileUploadClose).on('click', function () {
+                $("#mdlConflictingFileUpload").toggleModal();
+            });
+
             // Document
             container.on('change', documentElementSelectors.containers.DocumentDetailsForm + ' input', onDocumentDetailsFieldChange);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsSave, onDisabledButtonClick);
@@ -3706,42 +3711,28 @@
         var conflictingFileUpload = function (response) {
 
             var response = $.parseJSON(response);
-            console.log(response)
 
-            var prompt = {};
-            prompt.message = "File " + response[0].FileName + " is already associated with " + 
-                "one or more Document(s)/Revision(s). <br>Click on 'Yes' to view the list of matches."
-            prompt.header = "View Associated Document(s)/Revision(s)";
+            // display a message indicating that the uploaded file is associated 
+            // with different document(s)/revision(s)
 
+            kendo.ui.progress($("#mdlConflictingFileUpload"), true);
+
+            $("#mdlConflictingFileUpload > .modal-body").html("Fetching a list of matches ...");
+            $("#conflictingFileName").html(response[0].FileName);
+
+            $("#mdlConflictingFileUpload").modal();
             fUploadlib.clearOnConflictedFileUpload();
+                        
+            setTimeout(function () {
 
-            DisplayConfirmationModal(prompt,
-            function () {
-
-                // load
-                $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response[0],
-                    function (response) {
-
-                        $("body").css("cursor", "");
-
-                        var prompt = {};
-                        prompt.message = response;
-                        prompt.header = "File ";
-
-                        DisplayErrorMessageInPopUp(prompt, function (e) {
-                            console.log(e);
+                    $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response[0],
+                        function (response) {
+                            kendo.ui.progress($("#mdlConflictingFileUpload"), false);
+                            $("#mdlConflictingFileUpload > .modal-body").html(response);
                         });
 
-                    }
-                );
-
-            },
-            function () {
-
-
-            });
-
-            return;
+            }, 1500);
+        
 
         }
 
