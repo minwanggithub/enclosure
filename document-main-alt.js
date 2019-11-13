@@ -66,6 +66,7 @@
                 DocumentNewDocumentCancel: "#btnNewDocumentCancel",
                 DocumentNewDocumentSave: "#btnNewDocumentSave",
                 DocumentRevisionAddMultipleNameNumbers: ".rev-multinamenum-add",
+                DocumentAddMultipleNameNumbers: ".doc-multinamenum-add",
                 DocumentRevisionAddNewRevision: "[id^=btnAddDocumentRevision_]",
                 DocumentRevisionDetailsAddAttachment: "[id^=addNewFilesBtn_]",
                 DocumentRevisionDetailsDeleteAttachment: ".revision-attachment-delete",
@@ -113,6 +114,7 @@
                 DocumentNotes: "#DocumentNotesText_",
                 DocumentRevisionDetailsForm: "[id^=frmDocumentRevision_]",
                 DocumentRevisionDetails: "[id^=pnlRevisionDetail_]",
+                DocumentNewDocument: "[id^=pnlNewDocument-]",
                 DocumentRevisionMultipleNameNumbers: "#mdlMultipleNames",
                 ConflictingFileUpload: "mdlConflicingFileUpload",
                 DocumentStatusHistory: "#StatusNotesText_",
@@ -775,6 +777,8 @@
             e.preventDefault();
 
             var container = $(documentElementSelectors.containers.NewDocument);
+            container.off('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers);
+            container.on('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers, onDocumentAddMultipleNameNumbersBtnClick);
             if (container.length > 0) container.show(500);
         }
 
@@ -2624,6 +2628,28 @@
             }
         }
 
+        function onDocumentAddMultipleNameNumbersBtnClick(e) {
+            e.preventDefault();
+
+            var modalContainer = $(documentElementSelectors.containers.DocumentRevisionMultipleNameNumbers);
+
+            modalContainer.find(documentElementSelectors.hidden.DocumentRevisionNameNumberDocument).val(0);
+            modalContainer.find(documentElementSelectors.hidden.DocumentRevisionNameNumberRevision).val(0);
+            modalContainer.find(documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers).val('');
+            modalContainer.find(documentElementSelectors.dropdownlists.DocumentRevisionMultipleNameNumbersType).data('kendoDropDownList').select(0);
+
+            modalContainer.modal({
+                backdrop: true,
+                keyboard: true
+            }).css(
+                {
+                    'margin-left': function () {
+                        return -($(this).width() / 2);
+                    }
+            });
+
+        }
+
         function onDocumentRevisionAddMultipleNameNumbersBtnClick(e) {
             e.preventDefault();
 
@@ -3565,6 +3591,22 @@
             return;
         }
 
+
+        function error_handler(e) {
+            //console.log(e);
+            //if (e.errors) {
+            //    var message = "Errors:\n";
+            //    $.each(e.errors, function (key, value) {
+            //        if ('errors' in value) {
+            //            $.each(value.errors, function () {
+            //                message += this + "\n";
+            //            });
+            //        }
+            //    });
+            //    alert(message);
+            //}
+        }
+
         var afterSaveNameNumber = function (e) {
 
 
@@ -3777,7 +3819,8 @@
             performDocumentSearch: performDocumentSearch,
             onEmojiHappyNewClick: onEmojiHappyNewClick,
             onEmojiHappyRevisionClick: onEmojiHappyRevisionClick,
-            onConflictingFileUpload: conflictingFileUpload
+            onConflictingFileUpload: conflictingFileUpload,
+            error_handler: error_handler
         };
     };
 
