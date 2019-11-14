@@ -22,7 +22,8 @@
                 UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
                 ClearSessionVariablesDocument: "ClearSessionsVariables",
                 GetSupplierName: "GetSupplierName",
-                VerifyProductManufacturer: "VerifyProductManufacturer"
+                VerifyProductManufacturer: "VerifyProductManufacturer",
+                RepublishCurrentRevision: "RepublishCurrentRevision"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -63,6 +64,7 @@
                 DocumentDeleteContainerComponent: ".document-container-delete",
                 DocumentDetailsCancel: "[id^=btnDocumentCancel_]",
                 DocumentDetailsSave: "[id^=btnDocumentSave_]",
+                DocumentDetailsRepublish: "[id^=btnDocumentRepublish_]",
                 DocumentNewDocumentCancel: "#btnNewDocumentCancel",
                 DocumentNewDocumentSave: "#btnNewDocumentSave",
                 DocumentRevisionAddMultipleNameNumbers: ".rev-multinamenum-add",
@@ -585,6 +587,17 @@
 
         function onDisabledButtonClick(e) {
             e.preventDefault();
+        }
+
+        function onDocumentDetailsRepublishClick(e) {
+            var documentId = parseInt(e.currentTarget.id.split("_")[1]);
+
+            var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RepublishCurrentRevision)
+
+            $.post(url, { documentId: documentId }, function (data) {
+                $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Document republished.");
+            });
+
         }
 
         function onInputFieldChange(e) {
@@ -2204,6 +2217,7 @@
             container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
             container.on('change', documentElementSelectors.dropdownlists.DocumentDetailsDocumentType, enableDisableExposureScenario);
             container.on('click', documentElementSelectors.checkboxes.DocumentIsExposureScenario, enableDisableExposureScenarioPage);
+            container.on('click', documentElementSelectors.buttons.DocumentDetailsRepublish, onDocumentDetailsRepublishClick);
 
             // Revision
             container.on('change', documentElementSelectors.containers.DocumentRevisionDetailsForm + ' input', onDocumentRevisionFieldChange);
