@@ -1175,6 +1175,12 @@
             // not implemented
         }
 
+        function onDataBoundError(e) {
+
+            SubError("There was an error processing this query. The most likely cause is a timeout.<br>" +
+                "Please try again or try adding one or more criteria to the search.");
+        }
+
         return {
 
             init: init,
@@ -1188,7 +1194,8 @@
             onResponseDetailExpand: onResponseDetailExpand,
             enableAssignUnAssignButtons: enableAssignUnAssignButtons,
             hotKeyDisplay: hotKeyDisplay,
-            loadSupplierPlugIn: loadSupplierPlugIn
+            loadSupplierPlugIn: loadSupplierPlugIn,
+            onDataBoundError: onDataBoundError
 
         };
     };
