@@ -44,6 +44,9 @@
                     SaveOnHoldWorkLoadButton: "#btnSaveOnHoldWorkLoad",
                     SaveRemoveOnHoldWorkLoadButton: "#btnSaveRemoveOnHoldWorkLoad"
                 },
+                radioButtons: {
+                    CategoriesMatchGroup: "mltCategoriesMatchGroup" 
+                },
                 textBoxes: {
                     IndividualTextBox: "#txtIndividual",
                     NotesTextBox: "#txtNotes",
@@ -352,8 +355,14 @@
 
             var strCategoryValue = mltCategories.value();
             var intCategoryValue = 0;
+
+            // get the criteria selections
             for (var indexCategory = 0; indexCategory < strCategoryValue.length; indexCategory++)
                 intCategoryValue += parseInt(strCategoryValue[indexCategory]);
+
+            // hack for now
+            var categoryCondition = $("#divSearchSection [name=" + xreferenceObject.controls.radioButtons.CategoriesMatchGroup + "]:checked").val();
+            if (categoryCondition == "OR") intCategoryValue = -intCategoryValue;
 
             //create requestSearchModel to be passed to the controller
             requestSearchModel.DateAssigned = dteDateAssigned.value() === "" ? null : dteDateAssigned.value();
@@ -412,7 +421,7 @@
                 }
             }
 
-            if (dteDateAssigned.value() != null || dteDateCreated.value() != null || drpStatus.value() !== "" || drpDays.value() !== "" || intCategoryValue > 0 || criteriaList.length > 0) {
+            if (dteDateAssigned.value() != null || dteDateCreated.value() != null || drpStatus.value() !== "" || drpDays.value() !== "" || intCategoryValue != 0 || criteriaList.length > 0) {
                 //add filter array to requestSearchModel
                 $(xreferenceObject.controls.buttons.SearchRequestsButton).enableControl(false);
                 $(xreferenceObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
