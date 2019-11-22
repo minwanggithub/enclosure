@@ -674,6 +674,7 @@
         }
         var onInboundResponseDetailBinding = function (templateRow, irModel) {
             var detailVM = GetResponseDetailView();
+
             detailVM.set("InboundResponseId", irModel.InboundResponseId);
             detailVM.set("ResponseNotes", irModel.ResponseNotes);
             detailVM.set("ResponseStatusLkp", irModel.ResponseStatusLkp);
@@ -688,6 +689,17 @@
 
             $(UIObject.controls.buttons.CancelPreviewEmail).on("click", onBtnCancelPreviewEmailClick);
             $(UIObject.controls.buttons.ResendPreviewEmail).on("click", onBtnResendPreviewEmail);
+
+            $(this).ajaxCall(UIObject.controllerCalls.GetObtainmentResponseContentBody, { inboundResponseId: irModel.InboundResponseId })
+                .success(function (data) {
+                    if (data.HtmlFormat)
+                        $("#html_mail_body_" + irModel.InboundResponseId).attr("srcdoc",  data.ContentBody);
+                    else
+                        $("#text_mail_body_" + irModel.InboundResponseId).val(data.ContentBody);                    
+                }).error(function () {
+                    alert("Loading error");
+                });
+
         };
 
         var ReRouteIdDetail = function (whereTo, routeId) {
