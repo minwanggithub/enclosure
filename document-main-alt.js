@@ -592,7 +592,7 @@
         function onDocumentDetailsRepublishClick(e) {
             var documentId = parseInt(e.currentTarget.id.split("_")[1]);
 
-            var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RepublishCurrentRevision)
+            var url = generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.RepublishCurrentRevision);
 
             $.post(url, { documentId: documentId }, function (data) {
                 $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html("Document republished.");
