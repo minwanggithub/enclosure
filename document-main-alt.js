@@ -3623,45 +3623,51 @@
 
         var afterSaveNameNumber = function (e) {
 
-
-            if (e.response.success == false) {
-                $(this).displayError(e.response.message);
-                $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
-                return;
-            }
-
-            return;
-
-            if (e.type == "create") {
-
-                var gridId = '#gdRevisionNameNumber_' + e.response.revisionId;
+            try {
 
                 if (e.response.success == false) {
                     $(this).displayError(e.response.message);
-                    $(gridId).data('kendoGrid').dataSource.read();
-                    //var tr = $(gridId).data("kendoGrid").select();
-                    //if (tr.length > 0) grid.editRow(tr);
+                    $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
+                    return;
                 }
 
-                //if (e.response.Errors != null) {
+                return;
 
-                //    $(this).displayError(e.response.Errors["NameNumber"].errors[0]);
-                //    var grid = $(gridId).data('kendoGrid');
-                //    grid.one("dataBinding", function (e) {
-                //        e.preventDefault();
-                //    });
+                if (e.type == "create") {
 
-                //    //var grid = $().data("kendoGrid");
-                //    //var tr = $(gridId).data("kendoGrid").select();
-                //    //if (tr.length > 0) grid.editRow(tr);
-                //    //return false;
-                //}
-                //else {
-                //    //$('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
-                //    //return true;
-                //}
+                    var gridId = '#gdRevisionNameNumber_' + e.response.revisionId;
 
+                    if (e.response.success == false) {
+                        $(this).displayError(e.response.message);
+                        $(gridId).data('kendoGrid').dataSource.read();
+                        //var tr = $(gridId).data("kendoGrid").select();
+                        //if (tr.length > 0) grid.editRow(tr);
+                    }
+
+                    //if (e.response.Errors != null) {
+
+                    //    $(this).displayError(e.response.Errors["NameNumber"].errors[0]);
+                    //    var grid = $(gridId).data('kendoGrid');
+                    //    grid.one("dataBinding", function (e) {
+                    //        e.preventDefault();
+                    //    });
+
+                    //    //var grid = $().data("kendoGrid");
+                    //    //var tr = $(gridId).data("kendoGrid").select();
+                    //    //if (tr.length > 0) grid.editRow(tr);
+                    //    //return false;
+                    //}
+                    //else {
+                    //    //$('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
+                    //    //return true;
+                    //}
+
+                }
+
+            } catch (e) {
+                // do nothing
             }
+
         };
 
         var cloneNextNewRevision = function (dataItem) {
