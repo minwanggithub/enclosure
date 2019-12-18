@@ -1192,7 +1192,7 @@
             var documentTypeId = $(documentElementSelectors.dropdownlists.DocumentDetailsDocumentTypeExact + did).val();
 
             if (documentTypeId != 3) {
-                alert("Sibling can only be created for SDS document.");
+                kendo.alert("Sibling can only be created for SDS document.");
                 return;
             }
 

@@ -895,8 +895,8 @@
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
         var setDeleteImageIcon = function () {
-            $(".k-grid-Remove").html("<span class='k-icon k-delete'></span>");
-        }
+            $(".k-grid-remove").html("<span class='k-icon k-i-close'></span>");
+        };
 
         var pnlNewProduct_Activated = function () {
             $(productObject.controls.buttons.CancelProductEdit + '_0').click(function () {
