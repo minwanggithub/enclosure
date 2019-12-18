@@ -1229,7 +1229,7 @@
                 var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
                 var args = { message: message, header: 'Confirm Requests Selected' };
                 DisplayConfirmationModal(args, function () {
-                    $(actionModals.CustomerAction).displayModal();
+                    $(actionModals.CustomerAction).displayModalEx();
                 }, function () {
                 });
             }
@@ -1367,6 +1367,8 @@
             }
         }
 
+        var wiredUp = false;
+
         var loadRequests = function () {
 
             // bind grid
@@ -1387,12 +1389,27 @@
 
             // ---- setup action handlers
 
+            $(obtainmentObjects.controls.buttons.MakeCustomerActionBtn).off("click");
+            $(obtainmentObjects.controls.buttons.SaveCustomerActionButton).off("click");
+
+            if (!wiredUp) {
+
+                wiredUp = true;
+
+                obtDetailObj.on("click", obtainmentObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
+                    doCustomerActionAction();
+                });
+
+                obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveCustomerActionButton, function (e) {
+                    saveCustomerAction();
+                });
+
+            }
+
+            /*
+
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.LogPhoneCall, function (e) {
                 doLogPhoneCallAction()
-            });
-
-            obtDetailObj.on("click", obtainmentObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
-                doCustomerActionAction();
             });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.SendEmail, function (e) {
@@ -1401,9 +1418,6 @@
 
             // ---- set up save/update handlers
 
-            obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveCustomerActionButton, function (e) {
-                saveCustomerAction();
-            });
 
             obtDetailObj.on("click", obtainmentObjects.controls.buttons.SavePhoneCall, function (e) {
                 savePhoneCall();
@@ -1418,6 +1432,8 @@
             $(obtainmentObjects.controls.buttons.CancelSuperEmail).click(function () {
                 $(actionModals.SendEmail).hideModal();
             });
+
+            */
 
         };
 
