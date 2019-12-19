@@ -478,7 +478,7 @@
 
             if (["DATEASSIGNEDRANGE", "DATECREATEDRANGE"].indexOf(option) >= 0) {
                 // convert to date pickers
-                $(textField).css({ visibility: '', width: "100px" });
+                $(textField).css({ visibility: '', width: "100px;" });
                 $(textField1).css({ visibility: '', width: "100px" });
                 $(textField).kendoDatePicker();
                 $(textField1).kendoDatePicker();
