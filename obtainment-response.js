@@ -441,6 +441,10 @@
                 viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'none');
         };
 
+        var onInboundResponseDataBound = function () {
+            $(window).resize();   //temp fix for kendo grid page information not displaying
+        };
+
         var setNotesModalSettings = function (settings) {
             notesModalSettings = settings;
         };
@@ -960,6 +964,7 @@
             SearchBind: SearchBind,
             loadSupplierPlugIn: loadSupplierPlugIn,
             closeSupplierSearchWindow: function InitializeSearch() { UIObject.popWindow.supplierSearchDialog().close(); },
+            onInboundResponseDataBound: onInboundResponseDataBound,
             MasterExpand: MasterExpand,          
             MasterCollapse: MasterCollapse,
             OnResponseDetailExpand: onResponseDetailExpand,
