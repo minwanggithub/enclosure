@@ -2440,6 +2440,9 @@
 
         //For new revision only
         function onDocumentNewRevisionDetailsAddAttachmentBtnClick(e) {
+
+            // ARINDAM KATAKI FILE UPLOAD CHECK
+
             e.preventDefault();
 
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
