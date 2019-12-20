@@ -700,6 +700,8 @@
             $(".k-grid-Edit").find("span").addClass("k-icon k-edit");
             $(".k-grid-Delete").find("span").addClass("k-icon k-delete");
             $(".k-grid-View").find("span").addClass("k-icon km-view");
+
+            $(window).resize();   //temp fix for kendo grid page information not displaying
         };
 
         function onAddNewFileBtnClick(e) {
