@@ -3776,6 +3776,7 @@
         var conflictingFileUpload = function (response) {
 
             var response = $.parseJSON(response);
+            console.log(response);
 
             // display a message indicating that the uploaded file is associated 
             // with different document(s)/revision(s)
@@ -3783,22 +3784,16 @@
             kendo.ui.progress($("#mdlConflictingFileUpload"), true);
 
             $("#mdlConflictingFileUpload > .modal-body").html("Fetching a list of matches ...");
-            $("#conflictingFileName").html(response[0].FileName);
+            $("#conflictingFileName").html(response.Attachments[0].FileName);
 
             $("#mdlConflictingFileUpload").modal();
             fUploadlib.clearOnConflictedFileUpload();
                         
-            setTimeout(function () {
-
-                    $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response[0],
-                        function (response) {
-                            kendo.ui.progress($("#mdlConflictingFileUpload"), false);
-                            $("#mdlConflictingFileUpload > .modal-body").html(response);
-                        });
-
-            }, 1500);
-        
-
+            $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response.Attachments[0],
+                function (response) {
+                    kendo.ui.progress($("#mdlConflictingFileUpload"), false);
+                    $("#mdlConflictingFileUpload > .modal-body").html(response);
+                });
         }
 
         return {
