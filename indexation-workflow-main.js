@@ -372,7 +372,7 @@
         })
 
         workflowSearchObj.on("change", obtainmentObject.controls.dropdownlists.SearchCriteriaOption, function (e) {
-            alert("--- ");
+            kendo.alert("--- ");
         })
 
         function handleAdvancedSearchOption(e) {

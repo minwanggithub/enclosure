@@ -259,7 +259,7 @@
             if (onErrorCallback)
                 onErrorCallback(errorMessage);
                 else
-                alert(errorMessage);
+                kendo.alert(errorMessage);
         };
 
         function getCountryDropdownData(ddlCountry, acState) {
@@ -627,7 +627,7 @@
             $(function () {
                 var listView = $("#lvCriterias").data("kendoListView");
                 $("#btnCriteriaAdd").click(function (e) {
-                    alert("Fire listview");
+                    kendo.alert("Fire listview");
                     listView.add();
                     e.preventDefault();
                 });

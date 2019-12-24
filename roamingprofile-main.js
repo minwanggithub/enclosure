@@ -22,7 +22,7 @@
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
                     return true;
                 } else {
-                    alert('Error occured while saving document configuration, ' + data);
+                    kendo.alert('Error occured while saving document configuration, ' + data);
                     return false;
                 }
             });

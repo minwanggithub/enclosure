@@ -300,7 +300,7 @@
                 },
                 SaveClick: function (e) {
                     e.preventDefault();
-                    alert("save");
+                    kendo.alert("save");
                 }
             });
 

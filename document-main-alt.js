@@ -513,7 +513,7 @@
             if (onDisplayError)
                 onDisplayError(message);
             else
-                alert(message);
+                kendo.alert(message);
         }
 
         function extractReferenceId(value) {
@@ -1153,7 +1153,7 @@
                 //Make sure if the did is kit, then it must contain at least two children
                 $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
                     if (data != 'True') {
-                        alert("In order to associate to a product, kits parent document must have at least two children.");
+                        kendo.alert("In order to associate to a product, kits parent document must have at least two children.");
                         return;
                     }
                     DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
@@ -1218,11 +1218,11 @@
                 buttons: {
                     OK: function () {
                         if (!rowModel.usingExistingDocument && rowModel.newDocumentTitle === "") {
-                            alert("Sibling title is required.");
+                            kendo.alert("Sibling title is required.");
                             return;
                         }
                         else if (rowModel.usingExistingDocument && rowModel.existingDocumentId === null) {
-                            alert("Existing document Id is required.");   //Need to verify DocumentId
+                            kendo.alert("Existing document Id is required.");   //Need to verify DocumentId
                             return;
                         }
                         else if (rowModel.usingExistingDocument && rowModel.existingDocumentId != null) {
@@ -1230,7 +1230,7 @@
                                 { documentId: rowModel.existingDocumentId },
                                 function (exist) {
                                     if (!exist) {
-                                        alert("Provided Document Id does not exist!");
+                                        kendo.alert("Provided Document Id does not exist!");
                                         return;
                                     }
                                 });
@@ -3463,7 +3463,7 @@
             var currentRow = $(this).parents('tr[role="row"]');
             var grid = $(this).parents('.k-grid:first').data('kendoGrid');
             if (grid.dataSource.total() <= 2) {
-                alert(documentMessages.errors.KitsComponentsTotalError);
+                kendo.alert(documentMessages.errors.KitsComponentsTotalError);
                 return;
             }
 

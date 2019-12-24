@@ -275,7 +275,7 @@
             var url = "SaveWorkLoadItem";
             $.post(url, { jsWorkLoadItemModel: JSON.stringify(queryText) }, function (data) {
                 if (data == '0')
-                    alert('Error occured while saving the work load item details');
+                    kendo.alert('Error occured while saving the work load item details');
                 else
                     $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html(data);
             });
@@ -326,7 +326,7 @@
             var data = this.dataSource.data();
             $.each(data, function(i, row) {
                 if (i != 0 && currentNameOrNumber == row.NameOrNumber) {
-                    alert("Duplicates not allowed");
+                    kendo.alert("Duplicates not allowed");
                     e.preventDefault();
                     return false;
                 }

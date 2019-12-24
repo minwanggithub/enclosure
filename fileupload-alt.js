@@ -29,7 +29,7 @@
             if (onDisplayError)
                 onDisplayError(message);
             else
-                alert(message);
+                kendo.alert(message);
         }
 
         // ***************************************** UI Methods ******************************************************

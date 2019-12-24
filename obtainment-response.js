@@ -701,7 +701,7 @@
                     else
                         $("#text_mail_body_" + irModel.InboundResponseId).val(data.ContentBody);                    
                 }).error(function () {
-                    alert("Loading error");
+                    kendo.alert("Loading error");
                 });
 
         };

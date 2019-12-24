@@ -4408,7 +4408,7 @@
 
         function onIngredientSearchCriteriaError(e) {
 
-            alert(e.errors);
+            kendo.alert(e.errors);
         }
 
     
@@ -4522,7 +4522,7 @@
                     else {
 
                         // not navigable
-                        alert("Not navigable");
+                        kendo.alert("Not navigable");
 
 
                     }
