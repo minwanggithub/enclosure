@@ -1214,6 +1214,7 @@
 
             useExistingDocument.dialog({
                 title: "Please enter new sibling information",
+                dialogClass: 'siblingDialogClass',
                 autoOpen: true,
                 buttons: {
                     OK: function () {
@@ -1241,8 +1242,8 @@
                             SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle);
                         }
                     },
-                    Cancel: function () {
-                        $(this).dialog("close");
+                    Cancel: function () {                        
+                        $(this).dialog("close")
                     }
                 },
                 width: "500px",
@@ -1253,7 +1254,8 @@
                 create: function (e, ui) {
                     rowModel = GetBindingRow();
                     kendo.bind(useExistingDocument, rowModel);
-
+                    
+                    $(this).dialog("widget").find(".ui-dialog-buttonset").children().addClass("k-button");
                     //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
                     //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
                 }
