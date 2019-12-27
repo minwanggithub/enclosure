@@ -103,8 +103,6 @@
                         });
 
                     } else {
-
-                        debugger;
                         var message = "The following missing information is required to create a valid Document Contact Addesss:<br><br><ul>";
                         message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
                         
@@ -137,8 +135,6 @@
                         
 
                     } else {
-
-                        debugger;
                         var message = "The following information is required to create a valid Document Contact Phone:<br><br><ul>";
                         message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
 
@@ -1528,7 +1524,7 @@
         };
 
         var onIngredientConcentrationChange = function(e) {
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
             if (selectedValue > 0)
                 $("#SelectIngOperator").data("kendoDropDownList").enable(true);
             else {
@@ -1541,7 +1537,7 @@
         };
 
         var onIngredientOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "OperatorFrom", "OperatorTo");
+            operatorDropdownChange(e.sender.selectedIndex, "OperatorFrom", "OperatorTo");
         };
 
         var onIngredientSelection = function(response) {
@@ -1806,19 +1802,19 @@
 
         }
 
-        var onBoilingPointOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromBoilingPoint", "ToBoilingPoint", boilingPointMoreNeeded);
+        var onBoilingPointOperatorChange = function (e) {            
+            operatorDropdownChange(e.sender.selectedIndex, "FromBoilingPoint", "ToBoilingPoint", boilingPointMoreNeeded);
         };
 
         var onGravityOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromSpecificGravity", "ToSpecificGravity");
+            operatorDropdownChange(e.sender.selectedIndex, "FromSpecificGravity", "ToSpecificGravity");
         };
 
         // VISCOSITY-LOGIC
 
         var onViscosity1Change = function(e) {
 
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
            
             // "value"
             if (selectedValue == 1)
@@ -1836,11 +1832,11 @@
         };
 
         var onViscosity2Change = function(e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromViscosity", "ToViscosity", viscosity2MoreNeeded);
+            operatorDropdownChange(e.sender.selectedIndex, "FromViscosity", "ToViscosity", viscosity2MoreNeeded);
         };
 
         var onVocCodeChange = function (e) {
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
             if (selectedValue != 1) {
                 $("#SelectVocOperator").data("kendoDropDownList").select(0);
                 $("#SelectVocOperator").data("kendoDropDownList").enable(false);
@@ -1862,12 +1858,12 @@
         };
 
         var onVocOperatorChange = function(e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromVoc", "ToVoc", vocOperatorMoreNeeded);
+            operatorDropdownChange(e.sender.selectedIndex, "FromVoc", "ToVoc", vocOperatorMoreNeeded);
         };
 
         var onVocWeightMuChange = function (e) {
 
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
 
             // enable by default
             $("#SelectParticularity").data("kendoDropDownList").enable(true);
@@ -1885,7 +1881,7 @@
 
         var onVocVolumeMuChange = function (e) {
 
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
 
             // default to disabled
             $("#SelectParticularity").data("kendoDropDownList").enable(true);
@@ -1902,7 +1898,7 @@
         }
 
         var onVocMuTypeChange = function (e) {
-            var selectedValue = e.sender._selectedValue;
+            var selectedValue = e.sender.selectedIndex;
 
             if (selectedValue == 5) 
                 $("#SelectParticularity").data("kendoDropDownList").enable(false);
@@ -1929,7 +1925,7 @@
 
         var onVolatilityChange = function (e) {
             debugger;
-            operatorDropdownChange(e.sender._selectedValue, "FromVolatility", "ToVolatility", volatilityMoreNeeded);
+            operatorDropdownChange(e.sender.selectedIndex, "FromVolatility", "ToVolatility", volatilityMoreNeeded);
         };
 
         var onPhysChemPropertiesPartialReady = function (settings) {
@@ -4251,15 +4247,15 @@
         }
 
         var onFlashPointOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FromFlashPoint", "ToFlashPoint", flashPointMoreNeeded);
+            operatorDropdownChange(e.sender.selectedIndex, "FromFlashPoint", "ToFlashPoint", flashPointMoreNeeded);
         };
 
         var onFlameExtensionOperatorChange = function (e) {
-            operatorDropdownChange(e.sender._selectedValue, "FlameExtensionFrom", "FlameExtensionTo", flameExtensionMoreNeeded);
+            operatorDropdownChange(e.sender.selectedIndex, "FlameExtensionFrom", "FlameExtensionTo", flameExtensionMoreNeeded);
         };
 
         var onSelfIgnitionOperatorChange = function (e) {
-            uniOperatorDropdownChange(e.sender._selectedValue, "#SelfIgniTemperature", selfIgnitionMoreNeeded);
+            uniOperatorDropdownChange(e.sender.selectedIndex, "#SelfIgniTemperature", selfIgnitionMoreNeeded);
         };
 
         // PPE section methods

@@ -3844,6 +3844,9 @@
         };
     };
 
-    $(function () { });
+    //Initialize
+    $(function () {
+        menuHelper.turnMenuActive($("#menuOperations"));
+    });
 
 })(jQuery);
