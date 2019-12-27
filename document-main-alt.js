@@ -3791,7 +3791,7 @@
             $("#mdlConflictingFileUpload").modal();
             fUploadlib.clearOnConflictedFileUpload();
                         
-            $.post(GetEnvironmentLocation() + '/Operations/Document/ConflictingFileUpload', response.Attachments[0],
+            $.post(GetEnvironmentLocation() + '/Operations/Document/ShowSiblingRevisions', response,
                 function (response) {
                     kendo.ui.progress($("#mdlConflictingFileUpload"), false);
                     $("#mdlConflictingFileUpload > .modal-body").html(response);
