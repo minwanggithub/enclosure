@@ -5,6 +5,8 @@
 
     $.fn.compliDocumentAlt = function () {
 
+        var attachingFileFor = null;
+
         /******************************** Enclosure Variables ********************************/
         var documentAjaxSettings = {
             actions: {
@@ -1526,11 +1528,16 @@
         }
 
         function onNewDocumentAddAttachmentBtnClick(e) {
+
             e.preventDefault();
 
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
+
+            // indicating which document/revision the upload file has been called for.
+            attachingFileFor = e.currentTarget.id;
+            console.log(attachingFileFor);
 
             if (displayUploadModal) {
                 var documentId = 0;
@@ -2450,6 +2457,10 @@
             if ($(e.currentTarget).hasClass('k-state-disabled')) {
                 return false;
             }
+
+            // indicating which document/revision the upload file has been called for.
+            attachingFileFor = e.currentTarget.id;
+            console.log(attachingFileFor);
 
             if (displayUploadModal) {
 
@@ -3780,16 +3791,50 @@
             var response = $.parseJSON(response);
             console.log(response);
 
+            fUploadlib.clearOnConflictedFileUpload();
+
             // display a message indicating that the uploaded file is associated 
             // with different document(s)/revision(s)
 
             kendo.ui.progress($("#mdlConflictingFileUpload"), true);
 
-            $("#mdlConflictingFileUpload > .modal-body").html("Fetching a list of matches ...");
-            $("#conflictingFileName").html(response.Attachments[0].FileName);
+            debugger;
+
+            if (attachingFileFor.toLowerCase().indexOf("_new") < 0) {
+
+                var documentId = parseInt(Array.from(attachingFileFor.split("_")).reverse()[1]);
+                var revisions = (Array.from(response.Revisions || [])).filter(e => e.DocumentId == documentId);
+                
+                // the file being uploaded may be associated with the current document itself.
+                // possibilities - document has only one revision. document has two or more revisions
+                // and the file is associated with the latest revision or the file is associated with
+                // a revision that is not the latest.
+
+                if (revisions.length > 0) {
+
+                    // latest revision is already the same file
+                    if (revisions[0].IsLatestRevision) {
+
+                        kendo.alert("The uploaded file is a duplicate revision. Please mark obtainment requests with 'Confirm as current'", "Invalid File");
+
+                    } else {
+
+                        // the file being uploaded is associated with a revision that is not 
+                        // the latest revision of the document.
+
+                        kendo.alert("The uploaded file is an older revision. A newer revision already exists.", "Invalid File");
+
+                    }
+
+                    return;
+
+                }
+
+            }
 
             $("#mdlConflictingFileUpload").modal();
-            fUploadlib.clearOnConflictedFileUpload();
+            $("#mdlConflictingFileUpload > .modal-body").html("Fetching a list of matches ...");
+            $("#conflictingFileName").html(response.Attachments[0].FileName);
                         
             $.post(GetEnvironmentLocation() + '/Operations/Document/ShowSiblingRevisions', response,
                 function (response) {
