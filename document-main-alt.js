@@ -3305,6 +3305,10 @@
             }
         };
 
+        var onNameNumberGridDataBound = function (e) {
+           $(window).resize();   //temp fix for kendo grid page information not displaying
+        }
+
         var onDocumentRevisionNameNumberGridEdit = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
@@ -3867,6 +3871,7 @@
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
+            onNameNumberGridDataBound: onNameNumberGridDataBound,
             onDocumentRevisionNameNumberError: onDocumentRevisionNameNumberError,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,
             onDocumentStatusHistoryDataBound: onDocumentStatusHistoryDataBound,
