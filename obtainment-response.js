@@ -683,6 +683,8 @@
             detailVM.set("ResponseNotes", irModel.ResponseNotes);
             detailVM.set("ResponseStatusLkp", irModel.ResponseStatusLkp);
             detailVM.set("ResponseStatusId", irModel.ResponseStatusId);
+            detailVM.set("SupplierId", irModel.SupplierId);
+            detailVM.set("SupplierName", irModel.SupplierName);
 
             detailVM.bind("change", function (e) {
                 if (e.field == "Dirty")

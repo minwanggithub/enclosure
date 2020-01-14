@@ -25,7 +25,8 @@
                 ClearSessionVariablesDocument: "ClearSessionsVariables",
                 GetSupplierName: "GetSupplierName",
                 VerifyProductManufacturer: "VerifyProductManufacturer",
-                RepublishCurrentRevision: "RepublishCurrentRevision"
+                RepublishCurrentRevision: "RepublishCurrentRevision",
+                ResetNameNumbersInSession: "ResetNameNumbersInSession",
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -188,7 +189,8 @@
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
                 DocumentRevisionNameNumberDocument: "#hdnMultipleNameDocument",
                 DocumentRevisionNameNumberRevision: "#hdnMultipleNameRevision",
-                DocumentRevisionDetailsRevisionObtainmentWorkitemId: "[id^=RevisionObtainmentWorkitemId_]"
+                DocumentRevisionDetailsRevisionObtainmentWorkitemId: "[id^=RevisionObtainmentWorkitemId_]",
+                DocumentRevisionNameNumberSession: "#hdnNameNumberSession"
             },
             radiobuttons: {
                 DocumentRevisionDetailsIsBadImage: "[id^=IsBadImage_]",
@@ -795,6 +797,9 @@
             container.off('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers);
             container.on('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers, onDocumentAddMultipleNameNumbersBtnClick);
             if (container.length > 0) container.show(500);
+
+            clearNewDocumentNameNumberGrid();
+
         }
 
         function onDocumentSearchClearBtnClick(e) {
@@ -1348,7 +1353,17 @@
             });
         }
 
-        /******************************** New Document Methods ********************************/
+    /******************************** New Document Methods ********************************/
+
+        function clearNewDocumentNameNumberGrid() {
+            var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.ResetNameNumbersInSession;
+            requestUrl = generateLocationUrl(requestUrl);
+            $.post(requestUrl, { token: $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val() }, function () {
+                $(documentElementSelectors.grids.DocumentRevisionNameNumbers + "0").data("kendoGrid").dataSource.read();
+            });
+
+        }
+
         function cancelNewDocumentForm(callbackFunc, clearFields, clearAttachments) {
             var container = $(documentElementSelectors.containers.NewDocument);
             var formData = {
@@ -1366,10 +1381,12 @@
                     if (clearFields == true)
                         revertContainerFieldValues(container, checkNewDocumentDirtyStatus);
                     clearFormAttachment(container, formData);
+                    clearNewDocumentNameNumberGrid();
                     if (callbackFunc) callbackFunc();
                 });
             } else {
                 clearFormAttachment(container, formData);
+                clearNewDocumentNameNumberGrid();
                 if (callbackFunc) callbackFunc();
             }
         }
@@ -1436,12 +1453,14 @@
             if ($(this).getQueryStringParameterByName("docGuid") == "") {
                 formData = {
                     model: getNewDocumentData(),
-                    attachments: getDocumentRevisionAttachments(form)
+                    attachments: getDocumentRevisionAttachments(form),
+                    token: $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val()
                 };
             } else {
                 formData = {
                     model: getNewDocumentData(),
-                    docGuidId: $(this).getQueryStringParameterByName("docGuid")
+                    docGuidId: $(this).getQueryStringParameterByName("docGuid"),
+                    token: $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val()
                 };
             }
 
@@ -2754,6 +2773,7 @@
             var container = $(e.currentTarget).parents('.modal:first');
             var nameNumbers = container.find(documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers).val();
             var nameNumberType = container.find(documentElementSelectors.dropdownlists.DocumentRevisionMultipleNameNumbersType).val();
+            var token = $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val();
 
             if (!nameNumbers || !nameNumberType) {
                 container.modal('hide');
@@ -2771,6 +2791,10 @@
             data['revisionId'] = container.find(documentElementSelectors.hidden.DocumentRevisionNameNumberRevision).val();
             data['aliasTypeId'] = nameNumberType;
             data['aliasesText'] = texts;
+
+            if (data['documentId'] == 0 && data['revisionId'] == 0) {
+                data['token'] = token;
+            }
 
             $(this).ajaxJSONCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.CreateMultipleNameNumbers), JSON.stringify(data))
                 .success(function (successData) {
@@ -3643,49 +3667,37 @@
 
         var afterSaveNameNumber = function (e) {
 
-            try {
+            // create event - triggered after a new row has been addd to the grid
+            if (e.type == "create" || e.type == "update") {
 
-                if (e.response.success == false) {
-                    $(this).displayError(e.response.message);
-                    $('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
-                    return;
+                // check for errors
+                if (e.response.Errors != null) {
+
+                    // error response
+                    console.log(Array.from(e.response.Errors.ServerError.errors)[0]);
+                    var data = JSON.parse(Array.from(e.response.Errors.ServerError.errors)[0]);
+
+                    var grid = $('#gdRevisionNameNumber_' + data.RevisionId).data('kendoGrid');
+                    grid.one("dataBinding", function (e) {
+                        e.preventDefault();
+                    });
+
+                    // display the first error and keep the grid in edit mode
+
+                    $(this).displayError("Duplicate Name Or Number not allowed : " + data.NameNumber);
+                    e.preventDefault();
+
+
                 }
+                else {
 
-                return;
-
-                if (e.type == "create") {
-
-                    var gridId = '#gdRevisionNameNumber_' + e.response.revisionId;
-
-                    if (e.response.success == false) {
-                        $(this).displayError(e.response.message);
-                        $(gridId).data('kendoGrid').dataSource.read();
-                        //var tr = $(gridId).data("kendoGrid").select();
-                        //if (tr.length > 0) grid.editRow(tr);
-                    }
-
-                    //if (e.response.Errors != null) {
-
-                    //    $(this).displayError(e.response.Errors["NameNumber"].errors[0]);
-                    //    var grid = $(gridId).data('kendoGrid');
-                    //    grid.one("dataBinding", function (e) {
-                    //        e.preventDefault();
-                    //    });
-
-                    //    //var grid = $().data("kendoGrid");
-                    //    //var tr = $(gridId).data("kendoGrid").select();
-                    //    //if (tr.length > 0) grid.editRow(tr);
-                    //    //return false;
-                    //}
-                    //else {
-                    //    //$('#gdRevisionNameNumber_' + e.response.revisionId).data('kendoGrid').dataSource.read();
-                    //    //return true;
-                    //}
+                    // no errors in creation of name number pair
+                    var revisionId = Array.from(e.response.Data)[0].RevisionId;
+                    var documentId = Array.from(e.response.Data)[0].DocumentId;
+                    //var grid = $('#gdRevisionNameNumber_' + revisionId).data('kendoGrid').dataSource.read();
 
                 }
 
-            } catch (e) {
-                // do nothing
             }
 
         };
