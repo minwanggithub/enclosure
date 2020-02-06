@@ -1095,7 +1095,7 @@
                     $(actionModals.Assign).hideModal();
 
                     var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
-                    DisplayConfirmationModal(args, function () {
+                    _DisplayConfirmationModal(args, function () {
 
                         $(this).ajaxJSONCall(url, JSON.stringify(data))
                             .success(function (successData) {

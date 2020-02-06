@@ -27,6 +27,7 @@
                 VerifyProductManufacturer: "VerifyProductManufacturer",
                 RepublishCurrentRevision: "RepublishCurrentRevision",
                 ResetNameNumbersInSession: "ResetNameNumbersInSession",
+                GetDocumentTypeInJson: "GetDocumentTypeInJson"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"
@@ -34,7 +35,8 @@
             controllers: {
                 Company: "Company",
                 Document: "Document",
-                Home: "Home"
+                Home: "Home",
+                Svc: "Svc"
             },
             directory: {
                 Operations: "Operations"
@@ -294,7 +296,8 @@
                 SaveNewDocumentAttachmentError: "New documents cannot be created without an attachment. Add an attachment and please try again.",
                 SaveNewDocumentError: "Save the new document could not be completed. Please review you changes and try again.",
                 SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again.",
-                KitsComponentsTotalError: "This component can not be removed, kits must have two or more components"
+                KitsComponentsTotalError: "This component can not be removed, kits must have two or more components",
+                GettingDataSourceError: "Error while retrieving data..."
             },
             modals: {
                 GeneralConfirm: "Confirmation Required",
@@ -514,10 +517,12 @@
         }
 
         function displayError(message) {
-            if (onDisplayError)
-                onDisplayError(message);
-            else
-                kendo.alert(message);
+            kendo.alert(message);
+            //if (onDisplayError)
+            //    onDisplayError(message);
+
+            //else
+            //    kendo.alert(message);
         }
 
         function extractReferenceId(value) {
@@ -1196,27 +1201,60 @@
         var onAddSiblingRequest = function (did) {
             //e.preventDefault();
 
+            //TRECOMPLI - 3724: https://epm.verisk.com/jira/browse/TRECOMPLI-3724
+            //Allow all document types for siblings
+
             var documentTypeId = $(documentElementSelectors.dropdownlists.DocumentDetailsDocumentTypeExact + did).val();
+            //if (documentTypeId != 3) {
+            //    kendo.alert("Sibling can only be created for SDS document.");
+            //    return;
+            //}
 
-            if (documentTypeId != 3) {
-                kendo.alert("Sibling can only be created for SDS document.");
-                return;
-            }
 
-            var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div><label style='margin-top:10px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='margin-left: 10px; width: 100px;'></label></div>");
+            //"<input id='siblingDocType' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, source: columnDataSource, events: { change: onSiblingDocTypeChange }'/>"
+
+            var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div>" +
+                "<div>Choose Doc Type: <span><input id='siblingDocType' style='margin: 5px 0px 0px 10px; width: 332px;' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, disabled:usingExistingDocument, source: docTypeDataSource, events: { change: onSiblingDocTypeChange }'/></span></div>" + 
+                "<label style='margin-top:8px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='width: 100px;'></label></div>");
             //$("<div>siblingRequest</div>").dialog({
             var rowModel;
 
             function GetBindingRow() {
-                return kendo.observable({
+                var siblingObservable = new kendo.observable({
                     usingExistingDocument: false,
                     newDocumentTitle: "",
+                    newDocumentTypeId: documentTypeId,
                     existingDocumentId: null,
+                    //This is for prototype only
+                    //docTypeDataSource: [{                   
+                    //    Text: "SDS",
+                    //    Value: "3"
+                    //}, {
+                    //    Text: "Conflict Mineral",
+                    //    Value: "11"
+                    //}, {
+                    //    Text: "Prop 65",
+                    //    Value: "19"
+                    //    }],
 
+                    docTypeDataSource: new kendo.data.DataSource({
+                        transport: {
+                            read: {
+                                url: generateActionUrl(documentAjaxSettings.controllers.Svc, documentAjaxSettings.actions.GetDocumentTypeInJson),
+                                type: "POST",
+                                contentType: "application/json"                               
+                            }
+                        }
+                    }),
                     onUsingExistingDocumentChange: function (e) {
-                        //alert("check changed");
-                    }
+                        //kendo.alert("check changed");
+                    },
+                    onSiblingDocTypeChange: function (e) {
+                       //kendo.alert("Doc Type changed to " + this.newDocumentTypeId);
+                    },
                 });
+                siblingObservable.get("docTypeDataSource").fetch();
+                return siblingObservable;
             }
 
             useExistingDocument.dialog({
@@ -1246,7 +1284,7 @@
                             SaveSiblingAsExistDocument(did, rowModel.existingDocumentId, rowModel.newDocumentTitle);
                         } else {
                             $(this).dialog("close");
-                            SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle);
+                            SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle, rowModel.newDocumentTypeId);
                         }
                     },
                     Cancel: function () {                        
@@ -1260,8 +1298,24 @@
                 },
                 create: function (e, ui) {
                     rowModel = GetBindingRow();
+                    //Get dataSource, better way to do it below
+                    //$(this).ajaxJSONCall(generateActionUrl(documentAjaxSettings.controllers.Svc, documentAjaxSettings.actions.GetDocumentTypeInJson))
+                    //    .success(function (dataSource) {
+                    //        rowModel.set("docTypeDataSource", dataSource);
+                    //    })
+                    //    .error(function () {
+                    //        displayError(documentMessages.errors.GettingDataSourceError);
+
+                    //    })
+                    //    .complete(function () {
+                    //        //displayCreatedMessage(documentMessages.success.whatever);
+                    //        kendo.bind(useExistingDocument, rowModel);
+                    //        $(this).dialog("widget").find(".ui-dialog-buttonset").children().addClass("k-button");
+                    //        //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
+                    //        //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
+                    //    });
+
                     kendo.bind(useExistingDocument, rowModel);
-                    
                     $(this).dialog("widget").find(".ui-dialog-buttonset").children().addClass("k-button");
                     //var pane = $(this).dialog("widget").find(".ui-dialog-buttonpane")
                     //$("<label class='shut-up' ><input  type='checkbox'/> Stop asking!</label>").prependTo(pane)
@@ -1269,10 +1323,10 @@
             });
         }
 
-        function SaveSiblingAsNewDocument(did, title) {
+        function SaveSiblingAsNewDocument(did, title, docTypeId) {
             kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
             $.post(controllerCalls.AddDocumentSibling,
-                { documentId: did, documentTitle: title },
+                { documentId: did, documentTitle: title, docTypeId: docTypeId},
                 function (data) {
                     if (!data.Success) {
                         $(this).displayError(data.Message);
