@@ -308,7 +308,6 @@
         }
 
         function operatorDropdownChange(selectedValue, fromDdl, toDdl, moreNeeded) {
-
             // <, <=, >, >=, =, approx, trace, range
 
             // disable by default
@@ -633,7 +632,6 @@
 
             // client side re-ordering
             e.preventDefault();
-
             // grid name
             var gridName = $(e.currentTarget).closest("div[id^='Grid'").attr("id");
 
@@ -644,35 +642,56 @@
             var dataItem = grid.dataItem($(e.currentTarget).closest("tr"));
 
             // grid data
-            var gridData = grid.dataSource.data();
+            //var gridData = grid.dataSource.data();
+            var gridData = grid._data;
 
             // locate the row
-            var index = Array.from(gridData).findIndex(e=>e.id == dataItem.id);
+            var index = Array.from(gridData).findIndex(e => e.id == dataItem.id);
 
             // swap index
             var swapIndex = index + (e.data.commandName.indexOf("Up") > 0 ? -1 : 1);
+
+            //var updownIndex = (e.data.commandName.indexOf("Up") > 0 ? -1 : 1);
+
+            moveRow(grid, dataItem, swapIndex - index);
 
             // swap data at data source
             var swapData = gridData[index];
             gridData[index] = gridData[swapIndex];
             gridData[swapIndex] = swapData;
-
-            // refresh grid without hitting server
-            grid.refresh();
-
-            // reposition 
+            
+            //Update Database
             var url = GetEnvironmentLocation() + "/Operations/Indexation/RepositionGHSCode";
             var data = {};
 
-            data.Grid = gridName;//$(e.currentTarget).closest("div[id^='Grid'").attr("id");
-            data.Ids = Array.from(gridData).map(e=>e.id);
+            data.Grid = gridName; 
+            data.Ids = Array.from(gridData).map(evt => evt.id);
             data.IndexationId = $("#IndexationId").val();
-
-            console.log(grid);
 
             $.post(url, data, function (data) {
             });
 
+        };
+
+        function swap(a, b, propertyName) {
+            var temp = a[propertyName];
+            a[propertyName] = b[propertyName];
+            b[propertyName] = temp;
+        }
+
+        function moveRow(grid, dataItem, direction) {
+            var record = dataItem;
+            if (!record) {
+                return;
+            }
+            var newIndex = index = grid.dataSource.indexOf(record);
+            direction < 0 ? newIndex-- : newIndex++;
+            if (newIndex < 0 || newIndex >= grid.dataSource.total()) {
+                return;
+            }
+            swap(grid.dataSource._data[newIndex], grid.dataSource._data[index], 'position');
+            grid.dataSource.remove(record);
+            grid.dataSource.insert(newIndex, record);
         }
 
         var onMultiDeleteGridDataBound = function (e) {
@@ -1523,7 +1542,7 @@
             }
         };
 
-        var onIngredientConcentrationChange = function(e) {
+        var onIngredientConcentrationChange = function (e) {
             var selectedValue = e.sender.selectedIndex;
             if (selectedValue > 0)
                 $("#SelectIngOperator").data("kendoDropDownList").enable(true);
@@ -1924,7 +1943,6 @@
         };
 
         var onVolatilityChange = function (e) {
-            debugger;
             operatorDropdownChange(e.sender.selectedIndex, "FromVolatility", "ToVolatility", volatilityMoreNeeded);
         };
 
@@ -3180,12 +3198,9 @@
             }
 
                 $("#popupHazardStatement").modal("show");
-
                 setTimeout(function () {
-
                     // set focus on filter
                     $("input[id=txtGridSearchHazardStatement]").focus();
-
                     // arrow handling
                     var arrows = [38, 40];
                     grid.table.on("keydown", function (e) {
@@ -3194,13 +3209,10 @@
                                 grid.clearSelection();
                                 grid.select($("#GridSearchHazardStatement_active_cell").closest("tr"));
                             }, 10);
-                    }
+                        }
                     })
-
-
+                    
                 }, 2000);
-
-
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherHCode", function (e) {
