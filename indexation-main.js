@@ -1,11 +1,11 @@
-﻿;(function($) {
+﻿; (function ($) {
 
     // Null check for plugin
     if ($.fn.compliIndexation == null) {
         $.fn.compliIndexation = {};
     }
 
-    $.fn.compliIndexation = function() {
+    $.fn.compliIndexation = function () {
 
         var name = "#special_features";
         var menuYloc = null;
@@ -23,7 +23,7 @@
 
             // global handler
             $(document).ajaxComplete(function (event, request, settings) {
-                if (!nonUpdateCalls.some(e=>settings.url.indexOf(e) >= 0)) {
+                if (!nonUpdateCalls.some(e => settings.url.indexOf(e) >= 0)) {
                     --ajaxCallsInProgress;
                     if (ajaxCallsInProgress == 0) {
 
@@ -39,7 +39,7 @@
             });
 
             $(document).ajaxSend(function (event, request, settings) {
-                if (!nonUpdateCalls.some(e=>settings.url.indexOf(e) >= 0)) {
+                if (!nonUpdateCalls.some(e => settings.url.indexOf(e) >= 0)) {
                     ++ajaxCallsInProgress;
                     //console.log("ajaxComplete:" + ajaxCallsInProgress);
                 }
@@ -48,13 +48,13 @@
         }
 
         // General indexation methodsa
-        var loadIndexationPlugin = function(callbackSettings) {
+        var loadIndexationPlugin = function (callbackSettings) {
             settings = callbackSettings;
             initializeMenu();
             $("#IndexationDetailPanel").kendoPanelBar({
-                select: function(e) {
-                    setTimeout(function() {
-                        $(e.contentElement).find(".k-splitter").each(function() {
+                select: function (e) {
+                    setTimeout(function () {
+                        $(e.contentElement).find(".k-splitter").each(function () {
                             $(this).data("kendoSplitter").trigger("resize");
                         });
                     }, 500);
@@ -94,7 +94,7 @@
                         }, function (result) {
                             $("#DocERContactAddress").html($(result));
                         });
-                        
+
                         url = "../Indexation/GetDocumentContactPhone";
                         $.post(url, {
                             indexationId: data.indexationId
@@ -104,13 +104,13 @@
 
                     } else {
                         var message = "The following missing information is required to create a valid Document Contact Addesss:<br><br><ul>";
-                        message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
-                        
+                        message += (data.errors || []).map(e => "<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
+
                         $(this).displayError(message);
                     }
                 });
 
-                return true;                
+                return true;
             });
 
             indexationDetailObj.on("click", "#btnDocumentPhoneSave", function (e) {
@@ -125,18 +125,18 @@
                         $(this).savedSuccessFully(data.message);
 
                         var url = "../Indexation/GetDocumentContactPhone";
-                        $.post(url, {indexationId: data.indexationId}, function (result) {
+                        $.post(url, { indexationId: data.indexationId }, function (result) {
                             $("#DocERContactPhone").html($(result));
                         });
                         url = "../Indexation/GetDocumentContactAddress";
                         $.post(url, { indexationId: data.indexationId }, function (result) {
                             $("#DocERContactAddress").html($(result));
                         });
-                        
+
 
                     } else {
                         var message = "The following information is required to create a valid Document Contact Phone:<br><br><ul>";
-                        message += (data.errors || []).map(e=>"<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
+                        message += (data.errors || []).map(e => "<li>" + e.ErrorMessage + "</li>").join("").replace(/is required/g, "") + "</ul>";
 
                         $(this).displayError(message);
                     }
@@ -145,7 +145,7 @@
             });
 
             function PrePopulatePhone(arr) {
-            
+
                 $('#CountryLkpId').val('');
                 $('#CityOrAreaCode').val('');
                 $('#LocalNumber').val('');
@@ -197,7 +197,7 @@
             initializeNonSdsControls();
         };
 
-        var loadWorkLoadPlugIn = function() {
+        var loadWorkLoadPlugIn = function () {
             initializeIngredientControls();
             initializeAmericanControls();
             initializeCanadianControls();
@@ -213,7 +213,7 @@
             return { revisionId: revisionId, ehsLevel: ehsChecked, safetyHandlingLevel: safetyHandlingChecked };
         };
 
-        var getDocRevisionId = function() {
+        var getDocRevisionId = function () {
             var revisionId = $("#RevisionId").val();
             var documentId = $("#DocumentId").val();
             return { RevisionId: revisionId, DocumentId: documentId };
@@ -224,17 +224,17 @@
             return { IndexationId: indexationId };
         };
 
-        var onGridEditChangeTitle = function(e) {
+        var onGridEditChangeTitle = function (e) {
             var update = $(e.container).parent().find(".k-grid-update");
             var cancel = $(e.container).parent().find(".k-grid-cancel");
             $(update).attr('title', 'Save');
             $(cancel).attr('title', 'Cancel');
         };
 
-        var onSaveNameNumber = function(e) {
+        var onSaveNameNumber = function (e) {
             var currentNameOrNumber = e.model.NameOrNumber;
             var data = this.dataSource.data();
-            $.each(data, function(i, row) {
+            $.each(data, function (i, row) {
                 if (row.NameNumberId !== e.model.NameNumberId && currentNameOrNumber === row.NameOrNumber) {
                     $(this).displayError("Duplicates not allowed");
                     e.preventDefault();
@@ -247,7 +247,7 @@
         var onSaveReachUse = function (e) {
             var currentNameOrNumber = e.model.ReachUse;
             var data = this.dataSource.data();
-            $.each(data, function(i, row) {
+            $.each(data, function (i, row) {
                 if (row.ReachUseId !== e.model.ReachUseId && currentNameOrNumber === row.ReachUse) {
                     $(this).displayError("Duplicates not allowed");
                     e.preventDefault();
@@ -257,7 +257,7 @@
             });
         };
 
-        var onSaveNonSdsIndexation = function() {
+        var onSaveNonSdsIndexation = function () {
             var nonIndexationObj = $('#NonSdsIndexingContent');
             nonIndexationObj.on("click", "#btnSaveNonSdsIndexing", function (e) {
                 e.preventDefault();
@@ -276,7 +276,7 @@
         }
 
         // Helper Methods
-        
+
         //function displayErrorMessage(message) {
         //    if (settings && settings.onErrorCallback)
         //        settings.onErrorCallback(message);
@@ -406,7 +406,7 @@
 
             var errorMessage = '';
             if (data && data.Errors) {
-                
+
                 var keys = Object.keys(data.Errors);
                 for (var idx = 0; idx < keys.length; idx++) {
                     var errorobj = data.Errors[keys[idx]];
@@ -428,7 +428,7 @@
         }
 
         function initializeMultiSelectCheckboxes() {
-            
+
             indexationDetailObj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -447,13 +447,13 @@
                 e.stopImmediatePropagation();
             });
 
-            indexationDetailObj.on("click", ".chkMasterMultiSelect", function() {
+            indexationDetailObj.on("click", ".chkMasterMultiSelect", function () {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
                     if (kgrid._data.length > 0) {
-                        $.each(kgrid._data, function() {
+                        $.each(kgrid._data, function () {
                             this['IsSelected'] = checked;
                         });
 
@@ -502,11 +502,10 @@
 
                 }
 
-            }else
-            {
+            } else {
                 $(this).displayError("No rows selected");
             }
- 
+
         };
 
         function batchDeleteObjects(targetGrid, objName, url, data, completeCallback) {
@@ -536,20 +535,20 @@
                         header: 'Confirm Delete Selected'
                     };
                     DisplayConfirmationModal(args,
-                        function() {
+                        function () {
 
                             $.ajax({
                                 url: url,
                                 data: JSON.stringify(data),
                                 type: "POST",
                                 contentType: 'application/json; charset=utf-8',
-                                beforeSend: function() {
+                                beforeSend: function () {
                                     kendo.ui.progress($('#IndexationDetail'), true);
                                 },
-                                error: function() {
+                                error: function () {
                                     onDisplayError('Deleting ' + objName + ' could not be completed');
                                 },
-                                success: function(successData) {
+                                success: function (successData) {
 
                                     if (successData.success === true) {
 
@@ -569,7 +568,7 @@
                                     }
 
                                 },
-                                complete: function(compData) {
+                                complete: function (compData) {
 
                                     kendo.ui.progress($('#IndexationDetail'), false);
 
@@ -595,11 +594,11 @@
 
         var multiDeleteCache = {
             cache: {},
-            getCache: function(tableName) {
+            getCache: function (tableName) {
                 var cacheObj = this.cache[tableName] = this.cache[tableName] || {};
                 return cacheObj;
             },
-            clearCache: function(tableName) {
+            clearCache: function (tableName) {
                 this.cache[tableName] = {};
             }
         };
@@ -659,12 +658,12 @@
             var swapData = gridData[index];
             gridData[index] = gridData[swapIndex];
             gridData[swapIndex] = swapData;
-            
+
             //Update Database
             var url = GetEnvironmentLocation() + "/Operations/Indexation/RepositionGHSCode";
             var data = {};
 
-            data.Grid = gridName; 
+            data.Grid = gridName;
             data.Ids = Array.from(gridData).map(evt => evt.id);
             data.IndexationId = $("#IndexationId").val();
 
@@ -711,7 +710,7 @@
 
                     // match ?
                     if (e.sender.element.context.id === gv) {
-                        
+
                         // process up arrow
                         $.find('div[id="' + gv + '"] a[title^="Move Up"]').splice(1).map(ua => {
                             $(ua).text("");
@@ -752,7 +751,7 @@
             menu.on("click", "a", onMenuItemClick);
         }
 
-        $("#btnIndexationGeneralSave").on("click", function() {
+        $("#btnIndexationGeneralSave").on("click", function () {
             validationGeneral = true;
             generalSave = true;
             validationMessage = "";
@@ -830,7 +829,7 @@
             }
         }
 
-      
+
         // Identification section methods
         function initializeIdentificationControls() {
             indexationDetailObj.on("click", "#btnSaveIdentification", function (e) {
@@ -857,7 +856,7 @@
 
             //See TRECOMPLI-2216 - change the cancel to close
             indexationDetailObj.on("click", "#btnDiscardIdentification", function (e) {
-                e.preventDefault();                
+                e.preventDefault();
                 window.close();
             });
 
@@ -869,7 +868,7 @@
             //    else
             //        e.preventDefault();                
             //});
-   
+
 
             indexationDetailObj.on("keydown", "#readOnlyRevisionTitle", function (e) {
                 if (e.keyCode === 35 || e.keyCode === 36 || e.keyCode === 37 || e.keyCode === 39) {
@@ -884,7 +883,7 @@
                 batchDeleteObjects('Gridsynonyms', 'synonyms', '../Indexation/BatchDeleteNameNumbers');
             });
 
-            indexationDetailObj.on("click", "#ancProdNameBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancProdNameBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects('GridClientProductName', 'product names', '../Indexation/BatchDeleteNameNumbers');
             });
@@ -942,7 +941,7 @@
                     });
             });
 
-            indexationDetailObj.on("click", "#ancIngredientBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancIngredientBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridIngredients"
                     , "ingredients"
@@ -951,7 +950,7 @@
                     , function () { $('#EditIngredient').empty(); });
             });
 
-          
+
             indexationDetailObj.on("click", "#SearchByCAS, #SearchByIngredient", function (e) {
                 e.preventDefault();
                 var ingredientWindow = $('#SearchIngredientWindow');
@@ -1011,23 +1010,22 @@
 
                         formdata["IngredientOtherNames"] = [{
                             IngredientNameId: otherNames,
-                            IngredientNameText:"",
-                            IngredientTypeId:2
+                            IngredientNameText: "",
+                            IngredientTypeId: 2
                         }];
 
                         // over ride
                         formdata["Ingredient_NameId"] = otherNames;
                     }
-//                    var isAdding = (formdata["MappingId"] == 0);  // check for selected item instead of insert mode.
+                    //                    var isAdding = (formdata["MappingId"] == 0);  // check for selected item instead of insert mode.
 
                     var grid = $("#GridIngredients").data("kendoGrid");
                     var selectedItem = grid.dataItem(grid.select());
                     var gridData = grid.dataSource.data();
 
                     for (var i = 0; i < gridData.length; i++) {
-                        if (selectedItem != gridData[i] && formdata["IngredientId"] == gridData[i].IngredientId)
-                        {
-                            if (gridData[i].CasNumber != null) 
+                        if (selectedItem != gridData[i] && formdata["IngredientId"] == gridData[i].IngredientId) {
+                            if (gridData[i].CasNumber != null)
                                 $(this).displayError("Ingredient '" + gridData[i].CasNumber.trim() + "' has already been added!");
                             else
                                 $(this).displayError("Ingredient '" + gridData[i].IngredientsUsualName + "' has already been added!");
@@ -1059,7 +1057,7 @@
                                 var window = $("#SearchIngredientWindow").data("kendoWindow");
                                 window.destroy();
                             }
-                            
+
                         }
                     });
                 } else {
@@ -1085,14 +1083,14 @@
                                 url: url,
                                 data: { ingCasNo: ingCasNo, indexationId: indexationId },
                                 type: "POST",
-                                success: function(data) {
+                                success: function (data) {
                                     if (data !== '') {
                                         onIngredientSelection(data);
                                     } else {
                                         $(this).displayError('No ingredient was found with the CAS of "' + ingCasNo + '"');
                                         $('#CasNumber').val("");
                                     }
-                                }, 
+                                },
                                 error: function () {
                                     $(this).displayError('No ingredient was found with the CAS of "' + ingCasNo + '"');
                                     $('#CasNumber').val("");
@@ -1143,7 +1141,7 @@
                 searchGridDoubleClick("#gdIngredientsSearch", "#btnSelectIngredient");
             });
 
-            $(document).on("keyup", "#SearchIngredientWindow input", function(e) {
+            $(document).on("keyup", "#SearchIngredientWindow input", function (e) {
                 if (e.keyCode === 13)
                     $('#btnSearchIngredient').click();
             });
@@ -1205,9 +1203,9 @@
                                     // display message
                                     $(this).savedSuccessFully(data.Message);
 
-                                    var formdata =[];
+                                    var formdata = [];
                                     formdata["ingredientId"] = data.IngredientId;
-                                    
+
                                     $.post("../Ingredient/GetIngredient?ingredientId=" + data.IngredientId,
                                         formdata,
                                         function (response) {
@@ -1222,16 +1220,15 @@
                                             // enable display of controls
                                             $('#btnSelectIngredientDirect').css("visibility", "");
 
-                                            $("#btnSelectIngredientDirect").unbind().click(function (e)
-                                            {
+                                            $("#btnSelectIngredientDirect").unbind().click(function (e) {
                                                 onIngredientSelectionDirect(e)
                                             });
 
                                             $("#btnDeleteIngredient").unbind().click(function (e) {
                                                 onIngredientSelectionDelete(e)
                                             });
-                                                                                        
-                                    });
+
+                                        });
 
                                     return true;
 
@@ -1267,7 +1264,7 @@
                             return input.data('valNumber');
                         }
                     },
-                    tovaluerequired: function(input) {
+                    tovaluerequired: function (input) {
                         if (!input.val())
                             return ingredientToRequired;
                         else
@@ -1357,16 +1354,16 @@
                         cacheObj.valid = data;
                         ingredientValidator.validateInput(input);
                     },
-                    failure: function() {
+                    failure: function () {
                         cacheObj.valid = false;
                         ingredientValidator.validateInput(input);
                     },
-                    complete: function() {
+                    complete: function () {
                         cacheObj.value = settings.ingredientId;
                     }
                 });
             },
-            addToCache: function(ingredientId) {
+            addToCache: function (ingredientId) {
                 var cacheObj = this.cache[ingredientId] = this.cache[ingredientId] || {};
                 if (!cacheObj.valid) {
                     cacheObj.valid = true;
@@ -1400,7 +1397,7 @@
 
             });
 
-            searchwindow.on("click", "#btnSelectIngredient", function(e) {
+            searchwindow.on("click", "#btnSelectIngredient", function (e) {
                 e.preventDefault();
 
                 var grid = $("#gdIngredientsSearch").data("kendoGrid");
@@ -1424,12 +1421,12 @@
                 $.post(url, data, onIngredientSelection);
             });
 
-            searchwindow.on("click", "#btnCancelIngSearch", function(e) {
+            searchwindow.on("click", "#btnCancelIngSearch", function (e) {
                 e.preventDefault();
                 $("#SearchIngredientWindow").data("kendoWindow").close();
             });
 
-            searchwindow.on("click", "#btnClearIngSearch", function(e) {
+            searchwindow.on("click", "#btnClearIngSearch", function (e) {
                 e.preventDefault();
                 $('#IngredientId, #CasNo, #IngredientName, #EinecsNo').val("");
                 $("#gdIngredientsSearch").data("kendoGrid").dataSource.data([]);
@@ -1474,7 +1471,7 @@
                 // load window contents once only
                 var url = GetEnvironmentLocation() + "/Operations/Ingredient/GetIngredient";
                 var data = { ingredientId: 0 };
-                
+
                 if (editorWindow) {
 
                     // detatch all handlers
@@ -1483,11 +1480,11 @@
                     $.ajax({
                         url: url,
                         data: data,
-                        success: function(layout) {
+                        success: function (layout) {
                             editorWindow.find("#ingredientEditorContents").html(layout);
                             var e = editorWindow;
                         },
-                        complete: function() {
+                        complete: function () {
                             initializeIngredientCreationControls(editorWindow);
 
                             var e = editorWindow;
@@ -1505,7 +1502,7 @@
                     editorWindow.data('kendoWindow').close();
                     $(this).displayError('An error occurred adding a new ingredient');
                 }
-                    
+
 
             });
         };
@@ -1515,7 +1512,7 @@
         };
 
 
-        var onGridIngredientChange = function(e) {
+        var onGridIngredientChange = function (e) {
 
             e.preventDefault();
 
@@ -1531,12 +1528,12 @@
             }
 
             $.post(url, { MappingId: selectedData.MappingId },
-                function(data) {
+                function (data) {
                     $('#EditIngredient').html(data);
                 });
         };
-        
-        var onGridIngredientRemove = function(e) {
+
+        var onGridIngredientRemove = function (e) {
             if (e.type === "destroy") {
                 $("#EditIngredient").html("");
             }
@@ -1559,34 +1556,34 @@
             operatorDropdownChange(e.sender.selectedIndex, "OperatorFrom", "OperatorTo");
         };
 
-        var onIngredientSelection = function(response) {
+        var onIngredientSelection = function (response) {
 
             var ingredientForm = $('#ingredientForm');
 
             ingredientForm.find('#CasNumber')
-                            .val(response.CasNumber)
-                            .end()
-                            .find('#IngredientsUsualName')
-                            .val(response.IngredientsUsualName)
-                            .end()
-                            .find('#IngredientsUsualNameId')
-                            .val(response.IngredientsUsualNameId)
-                            .end()
-                            .find('#IngredientId')
-                            .val(response.IngredientId)
-                            .end()
-                            .find('#RegistrationNumber')
-                            .val("")
-                            .end()
-                            .find('#AuthorizationNumber')
-                            .val("")
-                            .end()
-                            .find('#OperatorTo')
-                            .val("")
-                            .end()
-                            .find('#OperatorFrom')
-                            .val("")
-                            .end();
+                .val(response.CasNumber)
+                .end()
+                .find('#IngredientsUsualName')
+                .val(response.IngredientsUsualName)
+                .end()
+                .find('#IngredientsUsualNameId')
+                .val(response.IngredientsUsualNameId)
+                .end()
+                .find('#IngredientId')
+                .val(response.IngredientId)
+                .end()
+                .find('#RegistrationNumber')
+                .val("")
+                .end()
+                .find('#AuthorizationNumber')
+                .val("")
+                .end()
+                .find('#OperatorTo')
+                .val("")
+                .end()
+                .find('#OperatorFrom')
+                .val("")
+                .end();
 
             var ddl = $('#IngredientOtherNames').data("kendoDropDownList");
             ddl.setDataSource(response.IngredientOtherNames);
@@ -1610,11 +1607,11 @@
             // Add to the cache so the check does not need to happen
             ingredientCache.addToCache(response.IngredientId);
 
-           // display the edit and refresh buttons
-           // show on selection
-           $("#btnRefreshIngredient").css("display", "");
-           $("#btnEditIngredient").css("display", "");
-           $("#btnEditIngredient").parent().css("display", "");
+            // display the edit and refresh buttons
+            // show on selection
+            $("#btnRefreshIngredient").css("display", "");
+            $("#btnEditIngredient").css("display", "");
+            $("#btnEditIngredient").parent().css("display", "");
 
         };
 
@@ -1622,11 +1619,11 @@
         var physicalChemicalValidator = null;
 
         function initializePhysicalChemicalControls() {
-            indexationDetailObj.on("click", "#PhysicalStateNotAvailable", function (element) {                
+            indexationDetailObj.on("click", "#PhysicalStateNotAvailable", function (element) {
                 //alert(element.target.checked);
                 if (element.target.checked) {
                     $("#SelectPhysicalState").data("kendoDropDownList").select(0);
-                    $("#SelectPhysicalState").data("kendoDropDownList").enable(false);                    
+                    $("#SelectPhysicalState").data("kendoDropDownList").enable(false);
                 } else {
                     $("#SelectPhysicalState").data("kendoDropDownList").enable(true);
                 }
@@ -1639,7 +1636,7 @@
 
 
                 initializePhysicalChemicalValidator();
-                if(physicalChemicalValidator.validate()) {
+                if (physicalChemicalValidator.validate()) {
                     var form = $("#FormPhyChemProperties");
                     var url = form.attr("action");
                     var formData = form.serialize();
@@ -1682,7 +1679,7 @@
             indexationDetailObj.on("change", "#SolubilityWaterType", function () {
                 var selectedValue = $(this).data("kendoDropDownList").value();
                 var affectedFields = ["SolubilityWaterWeight", "SolubilityWaterVolume"];
-                concentrationTypeDropdownChange(selectedValue, affectedFields, function(val) {
+                concentrationTypeDropdownChange(selectedValue, affectedFields, function (val) {
                     onConcentrationChangeCallback(val, 'SolubilityWater');
                 });
             });
@@ -1710,7 +1707,7 @@
                 },
                 rules: {
 
-                   
+
 
                     decimalvalidate: function (input) {
                         if (input.is('[class="val-decimal"]') && input.val()) {
@@ -1779,7 +1776,7 @@
             }
         }
 
-        function vocOperatorMoreNeeded(selectedValue) {            
+        function vocOperatorMoreNeeded(selectedValue) {
             if (!selectedValue || selectedValue == 7) {
                 $('#SelectMuType').data("kendoDropDownList").select(0);
                 $('#SelectMuType').data("kendoDropDownList").enable(false);
@@ -1788,13 +1785,13 @@
                 $("#SelectVolumeMu").data("kendoDropDownList").select(0);
                 $("#SelectVolumeMu").data("kendoDropDownList").enable(false);
 
-          
+
             } else
                 $('#SelectMuType').data("kendoDropDownList").enable(true);
         }
 
         function onConcentrationChangeCallback(concentrationValue, valueField) {
-            
+
             var textField = $('#' + valueField);
             if (concentrationValue != 0) {
                 var minValue = 0;
@@ -1821,7 +1818,7 @@
 
         }
 
-        var onBoilingPointOperatorChange = function (e) {            
+        var onBoilingPointOperatorChange = function (e) {
             operatorDropdownChange(e.sender.selectedIndex, "FromBoilingPoint", "ToBoilingPoint", boilingPointMoreNeeded);
         };
 
@@ -1831,10 +1828,10 @@
 
         // VISCOSITY-LOGIC
 
-        var onViscosity1Change = function(e) {
+        var onViscosity1Change = function (e) {
 
             var selectedValue = e.sender.selectedIndex;
-           
+
             // "value"
             if (selectedValue == 1)
                 $("#SelectViscosity2").data("kendoDropDownList").enable(true);
@@ -1850,12 +1847,12 @@
             }
         };
 
-        var onViscosity2Change = function(e) {
+        var onViscosity2Change = function (e) {
             operatorDropdownChange(e.sender.selectedIndex, "FromViscosity", "ToViscosity", viscosity2MoreNeeded);
         };
 
         var onVocCodeChange = function (e) {
-            var selectedValue = e.sender.selectedIndex;
+            var selectedValue = this.dataSource._data[e.sender.selectedIndex].Value;
             if (selectedValue != 1) {
                 $("#SelectVocOperator").data("kendoDropDownList").select(0);
                 $("#SelectVocOperator").data("kendoDropDownList").enable(false);
@@ -1876,7 +1873,7 @@
             }
         };
 
-        var onVocOperatorChange = function(e) {
+        var onVocOperatorChange = function (e) {
             operatorDropdownChange(e.sender.selectedIndex, "FromVoc", "ToVoc", vocOperatorMoreNeeded);
         };
 
@@ -1913,13 +1910,13 @@
                 //$("#Warning").prop("disabled", true).prop("checked", false);
                 //$("#SelectWeightMu").data("kendoDropDownList").enable(false);
             }
-            
+
         }
 
         var onVocMuTypeChange = function (e) {
             var selectedValue = e.sender.selectedIndex;
 
-            if (selectedValue == 5) 
+            if (selectedValue == 5)
                 $("#SelectParticularity").data("kendoDropDownList").enable(false);
             else
                 $("#SelectParticularity").data("kendoDropDownList").enable(true);
@@ -2018,10 +2015,10 @@
                         type: "POST",
                         url: url,
                         data: ajaxdata,
-                        success: function(data) {
+                        success: function (data) {
                             $('#AddEditTransportMode').html(data).show();
                         },
-                        error: function() {
+                        error: function () {
                             $(this).displayError('An error occurred retrieving transport classification information');
                         }
                     });
@@ -2031,12 +2028,12 @@
                 hideEditorSection('AddEditTransportMode');
         };
 
-        var onGridTransportModeRequestComplete = function(e) {
-            if(e.type === "destroy")
+        var onGridTransportModeRequestComplete = function (e) {
+            if (e.type === "destroy")
                 hideEditorSection('AddEditTransportMode');
         };
 
-       
+
         // American regulatory section methods
         function initializeAmericanControls() {
             indexationDetailObj.on("click", "#btnSaveRegAmerican", function (e) {
@@ -2071,7 +2068,7 @@
                 $("#popupAmericanClassSearch").modal("show");
             });
 
-            indexationDetailObj.on("click", "#ancOshaBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancOshaBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridRegAmerican", "OSHA classification", "../Indexation/BatchDeleteAmericanClassification");
             });
@@ -2140,7 +2137,7 @@
             return { selectedPpe: selectedPpe };
         };
 
-        var onHmisPpeChange = function(e) {
+        var onHmisPpeChange = function (e) {
             var hmisPictogramGrid = $("#GridHMISPictograms").data("kendoGrid");
             hmisPictogramGrid.dataSource.read();
 
@@ -2163,7 +2160,7 @@
                 $("#popupCanadaClassSearch").modal("show");
             });
 
-            indexationDetailObj.on("click", "#ancCanadaClassBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancCanadaClassBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridRegCanadian", "Canadian classification", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteCanadianClassification");
             });
@@ -2189,7 +2186,7 @@
                             canadaclasslists.push(selectedItem.WhmisClassificationID);
                         }
                     );
-                   
+
                     addCanadaClassificationList(canadaclasslists);
                     return;
                 }
@@ -2214,7 +2211,7 @@
         }
 
         function addCanadaClassificationList(canadaclasslists) {
-            var urlmultiple = GetEnvironmentLocation()  + '/Operations/Indexation/RegCanadian_CreateList';
+            var urlmultiple = GetEnvironmentLocation() + '/Operations/Indexation/RegCanadian_CreateList';
             var indexationId = $("#IndexationId").val();
             $.post(urlmultiple, { classificationList: JSON.stringify(canadaclasslists), indexationId: indexationId },
                 function (data) {
@@ -2237,7 +2234,7 @@
                 $("#popupRSPhraseSearch").modal("show");
             });
 
-            indexationDetailObj.on("click", "#ancReachUsesBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancReachUsesBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridReachUse", "reach uses", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteReachUses");
             });
@@ -2336,7 +2333,7 @@
             }
         }
 
-        var onRegEuropePartialReady = function() {
+        var onRegEuropePartialReady = function () {
 
             var popup = $('#popupRSPhraseSearch');
             popup.modal({
@@ -2345,7 +2342,7 @@
                 backdrop: true
             });
 
-            popup.on('click', '#searchRSPhrases', function(e) {
+            popup.on('click', '#searchRSPhrases', function (e) {
                 e.preventDefault();
 
                 var grid = popup.find('#GridSearchRSPhrase');
@@ -2362,11 +2359,11 @@
             });
 
             popup.on('keyup', '#txtRSPhraseSearch', function (e) {
-                onKeyPressEnter(e, function() {
+                onKeyPressEnter(e, function () {
                     popup.find("#searchRSPhrases").click();
                 });
             });
-            
+
             $.post(GetEnvironmentLocation() + '/Operations/Indexation/GetSearchRsPhrase', function (data) {
                 $("#dgRSPhrasePlugIn").html(data);
             });
@@ -2426,7 +2423,7 @@
             indexationDetailObj.on("click", "#btnAddHazardClass", onAddHazardClassButtonClick);
 
             indexationDetailObj.on("click", "#ancHazardClassBatchDelete", function (e) {
-        
+
                 e.preventDefault();
                 batchDeleteIndexationObjects("GridHazardClass"
                     , "hazard classes"
@@ -2523,7 +2520,7 @@
                 }
 
                 // valid key strokes ?
-                if (![40, 38].some(c=>c == e.which)) return;
+                if (![40, 38].some(c => c == e.which)) return;
 
                 // change selection
                 if (e.which == 40) {
@@ -2609,21 +2606,21 @@
 
                 setPreferences("popupHazardClass");
                 $("#popupHazardClass").css("visibility", "");
-                $("#popupHazardClass").show(function(){
-                        $("#Class").blur();
-                        $("#txtGridSearchHazardClass").focus();
+                $("#popupHazardClass").show(function () {
+                    $("#Class").blur();
+                    $("#txtGridSearchHazardClass").focus();
                 });
 
             });
 
             indexationDetailObj.on("click", "#btnEnableOtherHClass", function (e) {
-      
+
                 e.preventDefault();
                 $("#OtherClass").prop("disabled", false);
                 $("#OtherClass").val($("#Class").val());
                 $("#Class").val("");
                 $("#ClassPhraseId").val("");
-                
+
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Class'));
                     ghsHazardClassValidator.validateInput($('#OtherClass'));
@@ -2632,7 +2629,7 @@
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardClass", function (e) {
-                
+
 
                 e.preventDefault();
                 var grid = $("#GridSearchHazardClass").data("kendoGrid");
@@ -2649,7 +2646,7 @@
 
                 $("#OtherClass").val("");
                 $("#OtherClass").prop("disabled", true);
-               
+
                 $("#Class").val(selectedData.Description);
                 $("#ClassPhraseId").val(selectedData.Reference);
 
@@ -2677,7 +2674,7 @@
             }
 
             indexationDetailObj.on("keydown", "#txtGridSearchHazardCategory", function (e) {
-               
+
                 // keypress
                 var e = e || window.event;
 
@@ -2706,7 +2703,7 @@
                 }
 
                 // valid key strokes ?
-                if (![40, 38].some(c=>c == e.which)) return;
+                if (![40, 38].some(c => c == e.which)) return;
 
                 // change selection
                 if (e.which == 40) {
@@ -2715,7 +2712,7 @@
                 else if (e.which == 38) {
                     if (--index < 0) index = 0;
                 }
-                
+
                 // make selection
                 grid.select(rows[index]);
 
@@ -2797,7 +2794,7 @@
                 setPreferences("popupHazardCategory");
                 $("#popupHazardCategory").css("visibility", "");
                 $("#txtGridSearchHazardCategory").focus();
-                
+
 
             });
 
@@ -2805,7 +2802,7 @@
 
                 var cookies = decodeURIComponent(document.cookie).split(";");
                 var token = "IndexationUIPreferences_" + popup;
-                var preference = cookies.filter(e=> e.indexOf(token + "=") >= 0);
+                var preference = cookies.filter(e => e.indexOf(token + "=") >= 0);
 
                 console.log(cookies[0]);
                 console.log(cookies[1]);
@@ -2848,7 +2845,7 @@
 
                 var cookies = decodeURIComponent(document.cookie).split(";");
                 var token = "IndexationUIPreferences_" + popup;
-                var preference = cookies.filter(e=> e.indexOf(token + "=") >= 0);
+                var preference = cookies.filter(e => e.indexOf(token + "=") >= 0);
 
                 // grid rows
                 var height = $("#" + popup + " .k-grid-content").height();
@@ -2882,7 +2879,7 @@
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
                     ghsHazardClassValidator.validateInput($('#OtherCategory'));
-            }
+                }
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardCategory", function (e) {
@@ -2891,12 +2888,12 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 $("#popupHazardCategory").modal("hide");
 
                 $("#OtherCategory").val("");
@@ -2908,7 +2905,7 @@
                 if (ghsHazardClassValidator) {
                     ghsHazardClassValidator.validateInput($('#Category'));
                     ghsHazardClassValidator.validateInput($('#OtherCategory'));
-            }
+                }
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchHazardCategory table tr", function () {
@@ -2931,7 +2928,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                    }
+                        }
                     });
                     return true;
                 } else
@@ -2945,7 +2942,7 @@
 
             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
 
-            indexationDetailObj.on("click", "#ancGhsPictogramBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancGhsPictogramBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridRegGHSPic", "pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteGhsPictograms");
             });
@@ -2971,17 +2968,17 @@
                     if (Array.from(pictGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                                message: 'All GHS Pictograms will be removed. Proceed ?',
-                                header: 'Confirm GHS Pictogram removal.'
-                    };
+                            message: 'All GHS Pictograms will be removed. Proceed ?',
+                            header: 'Confirm GHS Pictogram removal.'
+                        };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPictograms(url, indexationId); },
-                        function () { $("#PictNotProvided").prop("checked", false); });
+                            function () { $("#PictNotProvided").prop("checked", false); });
 
                     }
-                    else{
+                    else {
                         purgeGHSPictograms(url, indexationId);
-                }
+                    }
 
                 } else {
                     $.post(url, { pictNotProvided: false, indexationId: indexationId },
@@ -2989,8 +2986,8 @@
                             $(this).savedSuccessFully(data);
                             $("#btnAddGhsPictograms, #ancGhsPictogramBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddGhsPictograms", onAddGhsPictogramsButtonClick);
-                    });
-            }
+                        });
+                }
             });
 
             indexationDetailObj.on("click", "#btnSelectGhsPictograms", function (e) {
@@ -2999,12 +2996,12 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 if (grid.select().length > 1) {
                     var rows = grid.select();
                     var ghspictogramlists = [];
@@ -3012,11 +3009,11 @@
                         function (index, row) {
                             var selectedItem = grid.dataItem(row);
                             ghspictogramlists.push(selectedItem.Reference);
-                    }
+                        }
                     );
                     addGhsPictogramList(ghspictogramlists);
                     return;
-            }
+                }
                 addGhsPictogram(selectedData.Reference);
             });
 
@@ -3035,9 +3032,9 @@
                     $("#SignalWordId").val(null);
                     indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 } else {
-               $("#SearchBySignalWord").removeClass("k-state-disabled");
-                indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
-            }
+                    $("#SearchBySignalWord").removeClass("k-state-disabled");
+                    indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+                }
             });
 
             indexationDetailObj.on("change", "#SWOtherBit", function () {
@@ -3050,10 +3047,10 @@
                     $("#SignalWordId").val(null);
                     indexationDetailObj.off("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
                 } else {
-                $("#SWOther").val("").prop("disabled", true);
-                $("#SearchBySignalWord").removeClass("k-state-disabled");
-                indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
-            }
+                    $("#SWOther").val("").prop("disabled", true);
+                    $("#SearchBySignalWord").removeClass("k-state-disabled");
+                    indexationDetailObj.on("click", "#SearchBySignalWord", onSignalWordSearchButtonClick);
+                }
             });
 
             indexationDetailObj.on("click", "#btnSelectGhsSignalWord", function (e) {
@@ -3062,18 +3059,18 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 var selectedData = grid.dataItem(grid.select());
                 if (selectedData == null) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
                 $("#popupGhsSignalWord").modal("hide");
                 $("#SignalWord").val(selectedData.SignalWord + ", " + selectedData.SignalWordCode);
                 $("#SignalWordId").val(selectedData.SignalWordId);
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchSignalWord table tr", function() {
+            indexationDetailObj.on("dblclick", "#GridSearchSignalWord table tr", function () {
                 searchGridDoubleClick("#GridSearchSignalWord", "#btnSelectGhsSignalWord");
             });
 
@@ -3084,10 +3081,10 @@
                 batchDeleteIndexationObjects("GridHazardStatement"
                     , "hazard statements"
                     , GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteHazardStatements"
-                    , function() { hideEditorSection("AddEditHazardStatement"); });
+                    , function () { hideEditorSection("AddEditHazardStatement"); });
             });
 
-                function purgeGHSHStatement(url, indexationId) {
+            function purgeGHSHStatement(url, indexationId) {
                 $('#AddEditHazardStatement').empty();
                 $.post(url, { hStatementNotProvided: true, indexationId: indexationId }, function (data) {
                     $(this).savedSuccessFully(data);
@@ -3108,9 +3105,9 @@
                     if (Array.from(hStatementGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                                message: 'All GHS Hazard Statements will be removed. Proceed ?',
-                                header: 'Confirm GHS Hazard Statement removal.'
-                    };
+                            message: 'All GHS Hazard Statements will be removed. Proceed ?',
+                            header: 'Confirm GHS Hazard Statement removal.'
+                        };
 
                         DisplayConfirmationModal(args, function () { purgeGHSHStatement(url, indexationId); },
                             function () { $("#HStatementNotProvided").prop("checked", false); });
@@ -3118,7 +3115,7 @@
                     }
                     else {
                         purgeGHSHStatement(url, indexationId);
-                }
+                    }
 
                 } else {
                     $.post(url, { hStatementNotProvided: false, indexationId: indexationId },
@@ -3126,42 +3123,42 @@
                             $(this).savedSuccessFully(data);
                             $("#btnAddHazardStatement, #ancHazardStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddHazardStatement", onAddHazardStatementButtonClick);
-                    });
-            }
+                        });
+                }
             });
 
-                // ---- SMART FILTERING ----
+            // ---- SMART FILTERING ----
 
-                function getGHSHazardSearchFilters(hCodeStmt) {
+            function getGHSHazardSearchFilters(hCodeStmt) {
 
-                    // set up filtering
-                    var filters = new Array();
+                // set up filtering
+                var filters = new Array();
 
-                    // tokenize 
-                    var tokens = hCodeStmt.split(",");
+                // tokenize 
+                var tokens = hCodeStmt.split(",");
 
-                    if (tokens.length == 1) {
-                        if (!isNaN(hCodeStmt)) {
+                if (tokens.length == 1) {
+                    if (!isNaN(hCodeStmt)) {
 
-                            // hcode only
+                        // hcode only
                         filters.push({ field: "HCode", operator: "contains", value: hCodeStmt });
                         return { logic: "or", filters: filters };
 
-                        } else {
+                    } else {
 
-                            // search both
+                        // search both
                         filters.push({ field: "HCode", operator: "contains", value: tokens[0].trim() });
                         filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
                         return { logic: "or", filters: filters };
 
                     }
-                    }
-                    else {
+                }
+                else {
 
-                        filters.push({ field: "HCode", operator: "contains", value: tokens[tokens.length - 1].trim() });
-                        tokens = tokens.slice(0, -1);
-                        filters.push({ field: "Statement", operator: "contains", value: tokens.join(",") });
-                        return { logic: "and", filters: filters };
+                    filters.push({ field: "HCode", operator: "contains", value: tokens[tokens.length - 1].trim() });
+                    tokens = tokens.slice(0, -1);
+                    filters.push({ field: "Statement", operator: "contains", value: tokens.join(",") });
+                    return { logic: "and", filters: filters };
                 }
 
             }
@@ -3195,7 +3192,7 @@
                     grid.dataSource.filter(getGHSHazardSearchFilters($("#StatementHCode").val().trim()));
                     grid.dataSource.read();
 
-            }
+                }
 
                 $("#popupHazardStatement").modal("show");
                 setTimeout(function () {
@@ -3210,8 +3207,8 @@
                                 grid.select($("#GridSearchHazardStatement_active_cell").closest("tr"));
                             }, 10);
                         }
-                    })
-                    
+                    });
+                    $(window).resize(); //temp fix for kendo grid page information not displaying
                 }, 2000);
             });
 
@@ -3224,7 +3221,7 @@
                     ghsHazardStatementValidator.validateInput($('#StatementHCode'));
                     ghsHazardStatementValidator.validateInput($('#OtherHCode'));
                     ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
-            }
+                }
             });
 
             indexationDetailObj.on("click", "#btnSelectHazardStatement", function (e) {
@@ -3233,13 +3230,13 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
 
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
@@ -3257,15 +3254,15 @@
                         ghsHazardStatementValidator.validateInput($('#StatementHCode'));
                         ghsHazardStatementValidator.validateInput($('#OtherHCode'));
                         ghsHazardStatementValidator.validateInput($('#OtherHStatement'));
-                }
+                    }
 
                     // Multiple items have been selected save directly into the database
                 } else {
                     batchSaveHazardStatements(getSelectedIds(grid, selectedItems));
-            }
+                }
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchHazardStatement table tr", function() {
+            indexationDetailObj.on("dblclick", "#GridSearchHazardStatement table tr", function () {
                 searchGridDoubleClick("#GridSearchHazardStatement", "#btnSelectHazardStatement");
             });
 
@@ -3286,7 +3283,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                    }
+                        }
                     });
                     return true;
                 } else
@@ -3308,15 +3305,15 @@
                     function () { hideEditorSection("AddEditPrecautionaryStatement"); });
             });
 
-                function purgeGHSPStatement(url, indexationId) {
+            function purgeGHSPStatement(url, indexationId) {
                 $('#AddEditPrecautionaryStatement').empty();
                 $.post(url, { pStatementNotProvided: true, indexationId: indexationId }, function (data) {
-                        $(this).savedSuccessFully(data);
-                        var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
-                        hClassGrid.dataSource.data([]);
-                        hClassGrid.refresh();
-                        $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
-                        indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
+                    $(this).savedSuccessFully(data);
+                    var hClassGrid = $("#GridPrecautionaryStatement").data("kendoGrid");
+                    hClassGrid.dataSource.data([]);
+                    hClassGrid.refresh();
+                    $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").addClass("k-state-disabled");
+                    indexationDetailObj.off("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
                 });
             }
 
@@ -3329,16 +3326,15 @@
                     if (Array.from(hClassGrid.dataSource.data()).length > 0) {
 
                         var args = {
-                                message: 'All GHS Precautionary Statements will be removed. Proceed ?',
-                                header: 'Confirm GHS Precautionary statement removal.'
-                    };
+                            message: 'All GHS Precautionary Statements will be removed. Proceed ?',
+                            header: 'Confirm GHS Precautionary statement removal.'
+                        };
 
                         DisplayConfirmationModal(args, function () { purgeGHSPStatement(url, indexationId); },
-                        function () { $("#PStatementNotProvided").prop("checked", false); });
+                            function () { $("#PStatementNotProvided").prop("checked", false); });
 
                     }
-                    else
-                    {
+                    else {
                         purgeGHSPStatement(url, indexationId);
                     }
 
@@ -3348,38 +3344,38 @@
                             $(this).savedSuccessFully(data);
                             $("#btnAddPrecautionaryStatement, #ancPrecautionaryStatementBatchDelete").removeClass("k-state-disabled");
                             indexationDetailObj.on("click", "#btnAddPrecautionaryStatement", onAddPrecautionaryStatementButtonClick);
-                    });
-            }
+                        });
+                }
             });
 
-                // ---- SMART FILTERING
+            // ---- SMART FILTERING
 
-                function getGHSPrecautionarySearchFilters(pCodeStmt) {
+            function getGHSPrecautionarySearchFilters(pCodeStmt) {
 
-                    // set up filtering
-                    var filters = new Array();
+                // set up filtering
+                var filters = new Array();
 
-                    // tokenize 
-                    var tokens = pCodeStmt.split(",");
+                // tokenize 
+                var tokens = pCodeStmt.split(",");
 
-                    if (tokens.length == 1) {
-                        if (!isNaN(pCodeStmt)) {
+                if (tokens.length == 1) {
+                    if (!isNaN(pCodeStmt)) {
 
-                            // hcode only
-                            filters.push({ field: "PCode", operator: "contains", value: pCodeStmt });
-                            return { logic: "or", filters: filters };
+                        // hcode only
+                        filters.push({ field: "PCode", operator: "contains", value: pCodeStmt });
+                        return { logic: "or", filters: filters };
 
-                        } else {
+                    } else {
 
-                            // search both
-                            filters.push({ field: "PCode", operator: "contains", value: tokens[0].trim() });
-                            filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
-                            filters.push({ field: "Category", operator: "contains", value: tokens[0].trim() });
-                            return { logic: "or", filters: filters };
+                        // search both
+                        filters.push({ field: "PCode", operator: "contains", value: tokens[0].trim() });
+                        filters.push({ field: "Statement", operator: "contains", value: tokens[0].trim() });
+                        filters.push({ field: "Category", operator: "contains", value: tokens[0].trim() });
+                        return { logic: "or", filters: filters };
 
                     }
-                    }
-                    else {
+                }
+                else {
 
                     filters.push({ field: "PCode", operator: "contains", value: tokens[0] });
 
@@ -3419,7 +3415,7 @@
                     grid.dataSource.filter(getGHSPrecautionarySearchFilters($("#StatementPCode").val().trim()));
                     grid.dataSource.read();
 
-            }
+                }
 
                 $("#popupPStatement").modal("show");
 
@@ -3434,7 +3430,7 @@
                     ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
                     ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
-            }
+                }
             });
 
             indexationDetailObj.on("click", "#btnSelectPStatement", function (e) {
@@ -3443,13 +3439,13 @@
                 if (grid.dataSource.total() === 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
 
                 var selectedItems = grid.tbody.find(".k-state-selected");
                 if (!selectedItems || selectedItems.length <= 0) {
                     $(this).displayError("No rows selected");
                     return;
-            }
+                }
 
                 // Continue to have older logic to handle single selected hazard statements or edits
                 var referenceId = $('#AddEditHazardStatement').find('#Reference').val() || "0";
@@ -3467,12 +3463,12 @@
                         ghsPrecautionaryStatementValidator.validateInput($('#StatementPCode'));
                         ghsPrecautionaryStatementValidator.validateInput($('#OtherPCode'));
                         ghsPrecautionaryStatementValidator.validateInput($('#OtherPStatement'));
-                }
+                    }
 
                     // Multiple items have been selected save directly into the database
                 } else {
                     batchSavePrecautionaryStatements(getSelectedIds(grid, selectedItems));
-            }
+                }
             });
 
             indexationDetailObj.on("dblclick", "#GridSearchPrecautionaryStatement table tr", function () {
@@ -3497,7 +3493,7 @@
                         } else {
                             if (data.popupMessage)
                                 $(this).displayError(data.popupMessage);
-                    }
+                        }
                     });
                     return true;
 
@@ -3510,24 +3506,24 @@
                 $('#AddEditPrecautionaryStatement').empty();
             });
 
-                // NONE ----
+            // NONE ----
 
-                indexationDetailObj.on("change", "#NoHazardCategory", function () {
-                    if ($(this).is(":checked")) {
+            indexationDetailObj.on("change", "#NoHazardCategory", function () {
+                if ($(this).is(":checked")) {
 
                     $("#btnEnableOtherHCategory").addClass("k-state-disabled");//.prop("disabled", true);
                     $("#SearchByCategory").addClass("k-state-disabled");//.prop("disabled", true);
                     $("#Category").val("").prop("disabled", true);
                     $("#OtherCategory").val("Category not provided").prop("disabled", false);
 
-                    } else {
+                } else {
 
                     $("#btnEnableOtherHCategory").removeClass("k-state-disabled");//.prop("disabled", true);
                     $("#SearchByCategory").removeClass("k-state-disabled");//.prop("disabled", true);
                     $("#Category").val("").prop("disabled", false);
                     $("#OtherCategory").val("").prop("disabled", true);
                 }
-                });
+            });
 
             indexationDetailObj.on("change", "#NoHazardClass", function () {
                 if ($(this).is(":checked")) {
@@ -3545,15 +3541,15 @@
                     $("#Class").val("").prop("disabled", false);
                     $("#OtherClass").val("").prop("disabled", true);
                     //                    indexationDetailObj.on("click", "#SearchByCode", onSearchByCodeButtonClick);
-            }
+                }
             });
 
 
-                // NONE ----
+            // NONE ----
         }
 
         function initializeGhsHazardClassValidator() {
-            
+
             ghsHazardClassValidator = $("#FormRegulatoryGHS").kendoValidator({
                 messages: {
                     codevalid: function (input) {
@@ -3601,11 +3597,11 @@
         }
 
         function initializeGhsHazardStatementValidator() {
-         
+
             ghsHazardStatementValidator = $("#FormEditHazardStatement").kendoValidator({
-                
+
                 messages: {
-                    codevalid: function(input) {
+                    codevalid: function (input) {
                         if (input.is('[id="StatementHCode"]')) {
                             return "Statement/HCode is required";
                         } else if (input.is('[id="OtherHCode"]')) {
@@ -3613,13 +3609,13 @@
                         } else {
                             return "Other Statement is required";
                         }
-                    }   
+                    }
                 },
                 rules: {
-                    codevalid: function(input) {
+                    codevalid: function (input) {
                         if (input.is('[id="StatementHCode"]') && !$('#HCodePhraseID').val() && $('#OtherHCode').is(':disabled')) {
                             return false;
-                        //} else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
+                            //} else if ((input.is('[id="OtherHCode"]') || input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
                         } else if ((input.is('[id="OtherHStatement"]')) && !input.val() && !$('#HCodePhraseID').val()) {
                             return false;
                         } else {
@@ -3636,9 +3632,9 @@
         function initializeGhsPrecautionaryStatementValidator() {
 
             ghsPrecautionaryStatementValidator = $('#FormEditPrecautionaryStatement').kendoValidator({
-                
+
                 messages: {
-                    statementvalid: function(input) {
+                    statementvalid: function (input) {
                         if (input.is('[id="StatementPCode"]')) {
                             return "Statement/PCode is required";
                         } else if (input.is('[id="OtherPCode"]')) {
@@ -3649,10 +3645,10 @@
                     }
                 },
                 rules: {
-                    statementvalid: function(input) {
+                    statementvalid: function (input) {
                         if (input.is('[id="StatementPCode"]') && !$('#PrecautionaryStatementId').val() && $('#OtherPCode').is(':disabled')) {
                             return false;
-                        //} else if ((input.is('[id="OtherPCode"]') || input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
+                            //} else if ((input.is('[id="OtherPCode"]') || input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
                         } else if ((input.is('[id="OtherPStatement"]')) && !input.val() && !$('#PrecautionaryStatementId').val()) {
                             return false;
                         } else {
@@ -3696,7 +3692,7 @@
                 return false;
             }
 
-            var url = GetEnvironmentLocation() +  "/Operations/Indexation/BatchCreateHazardStatements";
+            var url = GetEnvironmentLocation() + "/Operations/Indexation/BatchCreateHazardStatements";
             var indexationId = getIndexationId();
 
             var data = { indexationId: indexationId.IndexationId, ids: ids };
@@ -3705,7 +3701,7 @@
                 data: JSON.stringify(data),
                 type: "POST",
                 contentType: 'application/json; charset=utf-8',
-                error: function() {
+                error: function () {
                     $(this).displayError("Batch hazard statement creation could not be completed");
                 },
                 success: function (response) {
@@ -3734,7 +3730,7 @@
                 data: JSON.stringify(param),
                 type: "POST",
                 contentType: 'application/json; charset=utf-8',
-                error: function () {                    
+                error: function () {
                     $(this).displayError("Can not save indexation level information.");
                 },
                 success: function (response) {
@@ -3743,7 +3739,7 @@
         }
 
         function batchSavePrecautionaryStatements(ids) {
-            
+
             if (!ids || ids.length === 0) {
                 $(this).displayError("No precautionary statements were selected to be created.");
                 return false;
@@ -3816,7 +3812,7 @@
                 });
         }
 
-        function onAddGhsPictogramsButtonClick (e) {
+        function onAddGhsPictogramsButtonClick(e) {
             e.preventDefault();
             if ($("#popupGhsPictograms").length > 0) {
                 var grid = $("#GridSearchGhsPictograms").data("kendoGrid");
@@ -3862,7 +3858,7 @@
             if (selectedData) {
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/HazardClass_Edit';
                 $.post(url, { indexationId: indexationId, iReference: selectedData.Reference },
-                    function(data) {
+                    function (data) {
                         $('#AddEditHazardClass').html(data).show();
                     });
             } else {
@@ -3876,7 +3872,7 @@
             }
         };
 
-        var onGridHazardStatementChange = function() {
+        var onGridHazardStatementChange = function () {
             var selectedData = this.dataItem(this.select());
             var indexation = getIndexationId();
 
@@ -3887,7 +3883,7 @@
                     function (data) {
                         $('#AddEditHazardStatement').html(data).show();
                     });
-                
+
             } else {
                 hideEditorSection('AddEditHazardStatement');
             }
@@ -3899,7 +3895,7 @@
             }
         };
 
-        var onRegGhsPartialReady = function() {
+        var onRegGhsPartialReady = function () {
 
             $('#popupGhsPictograms').modal({
                 keyboard: false,
@@ -3969,7 +3965,7 @@
 
 
         var onGridPPERequestComplete = function (e) {
-            if(e.type === "destroy")
+            if (e.type === "destroy")
                 hideEditorSection('AddPPE');
         };
 
@@ -4017,7 +4013,7 @@
                 addOtherClassification(selectedData.Reference);
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchOtherClass table tr", function() {
+            indexationDetailObj.on("dblclick", "#GridSearchOtherClass table tr", function () {
                 searchGridDoubleClick("#GridSearchOtherClass", "#btnSelectOtherClass");
             });
         }
@@ -4047,7 +4043,7 @@
         }
 
         var onRegOthersPartialReady = function () {
-            
+
             $('#popupOtherClass').modal({
                 keyboard: false,
                 show: false,
@@ -4072,7 +4068,7 @@
                     });
             });
 
-            indexationDetailObj.on("click", "#ancHandlingStorageBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancHandlingStorageBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridHandlingStorage", "handling storage indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
@@ -4084,22 +4080,22 @@
 
             indexationDetailObj.on("click", "#btnSaveHandlingStorage", function (e) {
                 e.preventDefault();
-             
+
                 var form = $("#FormEditHandlingStorage");
                 var url = form.attr("action");
                 var formData = form.serialize();
                 $.post(url, formData, function (data) {
-                    if(data.result === "success") {
-                          $(this).savedSuccessFully(data.message);
-                          $('#AddHandlingStorage').empty();
-                          var grid = $("#GridHandlingStorage").data("kendoGrid");
-                         grid.dataSource.read();
+                    if (data.result === "success") {
+                        $(this).savedSuccessFully(data.message);
+                        $('#AddHandlingStorage').empty();
+                        var grid = $("#GridHandlingStorage").data("kendoGrid");
+                        grid.dataSource.read();
                     } else {
-                         if (data.popupMessage)
-                         $(this).displayError(data.popupMessage);
+                        if (data.popupMessage)
+                            $(this).displayError(data.popupMessage);
                     }
-               });
-                  return true;
+                });
+                return true;
             });
 
 
@@ -4115,7 +4111,7 @@
             var indexation = getIndexationId();
 
             if (selectedData) {
-               var url = GetEnvironmentLocation() + '/Operations/Indexation/HandlingStorage_Edit';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/HandlingStorage_Edit';
                 $.post(url, { indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "HandlingStorage" },
                     function (data) {
                         $('#AddHandlingStorage').html(data).show();
@@ -4131,7 +4127,7 @@
         function initializeFirstAidControls() {
             indexationDetailObj.on("click", "#btnAddFirstAid", function (e) {
                 e.preventDefault();
-                var url = GetEnvironmentLocation() +  '/Operations/Indexation/FirstAid_Edit';
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/FirstAid_Edit';
                 var indexationId = $("#IndexationId").val();
                 $.post(url, { indexationId: indexationId, iReference: 0, section: "FirstAid" },
                     function (data) {
@@ -4139,7 +4135,7 @@
                     });
             });
 
-            indexationDetailObj.on("click", "#ancFirstAidBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancFirstAidBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridFirstAid", "first aid indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
@@ -4170,32 +4166,32 @@
 
         }
 
-          var onGridFirstAidRequestComplete = function (e) {
-            if(e.type === "destroy")
+        var onGridFirstAidRequestComplete = function (e) {
+            if (e.type === "destroy")
                 hideEditorSection('AddFirstAid');
-                };
+        };
 
         var onGridFirstAidChange = function () {
             var selectedData = this.dataItem(this.select());
             var indexation = getIndexationId();
 
-                    if (selectedData) {
-                        var url = GetEnvironmentLocation() + '/Operations/Indexation/FirstAid_Edit';
-                        $.post(url, {
-                            indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "FirstAid"
-                        },
+            if (selectedData) {
+                var url = GetEnvironmentLocation() + '/Operations/Indexation/FirstAid_Edit';
+                $.post(url, {
+                    indexationId: indexation.IndexationId, iReference: selectedData.Reference, section: "FirstAid"
+                },
                     function (data) {
                         $('#AddFirstAid').html(data).show();
                     });
 
-                    } else
+            } else
                 hideEditorSection('AddFirstAid');
-                };
+        };
 
 
         // Fire fighting section methods
         function initializeFireFightingControls() {
-            indexationDetailObj.on("click", "#btnSaveFireFighting", function(e) {
+            indexationDetailObj.on("click", "#btnSaveFireFighting", function (e) {
                 e.preventDefault();
                 var form = $("#FormFireFighting");
                 var validator = form.kendoValidator().data("kendoValidator");
@@ -4205,7 +4201,7 @@
                     $.post(url, formData, function (data) {
 
                         if (!data.Errors) {
-                            if(!generalSave)
+                            if (!generalSave)
                                 $(this).savedSuccessFully("Fire Fighting Saved");
                             else
                                 $(this).savedSuccessFully("Indexation Saved");
@@ -4277,9 +4273,9 @@
                 var url = GetEnvironmentLocation() + '/Operations/Indexation/Ppe_Edit';
                 var indexationId = $("#IndexationId").val();
                 $.post(url, { indexationId: indexationId, iReference: 0, section: "PPE" },
-                     function (data) {
-                         $('#AddPPE').html(data).show();
-                     });
+                    function (data) {
+                        $('#AddPPE').html(data).show();
+                    });
             });
 
             indexationDetailObj.on("click", "#btnDiscardPPE", function (e) {
@@ -4307,7 +4303,7 @@
                 return true;
             });
 
-            indexationDetailObj.on("click", "#ancPpeBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancPpeBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridPPE", "ppe indexation", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeleteSafetyIndexation");
             });
@@ -4324,7 +4320,7 @@
                 $("#popupPpePictograms").modal("show");
             });
 
-            indexationDetailObj.on("click", "#ancPpePictogramBatchDelete", function(e) {
+            indexationDetailObj.on("click", "#ancPpePictogramBatchDelete", function (e) {
                 e.preventDefault();
                 batchDeleteObjects("GridPPEPictogram", "ppe pictograms", GetEnvironmentLocation() + "/Operations/Indexation/BatchDeletePpePictograms");
             });
@@ -4345,7 +4341,7 @@
                     var rows = grid.select();
                     var ppepictogramlists = [];
                     rows.each(
-                        function(index, row) {
+                        function (index, row) {
                             var selectedItem = grid.dataItem(row);
                             ppepictogramlists.push(selectedItem.Reference);
                         }
@@ -4356,7 +4352,7 @@
                 }
             });
 
-            indexationDetailObj.on("dblclick", "#GridSearchPpePictograms table tr", function() {
+            indexationDetailObj.on("dblclick", "#GridSearchPpePictograms table tr", function () {
                 searchGridDoubleClick("#GridSearchPpePictograms", "#btnSelectPpePictograms");
             });
         }
@@ -4400,7 +4396,7 @@
             return { selectedPpe: selectedPpe, IndexationId: indexationId };
         }
 
-        var onPpeReady = function() {
+        var onPpeReady = function () {
             $('#popupPpePictograms').modal({
                 keyboard: false,
                 show: false,
@@ -4419,14 +4415,14 @@
             kendo.alert(e.errors);
         }
 
-    
+
         var initialNonSdsValues = '';
 
         // Non Sds Indexing Methods
         function initializeNonSdsControls() {
             var mainContent = $('.main-content');
             if (mainContent.length > 0) {
-         //       kendo.ui.progress(mainContent, true);
+                //       kendo.ui.progress(mainContent, true);
 
                 var nonSdsContentFrame = $('#NonSdsIndexingIframe');
                 if (nonSdsContentFrame.length > 0) {
@@ -4453,7 +4449,7 @@
                                 var form = $(this).parents('#NonSdsIndexingContent');
                                 if (form.length > 0) {
 
-                                        // Check if any changes are found
+                                    // Check if any changes are found
                                     if (initialNonSdsValues !== form.serialize()) {
                                         confirmUserSelection('Confirm Indexing Cancel', 'All indexing changes will be reverted. Are you sure you would like to cancel indexing?', function () {
                                             nonSdsContentFrame.attr('src', nonSdsContentFrame.attr('src'));
@@ -4474,7 +4470,7 @@
                             }
                         }
 
-                  //      kendo.ui.progress(mainContent, false);
+                        //      kendo.ui.progress(mainContent, false);
                     });
                 }
             }
@@ -4493,7 +4489,7 @@
             contentFrame.find('body').css('padding', '0');
 
             var nethubContent = contentFrame.find('#NonSdsIndexingContent');
-            parentFrame.height(nethubContent.height() +(htmlPadding * 2) + 'px');
+            parentFrame.height(nethubContent.height() + (htmlPadding * 2) + 'px');
         }
 
         function navigateWithinWorkload(guid, id, prev) {
@@ -4513,7 +4509,7 @@
                 },
                 success: function (data) {
 
-                    if (data.Navigable){
+                    if (data.Navigable) {
 
                         var indexationSets = [];
                         if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
@@ -4538,7 +4534,7 @@
                 }
             });
         }
-        
+
         function initNavigation(guid, offset) {
 
             var data = new Object();
@@ -4551,7 +4547,7 @@
                 type: "POST",
                 contentType: 'application/json; charset=utf-8',
                 error: function () {
-                    
+
                 },
                 success: function (data) {
 
@@ -4593,7 +4589,7 @@
             onGridIngredientChange: onGridIngredientChange,
             onGridIngredientOrderChange: onGridIngredientOrderChange,
             onGridFirstAidChange: onGridFirstAidChange,
-            onGridFirstAidRequestComplete:onGridFirstAidRequestComplete,
+            onGridFirstAidRequestComplete: onGridFirstAidRequestComplete,
             onGridPrecautionaryStatementChange: gridPrecautionaryStatementChange,
             onGridPrecautionaryStatementRequestComplete: onGridPrecautionaryStatementRequestComplete,
             onGridTransportModeRequestComplete: onGridTransportModeRequestComplete,
