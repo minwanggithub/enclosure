@@ -534,7 +534,7 @@
                         message: 'Are you sure you would like to delete the selected ' + objName + '?',
                         header: 'Confirm Delete Selected'
                     };
-                    DisplayConfirmationModal(args,
+                    _DisplayConfirmationModal(args,
                         function () {
 
                             $.ajax({
@@ -1829,8 +1829,8 @@
         // VISCOSITY-LOGIC
 
         var onViscosity1Change = function (e) {
-
-            var selectedValue = e.sender.selectedIndex;
+            var selectedValue = this.dataSource._data[e.sender.selectedIndex - 1].Value;
+            //var selectedValue = e.sender.selectedIndex;  //Obsoleted.
 
             // "value"
             if (selectedValue == 1)
