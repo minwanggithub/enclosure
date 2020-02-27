@@ -1914,7 +1914,7 @@
         }
 
         var onVocMuTypeChange = function (e) {
-            var selectedValue = e.sender.selectedIndex;
+            var selectedValue = this.dataSource._data[e.sender.selectedIndex - 1].Value;
 
             if (selectedValue == 5)
                 $("#SelectParticularity").data("kendoDropDownList").enable(false);
