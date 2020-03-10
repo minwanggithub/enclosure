@@ -2158,6 +2158,9 @@
                     grid.dataSource.read();
                 }
                 $("#popupCanadaClassSearch").modal("show");
+                setTimeout(function () {
+                    $(window).resize(); //temp fix for kendo grid page information not displaying
+                }, 2000);
             });
 
             indexationDetailObj.on("click", "#ancCanadaClassBatchDelete", function (e) {
@@ -2232,6 +2235,10 @@
                     //clearRsPhraseSearchFields(false);
                 }
                 $("#popupRSPhraseSearch").modal("show");
+                setTimeout(function () {
+                    $(window).resize(); //temp fix for kendo grid page information not displaying
+                }, 2000);
+
             });
 
             indexationDetailObj.on("click", "#ancReachUsesBatchDelete", function (e) {
@@ -3418,6 +3425,9 @@
                 }
 
                 $("#popupPStatement").modal("show");
+                setTimeout(function () {                    
+                    $(window).resize(); //temp fix for kendo grid page information not displaying
+                }, 2000);
 
             });
 
