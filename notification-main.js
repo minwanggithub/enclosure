@@ -145,7 +145,7 @@
                 ObtainmentIndex: null,
                 AccountIdArray: "",
                 EmailTemplateId: 0,
-                NotificationStatusId: 0,
+                NotificationStatusId: 1,
                 ScheduledDate: null,
                 ActualSendDate: null,
                 EmailSubject:"",
