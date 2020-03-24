@@ -3786,11 +3786,11 @@
                     }
                 })
 
-            $(documentElementSelectors.datepickers.DocumentRevisionDate_Revision + sequenceId + "_0").kendoDraggable({
-                hint: function () {
-                    return $("#draggableRevDate").clone();
-                }
-            });
+            //$(documentElementSelectors.datepickers.DocumentRevisionDate_Revision + sequenceId + "_0").kendoDraggable({
+            //    hint: function () {
+            //        return $("#draggableRevDate").clone();
+            //    }
+            //});
 
             $(documentElementSelectors.datepickers.DocumentVerifyDate_Revision + sequenceId + "_0").kendoDropTarget({
                 drop: function (e) {
