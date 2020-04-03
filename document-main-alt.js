@@ -269,7 +269,8 @@
             GetDpeRevisionIndexationAsync: GetEnvironmentLocation() + "/Operations/Document/GetDpeRevisionIndexationAsync",
             GetAsynchData: GetEnvironmentLocation() + "/Operations/Document/GetAsynchData",
             RetrieveLatestDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/RetrieveLatestDocumentRevision",
-
+            GetIndexationDataForDocument: GetEnvironmentLocation() + "/Operations/Document/GetIndexationDataForDocument",
+            DoLookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter"
         }
 
         var documentMessages = {
@@ -587,6 +588,7 @@
         function DoLookUpSupplierOnKeyEnter(cntrlid) {
             //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company", new {Area = "Operations"})';
             var url = '../Company/LookUpSupplierOnKeyEnter';
+            url = controllerCalls.DoLookUpSupplierOnKeyEnter;
             var supplierInfo = $(cntrlid).val();
             $.post(url, { supplierInfo: supplierInfo }, function (data) {
                 $(cntrlid).val(data);
@@ -1600,6 +1602,57 @@
             closeNewDocumentPopUp();
         }
 
+        function showDpeDialog() {
+
+            var guid = $(this).getQueryStringParameterByName("docGuid");
+            var inboundResponseId = $(this).getQueryStringParameterByName("inboundResponseId");
+
+            if (guid == "" || guid == null) return;
+            //if (isNaN(parseInt(inboundResponseId))) return;
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                cache: false,
+                url: controllerCalls.GetIndexationDataForDocument,
+                data: { guid: guid },
+                start: function () { inProgress = true; },
+                success: function (data, textStatus, jqXHR) {
+
+                    console.log(data);
+                    data = JSON.parse(data.data);
+
+                    // data states can be one of processed, queued, invalid 
+
+                    if (data.State == "QUEUED")
+                        setTimeout(showDpeDialog, 2000);
+                    else {
+
+                        if (data.State != "INVALID" && data != null) {
+
+                            // $("#DataExtraction").html(data.data);
+                            //var dpeData = JSON.parse('{"Engine":"ml","Error":false,"ExceptionText":null,"RevisionTitle":null,"RevisionDate":null,"PartNumbers":[],"VersionOnDocument":null,"DocumentIdentification":null,"ManufacturerId":null,"SupplierId":null,"ManufacturerName":null,"SupplierName":"microsoft corporation","Language":"EN","Ghs":{"SignalWord":null,"GhsHCodes":null,"GhsPCodes":null,"GhsHazardClasses":null},"Ingredients":null,"FirstAids":null,"PpeProcedures":null,"HandlingAndStorage":null,"PhysicalProperties":null}');
+                            var dpeData = data;
+                            DpeDataExtractionNew(data, documentElementSelectors.image.EmojiHappy_New, documentElementSelectors.image.EmojiConfuse_New);
+
+                        }
+
+                    }
+
+                },
+                error: function (jqXHR, status, errorThrown) {
+
+                },
+                complete: function () {
+                }
+            });
+
+
+
+
+
+        }
+
         function onNewDocumentAddAttachmentBtnClick(e) {
 
             e.preventDefault();
@@ -2017,6 +2070,8 @@
         }
 
         var onNewDocumentPanelActivate = function () {
+
+            showDpeDialog();
 
             $(documentElementSelectors.buttons.DocumentNewDocumentSave).on("click", onDisabledButtonClick);
 
