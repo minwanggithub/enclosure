@@ -45,7 +45,7 @@
                     SaveRemoveOnHoldWorkLoadButton: "#btnSaveRemoveOnHoldWorkLoad"
                 },
                 radioButtons: {
-                    CategoriesMatchGroup: "mltCategoriesMatchGroup" 
+                    CategoriesMatchGroup: "mltCategoriesMatchGroup"
                 },
                 textBoxes: {
                     IndividualTextBox: "#txtIndividual",
@@ -73,11 +73,16 @@
                     YesNoDropDownList: "#selYesNo"
                 },
                 multiSelectLists: { CategoriesMultiSelect: "#mltCategories" },
-                dateTime: { DateAssigned: "#DateAssigned", DateCreated: "#DateCreated" },                
-                labels: { NotesLabel: "#lblNotes", PendingNotesLabel: "#lblPendingNotes", PhysicalState: "#lblPhysicalState" },
+                dateTime: { DateAssigned: "#DateAssigned", DateCreated: "#DateCreated" },
+                labels: {
+                    NotesLabel: "#lblNotes",
+                    PendingNotesLabel: "#lblPendingNotes",
+                    PhysicalState: "#lblPhysicalState",
+                    lblXRefSource: "#lblXRefSource"
+                },
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
             }
-        }
+        };
         var criteriaCondition = { Contains: 0, ExactMatch: 1, StartsWith: 2, EndsWith: 3 };
         var controllerCalls = {
             GetGroupUsers: GetEnvironmentLocation() + "/Operations/Configuration/RequestManager/GetGroupUsers",
@@ -442,6 +447,7 @@
             var data = {};
             data['ids'] = selectedRequests;
             data['productId'] = $(xreferenceObject.controls.textBoxes.ProductIdTextBox).val();
+            data['sourceFrom'] = $(xreferenceObject.controls.labels.lblXRefSource)[0].innerText;
             SaveRequest(controllerCalls.ResolveRequests, data, actionModals.Resolve);
         }
 
@@ -456,10 +462,9 @@
 
                     // prompt for confirmation if the physical state requested in the xref and the
                     // product selected do not match.
-
                     var states = [];
                     var physicalState = $(xreferenceObject.controls.labels.PhysicalState).text();
-
+                    
                     // get the physical states of the selected rows
                     var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
                     Array.from(grid).forEach(i => {
