@@ -502,6 +502,13 @@
 
         }
 
+        var detailCriteria = new Object();
+        detailCriteria.Criterias = [];
+
+        getDetailSearchCriteria = function () {
+            return detailCriteria;
+        }
+
         getAdvancedSearchCriteria = function () {
 
             var criteria = [];
@@ -600,6 +607,9 @@
 
             var data = new Object();
             data.Criterias = criteria;
+
+            detailCriteria = new Object();
+            detailCriteria.Criterias = criteria;
 
             return data;
 
@@ -1185,6 +1195,7 @@
 
             init: init,
             getAdvancedSearchCriteria: getAdvancedSearchCriteria,
+            getDetailSearchCriteria: getDetailSearchCriteria,
             handleAdvancedSearchOption: handleAdvancedSearchOption,
             loadRequests: loadRequests,
             handleKendoGridEvents: handleKendoGridEvents,
