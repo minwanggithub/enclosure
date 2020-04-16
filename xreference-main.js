@@ -185,7 +185,7 @@
                 obtainmentSelSupplier(supplierSearchDialog);
             });
 
-        }
+        };
 
         var hotKeyDisplay = function (btnObj, mdlObj) {
 
@@ -214,7 +214,7 @@
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
             $(mdlObj).displayModal();
-        }
+        };
 
         //Assgn and Unassign Request and saves them
         if ($("#hdnAccess").val() === "Admin") {
@@ -223,7 +223,7 @@
         } else {
             AssignUnassignRequest(xreferenceObject.controls.buttons.AssignMeButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.AssignRequests, controllerCalls.SaveAssignedItems, true, "x a");
             AssignUnassignRequest(xreferenceObject.controls.buttons.UnAssignButton, xreferenceObject.controls.grids.GridRequests, messages.confirmationMessages.UnAssigneRequests, controllerCalls.SaveAssignedItems, false, "x u");
-        }
+        };
 
 
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.ClearRequestSearchButton, function () {
