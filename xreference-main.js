@@ -13,6 +13,8 @@
         var selectedRequests = new Array();
         var selectedRows = new Array(); 
         var radioButtonSelected = "Group";
+        var silbingSupplierId = 0;
+
         var xreferenceObject = {
             controls: {
                 grids: { GridRequests: "#gdRequests", SearchSupplierNewGrid: "#gdSearchSupplierNew" },
@@ -57,7 +59,8 @@
                     SearchSupplierIdTextBox: "#txtSearchSupplierId",
                     RemoveWorkLoadTextBox: "#txtRemoveWorkLoadNotes",
                     OnHoldWorkLoadTextBox: "#txtOnHoldWorkLoadNotes",
-                    RemoveOnHoldWorkLoadTextBox: "#txtRemoveOnHoldWorkLoadNotes"
+                    RemoveOnHoldWorkLoadTextBox: "#txtRemoveOnHoldWorkLoadNotes",
+                    txtCASupplierIDName: "#txtCASupplierIDName"
                 },
                 dropdownlists: {
                     GroupsDropDownList: "#ddlGroups",
@@ -549,6 +552,7 @@
                     data['ids'] = selectedRequests;
                     data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction;
+                    data['siblingSupplierId'] = silbingSupplierId;
                     data['actionId'] = actionId;
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                 } else {
@@ -901,6 +905,7 @@
                 if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
                     //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
                     //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+                    IdentifyRequests();
                 }
 
                 //Obsolete this feature based on the TRECOMPLI-1271
@@ -944,6 +949,13 @@
 
         });
 
+        function DoLookUpSupplierOnKeyEnter(cntrlid) {
+            var url = '../Company/LookUpSupplierOnKeyEnter';
+            var supplierInfo = $(cntrlid).val();
+            $.post(url, { supplierInfo: supplierInfo }, function (data) {
+                $(cntrlid).val(data);
+            });
+        }
 
         function initializeMultiSelectCheckboxes(obj) {
 
@@ -1037,6 +1049,7 @@
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["RequestWorkItemID"]);
+                                kendo.alert(this["SupplierID"]);
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
@@ -1147,6 +1160,26 @@
                 onHoldCount++;
         }
 
+        var IdentifyRequests = function () {
+            $(xreferenceObject.controls.textBoxes.txtCASupplierIDName).val("");
+
+            if (selectedRequests.length == 1) {
+                var dataItem = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.get(selectedRequests[0]);
+                if (dataItem.SupplierID != 0) {
+                    silbingSupplierId = dataItem.SupplierID;
+                    $(xreferenceObject.controls.textBoxes.txtCASupplierIDName).val(silbingSupplierId);
+                    DoLookUpSupplierOnKeyEnter($(xreferenceObject.controls.textBoxes.txtCASupplierIDName));
+                }
+            }
+            else {
+                silbingSupplierId = 0;
+            }
+        };
+
+        var OngdRequestDataBound = function (e) {
+            resizeGridToWindow(e);
+        };
+
         return {
             loadRequestsPlugin: loadRequestsPlugin,
             loadMyRequestsPlugin: loadMyRequestsPlugin,
@@ -1154,7 +1187,9 @@
             loadSupplierPlugIn: loadSupplierPlugIn,
             IsReadOnlyMode: IsReadOnlyMode,
             gdGroupsChange: gdGroupsChange,
-            hotKeyDisplay: hotKeyDisplay
+            hotKeyDisplay: hotKeyDisplay,
+            IdentifyRequests: IdentifyRequests,
+            OngdRequestDataBound: OngdRequestDataBound
         };
     };
 })(jQuery);
