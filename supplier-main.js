@@ -11,6 +11,34 @@
         var onErrorCallback;
         var notesModalSettings;
 
+        var supplierLiterSettings = {
+            actions: {},
+            controls: {
+                grids: {
+                    SupplerSearchGrid: "#gdSearchSupplier"
+                },
+                buttons: {
+                    ClearSupplierSearchButton: "#clearSupplierBtn",
+                    SaveSupplierSearchButton: "#saveSupplierSearchSettingsBtn",
+                    SearchSupplierButton: "#searchSupplierBtn",
+                    RestoreSupplierSearchSettingsButton: "#restoreSupplierSearchSettingsBtn"
+                },
+                textBoxes: {
+                },
+                customControl: {
+                    MainSupplierAdvanceSearchCtl: "#mainSupplierAdvanceSearchCtl",
+                    SupplierAdvanceSearchCtlInPopUp: "#supplierAdvanceSearchCtlInPopUp"
+                }
+            },
+            data: {
+                advanceSearchHistory: "AdvanceSearchHistory",
+                advanceSearch: "AdvanceSearch"
+            },
+            controllerCalls: {
+                SaveCompanySearchSettings:  GetEnvironmentLocation() + "/Operations/Company/SaveCompanySearchSettings"
+            }
+        };
+
         //local funcs
         function GetCompany() {
             if(IsNumeric($("#txtSearchSupplierId").val())) {
@@ -152,7 +180,7 @@
                                     } else {
 
                                         if (reloadSupplier == true) {
-                                            $('#gdSearchSupplier').data('kendoGrid').trigger('change');
+                                            $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data('kendoGrid').trigger('change');
                                         } else {
 
                                             // Attempt to find the history grid to refresh
@@ -180,7 +208,7 @@
                                 } else {
 
                                     if (reloadSupplier == true) {
-                                        $('#gdSearchSupplier').data('kendoGrid').trigger('change');
+                                        $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data('kendoGrid').trigger('change');
                                     } else {
 
                                         // Attempt to find the history grid to refresh
@@ -614,7 +642,7 @@
                 //Remove search result
                 $('#txtSupplierSearch').val("");
                 $("#DetailSupplier #SupplierName").focus();
-                var grid = $("#gdSearchSupplier").data("kendoGrid");
+                var grid = $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data("kendoGrid");
                 if (grid.dataSource.total() == 0)
                     return false;
                
@@ -1797,47 +1825,48 @@
 
         };
 
+      
 
         //----------------------start of not in use-----------------------
-        var refreshAndQuery = function (txtCntlId, gridId) {
-            refreshSupplierSearchResultGrid(gridId);
-            QueueQuery(txtCntlId, gridId);
-        };
+        //var refreshAndQuery = function (txtCntlId, gridId) {
+        //    refreshSupplierSearchResultGrid(gridId);
+        //    QueueQuery(txtCntlId, gridId);
+        //};
 
-        var refreshSupplierSearchResultGrid = function (gridid) {
-            var grid = $("#" + gridid).data("kendoGrid");
+        //var refreshSupplierSearchResultGrid = function (gridid) {
+        //    var grid = $("#" + gridid).data("kendoGrid");
 
-            if (grid.dataSource.view().length > 0) {                       
-                grid.dataSource.page(1);
-            }
-            grid.dataSource.read();
-        };
+        //    if (grid.dataSource.view().length > 0) {
+        //        grid.dataSource.page(1);
+        //    }
+        //    grid.dataSource.read();
+        //};
 
 
-        var QueueQuery = function (txtCntrlId, gridid) {
-            txtCntrlId = "#" + txtCntrlId;
-            if ($(txtCntrlId).val().length != 0) {
-                var searchQueue = $(".btn-group > ul.dropdown-menu");
-                if (searchQueue.length > 0) {
+        //var QueueQuery = function (txtCntrlId, gridid) {
+        //    txtCntrlId = "#" + txtCntrlId;
+        //    if ($(txtCntrlId).val().length != 0) {
+        //        var searchQueue = $(".btn-group > ul.dropdown-menu");
+        //        if (searchQueue.length > 0) {
 
-                    searchQueue.prepend("<li><a href='#'><span class='hreflimit'>" + $(txtCntrlId).val() + "</span></a><span class='btn history-close'>×</span></li>");
+        //            searchQueue.prepend("<li><a href='#'><span class='hreflimit'>" + $(txtCntrlId).val() + "</span></a><span class='btn history-close'>×</span></li>");
 
-                    if ($(".btn-group > ul.dropdown-menu li").length > 10) 
-                        $(".btn-group > ul.dropdown-menu > li:last-child").remove();
+        //            if ($(".btn-group > ul.dropdown-menu li").length > 10) 
+        //                $(".btn-group > ul.dropdown-menu > li:last-child").remove();
                     
-                    $(".btn-group > ul.dropdown-menu li a").click(function () {
-                        $(txtCntrlId).val($(this).text());
-                        refreshSupplierSearchResultGrid(gridid);
-                    });
+        //            $(".btn-group > ul.dropdown-menu li a").click(function () {
+        //                $(txtCntrlId).val($(this).text());
+        //                refreshSupplierSearchResultGrid(gridid);
+        //            });
 
-                    $(".btn.history-close").click(function (e) {
-                        //$(e).parent().find("li").remove();
-                        e.target.parentNode.outerHTML = "";
-                        e.stopPropagation();
-                    });
-                }
-            }
-        };
+        //            $(".btn.history-close").click(function (e) {
+        //                //$(e).parent().find("li").remove();
+        //                e.target.parentNode.outerHTML = "";
+        //                e.stopPropagation();
+        //            });
+        //        }
+        //    }
+        //};
         //----------------------end of not in use-----------------------
 
         var loadSupplierDetail = function (supplierId) {
@@ -2173,11 +2202,174 @@
             });
         });
 
+        // #region Advance Search Section
+
+        function extractSupplierCriteria(e) {
+            var supplierSearchModel = {};
+            var SearchOperator = 'SearchOperator';
+
+            var searchCriteria = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch).DataSource();
+
+            $.each(searchCriteria, function (index, row) {
+                var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
+
+                if (selectedColumn.Type === 'integer') {
+                    supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+                }
+                else if (selectedColumn.Type === 'text') {
+                    supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+                    supplierSearchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
+                }
+                else if (selectedColumn.Type === 'lookup') {
+                    supplierSearchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
+                }
+            });
+
+            return {
+                supplierSearchCriteria: supplierSearchModel
+            };
+        }
+
+        function refreshSupplierSearchResultGrid() {
+            var grid = $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data("kendoGrid");
+            if (grid.dataSource.view().length > 0) {
+                grid.dataSource.page(1);
+            }
+            grid.dataSource.read();
+        }
+
+        function RestoreAdvanceSearchFromRoamingProfile(sender) {
+            var url = GetEnvironmentLocation() + "/Operations/Company/RetrieveCompanySearchSettings"
+            $(this).ajaxCall(url)
+                .success(function (SearchDefault) {
+                    if (SearchDefault != "") {
+                        var dsObject = JSON.parse(SearchDefault);
+                        sender.SetData(dsObject);
+                    }
+                }).error(function (error) {
+                    $(this).displayError(error);
+                });
+        };
+
+        var advanceSearchInitialize = function () {
+            $(supplierLiterSettings.controls.buttons.ClearSupplierSearchButton).click(function (e) {
+                if (typeof $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch) != 'undefined')
+                    adSearchCtl.ClearData();
+
+                //$('#DetailSupplier').html('');
+
+                //Remove search result
+                var grid = $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data("kendoGrid");
+
+                if (grid.dataSource.total() == 0) {
+                    return false;
+                }
+
+                grid.dataSource.filter([]);
+                grid.dataSource.data([]);
+            });
+
+            $(supplierLiterSettings.controls.buttons.SaveSupplierSearchButton).click(function (e) {
+                var adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch);
+                if (typeof adSearchCtl != 'undefined') {
+                    var searchDataSource = adSearchCtl.DataSource();
+
+                    $(supplierLiterSettings.controls.buttons.SaveSupplierSearchButton).data(supplierLiterSettings.data.advanceSearchHistory, searchDataSource);
+                    var url = GetEnvironmentLocation() + "/Operations/Company/SaveCompanySearchSettings"
+                    $(this).ajaxCall(url, { searchDataSource: JSON.stringify(searchDataSource) })
+                        .success(function (successData) {
+                            if (successData.success == true) {
+                                //DisableEnableButtons(true);
+                                $(this).savedSuccessFully("Saved Successfully");
+                            }
+                        }).error(function (error) {
+                            $(this).displayError(error);
+                        });
+                }
+            });
+
+            //This button is for test only
+            $(supplierLiterSettings.controls.buttons.RestoreSupplierSearchSettingsButton).click(function (e) {
+                //var adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data('eeeCompli.advancedsearch');
+                //RestoreAdvanceSearchFromRoamingProfile(adSearchCtl);
+
+                var dsObject = RestoreAdvanceSearchFromRoamingProfile();
+                var historyDataSource = $(supplierLiterSettings.controls.buttons.SaveSupplierSearchButton).data(supplierLiterSettings.data.historyDataSource);
+                if (typeof historyDataSource != 'undefined') {
+                    var adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch);
+                    adSearchCtl.SetData(historyDataSource);
+                }
+                else
+                    kendo.alert("No saved datasource.");
+            });
+
+            $(supplierLiterSettings.controls.buttons.SearchSupplierButton).click(function (e) {
+                refreshSupplierSearchResultGrid();
+
+                //var searchString = $("#txtSupplierSearch").val();
+                //if (searchString.length < 2) {
+                //    onDisplayError("Search can't be empty at least 2 characters need to be typed in");
+                //    var supplierSearchDialog = $("#supplierSearchWindow");
+                //    if (supplierSearchDialog.data("kendoWindow") != null) {
+                //       supplierSearchDialog.data("kendoWindow").close();
+                //    }
+                //} else {
+                //    $('#DetailSupplier').html("");
+                //    refreshSupplierSearchResultGrid();f
+                //    QueueSupplier();
+                //}
+                //return false;
+            });
+
+            //Initialize main advance search control
+            var adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearchHistory);
+            if (typeof adSearchCtl == 'undefined') {
+                advanceSearchDataSource.SupplierSearchColumn.read().then(function () {
+                    advanceSearchDataSource.Operators.read().then(function () {
+                        adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).advancedsearch({
+                            //Using dynamic data source extracted from database
+                            selectedColumnDataSource: advanceSearchDataSource.SupplierSearchColumn.view(),
+                            selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
+                            selectedDataSourceUrl: GetEnvironmentLocation() + "/" + advanceSearchDataSourceSettings.controllers.Svc + "/",
+                            EnableLog: false
+
+                            //Using Static datasource, selectedDataSourceUrl is not required
+                            //selectedColumnDataSource: asSupplierSearchColumnDataSource,
+                            //selectedOperatorDataSource: defaultOperatorDataSource,
+                            //EnableLog: false
+                        });
+                        $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch, adSearchCtl);
+                        RestoreAdvanceSearchFromRoamingProfile(adSearchCtl);
+                    });
+                });
+            }
+
+            //Initialize popup advance search control -- Another pattern
+            //var adPopUpSearchCtl = $(supplierLiterSettings.controls.customControl.SupplierAdvanceSearchCtlInPopUp).data(supplierLiterSettings.data.advanceSearch);
+            //if (typeof adSearchCtl == 'undefined') {
+            //    advanceSearchDataSource.SupplierSearchColumn.read().then(function () {
+            //        advanceSearchDataSource.Operators.read().then(function () {
+            //            adPopUpSearchCtl = $(supplierLiterSettings.controls.customControl.SupplierAdvanceSearchCtlInPopUp).advancedsearch({
+            //                //Using dynamic data source extracted from database
+            //                selectedColumnDataSource: advanceSearchDataSource.SupplierSearchColumn.view(),
+            //                selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
+            //                selectedDataSourceUrl: GetEnvironmentLocation() + "/" + advanceSearchDataSourceSettings.controllers.Svc + "/",
+            //                EnableLog: false
+            //            });
+            //            $(supplierLiterSettings.controls.customControl.SupplierAdvanceSearchCtlInPopUp).data(supplierLiterSettings.data.advanceSearch, adPopUpSearchCtl);
+            //        });
+            //    });
+            //}
+
+        };
+
+        // #endregion
+
         //Expose to public
         return {
-            QueueQuery: QueueQuery,
+            //QueueQuery: QueueQuery,
             refreshSupplierSearchResultGrid: refreshSupplierSearchResultGrid,
-            refreshAndQuery: refreshAndQuery,
+            //refreshAndQuery: refreshAndQuery,
 
             onGetObtainmentSettingId: onGetObtainmentSettingId,
             OnChangeCountry: OnChangeCountry,
@@ -2275,7 +2467,9 @@
             onGridEditChangePhone: onGridEditChangePhone,
             onGridEditChangeEmail: onGridEditChangeEmail,
             onGridEditChangeContactPhone: onGridEditChangeContactPhone,
-            onGridEditChangeContactEmail: onGridEditChangeContactEmail
+            onGridEditChangeContactEmail: onGridEditChangeContactEmail,
+            extractSupplierCriteria: extractSupplierCriteria,
+            advanceSearchInitialize: advanceSearchInitialize
         };
     };
 

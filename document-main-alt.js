@@ -27,7 +27,7 @@
                 VerifyProductManufacturer: "VerifyProductManufacturer",
                 RepublishCurrentRevision: "RepublishCurrentRevision",
                 ResetNameNumbersInSession: "ResetNameNumbersInSession",
-                GetDocumentTypeInJson: "GetDocumentTypeInJson"
+                GetDocumentTypeInJson: "GetDocumentTypeLookUp"
             },
             contenttype: {
                 Json: "application/json; charset=utf-8"

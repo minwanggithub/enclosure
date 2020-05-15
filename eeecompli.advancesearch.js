@@ -1,28 +1,28 @@
-﻿//=====================================================================
+﻿//==============================================================================================
 //Min Wang: 05/01/2020 -- Note ----
-//jQuery Advance Search Control for dynamically creating criterias
+//An Universal jQuery Advance Search Control for dynamically creating criterias based datasource
 //It depends on kendo UI
-//=====================================================================
+//==============================================================================================
 
 (function ($, kdo) {
     $.fn.advancedsearch = function (options) {
 
         // All default datasources used here are for testing purpose, can be override anytime
         // All datasource needs to be passed at runtime, otherwise default will be injected.
-        
+
         //Dummy data
         var defaultLookUpDataSource = [
             {
                 Text: 'LookUpOne',
-                Value: '1',
+                Value: '1'
             },
             {
                 Text: 'LookUpTwo',
-                Value: '2',
+                Value: '2'
             },
             {
                 Text: 'LookUpThree',
-                Value: '3',
+                Value: '3'
             },
         ];
 
@@ -46,36 +46,50 @@
            Type: "DateRange"
          }];
 
-        //Dummy data
+        //Dummy data, index started with 0 to map original eeeCompli search option
         var defaultOperatorDataSource = [
             {
                 Text: 'Contains',
-                Value: '1',
+                Value: '0',
                 Type: 'integer'
             },
             {
                 Text: 'Exact Match',
-                Value: '2',
+                Value: '1',
                 Type: 'integer'
             },
             {
                 Text: 'Starts With',
-                Value: '3',
+                Value: '2',
                 Type: 'integer'
             },
             {
                 Text: 'Ends With',
-                Value: '4',
+                Value: '3',
                 Type: 'integer'
             }
         ];
-
-
 
         options = options || {}; //make sure options is not null, or can extend to define default options
         var $this = $(this);
         var totalrow = 0;
 
+        /**
+         * Returns a random integer between min (inclusive) and max (inclusive).
+         * The value is no lower than min (or the next integer greater than min
+         * if min isn't an integer) and no greater than max (or the next integer
+         * lower than max if max isn't an integer).
+         * Using Math.round() will give you a non-uniform distribution!
+         */
+
+        function getRandomInt(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        var randomPrefix = "_For_" + $this.selector.substring(1) + getRandomInt(100000, 999999);
+        
         var settings = $.extend(
             {
                 selectedColumnDataSource: defaultColumnDataSource,
@@ -165,9 +179,7 @@
 
                     //Validation
                     var selectedItem = e.sender.dataItem();
-                    var criteriarow = $(e.sender.element[0])
-                        .parent()
-                        .parent();
+                    var criteriarow = $(e.sender.element[0]).parent().parent();
 
                     this.set('selectedColumnType', selectedItem.Type);
                     if (selectedItem.Type === 'integer') {
@@ -180,6 +192,10 @@
                         this.set('isDataFieldVisiable', true);
                         this.set('isDataLookUpVisiable', false);
                         this.set('isDatePickerVisible', false);
+
+                        //If integer, then remove any current none digit
+                        //this.value = this.value.replace(/[^0-9$,]/g, '');
+                        //alert($('#' + criteriarow.children()[2].id).val());
 
                         //Only allow numeric
                         $(document).on(
@@ -306,20 +322,22 @@
             var criteriaRowId = 'criteriaRow_' + rowIndex;
             var criteriaRow = $("<div id='" + criteriaRowId + "' class='criteriarow'></div>");
             var column = $("<input id='column_" +
-                rowIndex +
+                rowIndex + randomPrefix +
                 "' data-role='dropdownlist' data-auto-bind='false' data-field-lookup='SubLookUp' data-text-field='Text' data-value-field='Value'  data-bind='value: selectedColumn, source: columnDataSource, events: { change: onColumnChange }' style='min-width:180px;'/>"
             );
             var operator = $(
-                "<input id='operator_" + rowIndex + "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='min-width:164px;'/>"
+                "<input id='operator_" +
+                rowIndex + randomPrefix +
+                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='min-width:164px;'/>"
             );
             var datafield = $(
                 "<input type='text' id='dataField_" +
-                rowIndex +
+                rowIndex + randomPrefix +
                 "' data-bind='value: enteredDataFieldValue, visible: isDataFieldVisiable' style='width:150px; height:16px;' />"
             );
             var datalookup = $(
                 "<input id='dataFieldLookup_ " +
-                rowIndex +
+                rowIndex + randomPrefix +
                 "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:164px;'/>"
             );
 
@@ -333,7 +351,7 @@
             //This onclick can not find defined function
             var operationbtn = $(
                 "<button id='operationbtn_" +
-                rowIndex +
+                rowIndex + randomPrefix +
                 "' parentdiv='" +
                 criteriaRowId +
                 "' data-bind='click: onAddRemoveClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;' name='" +
@@ -357,7 +375,7 @@
             if (btnname == plugInOptions.Icons.Add) {
                 var resetbtn = $(
                     "<button id='resetbtn_" +
-                    rowIndex +
+                    rowIndex + randomPrefix +
                     "' parentdiv='" +
                     criteriaRowId +
                     "' data-bind='click: onResetClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;' name='reset' title='" +
@@ -381,9 +399,17 @@
             }
             $this.append(criteriaRow);
 
-            var rowModel = defaultModel;
-            if (rowModel == null) rowModel = getModelViewObservable();
+            var rowModel = getModelViewObservable();
+            if (defaultModel != null) {
+                Object.keys(defaultModel).forEach(function (key, index) {
+                    rowModel[key] = defaultModel[key];   //Restore events, lost after serialiazation
+                });
+            }
+
             kdo.bind(criteriaRow, rowModel);
+
+            //Increase the row counter to create unique controls on screen
+            totalrow++;
 
             //Set Next Column in Sequence
             if (nextColumnList.length === 0) {
@@ -394,7 +420,8 @@
             } else {
                 if (rowIndex === 0)
                     SetNextSelectColumnDefault(column, rowModel.selectedColumn);
-                else SetNextSelectColumnDefault(column, parseInt(nextColumnList[0]));
+                else
+                    SetNextSelectColumnDefault(column, parseInt(nextColumnList[0]));
 
                 ConsoleLog(
                     'Default column:  ' +
@@ -404,20 +431,24 @@
                 );
             }
 
-            //Increase the row counter to create unique controls on screen
-            totalrow++;
+            
         }
 
         //Defined SetNextSelectCoumnDefault
         //For 05/05/2020
         function SetNextSelectColumnDefault(sender, index) {
             ConsoleLog('Set next column ' + index);
-            $(sender)
-                .data('kendoDropDownList')
-                .select(index - 1); //kendo dropdownlist index starts with 0;
-            $(sender)
-                .getKendoDropDownList()
-                .trigger('change');
+            try {
+                $(sender)
+                    .data('kendoDropDownList')
+                    .select(index - 1); //kendo dropdownlist index starts with 0;
+                $(sender)
+                    .getKendoDropDownList()
+                    .trigger('change');
+            }
+            catch (err) {
+                kdo.alert(err.message);
+            }
         }
 
         function getAddedColumnOnScreen() {
@@ -485,7 +516,7 @@
                 if (bs.selectedColumnType != 'DateRange') {
                     criteria.FieldOperatorIndex = bs.selectedOperator;
                     criteria.FieldOperatorValue =
-                        settings.selectedOperatorDataSource[bs.selectedOperator - 1].Text;
+                        settings.selectedOperatorDataSource[bs.selectedOperator].Text;
                 }
                 criteria.SearchType = bs.selectedColumnType;
                 criteria.DateFromValue = null;
@@ -538,6 +569,7 @@
                 ConsoleLog('Value Entered: ' + val.enteredDataFieldValue);
             });
         };
+
         var ClearData = function () {
             $this.html('');
             totalrow = 0;
