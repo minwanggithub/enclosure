@@ -1825,6 +1825,274 @@
 
         };
 
+
+        var initSupplierSummary = function (supplierId) {
+            //kendo.alert(supplierId);
+
+            $("#gdSupplierSummaryEmail_" + supplierId).kendoGrid({
+                dataSource: {
+                    type: "aspnetmvc-ajax",
+                    transport: {
+                        read: {
+                            url: "../Company/WebSite_Read",
+                            data: function () {
+                                return {
+                                    supplierId: supplierId
+                                }
+                            }
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        model: {
+                            id: "CompanyWebsiteId",
+                            fields: {
+                                "CompanyWebsiteId": { type: "integer" },
+                                "Url": { type: "string" }
+                            }
+                        },
+                        total: function (response) {
+                            if (typeof response.Data !== 'undefined')
+                                return response.Data.length;
+                            else
+                                return 0;
+                        }
+                    },
+                    pageSize: 10
+                    //serverPaging: false,
+                    //serverSorting: true,
+                },
+                //height: 550,
+                filterable: true,
+                sortable: true,
+                autoBind: true, 
+                pageable: {
+                    alwaysVisible: true,
+                    previousNext: true,
+                    //refresh: true,
+                    pageSizes: [10, 20, 50],
+                    buttonCount: 10
+                },
+                requestStart: function (e) {
+                    kendo.ui.progress(thisGrid, true);
+                    //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
+                },
+                requestEnd: function (e) {
+                    kendo.ui.progress(thisGrid, false);
+                },
+                columns: [
+                    { field: "CompanyWebsiteId", title: "ID"},
+                    { field: "Url", title: "Website/URL", template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>' }
+                ]
+                //dataBound: function (e) {
+                //    setTimeout(function () {
+                //        e.sender.wrapper.find('.k-pager-wrap.k-grid-pager > a').removeClass('k-state-disabled');
+                //    });
+                //}
+            });
+
+            $("#gdSupplierSummaryObtainmentSetting_" + supplierId).kendoGrid({
+                dataSource: {
+                    type: "aspnetmvc-ajax",
+                    transport: {
+                        read: {
+                            url: "../ObtainmentSettings/ObtainmentSettings_Read",
+                            data: function () {
+                                return {
+                                    supplierId: supplierId
+                                }
+                            }
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        model: {
+                            id: "ObtainmentSettingID",
+                            fields: {
+                                "Sequence": { type: "integer" },
+                                "DocType": { type: "string" },
+                                "Language": { type: "string" },
+                                "Region": { type: "string" }
+                            }
+                        },
+                        total: function (response) {
+                            if (typeof response.Data !== 'undefined')
+                                return response.Data.length;
+                            else
+                                return 0;
+                        }
+                    },
+                    pageSize: 10
+                    //serverPaging: false,
+                    //serverSorting: true,
+                },
+                //height: 550,
+                filterable: true,
+                sortable: true,
+                autoBind: true,
+                pageable: {
+                    alwaysVisible: true,
+                    previousNext: true,
+                    //refresh: true,
+                    pageSizes: [10, 20, 50],
+                    buttonCount: 10
+                },
+                requestStart: function (e) {
+                    kendo.ui.progress(thisGrid, true);
+                    //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
+                },
+                requestEnd: function (e) {
+                    kendo.ui.progress(thisGrid, false);
+                },
+                columns: [
+                    { field: "Sequence", title: "Seq" },
+                    { field: "DocType", title: "DocType" },
+                    { field: "Language", title: "Language" },
+                    { field: "Region", title: "Jurisdiction" },
+                ]
+                //dataBound: function (e) {
+                //    setTimeout(function () {
+                //        e.sender.wrapper.find('.k-pager-wrap.k-grid-pager > a').removeClass('k-state-disabled');
+                //    });
+                //}
+            });
+
+            $("#gdSupplierSummaryAlias_" + supplierId).kendoGrid({
+                dataSource: {
+                    type: "aspnetmvc-ajax",
+                    transport: {
+                        read: {
+                            url: "../Company/Alias_Read",
+                            data: function () {
+                                return {
+                                    supplierId: supplierId
+                                }
+                            }
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        model: {
+                            id: "CompanyAliasId",
+                            fields: {
+                                "CompanyAliasId": { type: "integer" },
+                                "Name": { type: "string" }
+                            }
+                        },
+                        total: function (response) {
+                            if (typeof response.Data !== 'undefined')
+                                return response.Data.length;
+                            else
+                                return 0;
+                        }
+                    },
+                    pageSize: 10
+                    //serverPaging: false,
+                    //serverSorting: true,
+                },
+                //height: 550,
+                filterable: true,
+                sortable: true,
+                autoBind: true,
+                pageable: {
+                    alwaysVisible: true,
+                    previousNext: true,
+                    //refresh: true,
+                    pageSizes: [10, 20, 50],
+                    buttonCount: 10
+                },
+                requestStart: function (e) {
+                    kendo.ui.progress(thisGrid, true);
+                    //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
+                },
+                requestEnd: function (e) {
+                    kendo.ui.progress(thisGrid, false);
+                },
+                columns: [
+                    { field: "CompanyAliasId", title: "Alias Id" },
+                    { field: "Name", title: "Alias Name" }
+                ]
+            });
+
+            $("#gdSupplierSummaryContactInfo_" + supplierId).kendoGrid({
+                dataSource: {
+                    type: "aspnetmvc-ajax",
+                    transport: {
+                        read: {
+                            url: "../Company/LoadSupplierContactAddress",
+                            data: function () {
+                                return {
+                                    supplierId: supplierId
+                                }
+                            }
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        model: {
+                            id: "SupplierAddressId",
+                            fields: {
+                                "SupplierAddressId": { type: "integer" },
+                                "AddressType": { type: "string" },
+                                "SupplierAddressName": { type: "string" },
+                                "SupplierAddress1": { type: "string" },
+                                "SupplierCity": { type: "string" },
+                                "SupplierState": { type: "string" },
+                                "SupplierCountry": { type: "string" },
+                                "SupplierPostalCode": { type: "string" },
+                                "PhoneNumber": { type: "string" }
+                            }
+                        },
+                        total: function (response) {
+                            if (typeof response.Data !== 'undefined')
+                                return response.Data.length;
+                            else
+                                return 0;
+                        }
+                    },
+                    pageSize: 10
+                    //serverPaging: false,
+                    //serverSorting: true,
+                },
+                //height: 550,
+                filterable: true,
+                sortable: true,
+                autoBind: true,
+                pageable: {
+                    alwaysVisible: true,
+                    previousNext: true,
+                    //refresh: true,
+                    pageSizes: [10, 20, 50],
+                    buttonCount: 10
+                },
+                requestStart: function (e) {
+                    kendo.ui.progress(thisGrid, true);
+                    //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
+                },
+                requestEnd: function (e) {
+                    kendo.ui.progress(thisGrid, false);
+                },
+                columns: [
+                    { field: "AddressType", title: "Type" },
+                    { field: "SupplierAddressName", title: "Name" },
+                    { field: "SupplierAddress1", title: "Address" },
+                    { field: "SupplierCity", title: "City" },
+                    { field: "SupplierState", title: "State" },
+                    { field: "SupplierCountry", title: "Country" },
+                    { field: "SupplierPostalCode", title: "Zip" },
+                    { field: "PhoneNumber", title: "Phone Number", encoded: false }
+                    
+
+                    //template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>'
+                ]
+                //dataBound: function (e) {
+                //    setTimeout(function () {
+                //        e.sender.wrapper.find('.k-pager-wrap.k-grid-pager > a').removeClass('k-state-disabled');
+                //    });
+                //}
+            });
+            
+        }
       
 
         //----------------------start of not in use-----------------------
@@ -2447,6 +2715,7 @@
 
 
             initObtainmentSettingWiring: initObtainmentSettingWiring,
+            initSupplierSummary: initSupplierSummary,
             initializeSupplierLibrary: initializeSupplierLibrary,
 
             loadSupplierDetail: loadSupplierDetail,
@@ -2472,8 +2741,4 @@
             advanceSearchInitialize: advanceSearchInitialize
         };
     };
-
-    // Initializer
-    $(function () { });
-
 })(jQuery);
