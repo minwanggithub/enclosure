@@ -1848,31 +1848,33 @@
                             id: "CompanyWebsiteId",
                             fields: {
                                 "CompanyWebsiteId": { type: "integer" },
-                                "Url": { type: "string" }
+                                "Url": { type: "string" },
+                                "WebSiteTypeDescription": { type: "string" }
                             }
-                        },
-                        total: function (response) {
-                            if (typeof response.Data !== 'undefined')
-                                return response.Data.length;
-                            else
-                                return 0;
                         }
+                        //,
+                        //total: function (response) {
+                        //    if (typeof response.Data !== 'undefined')
+                        //        return response.Data.length;
+                        //    else
+                        //        return 0;
+                        //}
                     },
-                    pageSize: 10
+                    //pageSize: 10
                     //serverPaging: false,
                     //serverSorting: true,
                 },
-                //height: 550,
+                height:80,
                 filterable: true,
                 sortable: true,
                 autoBind: true, 
-                pageable: {
-                    alwaysVisible: true,
-                    previousNext: true,
-                    //refresh: true,
-                    pageSizes: [10, 20, 50],
-                    buttonCount: 10
-                },
+                //pageable: {
+                //    alwaysVisible: true,
+                //    previousNext: true,
+                //    //refresh: true,
+                //    //pageSizes: [10, 20, 50],
+                //    buttonCount: 10
+                //},
                 requestStart: function (e) {
                     kendo.ui.progress(thisGrid, true);
                     //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
@@ -1881,8 +1883,9 @@
                     kendo.ui.progress(thisGrid, false);
                 },
                 columns: [
-                    { field: "CompanyWebsiteId", title: "ID"},
-                    { field: "Url", title: "Website/URL", template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>' }
+                    //{ field: "CompanyWebsiteId", title: "ID"},
+                    { field: "Url", title: "Website/URL", template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>' },
+                    { field: "WebSiteTypeDescription", title: "WebSite Type"}
                 ]
                 //dataBound: function (e) {
                 //    setTimeout(function () {
@@ -1912,30 +1915,34 @@
                                 "Sequence": { type: "integer" },
                                 "DocType": { type: "string" },
                                 "Language": { type: "string" },
-                                "Region": { type: "string" }
+                                "Region": { type: "string" },
+                                "DoNotObtainDescription": { type: "string" },
+                                "ObtainmentStepsDescription": { type: "string" }
                             }
-                        },
-                        total: function (response) {
-                            if (typeof response.Data !== 'undefined')
-                                return response.Data.length;
-                            else
-                                return 0;
                         }
+                        //,
+                        //total: function (response) {
+                        //    if (typeof response.Data !== 'undefined')
+                        //        return response.Data.length;
+                        //    else
+                        //        return 0;
+                        //}
                     },
-                    pageSize: 10
+                    //pageSize: 10
                     //serverPaging: false,
                     //serverSorting: true,
                 },
-                //height: 550,
+                height: 80,
                 filterable: true,
                 sortable: true,
                 autoBind: true,
                 pageable: {
-                    alwaysVisible: true,
-                    previousNext: true,
+                    alwaysVisible: false,
+                    //previousNext: true,
                     //refresh: true,
-                    pageSizes: [10, 20, 50],
-                    buttonCount: 10
+                    //pageSizes: [10, 20, 50],
+                    pageSizes: 2
+                    //buttonCount: 10
                 },
                 requestStart: function (e) {
                     kendo.ui.progress(thisGrid, true);
@@ -1945,10 +1952,24 @@
                     kendo.ui.progress(thisGrid, false);
                 },
                 columns: [
-                    { field: "Sequence", title: "Seq" },
+                    //{ field: "Sequence", title: "Seq" },
                     { field: "DocType", title: "DocType" },
                     { field: "Language", title: "Language" },
                     { field: "Region", title: "Jurisdiction" },
+                    {
+                        field: "DoNotObtainDescription",
+                        title: "<b>Do Not Obtain</b>",
+                        encoded: false,
+                        template: "<b style='font-size: 1.2em;'>#=DoNotObtainDescription#</b>",
+                        width: "400px"
+                    },
+                    {
+                        field: "ObtainmentStepsDescription",
+                        title: "<b>Obtainment</b>",
+                        encoded: false,
+                        template: "<b style='font-size: 1.2em;'>#=ObtainmentStepsDescription#</b>",
+                        width: "400px"
+                    },
                 ]
                 //dataBound: function (e) {
                 //    setTimeout(function () {
@@ -1978,28 +1999,29 @@
                                 "CompanyAliasId": { type: "integer" },
                                 "Name": { type: "string" }
                             }
-                        },
-                        total: function (response) {
-                            if (typeof response.Data !== 'undefined')
-                                return response.Data.length;
-                            else
-                                return 0;
                         }
+                        //total: function (response) {
+                        //    if (typeof response.Data !== 'undefined')
+                        //        return response.Data.length;
+                        //    else
+                        //        return 0;
+                        //}
                     },
                     pageSize: 10
                     //serverPaging: false,
                     //serverSorting: true,
                 },
-                //height: 550,
+                height: 80,
                 filterable: true,
                 sortable: true,
                 autoBind: true,
                 pageable: {
-                    alwaysVisible: true,
-                    previousNext: true,
+                    alwaysVisible: false,
+                    //previousNext: true,
                     //refresh: true,
-                    pageSizes: [10, 20, 50],
-                    buttonCount: 10
+                    //pageSizes: [10, 20, 50],
+                    pageSizes: 2
+                    //buttonCount: 10
                 },
                 requestStart: function (e) {
                     kendo.ui.progress(thisGrid, true);
@@ -2009,7 +2031,7 @@
                     kendo.ui.progress(thisGrid, false);
                 },
                 columns: [
-                    { field: "CompanyAliasId", title: "Alias Id" },
+                    //{ field: "CompanyAliasId", title: "Alias Id" },
                     { field: "Name", title: "Alias Name" }
                 ]
             });
@@ -2040,30 +2062,32 @@
                                 "SupplierState": { type: "string" },
                                 "SupplierCountry": { type: "string" },
                                 "SupplierPostalCode": { type: "string" },
-                                "PhoneNumber": { type: "string" }
+                                "PhoneNumber": { type: "string" },
+                                "SupplierEmails": { type: "string" }
                             }
-                        },
-                        total: function (response) {
-                            if (typeof response.Data !== 'undefined')
-                                return response.Data.length;
-                            else
-                                return 0;
                         }
+                        //total: function (response) {
+                        //    if (typeof response.Data !== 'undefined')
+                        //        return response.Data.length;
+                        //    else
+                        //        return 0;
+                        //}
                     },
                     pageSize: 10
                     //serverPaging: false,
                     //serverSorting: true,
                 },
-                //height: 550,
+                height: 160,
                 filterable: true,
                 sortable: true,
                 autoBind: true,
                 pageable: {
-                    alwaysVisible: true,
-                    previousNext: true,
+                    alwaysVisible: false,
+                    //previousNext: true,
                     //refresh: true,
-                    pageSizes: [10, 20, 50],
-                    buttonCount: 10
+                    //pageSizes: [10, 20, 50],
+                    pageSizes: 2
+                    //buttonCount: 10
                 },
                 requestStart: function (e) {
                     kendo.ui.progress(thisGrid, true);
@@ -2073,16 +2097,15 @@
                     kendo.ui.progress(thisGrid, false);
                 },
                 columns: [
-                    { field: "AddressType", title: "Type" },
+                    { field: "AddressType", title: "Type", width: "30px"},
                     { field: "SupplierAddressName", title: "Name" },
                     { field: "SupplierAddress1", title: "Address" },
-                    { field: "SupplierCity", title: "City" },
-                    { field: "SupplierState", title: "State" },
+                    { field: "SupplierCity", title: "City", width: "120px" },
+                    { field: "SupplierState", title: "State", width: "120px" },
                     { field: "SupplierCountry", title: "Country" },
-                    { field: "SupplierPostalCode", title: "Zip" },
-                    { field: "PhoneNumber", title: "Phone Number", encoded: false }
-                    
-
+                    { field: "SupplierPostalCode", title: "Zip",  width: "60px"},
+                    { field: "PhoneNumber", title: "Phone Number", encoded: false },
+                    { field: "SupplierEmails", title: "Email", encoded: false }
                     //template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>'
                 ]
                 //dataBound: function (e) {
@@ -2091,7 +2114,6 @@
                 //    });
                 //}
             });
-            
         }
       
 
@@ -2597,6 +2619,7 @@
                         adSearchCtl = $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).advancedsearch({
                             //Using dynamic data source extracted from database
                             selectedColumnDataSource: advanceSearchDataSource.SupplierSearchColumn.view(),
+                            //selectedColumnDataSource: asSupplierSearchColumnDataSource,
                             selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
                             selectedDataSourceUrl: GetEnvironmentLocation() + "/" + advanceSearchDataSourceSettings.controllers.Svc + "/",
                             EnableLog: false
