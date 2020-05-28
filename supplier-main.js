@@ -2546,9 +2546,8 @@
                 if (typeof $(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch) != 'undefined')
                     adSearchCtl.ClearData();
 
-                //$('#DetailSupplier').html('');
-
                 //Remove search result
+                //$('#DetailSupplier').html('');
                 var grid = $(supplierLiterSettings.controls.grids.SupplerSearchGrid).data("kendoGrid");
 
                 if (grid.dataSource.total() == 0) {
@@ -2594,21 +2593,8 @@
             });
 
             $(supplierLiterSettings.controls.buttons.SearchSupplierButton).click(function (e) {
+                $('#DetailSupplier').html('');
                 refreshSupplierSearchResultGrid();
-
-                //var searchString = $("#txtSupplierSearch").val();
-                //if (searchString.length < 2) {
-                //    onDisplayError("Search can't be empty at least 2 characters need to be typed in");
-                //    var supplierSearchDialog = $("#supplierSearchWindow");
-                //    if (supplierSearchDialog.data("kendoWindow") != null) {
-                //       supplierSearchDialog.data("kendoWindow").close();
-                //    }
-                //} else {
-                //    $('#DetailSupplier').html("");
-                //    refreshSupplierSearchResultGrid();f
-                //    QueueSupplier();
-                //}
-                //return false;
             });
 
             //Initialize main advance search control
