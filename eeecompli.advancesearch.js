@@ -323,15 +323,19 @@
         function AddRow(rowIndex, defaultModel) {
             var btnname = rowIndex === 0 ? plugInOptions.Icons.Add : plugInOptions.Icons.Delete;
             var btnnameTip = (rowIndex === 0) ? plugInOptions.IconsTip.Add : plugInOptions.IconsTip.Delete;
-            debugger;
+
             //Find the first index which is not in the array
             var onScreenList = getAddedColumnOnScreen();
+
             var nextColumnList = allColumnValues.filter(
                 n => !onScreenList.includes(n)
-            );
-            nextColumnList = nextColumnList.filter(
+            ).filter(
                 n => !disabledValues.includes(n)
             );
+
+            //nextColumnList = nextColumnList.filter(
+            //    n => !disabledValues.includes(n)
+            //);
             
 
             //Define dynamica columns
