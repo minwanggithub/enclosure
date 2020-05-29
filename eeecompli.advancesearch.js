@@ -132,6 +132,7 @@
         };
 
         var allColumnValues = settings.selectedColumnDataSource.map(a => a.Value);
+        var disabledValues = settings.selectedColumnDataSource.filter(a => a.Active == 0).map(a => a.Value);
 
         function ConsoleLog(m) {
             if (settings.EnableLog) {
@@ -167,6 +168,17 @@
                 enteredDataFieldValue: '',
                 selectedDataLookupIndex: 1,
                 selectedDataLookupValue: '',
+
+                onColumnSelect: function (e) {
+                    //var currentItem = e.sender.dataItem();
+                    var selectedItem = e.dataItem;
+                    
+                    if (selectedItem.Active === false) {
+                        kendo.alert("This column has been disabled and can not be selected");
+                        e.preventDefault();
+                        return;
+                    }
+                },
 
                 onColumnChange: function (e) {
                     ConsoleLog(
@@ -311,19 +323,23 @@
         function AddRow(rowIndex, defaultModel) {
             var btnname = rowIndex === 0 ? plugInOptions.Icons.Add : plugInOptions.Icons.Delete;
             var btnnameTip = (rowIndex === 0) ? plugInOptions.IconsTip.Add : plugInOptions.IconsTip.Delete;
-
+            debugger;
             //Find the first index which is not in the array
             var onScreenList = getAddedColumnOnScreen();
             var nextColumnList = allColumnValues.filter(
                 n => !onScreenList.includes(n)
             );
+            nextColumnList = nextColumnList.filter(
+                n => !disabledValues.includes(n)
+            );
+            
 
             //Define dynamica columns
             var criteriaRowId = 'criteriaRow_' + rowIndex;
             var criteriaRow = $("<div id='" + criteriaRowId + "' class='criteriarow'></div>");
             var column = $("<input id='column_" +
                 rowIndex + randomPrefix +
-                "' data-role='dropdownlist' data-auto-bind='false' data-field-lookup='SubLookUp' data-text-field='Text' data-value-field='Value'  data-bind='value: selectedColumn, source: columnDataSource, events: { change: onColumnChange }' style='min-width:180px;'/>"
+                "' data-role='dropdownlist' data-auto-bind='false' data-field-lookup='SubLookUp' data-text-field='Text' data-value-field='Value' data-template='kendoDropdownTemplateWithDisabledItem' data-bind='value: selectedColumn, source: columnDataSource, events: { change: onColumnChange, select: onColumnSelect }' style='min-width:180px;'/>"
             );
             var operator = $(
                 "<input id='operator_" +
@@ -412,6 +428,7 @@
             totalrow++;
 
             //Set Next Column in Sequence
+            //Also need to find diable the column, then filter them
             if (nextColumnList.length === 0) {
                 SetNextSelectColumnDefault(column, rowModel.selectedColumn);
                 ConsoleLog(
@@ -439,12 +456,11 @@
         function SetNextSelectColumnDefault(sender, index) {
             ConsoleLog('Set next column ' + index);
             try {
-                $(sender)
-                    .data('kendoDropDownList')
-                    .select(index - 1); //kendo dropdownlist index starts with 0;
-                $(sender)
-                    .getKendoDropDownList()
-                    .trigger('change');
+                //var dd = $(sender).data('kendoDropDownList');
+                //var totalItems = dd.dataSource.data().length;
+                //var dataItem = dd.dataItem(index - 1);
+                $(sender).data('kendoDropDownList').select(index - 1); //kendo dropdownlist index starts with 0;
+                $(sender).getKendoDropDownList().trigger('change');
             }
             catch (err) {
                 kdo.alert(err.message);
