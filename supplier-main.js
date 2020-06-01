@@ -1885,7 +1885,7 @@
                 columns: [
                     //{ field: "CompanyWebsiteId", title: "ID"},
                     { field: "Url", title: "Website/URL", template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>' },
-                    { field: "WebSiteTypeDescription", title: "WebSite Type"}
+                    { field: "WebSiteTypeDescription", title: "WebSite Type", width: "120px"}
                 ]
                 //dataBound: function (e) {
                 //    setTimeout(function () {
@@ -1958,16 +1958,16 @@
                     { field: "Region", title: "Jurisdiction" },
                     {
                         field: "DoNotObtainDescription",
-                        title: "<b>Do Not Obtain</b>",
+                        title: "Do Not Obtain",
                         encoded: false,
-                        template: "<b style='font-size: 1.2em;'>#=DoNotObtainDescription#</b>",
+                        //template: "<b style='font-size: 1.2em;'>#=DoNotObtainDescription#</b>",
                         width: "400px"
                     },
                     {
                         field: "ObtainmentStepsDescription",
-                        title: "<b>Obtainment</b>",
+                        title: "Obtainment",
                         encoded: false,
-                        template: "<b style='font-size: 1.2em;'>#=ObtainmentStepsDescription#</b>",
+                        //template: "<b style='font-size: 1.2em;'>#=ObtainmentStepsDescription#</b>",
                         width: "400px"
                     },
                 ]
@@ -2097,7 +2097,7 @@
                     kendo.ui.progress(thisGrid, false);
                 },
                 columns: [
-                    { field: "AddressType", title: "Type", width: "30px"},
+                    { field: "AddressType", title: "Type", width: "45px"},
                     { field: "SupplierAddressName", title: "Name" },
                     { field: "SupplierAddress1", title: "Address" },
                     { field: "SupplierCity", title: "City", width: "120px" },
