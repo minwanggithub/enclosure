@@ -40,7 +40,8 @@
                     UnAssignButton: "#btnUnAssignFrom",
                     SaveAssignButton: "#btnSaveAssign",
                     ManageUsers: "#btnManageUsers",
-                    StartWorkflow: "#btnStartIndexing"
+                    StartWorkflow: "#btnStartIndexing",
+                    StartIntelliFormsWorkflow: "#btnStartIntelliFormsIndexing"
                 },
 
                 grids: {
@@ -237,6 +238,66 @@
                     // perform any cleanup
                 });
             });
+
+        });
+
+        workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartIntelliFormsWorkflow, function () {
+
+            // INTELLIFORMS SUPPORT
+
+            var ids = (selectedIds || []);
+            debugger;
+
+            if (ids.length == 0) {
+                $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
+            }
+            else {
+
+                // this call "installs" the list of selected indexation workflow items.
+                // the call validates assignment and returns the first available indexing record.
+
+                // ids must be passed in selected order
+
+                // FOR NOW ONLY ONE ID IS HANDLED AT A TIME
+                ids = Array.from(ids[0]);
+
+                // start workflow
+                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: getSelectedIdsBySortOrder(), include : true })
+                    .success(function (data) {
+
+                        if (!data.Navigable) {
+
+                            // something happened. workload no longer assigne to user or some such thing
+                            // happened.
+                            if (isSupervisor())
+                                $(this).displayError(messages.errorMessages.SupervisorNoIndexingWorkloadAvailable);
+                            else
+                                $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
+
+                        } else {
+
+                            // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
+
+                            var url = window.location.href.split("/");
+                            url[url.length - 1] = "Indexation/IntelliForms?navigation=" + data.GUID + "&indexationId=" + data.IndexationId +
+                                "&documentTypeId=" + data.DocumentTypeId + 
+                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + data.IndexationSets;
+
+                            // open intelliforms directly
+                            //url[url.length - 1] = "Indexation/LoadIntelliform?indexationWorkItemId=" + data.IndexationId +
+                            //    "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&documentTypeId=" + data.DocumentTypeId;
+
+                            window.open(url.join("/"), "_blank").focus();
+                          
+
+                        }
+
+                    }).error(
+                        function () {
+
+                        });
+
+            }
 
         });
 

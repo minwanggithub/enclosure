@@ -4502,12 +4502,15 @@
             parentFrame.height(nethubContent.height() + (htmlPadding * 2) + 'px');
         }
 
-        function navigateWithinWorkload(guid, id, prev) {
+        function navigateWithinWorkload(guid, id, prev, intelliforms) {
+
+            // INTELLFORMS SUPPORT
 
             var data = new Object();
             data.guid = guid;
             data.id = id;
             data.prev = prev;
+            data.include = intelliforms;
 
             $.ajax({
                 url: GetEnvironmentLocation() + "/Operations/IndexationWorkflow/NavigateWithinWorkload",
@@ -4527,8 +4530,15 @@
                         indexationSets = indexationSets.join(",");
 
                         var url = window.location.href.split("/");
-                        url[url.length - 1] = "Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
-                            "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
+
+                        if (intelliforms == true) {
+                            url[url.length - 1] = "IntelliForms?navigation=" + data.GUID + "&indexationId=" + data.IndexationId +
+                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
+                        }
+                        else {
+                            url[url.length - 1] = "Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
+                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
+                        }
 
                         window.location = url.join("/");
 
@@ -4545,11 +4555,14 @@
             });
         }
 
-        function initNavigation(guid, offset) {
+        function initNavigation(guid, offset, intelliforms) {
+
+            // INTELLIFORMS SUPPORT
 
             var data = new Object();
             data.guid = guid;
             data.id = offset;
+            data.allow = intelliforms;
 
             $.ajax({
                 url: GetEnvironmentLocation() + "/Operations/IndexationWorkflow/GetNavigationForIndexingWorkload",
