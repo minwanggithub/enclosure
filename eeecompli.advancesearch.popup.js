@@ -48,8 +48,10 @@ if (jQuery) (function ($, kdo) {
         grid: {
             PopUpSupplierSearchSharedGrid: "PopUpSupplierSearchSharedGrid",
             PopUpSupplierSearchCommonSharedGrid: "PopUpSupplierSearchCommonSharedGrid"
+        },
+        controller: {
+            GetAdvanceSearchSupplierAjaxResult: "/Operations/Company/GetAdvanceSearchSupplierAjaxResult"
         }
-
     };
 
 
@@ -105,11 +107,11 @@ if (jQuery) (function ($, kdo) {
         var supplierAdvanceSearchPopUpCtlFor = "supplierAdvanceSearchPopUpCtlFor_" + triggerId.selector;
         var supplierAdvanceSearchPopUpCtlSearchBtnFor = "searchSupplierBtnFor_" + triggerId.selector;
         var supplierAdvanceSearchPopUpCtlClearBtnFor = "clearSupplierBtnFor_" + triggerId.selector;
-
+        
         var thisGrid = target.kendoGrid({
             toolbar: kendo.template(
                 "<div class='pull-left'>" +
-                "<fieldset style='margin:0px 5px 10px 10px'>" +
+                "<fieldset style='margin:0px 5px 20px 10px;border-radius: 8px;'>" +
                 "<legend>Advanced Search</legend>" +
                 "<div id='" + supplierAdvanceSearchPopUpCtlFor + "'></div>" +
                 "</fieldset>" + 
@@ -123,7 +125,7 @@ if (jQuery) (function ($, kdo) {
                 type: "aspnetmvc-ajax",
                 transport: {
                     read: {
-                        url: "../Company/GetAdvanceSearchSupplierAjaxResult",
+                        url: GetEnvironmentLocation() + Settings.controller.GetAdvanceSearchSupplierAjaxResult,
                         data: extractSupplierCriteria
                     }
                 },
@@ -133,7 +135,13 @@ if (jQuery) (function ($, kdo) {
                         id: "CompanyId",
                         fields: {
                             "CompanyId": { type: "integer" },
-                            "Name": { type: "string" }
+                            "Duns": { type: "string" },
+                            "Name": { type: "string" },
+                            "Alias": { type: "string" },
+                            "CreatedBy": { type: "string" },
+                            "CreatedDate": { type: "datetime" },
+                            "LastUpdateBy": { type: "string" },
+                            "LastUpdate": { type: "datetime" }
                         }
                     },
                     total: function (response) {
@@ -165,8 +173,15 @@ if (jQuery) (function ($, kdo) {
             requestEnd: function (e) {
                 kendo.ui.progress(thisGrid, false);
             },
-            columns: [{ field: "CompanyId", title: "ID" },
-                { field: "Name" }
+            columns: [
+                { field: "CompanyId", title: "ID" },
+                { field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
+                { field: "Name" },
+                { field: "Alias" },
+                { field: "CreatedBy", title: "CreatedBy|Date", template: "#=CreatedBy#@#= kendo.toString(kendo.parseDate(CreatedDate), 'MM/dd/yyyy')#" },
+                { field: "UpdateBy", title: "UpdateBy|Date", template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
+                
+                
             ]
             //dataBound: function (e) {
             //    setTimeout(function () {
@@ -216,8 +231,12 @@ if (jQuery) (function ($, kdo) {
             var row = $(rowElement);
             var grid = thisGrid.getKendoGrid();
             var dItem = grid.dataItem($(this));
+
             if (dItem !== null) {
-                adTarget.val(dItem.id + ", " + dItem.Name);
+                if (adTarget[0].nodeName.toLowerCase() === 'span')
+                    adTarget.text(dItem.id + ", " + dItem.Name);
+                else
+                    adTarget.val(dItem.id + ", " + dItem.Name);
             }
             Hide();
 

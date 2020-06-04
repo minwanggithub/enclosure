@@ -91,7 +91,7 @@
                 DocumentSearchPopUpCancel: "#btnCancelDocumentSearch",
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
-                DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",
+                DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",   //Replace with ADSupplierSearch
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
                 DocumentAddSibling: "#btnSibling_",
                 btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
@@ -834,21 +834,21 @@
             performDocumentSearch();
         }
 
-        function onDocumentSearchSearchSupplierBtnClick(e) {
-            e.preventDefault();
+        //function onDocumentSearchSearchSupplierBtnClick(e) {
+        //    e.preventDefault();
 
-            var buttonElement = $(e.currentTarget);
-            if (displaySupplierPopUp) {
-                displaySupplierPopUp(function (data) {
+        //    var buttonElement = $(e.currentTarget);
+        //    if (displaySupplierPopUp) {
+        //        displaySupplierPopUp(function (data) {
 
-                    var siblingSelector = getCompanyTextFieldSibling(buttonElement);
-                    if (siblingSelector) {
-                        var companyInfo = getCompanyTemplate ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
-                        buttonElement.siblings(siblingSelector + ":first").val(companyInfo).trigger('change');
-                    }
-                });
-            }
-        }
+        //            var siblingSelector = getCompanyTextFieldSibling(buttonElement);
+        //            if (siblingSelector) {
+        //                var companyInfo = getCompanyTemplate ? getCompanyTemplate(data.CompanyId, data.Name) : data.CompanyId + ', ' + data.Name;
+        //                buttonElement.siblings(siblingSelector + ":first").val(companyInfo).trigger('change');
+        //            }
+        //        });
+        //    }
+        //}
 
         function updateDocumentSearchResultTotal(model) {
 
@@ -1141,7 +1141,7 @@
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchPopUpAddNewDocumentBtnClick);
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchPopUpClearBtnClick);
             documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearch, onDocumentSearchPopUpSearchBtnClick);
-            documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchPopUpSupplierSearchBtnClick);
+            //documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchPopUpSupplierSearchBtnClick);
 
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchDocumentId, onDocumentSearchPopUpFieldKeyUp);
             documentSearchPopUp.on('keyup', documentElementSelectors.textboxes.DocumentSearchPartNumber, onDocumentSearchPopUpFieldKeyUp);
@@ -2341,7 +2341,7 @@
             container.on('change', documentElementSelectors.containers.DocumentDetailsForm + ' input', onDocumentDetailsFieldChange);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsSave, onDisabledButtonClick);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsCancel, onDocumentDetailsCancelBtnClick);
-            container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
+            //container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
             container.on('change', documentElementSelectors.dropdownlists.DocumentDetailsDocumentType, enableDisableExposureScenario);
             container.on('click', documentElementSelectors.checkboxes.DocumentIsExposureScenario, enableDisableExposureScenarioPage);
             container.on('click', documentElementSelectors.buttons.DocumentDetailsRepublish, onDocumentDetailsRepublishClick);
@@ -2351,10 +2351,10 @@
             container.on('click', documentElementSelectors.buttons.DocumentRevisionAddMultipleNameNumbers, onDocumentRevisionAddMultipleNameNumbersBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionAddNewRevision, onDocumentRevisionAddNewRevisionBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSave, onDisabledButtonClick);
-            container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerSearch, onDocumentRevisionCompanySearchBtnClick);
+            //container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerSearch, onDocumentRevisionCompanySearchBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerView, onDocumentRevisionCompanyViewBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer, onDocumentRevisionSetUnknownCompanyBtnClick);
-            container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSupplierSearch, onDocumentRevisionCompanySearchBtnClick);
+            //container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSupplierSearch, onDocumentRevisionCompanySearchBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSupplierView, onDocumentRevisionCompanyViewBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onDocumentNewRevisionDetailsAddAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentNewRevisionDetailsCancelBtnClick);
@@ -3912,8 +3912,6 @@
             // with different document(s)/revision(s)
 
             kendo.ui.progress($("#mdlConflictingFileUpload"), true);
-
-            debugger;
 
             if (attachingFileFor.toLowerCase().indexOf("_new") < 0) {
 
