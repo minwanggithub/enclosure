@@ -162,7 +162,7 @@
             grid.dataSource.read();
             $(xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
             $(xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
-            $("#atlwdg-trigger").css({ top: '100px' });
+            //$("#atlwdg-trigger").css({ top: '100px' });
             DisableSideMenuItems();
         };
 
@@ -1162,7 +1162,6 @@
 
         var IdentifyRequests = function () {
             $(xreferenceObject.controls.textBoxes.txtCASupplierIDName).val("");
-
             if (selectedRequests.length == 1) {
                 var dataItem = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.get(selectedRequests[0]);
                 if (dataItem.SupplierID != 0) {
@@ -1176,6 +1175,10 @@
             }
         };
 
+        var IdentifyCustomSupplier = function (supplierId) {
+            silbingSupplierId = supplierId;
+        };
+        
         var OngdRequestDataBound = function (e) {
             resizeGridToWindow(e);
         };
@@ -1189,6 +1192,7 @@
             gdGroupsChange: gdGroupsChange,
             hotKeyDisplay: hotKeyDisplay,
             IdentifyRequests: IdentifyRequests,
+            IdentifyCustomSupplier : IdentifyCustomSupplier,
             OngdRequestDataBound: OngdRequestDataBound
         };
     };
