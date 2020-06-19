@@ -850,8 +850,10 @@
         function EnableSideMenuItems() {
             $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
+
             $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
-            ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
+
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
 
@@ -1049,7 +1051,7 @@
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["RequestWorkItemID"]);
-                                kendo.alert(this["SupplierID"]);
+                                //kendo.alert(this["SupplierID"]);
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);

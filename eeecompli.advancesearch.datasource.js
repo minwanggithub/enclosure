@@ -10,7 +10,8 @@ var advanceSearchDataSourceSettings = {
         GetOpertorSearchColunm: "GetAdvanceSearchColumnDef?columnGroup=operator",
         GetSupplierSearchColunm: "GetAdvanceSearchColumnDef?columnGroup=SupplierSearch",
         GetSupplierType: "GetSupplierTypeLookUp",
-        GetCountryType: "GetCountryTypeLookUp"
+        GetCountryType: "GetCountryTypeLookUp",
+        GetCustomActionType: ""
     },
     contenttype: {
         Json: "application/json; charset=utf-8"

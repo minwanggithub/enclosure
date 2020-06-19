@@ -237,6 +237,7 @@ if (jQuery) (function ($, kdo) {
                     adTarget.text(dItem.id + ", " + dItem.Name);
                 else
                     adTarget.val(dItem.id + ", " + dItem.Name);
+                    adTarget.trigger("change");
             }
             Hide();
 
@@ -322,6 +323,7 @@ if (jQuery) (function ($, kdo) {
         searchWinPop = popDiv.kendoWindow({
             width: "1024px",
             title: "Advanced Supplier Search",
+            modal: true,
             visible: false,
             actions: [
                 //"Pin",
