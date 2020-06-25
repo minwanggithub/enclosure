@@ -233,11 +233,14 @@ if (jQuery) (function ($, kdo) {
             var dItem = grid.dataItem($(this));
 
             if (dItem !== null) {
-                if (adTarget[0].nodeName.toLowerCase() === 'span')
+                if (adTarget[0].nodeName.toLowerCase() === 'span') {
                     adTarget.text(dItem.id + ", " + dItem.Name);
-                else
+                    adTarget.trigger("withchange");
+                }
+                else {
                     adTarget.val(dItem.id + ", " + dItem.Name);
                     adTarget.trigger("change");
+                }
             }
             Hide();
 

@@ -148,6 +148,10 @@
                 Dirty: false,
                 ResponseStatusLkp: null,
 
+                onSelectSupplierNameAndIdChange: function (e) {
+                    this.set("Dirty", true);
+                },
+
                 onSearchSupplierClick: function (e) {
                     e.preventDefault();
                     //var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.EditSupplierSpecific.length);
@@ -164,7 +168,7 @@
                     if (this.Dirty) {
                         var settings = {
                             message: "You are going to discard your response changes. Are you sure you would like to continue?",
-                            header: "Discard Inbound Response Changes",
+                            header: "Discard Inbound Response Changes"
                         };
 
                         _DisplayConfirmationModal(settings, function () {
@@ -678,15 +682,15 @@
         }
         var onInboundResponseDetailBinding = function (templateRow, irModel) {
             var detailVM = GetResponseDetailView();
-
             detailVM.set("InboundResponseId", irModel.InboundResponseId);
             detailVM.set("ResponseNotes", irModel.ResponseNotes);
             detailVM.set("ResponseStatusLkp", irModel.ResponseStatusLkp);
             detailVM.set("ResponseStatusId", irModel.ResponseStatusId);
             detailVM.set("SupplierId", irModel.SupplierId);
             detailVM.set("SupplierName", irModel.SupplierName);
+            detailVM.set("SupplierNameAndId", irModel.SupplierIdAndName);
 
-            detailVM.bind("change", function (e) {
+            detailVM.bind("change", function (e) { //alert(e.field, "=", this.get(e.field));
                 if (e.field == "Dirty")
                     return;
                 detailVM.set("Dirty", true);
