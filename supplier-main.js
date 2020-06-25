@@ -1821,7 +1821,7 @@
             $("#DetailSupplier").on("input", "#txtSearchSupplierId", fnSearchCompany);
             $("#DetailSupplier").on("keyup", "#txtSearchSupplierId", fnSearchCompanyKeyup);
             $("#DetailSupplier").on("click", "#btnSaveObtainmentSettingDetail", fnSaveObtainmentSettings);
-            $("#DetailSupplier").on("click", "#searchSupplierIdBtn", fnSearchSupplier);
+            //$("#DetailSupplier").on("click", "#searchSupplierIdBtn", fnSearchSupplier);
 
         };
 
