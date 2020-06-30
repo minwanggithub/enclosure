@@ -8,31 +8,6 @@
  */
 
 if (jQuery) (function ($, kdo) {
-    $.extend($.fn, {
-        advancedsearchpopup: function (method, data) {
-            switch (method) {
-                case 'show':
-                    CreateAdvancePopUp(null, $(this));
-                    return $(this);
-                case 'hide':
-                    Hide();
-                    return $(this);
-                case 'attach':
-                    return $(this).attr('data-adsearch-target', data);
-                case 'detach':
-                    Hide();
-                    return $(this).removeAttr('data-adsearch-target');
-                case 'disable':
-                    return $(this).addClass('data-adsearch-target-disabled');
-                case 'enable':
-                    Hide();
-                    return $(this).removeClass('data-adsearch-target-disabled');
-            }
-
-        }
-    });
-
-
     var searchWinPop, adPopUpSearchCtl, trigger, adTarget;
 
     var Settings = {
@@ -40,10 +15,14 @@ if (jQuery) (function ($, kdo) {
             SharedControlDiv: "#SharedAdvanceSearchPopUpDiv"
         },
         dataattr: {
-            Target: "data-adsearch-shared-target"
+            SharedTarget: "data-adsearch-shared-target",
+            Target: "data-adsearch-target",
+            TargetDisabled: "data-adsearch-target-disabled"
         },
         window: {
-            AdvanceSearchWindow: "AdvanceSearchWindow"
+            AdvanceSearchWindow: "AdvanceSearchWindow",
+            AdvanceSearchWindowTitle: "Advanced Supplier Search",
+            AdvanceSearchControl: "AdvanceSearch"
         },
         grid: {
             PopUpSupplierSearchSharedGrid: "PopUpSupplierSearchSharedGrid",
@@ -54,7 +33,29 @@ if (jQuery) (function ($, kdo) {
         }
     };
 
+    $.extend($.fn, {
+        advancedsearchpopup: function (method, data) {
+            switch (method) {
+                case 'show':
+                    CreateAdvancePopUp(null, $(this));
+                    return $(this);
+                case 'hide':
+                    Hide();
+                    return $(this);
+                case 'attach':
+                    return $(this).attr(Settings.dataattr.Target, data);
+                case 'detach':
+                    Hide();
+                    return $(this).removeAttr(Settings.dataattr.Target);
+                case 'disable':
+                    return $(this).addClass(Settings.dataattr.TargetDisabled);
+                case 'enable':
+                    Hide();
+                    return $(this).removeClass(Settings.dataattr.TargetDisabled);
+            }
 
+        }
+    });
 
     function Show() {
         if (searchWinPop !== 'undefined') {
@@ -73,7 +74,7 @@ if (jQuery) (function ($, kdo) {
         var SearchOperator = 'SearchOperator';
 
         var triggerId = $(trigger.attr('id'));
-        var advnaceSearchCtl = $("#" + triggerId.selector).data("AdvanceSearch");
+        var advnaceSearchCtl = $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl);
 
         if (typeof advnaceSearchCtl === 'undefined') {  //Show the window if already exists
             return {
@@ -200,7 +201,7 @@ if (jQuery) (function ($, kdo) {
                     selectedDataSourceUrl: GetEnvironmentLocation() + "/svc/",
                     EnableLog: false
                 });
-                $("#" + triggerId.selector).data("AdvanceSearch", adPopUpSearchCtl);
+                $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl, adPopUpSearchCtl);
             });
         });
 
@@ -212,7 +213,7 @@ if (jQuery) (function ($, kdo) {
 
         thisGrid.find("#" + supplierAdvanceSearchPopUpCtlClearBtnFor).on("click", function (e) {
             e.preventDefault();
-            $("#" + triggerId.selector).data("AdvanceSearch").ClearData();
+            $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl).ClearData();
             
             if (thisGrid.data("kendoGrid").dataSource.total() === 0) {
                 return;
@@ -307,11 +308,12 @@ if (jQuery) (function ($, kdo) {
     function CreateAdvanceSearchPopUp(event, object) {
         trigger = event ? $(this) : object;
         var triggerId = $(trigger.attr('id'));
-        adTarget = $(trigger.attr('data-adsearch-target'));
+        adTarget = $(trigger.attr(Settings.dataattr.Target));
 
         //Make sure not previously created
-        var cacheWindow = $("#" + triggerId.selector).data("AdvanceSearchWindow");
+        var cacheWindow = $("#" + triggerId.selector).data(Settings.window.AdvanceSearchWindow);
         if (typeof cacheWindow !== 'undefined') {  //Show the window if already exists
+            searchWinPop = cacheWindow;
             Show();
             return;
         }
@@ -325,7 +327,7 @@ if (jQuery) (function ($, kdo) {
 
         searchWinPop = popDiv.kendoWindow({
             width: "1024px",
-            title: "Advanced Supplier Search",
+            title: Settings.window.AdvanceSearchWindowTitle,
             modal: true,
             visible: false,
             actions: [
@@ -370,7 +372,7 @@ if (jQuery) (function ($, kdo) {
 
         searchWinPop = popDiv.kendoWindow({
             width: "1024px",
-            title: "Advanced Supplier Search",
+            title: Settings.window.AdvanceSearchWindowTitle,
             visible: false,
             actions: [
                 //"Pin",
@@ -391,8 +393,8 @@ if (jQuery) (function ($, kdo) {
         searchWinPop.close();
     }
 
-    $(document).on('click', '[data-adsearch-target]', CreateAdvanceSearchPopUp);   
-    $(document).on('click', '[data-adsearch-shared-target]', CreateAdvanceSearchSharedPopUp);  
+    $(document).on('click', '[' + Settings.dataattr.Target + ']', CreateAdvanceSearchPopUp);   
+    $(document).on('click', '[' + Settings.dataattr.SharedTarget +']', CreateAdvanceSearchSharedPopUp);  
 
     return {
         Show: Show

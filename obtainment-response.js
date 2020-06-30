@@ -376,6 +376,19 @@
                     } else {
                         refreshResponseLayout(inboundResponseId);
                     }
+                },
+
+                onSupplierNameAndIdChange: function (e) {
+                    e.preventDefault();
+                    var changedText = this.get("SupplierNameAndId");
+                    if (changedText !== "") {
+                        var commaIndex = changedText.indexOf(",");
+                        if (commaIndex > 0) {
+                            this.set("SupplierId", changedText.substr(0, commaIndex));
+                        }
+                        else
+                            this.set("SupplierId", 0);
+                    }
                 }
             });
 
