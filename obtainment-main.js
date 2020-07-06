@@ -64,6 +64,7 @@
                     SuperObtainmentEmailBody: "#txtSuperEmailBody",
                     SupplierId: "#txtSupplierId",
                     NotificationRecepient: "#txtNotificationRecepient",
+                    SupplierSiblingId: "#txtObtainmentCASupplierIDName_CloseRequest",
                     ObtainmentActionNotesConfirmNotAvailable:"#txtObtainmentActionNotesConfirmNotAvailable"
                     
                 },
@@ -182,6 +183,7 @@
                 NextStepMissing: "Obtainment next step has not been selected.",
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be performed on Revisions.",
                 DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions.",
+                FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
@@ -209,7 +211,8 @@
             NextObtainmentStepDueDate: null,
             ObtainmentActionLogPhoneCallModel: null,
             ObtainmentActionSendEmailModel: null,
-            ObtainmentActionCloseRequest: null
+            ObtainmentActionCloseRequest: null,
+            siblingSupplierId: 0
         };
 
         var obtainmentActionLogPhoneCallModel = {
@@ -721,7 +724,6 @@
 
         
         obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList, function () {
-
             var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest);
             var selNotes = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
             
@@ -731,13 +733,16 @@
             // already entered text
             var txtCustomerAction = txtNotes.val();
             var emptyCustomerAction = (txtCustomerAction.replace(/ /g, "") == "");
+            var customActionIndex = -1;
 
             // "fix" selected customer action
             var selCustomerAction = selNotes.text();
             if (selCustomerAction == "Select One")
                 selCustomerAction = "";
-            else
+            else {
+                customActionIndex = selCustomerAction.split(" ")[0];
                 selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
+            }
 
             // content already in text
             if (!emptyCustomerAction) {
@@ -769,7 +774,14 @@
                 $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val(selCustomerAction);
             }
 
-
+            //if (customActionIndex == "47") {
+            //    $("#lblObtainmentCASupplierId_CloseRequest").show();
+            //    $("#txtObtainmentCASupplierIDName_CloseRequest").show();
+            //}
+            //else {
+            //    $("#lblObtainmentCASupplierId_CloseRequest").hide();
+            //    $("#txtObtainmentCASupplierIDName_CloseRequest").hide();
+            //}
         });
 
         obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList, function () {
@@ -1151,6 +1163,10 @@
                 $(this).displayError(messages.errorMessages.DiscontinuedActionForRevisionOnly);
                 return;
             }
+            if (ddlActions.value() == obtainmentActions.FlagNotRequired && newSelected) {
+                $(this).displayError(messages.errorMessages.FlagNotRequiredActionForRevisionOnly);
+                return;
+            }
 
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
@@ -1475,6 +1491,25 @@
             $(".unsupport").parent().click(false);
         }
 
+
+        function onCustomActionSupplierIdEnter(e) {
+            if (e.keyCode == 13 || (e.ctrlKey && e.keyCode == 86)) {
+                var senderTarget = $(e.currentTarget);
+                if (IsNumeric(senderTarget.val())) {
+                    e.preventDefault();
+                    //var url = '@Url.Action("LookUpSupplierOnKeyEnter", "Company", new {Area = "Operations"})';
+                    var url = GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter";
+                    var supplierId = senderTarget.val();
+                    
+                    $.post(url, {
+                        supplierInfo: supplierId
+                    }, function (data) {
+                        senderTarget.val(data);
+                    });
+                }
+            }
+        }
+
         var onLoadChanged =  function (e) {
             var count = $("#gdRequests").data("kendoGrid").dataSource.total();
             //alert(count);
@@ -1662,7 +1697,6 @@
         }
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
-            
             var customerAction = false;
 
             if (actionName == "CustomerAction") {
@@ -1700,21 +1734,15 @@
                     }
 
                     if (customerAction) actionName = "CustomerAction";
-
                     if (actionName == "CloseRequest" || actionName == "CustomerAction")
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
 
                     // if this is a customer action - make sure that a note has been entered.
-                    // no saving without a note.
-
                     if (customerAction) {
-
-                        var closingNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val() + "";
-                        if (closingNotes.replace(/g/, "").length == 0) {
+                        if (obtainmentMultipleWorkItemActionModel.Notes.replace(/g/, "").length == 0) {
                             $(this).displayError(messages.errorMessages.NoCustomerActionNotesProvided);
                             return;
                         }
-
                     }
 
                     if (actionName == "ConfirmNotAvailable") {
@@ -1756,7 +1784,6 @@
         }
 
         function FillCloseRequest(actionName) {
-
             var strCustomerAction = "";
 
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
@@ -1769,6 +1796,13 @@
             obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val();
             if (obtainmentActionCloseRequest.ReasonCodeId == "") obtainmentActionCloseRequest.ReasonCodeId = null;
             var reasonCode = ddlReasonCodes.text();
+
+            //thatObservable.set("silbingSupplierId", data.split(",")[0]);
+            var supplierSiblingInfo = $(obtainmentObject.controls.textBoxes.SupplierSiblingId).val();
+            if (supplierSiblingInfo.replace(/g/, "").length > 0) {
+                obtainmentMultipleWorkItemActionModel.siblingSupplierId = supplierSiblingInfo.split(",")[0];
+                obtainmentMultipleWorkItemActionModel.CustomActionIndex = obtainmentActionCloseRequest.CustomerActionsId;
+            }
 
 //          if (actionName == "CustomerAction") {
 //              strCustomerAction = "Customer Action: " + ddlCustomerActions.value() + "<br>" + "Reason Code:" + ddlReasonCodes.text() + "<br>Notes:";
@@ -1923,6 +1957,7 @@
             loadSupplierNotes: loadSupplierNotes,
             onDdlDataBound: onDdlDataBound,
             onLoadChange: onLoadChanged,
+            onCustomActionSupplierIdEnter: onCustomActionSupplierIdEnter,
             onObtainmentReqeustDataBound: onObtainmentReqeustDataBound,
             loadSentEmail: loadSentEmail,
             selectedSuperMailSupplierId: selectedSuperMailSupplierId,
