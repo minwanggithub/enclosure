@@ -1051,7 +1051,6 @@
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["RequestWorkItemID"]);
-                                //kendo.alert(this["SupplierID"]);
                                 itemsChecked++;
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
