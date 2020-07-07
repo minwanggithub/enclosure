@@ -251,6 +251,9 @@
             if (ids.length == 0) {
                 $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
             }
+            else if (ids.length != 1) {
+                $(this).displayError("Currently only one workload item can be indexed at a time.")
+            }
             else {
 
                 // this call "installs" the list of selected indexation workflow items.
