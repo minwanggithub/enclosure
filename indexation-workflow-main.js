@@ -368,6 +368,9 @@
         // clear search 
         workflowSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
 
+            selectedIds = {};   
+            gridIds = {};  
+
             disableButtons();
 
             // generate the search request
