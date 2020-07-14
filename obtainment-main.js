@@ -1785,13 +1785,12 @@
 
         function FillCloseRequest(actionName) {
             var strCustomerAction = "";
-
             var ddlCustomerActions = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
             var ddlReasonCodes = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).data("kendoDropDownList");
 
             // customer action
             obtainmentActionCloseRequest.CustomerActionsId = ddlCustomerActions.text().substring(0, ddlCustomerActions.text().indexOf("-") - 1);
-
+            obtainmentMultipleWorkItemActionModel.CustomActionIndex = obtainmentActionCloseRequest.CustomerActionsId;
             // customer reason code text
             obtainmentActionCloseRequest.ReasonCodeId = $(obtainmentObject.controls.dropdownlists.CloseRequestReasonCode).val();
             if (obtainmentActionCloseRequest.ReasonCodeId == "") obtainmentActionCloseRequest.ReasonCodeId = null;
@@ -1801,7 +1800,6 @@
             var supplierSiblingInfo = $(obtainmentObject.controls.textBoxes.SupplierSiblingId).val();
             if (supplierSiblingInfo.replace(/g/, "").length > 0) {
                 obtainmentMultipleWorkItemActionModel.siblingSupplierId = supplierSiblingInfo.split(",")[0];
-                obtainmentMultipleWorkItemActionModel.CustomActionIndex = obtainmentActionCloseRequest.CustomerActionsId;
             }
 
 //          if (actionName == "CustomerAction") {
