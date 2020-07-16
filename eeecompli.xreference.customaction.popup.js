@@ -116,7 +116,6 @@ if (jQuery) (function ($, kdo) {
             },
             
             onCustomActionSelect: function (e) {
-                debugger;
                 var dashIndex = e.dataItem.Text.indexOf("-");
 
                 if (dashIndex === -1) {
@@ -150,14 +149,14 @@ if (jQuery) (function ($, kdo) {
                     this.set("customNotesAltered", false);
                 }
 
-                if (actionNumber == "47") {
-                    this.set("isSupplierIdNameVisiable",true);
+                //if (actionNumber == "47") {
+                //    this.set("isSupplierIdNameVisiable",true);
 
-                }
-                else {
-                    this.set("isSupplierIdNameVisiable", false);
+                //}
+                //else {
+                //    this.set("isSupplierIdNameVisiable", false);
 
-                }
+                //}
             },
 
             onSupplierIDAndNameKeyPress: function (e) {
@@ -171,7 +170,6 @@ if (jQuery) (function ($, kdo) {
                         $.post(url, {
                             supplierInfo: supplierIdOnly
                         }, function (data) {
-                            debugger;
                             if (data !== "") {
                                 thatObservable.set("supplierIdAndNameValue", data);
                                 thatObservable.set("silbingSupplierId", data.split(",")[0]);
