@@ -149,14 +149,13 @@ if (jQuery) (function ($, kdo) {
                     this.set("customNotesAltered", false);
                 }
 
-                //if (actionNumber == "47") {
-                //    this.set("isSupplierIdNameVisiable",true);
+                if (actionNumber == "47") {
+                    this.set("isSupplierIdNameVisiable", false);
 
-                //}
-                //else {
-                //    this.set("isSupplierIdNameVisiable", false);
-
-                //}
+                }
+                else {
+                    this.set("isSupplierIdNameVisiable", false);
+                }
             },
 
             onSupplierIDAndNameKeyPress: function (e) {
