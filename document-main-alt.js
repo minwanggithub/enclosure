@@ -2125,8 +2125,10 @@
             $("[id*=viewRevisionSupplierIdBtn_" + documentId + "]").on("click", onDocumentRevisionCompanyViewBtnClick);
             $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
             $("[id*=txtManufacturerId_" + documentId + "]").val(supplierId);
-            $("[id*=RevisionDate_" + documentId + "]").val(getTodayDate());
-            $("[id*=VerifyDate_" + documentId + "]").val(getTodayDate());
+
+            // controller sets values 
+            //$("[id*=RevisionDate_" + documentId + "]").val(getTodayDate());
+            //$("[id*=VerifyDate_" + documentId + "]").val(getTodayDate());
 
             // If we are within the popup window display the panel
             var addNewRevisionPopUp = $(documentElementSelectors.containers.NewRevision).parents(documentElementSelectors.containers.NewRevisionPopUp);
