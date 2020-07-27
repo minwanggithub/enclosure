@@ -149,7 +149,15 @@
                 ResponseStatusLkp: null,
 
                 onSelectSupplierNameAndIdChange: function (e) {
-                    this.set("Dirty", true);
+                    if ($(e.target).text() !== "") {
+                        this.set("SupplierNameAndId", $(e.target).text());
+                        var commaIndex = this.SupplierNameAndId.indexOf(",");
+                        var sid = this.SupplierNameAndId.substr(0, commaIndex);
+                        this.set("SupplierId", sid);
+
+                        this.set("Dirty", true);
+                    }
+                 
                 },
 
                 onSearchSupplierClick: function (e) {
