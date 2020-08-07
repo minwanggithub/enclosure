@@ -10,7 +10,10 @@ if (jQuery) (function ($, kdo) {
 
     var thisPopUpWindow, trigger, customActionObservableModel, targetGrid;
     var selectedRequests = new Array();
+    var anyRequestResolvedStatus = false;
     var requestSupplierIds = new Array();
+    var obtainmentInProgressRequestExists = false;
+    var nonSDSDocumentType = false;
 
     var Settings = {
         text: {
@@ -124,10 +127,41 @@ if (jQuery) (function ($, kdo) {
                     this.set("customNotesAltered", false);
                     return;
                 }
-                
+
                 var actionNumber = e.dataItem.Text.substr(0, dashIndex - 1);
                 var noSequenceNote = e.dataItem.Text.split(" ").slice(2).join(" ");
                 var thatObservable = this;
+
+          
+                if (actionNumber == "47") {
+                    if (obtainmentInProgressRequestExists === true) {
+                        //this.set("isSupplierIdNameVisiable", false);
+                        kendo.alert("Some selected request(s) is in obtainment. Please add the document needed to the product shell.");
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (selectedRequests.length > 1) {
+                        kendo.alert("Custom Action 47 can only apply to single request. Please use Cross Reference on the Administration Page for batch.");
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (anyRequestResolvedStatus) {
+                        kendo.alert("Selected Cross Reference request has already resolved and can not apply custom action 47 again.");
+                        e.preventDefault();
+                        return;
+                    }
+
+                    if (nonSDSDocumentType) {
+                        kendo.alert("Custom Action 47 can only apply to SDS request.");
+                        e.preventDefault();
+                        return;
+                    }
+                }
+                //else {
+                //    this.set("isSupplierIdNameVisiable", false);
+                //}
 
                 this.set("customActionId", actionNumber);
 
@@ -149,13 +183,7 @@ if (jQuery) (function ($, kdo) {
                     this.set("customNotesAltered", false);
                 }
 
-                if (actionNumber == "47") {
-                    this.set("isSupplierIdNameVisiable", false);
-
-                }
-                else {
-                    this.set("isSupplierIdNameVisiable", false);
-                }
+              
             },
 
             onSupplierIDAndNameKeyPress: function (e) {
@@ -239,6 +267,10 @@ if (jQuery) (function ($, kdo) {
         if (triggerStatus == 'disabled')
             return;
 
+        //Initialize 
+        anyRequestResolvedStatus = false;
+        nonSDSDocumentType = false;
+
         //Check the selected entry, in theory there should be at least one, otherwise the menu should disabled and won't come here
         targetGrid = $(gridTarget.selector).data("kendoGrid");
 
@@ -249,6 +281,17 @@ if (jQuery) (function ($, kdo) {
                     selectedRequests.push(this["RequestWorkItemID"]);
                     if (this["SupplierID"] > 0 )
                         requestSupplierIds.push(this["SupplierID"]);
+                    //Check and status XType
+                    if (this["XType"] === "Obtainment" && this["Status"] === "In Progress")
+                    {
+                        obtainmentInProgressRequestExists = true;
+                    }
+                    if (this["Status"] === "Resolved") {
+                        anyRequestResolvedStatus = true;
+                    }
+                    if (this["DocumentTypeLkpId"] !== 3) {
+                        nonSDSDocumentType = true;
+                    }
                 }
                 //else {
                 //    var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
