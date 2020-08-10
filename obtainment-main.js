@@ -13,6 +13,8 @@
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
         var hasNoticeNumbers = false;
+        var hasNonSDS = false;
+        var hasRevision = false;
         var selectedRows = new Array();
 
         var obtainmentObject = {
@@ -722,8 +724,8 @@
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "ConfirmNotAvailable", actionModals.ConfirmNotAvailable);
         });
 
-        
-        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList, function () {
+     
+        obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList, function (e) {
             var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest);
             var selNotes = $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList");
             
@@ -772,6 +774,34 @@
             }
             else {
                 $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val(selCustomerAction);
+            }
+
+            if (customActionIndex == "47") {
+                var doesNotMatch = false;
+
+                if (selectedRequests.length > 1) { 
+                    kendo.alert("Custom Action 47 can only apply to single request. Please use Obtainment Administration Page for batch.");
+                    doesNotMatch = true;
+                }
+
+                if (hasNonSDS) {
+                    kendo.alert("Custom Action 47 can only apply to SDS document.");
+                    doesNotMatch = true;
+                }
+
+                if (hasRevision) {
+                    kendo.alert("Custom Action 47 can not apply to revision obtainment.");
+                    doesNotMatch = true;
+                }
+
+                if (doesNotMatch) {
+                    selNotes.select(0);
+                    txtNotes.val("");
+                    return;
+                }
+                            
+                //e.preventDefault();
+                //return false;
             }
 
             //if (customActionIndex == "47") {
@@ -1361,6 +1391,9 @@
         function initializeMultiSelectCheckboxes(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 selectedRequests = new Array();
+                hasNonSDS = false;
+                hasRevision = false;
+
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
@@ -1392,8 +1425,14 @@
                         if (this['IsSelected'] && this['NoticeNumber'] != null)
                             hasNoticeNumbers = true;
 
-                        if (!this['IsSelected'] && this['NoticeNumber'] != null)
-                            hasNoticeNumbers = false;
+                        if (this['IsSelected'] && this['NoticeNumber'] != null)
+                            hasNoticeNumbers = true;
+
+                        if (!this['IsSelected'] && this['DocumentType'] != 'SDS')
+                            hasNonSDS = true;
+
+                        if (!this['IsSelected'] && this['OWType'] === 'Revision')
+                            hasRevision = true;
 
                         if (selectedRows.indexOf(this["uid"]) > -1)
                             grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
@@ -1409,10 +1448,11 @@
             });
 
             obj.on("click", ".chkMasterMultiSelect", function () {
-
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 selectedRequests = new Array();
+                hasNonSDS = false;
+                hasRevision = false;
                 itemsChecked = 0;
 
                 if (grid) {
@@ -1433,6 +1473,12 @@
 
                             if (!this['IsSelected'] && this['NoticeNumber'] != null)
                                 hasNoticeNumbers = false;
+
+                            if (!this['IsSelected'] && this['DocumentType'] != 'SDS')
+                                hasNonSDS = true;
+
+                            if (!this['IsSelected'] && this['OWType'] === 'Revision')
+                                hasRevision = true;
                         });
 
                         kgrid.refresh();
