@@ -777,31 +777,26 @@
             }
 
             if (customActionIndex == "47") {
-                var doesNotMatch = false;
-
                 if (selectedRequests.length > 1) { 
                     kendo.alert("Custom Action 47 can only apply to single request. Please use Obtainment Administration Page for batch.");
-                    doesNotMatch = true;
-                }
-
-                if (hasNonSDS) {
-                    kendo.alert("Custom Action 47 can only apply to SDS document.");
-                    doesNotMatch = true;
-                }
-
-                if (hasRevision) {
-                    kendo.alert("Custom Action 47 can not apply to revision obtainment.");
-                    doesNotMatch = true;
-                }
-
-                if (doesNotMatch) {
                     selNotes.select(0);
                     txtNotes.val("");
                     return;
                 }
-                            
-                //e.preventDefault();
-                //return false;
+
+                if (hasNonSDS) {
+                    kendo.alert("Custom Action 47 can only apply to SDS document.");
+                    selNotes.select(0);
+                    txtNotes.val("");
+                    return;
+                }
+
+                if (hasRevision) {
+                    kendo.alert("Custom Action 47 can not apply to revision obtainment.");
+                    selNotes.select(0);
+                    txtNotes.val("");
+                    return;
+                }
             }
 
             //if (customActionIndex == "47") {
