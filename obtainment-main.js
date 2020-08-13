@@ -777,12 +777,12 @@
             }
 
             if (customActionIndex == "47") {
-                if (selectedRequests.length > 1) { 
-                    kendo.alert("Custom Action 47 can only apply to single request. Please use Obtainment Administration Page for batch.");
-                    selNotes.select(0);
-                    txtNotes.val("");
-                    return;
-                }
+                //if (selectedRequests.length > 1) { 
+                //    kendo.alert("Custom Action 47 can only apply to single request. Please use Obtainment Administration Page for batch.");
+                //    selNotes.select(0);
+                //    txtNotes.val("");
+                //    return;
+                //}
 
                 if (hasNonSDS) {
                     kendo.alert("Custom Action 47 can only apply to SDS document.");
