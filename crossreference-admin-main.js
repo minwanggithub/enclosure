@@ -24,6 +24,7 @@
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
         var selectedRows = new Array();
+        var selectedNonSDSRows = new Array();
         var radioButtonSelected = "Group";
 
         var crossReferenceObjects = {
@@ -348,7 +349,7 @@
         });
 
         // customer notes action
-        craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
+        craSearchObj.on("change", crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList, function (e) {
 
             var txtNotes = $(crossReferenceObjects.controls.textBoxes.NotesTextBox);
             var selNotes = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
@@ -362,10 +363,20 @@
 
             // "fix" selected customer action
             var selCustomerAction = selNotes.text();
+            var dashIndex = selCustomerAction.indexOf("-");
+            var actionNumber = selCustomerAction.substr(0, dashIndex - 1);
+
             if (selCustomerAction == "Select One") selCustomerAction = "";
             selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
-            
-            // content already in text
+
+            if (actionNumber === "47" && selectedNonSDSRows.length > 0) {
+                kendo.alert("Custom Action 47 can only apply to SDS Request. You have selcted some of Non SDS requests.");
+                selNotes.select(0);
+                txtNotes.val("");
+                //e.preventDefault();
+                return false;
+            }
+
             if (!emptyCustomerAction) {
 
                 var edited = true;
@@ -716,7 +727,6 @@
 
             var grid = $(crossReferenceObjects.controls.grids.GridRequests).data("kendoGrid");
             $(grid.dataSource.view()).each(function (i, v) {
-
                 // locate row
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
@@ -809,15 +819,15 @@
             if (Object.keys(_gridIds).length == 0) {
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
-
+                $(actionModals.CustomerAction).displayModal();
                 // display confirmation dialog
-                var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
-                var args = { message: message, header: 'Confirm Requests Selected' };
-                DisplayConfirmationModal(args, function () {
-                    $(actionModals.CustomerAction).displayModal();
-                }, function () {
-                    // do nothing
-                });
+                //var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
+                //var args = { message: message, header: 'Confirm Requests Selected' };
+                //DisplayConfirmationModal(args, function () {
+                   
+                //}, function () {
+                //    // do nothing
+                //});
             }
 
             return false;
@@ -830,6 +840,8 @@
             if ((selectedIds || []).length > 0) {
 
                 var selCustomerAction = $(crossReferenceObjects.controls.textBoxes.NotesTextBox).val();
+                var selCustomerActionCtl = $(crossReferenceObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+                var actionId = selCustomerActionCtl.selectedIndex;
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
 
@@ -837,7 +849,7 @@
                     data['ids'] = selectedIds;
                     data['customerAction'] = "Customer Action";
                     data['notes'] = selCustomerAction;
-
+                    data['actionId'] = actionId;
                     SaveRequest(controllerCalls.SaveActionRequests, data, actionModals.CustomerAction);
                     
                 } else {
@@ -968,6 +980,7 @@
 
             selectedIds = {};
             gridIds = {}; 
+            selectedNonSDSRows = new Array();
 
             // disable all options
             disableSideMenuItems();
@@ -1059,7 +1072,6 @@
         }
 
         $(craDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
-
             // master select state
             var checked = $(this).is(':checked');
 
@@ -1075,6 +1087,19 @@
             // set state of row
             gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
 
+            if (grid.dataItem(row).DocumentTypeLkpId !== 3) {
+                if (checked) {
+                    selectedNonSDSRows.push(grid.dataItem(row).RequestWorkItemID);
+                }
+                else {
+                    var index = selectedNonSDSRows.indexOf(grid.dataItem(row).RequestWorkItemID);
+                    if (index > -1) {
+                        selectedNonSDSRows.splice(index, 1);
+                    }
+                }
+            }
+
+            //alert(selectedNonSDSRows.length);
             // after select actions
             doPostGridRowAction();
 
@@ -1108,9 +1133,23 @@
 
                     // flag selection state
                     gridIds[grid.dataItem(row).RequestWorkItemID] = checked;
+
+                    if (grid.dataItem(row).DocumentTypeLkpId !== 3) {
+                        if (checked) {
+                            selectedNonSDSRows.push(grid.dataItem(row).RequestWorkItemID);
+                        }
+                        else {
+                            var index = selectedNonSDSRows.indexOf(grid.dataItem(row).RequestWorkItemID);
+                            if (index > -1) {
+                                selectedNonSDSRows.splice(index, 1);
+                            }
+                        }
+                    }
                 }
 
             });
+
+            //alert(selectedNonSDSRows.length);
 
             // after select actions
             doPostGridRowAction();
