@@ -268,6 +268,7 @@ if (jQuery) (function ($, kdo) {
             return;
 
         //Initialize 
+        selectedRequests = new Array();
         anyRequestResolvedStatus = false;
         nonSDSDocumentType = false;
 
