@@ -218,7 +218,8 @@
                 HasEmbeddedKeywords: "Email body has illegal keyword(s).",
                 MixedObtainmentTypesNotAllowed: "SDS and Non-SDS Obtainments can not be selected at the same time.",
                 NoProductIdSpecified: "No product id has been specified to resolve requests with",
-                NoContactEmailSelected: "A contact's email id has not been selected."
+                NoContactEmailSelected: "A contact's email id has not been selected.",
+                CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for Administration Page."
             }
         };
 
@@ -333,7 +334,6 @@
 
         // customer notes action
         obtSearchObj.on("change", obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
-
             var txtNotes = $(obtainmentObjects.controls.textBoxes.NotesTextBox);
             var selNotes = $(obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
 
@@ -347,6 +347,17 @@
             // selected customer action
             var selCustomerAction = selNotes.text();
             if (selCustomerAction == "Select One") selCustomerAction = "";
+
+            var dashIndex = selCustomerAction.indexOf("-");
+            var actionNumber = selCustomerAction.substr(0, dashIndex - 1);
+
+            if (actionNumber === "47") {
+                alert(messages.errorMessages.CustomAction47NotAvailable);
+                selNotes.select(0);
+                txtNotes.val("");
+                //e.preventDefault();
+                return false;
+            }
 
             // content already in text
             if (!emptyCustomerAction) {
@@ -541,9 +552,6 @@
                 var fieldName = criteriaField.value();
                 var whereOperator = containsDropDown.value();
                 var searchFor = $(textFieldId).val().replace(/ /g, "");
-                
-
-                debugger;
 
                 var criteriaFieldName = criteriaField.value().toUpperCase();
 
@@ -1291,9 +1299,6 @@
         }
 
         function saveCustomerAction() {
-
-            debugger;
-
             // no items selected ?
             //if ((selectedIds || []).length > 0) {
 
@@ -1302,8 +1307,6 @@
                 var selCustomerAction = $(obtainmentObjects.controls.textBoxes.NotesTextBox).val();
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
-
-                    debugger;
                     var data = {};
 
                     data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
@@ -1331,8 +1334,6 @@
                 kendo.ui.progress(obtDetailObj, true);
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
                     .success(function (successData) {
-
-                        debugger;
                         if (successData.success === true) {
 
                             // display message and hide modal

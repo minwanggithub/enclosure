@@ -136,6 +136,7 @@
                 SelectedStateForSqlError: "Selected State is only for SQL Search",
                 SelectedStateForEsError: "Selected State is only for Elastic Search",
                 NoProductIdSpecified: "No product id has been specified to resolve requests with",
+                SDSOnlyCustomAction: "Custom Action 47 can only apply to SDS Request.You have selcted some of Non SDS requests."
 
             }
         };
@@ -370,7 +371,7 @@
             selCustomerAction = selCustomerAction.split(" ").slice(2).join(" ");
 
             if (actionNumber === "47" && selectedNonSDSRows.length > 0) {
-                kendo.alert("Custom Action 47 can only apply to SDS Request. You have selcted some of Non SDS requests.");
+                kendo.alert(messages.errorMessages.SDSOnlyCustomAction);
                 selNotes.select(0);
                 txtNotes.val("");
                 //e.preventDefault();
