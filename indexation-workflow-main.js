@@ -79,7 +79,8 @@
                 },
                 searchOptions: { Contains: "Contains", ExactMatch: "Exact Match", StartsWith: "Starts With", EndsWith: "Ends With"},
                 checkboxes : {
-                    CurrentRevisionOnly: "#chkCurrentRevisionOnly"
+                    CurrentRevisionOnly: "#chkCurrentRevisionOnly",
+                    IncludeDoubleBlind: "#chkIncludeDoubleBlind",
                 },
                 sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
 
@@ -387,6 +388,7 @@
             //(selValue.toLowerCase() == "gold" ? 1 : 2);
 
             indexationWorkLoadSearchModel.CurrentRevisionOnly = $(obtainmentObject.controls.checkboxes.CurrentRevisionOnly).is(":checked");
+            indexationWorkLoadSearchModel.IncludeDoubleBlind = $(obtainmentObject.controls.checkboxes.IncludeDoubleBlind).is(":checked");
 
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
             indexationWorkLoadSearchModel.Priority = getSelectedCategories();
@@ -941,6 +943,14 @@
             //$("#fileUploadWindow").data("kendoWindow").close();
         }
 
+        function selectIndexationLevel(e) {
+
+            var val = parseInt($("#ddlIndexingLevel").data("kendoDropDownList").value());
+
+            $("#chkIncludeDoubleBlind").prop("checked", "");
+            $("#chkIncludeDoubleBlind").prop("disabled", (val >= 5) ? "disabled" : "");
+        }
+
         return {
 
             init:init,
@@ -950,7 +960,8 @@
             showError: SubError,
             onFileUploadError: onFileUploadError,
             onFileUploadUpload: onFileUploadUpload,
-            onFileUploadWindowClose: onFileUploadWindowClose
+            onFileUploadWindowClose: onFileUploadWindowClose,
+            selectIndexationLevel: selectIndexationLevel
             
 
             //loadRequests: loadRequests,
