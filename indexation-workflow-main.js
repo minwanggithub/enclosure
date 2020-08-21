@@ -948,7 +948,7 @@
             var val = parseInt($("#ddlIndexingLevel").data("kendoDropDownList").value());
 
             $("#chkIncludeDoubleBlind").prop("checked", "");
-            $("#chkIncludeDoubleBlind").prop("disabled", (val >= 5) ? "disabled" : "");
+            $("#chkIncludeDoubleBlind").prop("disabled", (val >= 4) ? "disabled" : "");
         }
 
         return {
