@@ -271,6 +271,7 @@ if (jQuery) (function ($, kdo) {
         selectedRequests = new Array();
         anyRequestResolvedStatus = false;
         nonSDSDocumentType = false;
+        obtainmentInProgressRequestExists = false;
 
         //Check the selected entry, in theory there should be at least one, otherwise the menu should disabled and won't come here
         targetGrid = $(gridTarget.selector).data("kendoGrid");

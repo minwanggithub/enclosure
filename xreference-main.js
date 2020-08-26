@@ -202,18 +202,6 @@
                 $("#hdnDialogOpen").val("resolveOpen");
 
 
-            if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
-                //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
-
-            }
-
-            //Obsolete this feature based on the TRECOMPLI-1271
-            //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
-            //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-            //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
-            //}
-
             DisableSideMenuItems();
             EnableSideMenuItem(btnObj);
             $(mdlObj).displayModal();
