@@ -32,7 +32,6 @@
                     ClearSupplierBtn: "#clearSupplierBtn",
                     RefreshProduct: "#btnRefreshProduct",
                     SaveProduct: "#btnSaveProduct",
-                    DeleteDocFromProduct: "#btnDeleteDocFromProduct",
                     CancelProductEdit: "#btnCancelProductEdit",
                     AddNewRevision: "[id^=btnAddDocumentRevision_]",
                     ProductSearch: "#searchProductBtn"
@@ -321,54 +320,7 @@
             });
         };
 
-        var DeleteSelectedDocFromProd = function (productId, doclists) {
-            if (doclists.length <= 0) {
-                onDisplayError(messages.errorMessages.PleaseSelectDocumentToDelete);
-                return;
-            }
-
-            var strconfirm = confirm(messages.confirmationMessages.RemoveThisDocument);
-            if (strconfirm == false)
-                return;
-
-            if (doclists.length > 0) {
-                $.post(controllerCalls.DeleteProductDocument, {
-                    productId: productId,
-                    documentList: JSON.stringify(doclists)
-                }, function (data) {
-
-                    if (data.indexOf("Successfully") < 0) {
-                        $(this).displayError(data);
-                        return false;
-                    }
-
-                    //delete a row from the grid after successfully delete document
-                    var index2 = data.indexOf("from product");
-                    var prodid = data.substring(index2 + 13, data.length);
-                    var grid = $(productObject.controls.grids.GridProductDocuments + "_" + prodid);
-                    $(".chkMasterMultiSelect", grid).removeAttr("checked");
-                    var gridId = 'gdProductDocuments_' + prodid;
-                    var singleProdObj = selectedProdIdObj[gridId];
-
-                    //uncheck checkboxes
-                    var gData = grid.data("kendoGrid").dataSource.data();
-                    var totalNumber = gData.length;
-
-                    if (totalNumber > 0) {
-                        $.each(gData, function () {
-                            for (var i = 0; i < singleProdObj.length; i++)
-                                if (this.ReferenceId == singleProdObj[i]) singleProdObj.splice(i, 1);
-                        });
-                    }
-
-                    var grid1 = $(productObject.controls.grids.GridProductDocuments + "_" + productId).data("kendoGrid");
-                    activeProduct = productId;
-                    grid1.dataSource.read();
-                    grid1.dataSource.page(1);
-                });
-            }
-        };
-
+        
         // Product Status History Methods
         var onProductStatusGridChange = function () {
             var productId = this.wrapper.attr('id');
@@ -831,21 +783,6 @@
                         });
                     }
                 }
-            });
-
-            $(productObject.controls.buttons.DeleteDocFromProduct + "_" + pKey).click(function () {
-                var grid = $(this).parents('.k-grid:first');
-                var gridId = grid.attr('id');
-                var singleProdObj = selectedProdIdObj[gridId];
-                if (gridId in selectedProdIdObj) {
-                    singleProdObj = selectedProdIdObj[gridId];
-                }
-                if (singleProdObj != undefined) {
-                    DeleteSelectedDocFromProd(pKey, singleProdObj);
-                    var tabId = "#" + pKey + "_tbProductDetail";
-                    TabReload(tabId, 0);
-                } else
-                    $(this).displayError(messages.errorMessages.SelectDocumentsToDelete);
             });
 
             // Deactivate the layout if the status is set to deactivated
