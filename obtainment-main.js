@@ -15,6 +15,7 @@
         var hasNoticeNumbers = false;
         var hasNonSDS = false;
         var hasRevision = false;
+        var hasRevisionCount = 0;
         var selectedRows = new Array();
 
         var obtainmentObject = {
@@ -791,7 +792,7 @@
                     return;
                 }
 
-                if (hasRevision) {
+                if (hasRevisionCount > 0) {
                     kendo.alert("Custom Action 47 can not apply to revision obtainment.");
                     selNotes.select(0);
                     txtNotes.val("");
@@ -1153,7 +1154,6 @@
 
 
         function ShowActionModals() {
-
             // clear text
             $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val("");
             $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
@@ -1388,6 +1388,7 @@
                 selectedRequests = new Array();
                 hasNonSDS = false;
                 hasRevision = false;
+                hasRevisionCount = 0;
 
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -1411,10 +1412,17 @@
                     $.each(kgrid._data, function () {
                         if (this['IsSelected']) {
                             selectedRequests.push(this["ObtainmentWorkID"]);
+                            if (this['OWType'] === 'Revision') {
+                                hasRevisionCount++;
+                            }
                         } else {
                             var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
-                            if (index > -1)
+                            if (index > -1) {
                                 selectedRequests.splice(index, 1);
+                                if (this['OWType'] === 'Revision') {
+                                    hasRevisionCount--;
+                                }
+                            }
                         }
 
                         if (this['IsSelected'] && this['NoticeNumber'] != null)
@@ -1449,6 +1457,7 @@
                 hasNonSDS = false;
                 hasRevision = false;
                 itemsChecked = 0;
+                hasRevisionCount = 0;
 
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
@@ -1457,10 +1466,17 @@
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["ObtainmentWorkID"]);
+                                if (this['OWType'] === 'Revision') {
+                                    hasRevisionCount++;
+                                }
                             } else {
                                 var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
-                                if (index > -1)
+                                if (index > -1) {
                                     selectedRequests.splice(index, 1);
+                                    if (this['OWType'] === 'Revision') {
+                                        hasRevisionCount--;
+                                    }
+                                }
                             }
 
                             if (this['IsSelected'] && this['NoticeNumber'] != null)
