@@ -136,25 +136,25 @@ if (jQuery) (function ($, kdo) {
                 if (actionNumber == "47") {
                     if (obtainmentInProgressRequestExists === true) {
                         //this.set("isSupplierIdNameVisiable", false);
-                        kendo.alert("Some selected request(s) is in obtainment. Please add the document needed to the product shell.");
+                        kendo.alert("One or more of the selected item(s) are in obtainment. For these item(s) go to obtainment screen and use the customer action 47. If you received an SDS from supplier attach directly within the product shell.");
                         e.preventDefault();
                         return;
                     }
 
                     if (selectedRequests.length > 1) {
-                        kendo.alert("Custom Action 47 can only apply to single request. Please use Cross Reference on the Administration Page for batch.");
+                        kendo.alert("Customer Action 47 can only be applied to single request.");
                         e.preventDefault();
                         return;
                     }
 
                     if (anyRequestResolvedStatus) {
-                        kendo.alert("Selected Cross Reference request has already resolved and can not apply custom action 47 again.");
+                        kendo.alert("Selected item has been resolved and you are unable to apply a customer action. If this action is necessary, qc fail the item and then apply customer action 47.");
                         e.preventDefault();
                         return;
                     }
 
                     if (nonSDSDocumentType) {
-                        kendo.alert("Custom Action 47 can only apply to SDS request.");
+                        kendo.alert("Customer Action 47 applies to SDS document type only. Remove non SDS document types and perform action again.");
                         e.preventDefault();
                         return;
                     }

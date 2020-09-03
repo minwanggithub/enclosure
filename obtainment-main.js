@@ -185,7 +185,7 @@
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be performed on Revisions.",
-                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions.",
+                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions. Remove any new obtainment selected and perform the action again.",
                 FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
@@ -786,14 +786,14 @@
                 //}
 
                 if (hasNonSDS) {
-                    kendo.alert("Custom Action 47 can only apply to SDS document.");
+                    kendo.alert("Custom Action 47 applies to SDS document type only. Remove non SDS document types and perform action again.");
                     selNotes.select(0);
                     txtNotes.val("");
                     return;
                 }
 
                 if (hasRevisionCount > 0) {
-                    kendo.alert("Custom Action 47 can not apply to revision obtainment.");
+                    kendo.alert("One or more of the selected item(s) are revisions. The customer action 47 can onlv be performed on new obtainment. Remove anv revision obtainment request selected and perform the action again.");
                     selNotes.select(0);
                     txtNotes.val("");
                     return;
