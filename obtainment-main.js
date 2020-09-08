@@ -186,7 +186,7 @@
                 NextStepMissing: "Obtainment next step has not been selected.",
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be performed on Revisions.",
                 DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions. Remove any new obtainment selected and perform the action again.",
-                FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions.",
+                FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions. Remove any new obtainment request selected and perform the action again.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
