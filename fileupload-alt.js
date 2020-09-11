@@ -143,24 +143,29 @@
 
         }
 
-        var displayFileUploadModal = function (uploadArgsFunc, callbackFunc, dpeCallbackFunc, confirmClearAttachmentCache) {
+        var displayFileUploadModal =
+            function(uploadArgsFunc, callbackFunc, dpeCallbackFunc, confirmClearAttachmentCache) {
 
-            clearAttachmentCacheOnConfirm = confirmClearAttachmentCache == false ? confirmClearAttachmentCache : true;
-            parentArgsCallback = uploadArgsFunc;
-            parentCallback = callbackFunc;
-            dpeCallback = dpeCallbackFunc;
+                clearAttachmentCacheOnConfirm =
+                    confirmClearAttachmentCache == false ? confirmClearAttachmentCache : true;
+                parentArgsCallback = uploadArgsFunc;
+                parentCallback = callbackFunc;
+                dpeCallback = dpeCallbackFunc;
 
-            uploadError = false;
-            uploadStake = [];
+                uploadError = false;
+                uploadStake = [];
 
-            if (KendoPopUpAjustExecute)
-                KendoPopUpAjustExecute($('#fileUploadWindow'));
-            else {
+                //if (KendoPopUpAjustExecute)
+                //    KendoPopUpAjustExecute($('#fileUploadWindow'));
+                //else {
+                //    $('#fileUploadWindow').data('kendoWindow').center();
+                //    $('#fileUploadWindow').data('kendoWindow').open();
+                //}
+
+                //Nitin-10 Sep 2020- No need to call KendoPopUpAjustExecute method(TRECOMPLI-3912: Document- Automatic scroll when adding a revision)
                 $('#fileUploadWindow').data('kendoWindow').center();
                 $('#fileUploadWindow').data('kendoWindow').open();
-            }
-
-        };
+            };
 
         function disableConfirmButton() {
             disableFileUploadLayout();

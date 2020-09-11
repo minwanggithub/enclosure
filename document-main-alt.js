@@ -2772,7 +2772,12 @@
 
                         newRevisionContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val('');
                         newRevisionContainer.show(650);
-
+                        // autofocus on Revision Date Field on add new revision button click
+                        setTimeout(
+                            function () {
+                                $("#RevisionDate_" + documentId + "_0").focus();
+                            }, 1000);
+                        
                     });
 
             }
