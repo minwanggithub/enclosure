@@ -1156,7 +1156,6 @@
         function ShowActionModals() {
             // clear text
             $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val("");
-            $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
 
             var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
 
