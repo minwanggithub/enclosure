@@ -153,7 +153,7 @@
         });
 
         var initializeSearchOperator = function () {
-            kendo.bind($("#searchTitleOptionDivPre"), dsProductNameOption);
+            kendo.bind($("#searchProductTitleOptionDivPre"), dsProductNameOption);
             kendo.bind($("#searchAliasOptionDivPre"), dsAliasSearchOption);
             kendo.bind($("#productSearchSupplierNameOptionDiv"), dsProductSupplierNameSearchOption);
         };
