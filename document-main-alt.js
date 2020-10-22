@@ -904,16 +904,19 @@
         var onDisplayNewDocumentPopUp = function (pKey) {
             displayAddNewDocumentPopUp(pKey);
         }
-
-
+         
         var DocumentRowSelect = function (e) {
             var dataItem = $(documentElementSelectors.grids.DocumentSearch).data("kendoGrid").dataItem(this);
             if (e.ctrlKey) {
                 var currenturl = window.location.href;
                 var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
-                var url = indexArea + "Indexation/SelectIndexingType?documentId=" + dataItem.ReferenceId + "&revisionId=" + dataItem.RevisionId;
+                // Vikas-10/22/2020  Ctrl + Click on one of row in document main search result grid and open IntelliForm for SDS and same old Indexation page for non-Sds document
+                if (dataItem.DocumentTypeId == 3) {
+                    var url = indexArea + "IntelliForms/LoadIntelliForm?documentId=" + dataItem.ReferenceId + "&revisionId=" + dataItem.RevisionId + "&documentTypeId=" + dataItem.DocumentTypeId;
+                } else {
+                    var url = indexArea + "Indexation/SelectIndexingType?documentId=" + dataItem.ReferenceId + "&revisionId=" + dataItem.RevisionId;
+                }
                 window.open(url, "_blank");
-
             }
         }
 
