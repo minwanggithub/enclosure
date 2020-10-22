@@ -401,6 +401,8 @@
         // SUPER EMAIL BUTTON CLICK HANDLER
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
 
+//Nitin-10/21/2020:TRECOMPLI-3990 Obtainment- Email pop-up tab function (In case of Super Email)
+            $(".k-tool-group .k-tool,.k-tool-group .k-colorpicker").attr("tabindex", - 1);
             // ---- reset event handlers 
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).off("click");
             $(obtainmentObject.controls.buttons.btnSendSuperEmailButton).off("click");
@@ -408,7 +410,8 @@
 
             // ---- wire modal close
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () {
-                $(actionModals.SuperMail).toggleModal();
+               // $(actionModals.SuperMail).toggleModal();
+               $('#superEmailWindow').data('kendoWindow').close();
             });
 
             // ---- wire email target
@@ -505,8 +508,9 @@
 
                     //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
-                        $(actionModals.SuperMail).show();
-                        $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
+                       // $(actionModals.SuperMail).show();
+                     //  $('#superEmailWindow').data('kendoWindow').open();
+                      //  $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
                     })
 
                     var message = "Please correct the following issue(s): <br><br>";
@@ -592,7 +596,9 @@
                 $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
 
                 // display 
-                $(actionModals.SuperMail).displayModal();
+                $('#superEmailWindow').data('kendoWindow').center();
+                $('#superEmailWindow').data('kendoWindow').open();
+               // $(actionModals.SuperMail).displayModal();
 
 
             }
@@ -998,10 +1004,12 @@
 
                     }
 
-                    $(actionModals.SuperMail).toggleModal();
+                    //$(actionModals.SuperMail).toggleModal();
+                    $('#superEmailWindow').data('kendoWindow').close();
 
                     DisplayErrorMessageInPopUp(prompts, function () {
-                        $(actionModals.SuperMail).toggleModal();
+                      //  $(actionModals.SuperMail).toggleModal();
+                        $('#superEmailWindow').data('kendoWindow').close();
                     });
 
                 });
@@ -1310,6 +1318,7 @@
 
                                         // display upload interface
                                         $(actionModals.SendEmail).displayModal();
+
 
                                     }
                                 },
@@ -2018,3 +2027,7 @@
         };
     };
 })(jQuery);
+//Nitin-10/21/2020:TRECOMPLI-3990 Obtainment- Email pop-up tab function (tab Index will not go to HTML Editor buttons)
+$(document).ready(function () {
+    $(".k-tool-group .k-tool,.k-tool-group .k-colorpicker").attr("tabindex", - 1);
+});
