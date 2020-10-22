@@ -49,8 +49,11 @@
                 },
 
                 dateTime: {
-                    FromDate: "#dteDateFrom",
-                    ToDate: "#dteDateTo"
+                    /*Updated object for ticket TRECOMPLI-3991 by hitesh on 21-10-2020*/
+                    AssignedToFromDate: "#dteDateFrom",
+                    AssignedToToDate: "#dteDateTo",
+                    LastStatusUpdateDateFrom: "#lastStatusUpdateDateFrom",
+                    LastStatusUpdateDateTo: "#lastStatusUpdateDateTo"
                 },
 
                 dropdownlists: {
@@ -153,8 +156,10 @@
             StateId: 0,
             IndexingLevelId: 0,
             CategoryIds: "",
-            DateFrom: null,
-            DateTo:null,
+            AssignedToDateFrom: null,
+            AssignedToDateTo: null,
+            LastStatusUpdateDateFrom: null,
+            LastStatusUpdateDateTo:null,
             CurrentRevisionOnly: false, 
             Criterias: []
         };
@@ -247,7 +252,6 @@
             // INTELLIFORMS SUPPORT
 
             var ids = (selectedIds || []);
-            debugger;
 
             if (ids.length == 0) {
                 $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
@@ -308,9 +312,7 @@
         // clear search 
         workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartWorkflow, function () {
 
-            var ids = (selectedIds || []);
-            debugger;
-
+            var ids = (selectedIds || []);           
             if (ids.length == 0) {
                 $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
             }
@@ -377,9 +379,10 @@
             // generate the search request
             indexationWorkLoadSearchModel.StateId = null;
             indexationWorkLoadSearchModel.IndexationSets = null;
-            indexationWorkLoadSearchModel.DateFrom = null;
-            indexationWorkLoadSearchModel.DateTo = null;
-            
+            indexationWorkLoadSearchModel.AssignedToFromDate = null;
+            indexationWorkLoadSearchModel.AssignedToToDate = null;
+            indexationWorkLoadSearchModel.LastStatusUpdateDateFrom = null;
+            indexationWorkLoadSearchModel.LastStatusUpdateDateTo = null;            
             var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
             if (selValue != "") indexationWorkLoadSearchModel.StateId = (selValue.toLowerCase() == "true" ? 0 : 1);
 
@@ -391,10 +394,13 @@
             indexationWorkLoadSearchModel.IncludeDoubleBlind = $(obtainmentObject.controls.checkboxes.IncludeDoubleBlind).is(":checked");
 
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
-            indexationWorkLoadSearchModel.Priority = getSelectedCategories();
+            indexationWorkLoadSearchModel.Priority = getSelectedCategories();         
+            indexationWorkLoadSearchModel.AssignedToFromDate = $(obtainmentObject.controls.dateTime.AssignedToFromDate).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.AssignedToToDate = $(obtainmentObject.controls.dateTime.AssignedToToDate).data("kendoDatePicker").value();
 
-            indexationWorkLoadSearchModel.DateFrom = $(obtainmentObject.controls.dateTime.FromDate).data("kendoDatePicker").value();
-            indexationWorkLoadSearchModel.DateTo = $(obtainmentObject.controls.dateTime.ToDate).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.LastStatusUpdateDateFrom = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateFrom).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.LastStatusUpdateDateTo = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateTo).data("kendoDatePicker").value();
+
 
             // get the data
 
@@ -547,7 +553,6 @@
                 var ddlFieldId = $($(v).find("select[id^='drpFields_']")[0]).attr("id");                // field
                 var whereOperatorId = ddlFieldId.replace("drpFields", "drpContains");                   // where
                 var textFieldId = ddlFieldId.replace("drpFields", "txtFreeField");                      // text 
-                debugger;
                 var searchField = $($(v).find("#" + ddlFieldId)[0]).data("kendoDropDownList").value();
                 var textField = $($(v).find("#" + textFieldId)[0]).val();
 
