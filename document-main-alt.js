@@ -3359,6 +3359,9 @@
                 $(documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, $("[id*=" + pnl + "]")).removeClass("k-state-disabled");
             }
         }
+        var onDocumentRevisionAttachmentDataBound = function (e) {
+            this.element.find('tbody tr:first').addClass('k-state-selected')
+        };
 
         var onDocumentRevisionAttachmentSave = function (e) {
 
@@ -3956,6 +3959,7 @@
             onDocumentNoteDataBound: onDocumentNoteDataBound,
             onDocumentNoteEdit: onDocumentNoteEdit,
             onDocumentRevisionAttachmentSave: onDocumentRevisionAttachmentSave,
+            onDocumentRevisionAttachmentDataBound: onDocumentRevisionAttachmentDataBound,
             onDocumentRevisionConfirmationDateChange: onDocumentRevisionConfirmationDateChange,
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
