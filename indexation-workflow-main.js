@@ -50,8 +50,8 @@
 
                 dateTime: {
                     /*Updated object for ticket TRECOMPLI-3991 by hitesh on 21-10-2020*/
-                    AssignedToFromDate: "#dteDateFrom",
-                    AssignedToToDate: "#dteDateTo",
+                    AssignedToDateFrom: "#dteDateFrom",
+                    AssignedToDateTo: "#dteDateTo",
                     LastStatusUpdateDateFrom: "#lastStatusUpdateDateFrom",
                     LastStatusUpdateDateTo: "#lastStatusUpdateDateTo"
                 },
@@ -379,8 +379,8 @@
             // generate the search request
             indexationWorkLoadSearchModel.StateId = null;
             indexationWorkLoadSearchModel.IndexationSets = null;
-            indexationWorkLoadSearchModel.AssignedToFromDate = null;
-            indexationWorkLoadSearchModel.AssignedToToDate = null;
+            indexationWorkLoadSearchModel.AssignedToDateFrom = null;
+            indexationWorkLoadSearchModel.AssignedToDateTo = null;
             indexationWorkLoadSearchModel.LastStatusUpdateDateFrom = null;
             indexationWorkLoadSearchModel.LastStatusUpdateDateTo = null;            
             var selValue = $(obtainmentObject.controls.dropdownlists.StateDropDownList).data("kendoDropDownList").value();
@@ -395,8 +395,8 @@
 
             indexationWorkLoadSearchModel.Criterias = getAdvancedSearchCriteria();
             indexationWorkLoadSearchModel.Priority = getSelectedCategories();         
-            indexationWorkLoadSearchModel.AssignedToFromDate = $(obtainmentObject.controls.dateTime.AssignedToFromDate).data("kendoDatePicker").value();
-            indexationWorkLoadSearchModel.AssignedToToDate = $(obtainmentObject.controls.dateTime.AssignedToToDate).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.AssignedToDateFrom = $(obtainmentObject.controls.dateTime.AssignedToDateFrom).data("kendoDatePicker").value();
+            indexationWorkLoadSearchModel.AssignedToDateTo = $(obtainmentObject.controls.dateTime.AssignedToDateTo).data("kendoDatePicker").value();
 
             indexationWorkLoadSearchModel.LastStatusUpdateDateFrom = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateFrom).data("kendoDatePicker").value();
             indexationWorkLoadSearchModel.LastStatusUpdateDateTo = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateTo).data("kendoDatePicker").value();
