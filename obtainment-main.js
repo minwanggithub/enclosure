@@ -1762,6 +1762,7 @@
 
         function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
             var customerAction = false;
+            var closeRequest = (actionName == "CloseRequest");
 
             if (actionName == "CustomerAction") {
                 actionName = "CloseRequest";
@@ -1798,8 +1799,12 @@
                     }
 
                     if (customerAction) actionName = "CustomerAction";
-                    if (actionName == "CloseRequest" || actionName == "CustomerAction")
+                    if (actionName == "CloseRequest" || actionName == "CustomerAction") {
+
                         obtainmentMultipleWorkItemActionModel.ObtainmentActionCloseRequest = FillCloseRequest(actionName);
+                        if (closeRequest) obtainmentMultipleWorkItemActionModel.CustomActionIndex = 0;
+
+                    }
 
                     // if this is a customer action - make sure that a note has been entered.
                     if (customerAction) {
