@@ -114,7 +114,7 @@
             CloseRequest: "#mdlCloseRequest",
             ViewHistory: "#mdlViewHistory",
             AccountInfo: "#mdlViewAccount",
-            SuperMail: "#mdlSuperEmail",
+            SuperMail: "#superEmailWindow",
             ConfirmNotAvailable: "#mdlConfirmNotAvailable"
         };
 
@@ -411,7 +411,7 @@
             // ---- wire modal close
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () {
                // $(actionModals.SuperMail).toggleModal();
-               $('#superEmailWindow').data('kendoWindow').close();
+               $(actionModals.SuperMail).data('kendoWindow').close();
             });
 
             // ---- wire email target
@@ -596,8 +596,15 @@
                 $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
 
                 // display 
-                $('#superEmailWindow').data('kendoWindow').center();
-                $('#superEmailWindow').data('kendoWindow').open();
+                $(actionModals.SuperMail).data('kendoWindow').center();
+                $(actionModals.SuperMail).data('kendoWindow').open();
+                // Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
+                setTimeout(function () {
+                    $(actionModals.SuperMail).attr("tabindex", -1).focus();
+                    $(actionModals.SuperMail).removeAttr("tabindex");
+                  
+                }, 1000);
+              
                // $(actionModals.SuperMail).displayModal();
 
 
@@ -1005,11 +1012,11 @@
                     }
 
                     //$(actionModals.SuperMail).toggleModal();
-                    $('#superEmailWindow').data('kendoWindow').close();
+                    $(actionModals.SuperMail).data('kendoWindow').close();
 
                     DisplayErrorMessageInPopUp(prompts, function () {
                       //  $(actionModals.SuperMail).toggleModal();
-                        $('#superEmailWindow').data('kendoWindow').close();
+                      $(actionModals.SuperMail).data('kendoWindow').close();
                     });
 
                 });
@@ -1318,8 +1325,11 @@
 
                                         // display upload interface
                                         $(actionModals.SendEmail).displayModal();
-
-
+                                        // Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
+                                        setTimeout(function () {
+                                            $("#mdlSendEmail").attr("tabindex", -1).focus();
+                                            $("#mdlSendEmail").removeAttr("tabindex");
+                                        }, 1000);
                                     }
                                 },
                                 done: function () {
@@ -1937,6 +1947,11 @@
 
                                     // display upload interface
                                     $(actionModals.SendEmail).displayModal();
+                                    // Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
+                                    setTimeout(function () {
+                                        $(actionModals.SendEmail).attr("tabindex", -1).focus();
+                                        $(actionModals.SendEmail).removeAttr("tabindex");
+                                    }, 1000);
 
                                 }
 
