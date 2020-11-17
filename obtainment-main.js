@@ -1206,6 +1206,7 @@
                 kendo.alert(messages.errorMessages.FlagNotRequiredActionForRevisionOnly);
                 return;
             }
+       
 
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
@@ -1369,6 +1370,8 @@
                     SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
                     $("#lblTitle").text("Customer Action");
                     $("#dvCustomerAction").show();
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
+                    $(obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList).data("kendoDropDownList").select(0);
                     $(actionModals.CloseRequest).displayModal();
                     break;
 
@@ -1376,6 +1379,8 @@
                     SetNextStep(nextStepsValues.Completed, "ConfirmNotAvailable", false);
                     $("#lblTitle").text("Confirm not available");
                     $("#dvConfirmNotAvailable").show();
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
+                    $(obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList).data("kendoDropDownList").select(0);
                     $(actionModals.ConfirmNotAvailable).displayModal();
                     break;
             }
