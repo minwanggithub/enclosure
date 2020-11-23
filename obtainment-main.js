@@ -131,6 +131,7 @@
             RetrieveSentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/RetrieveSentEmail",
             GetNoticeNumberAndNethubLinks: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetNoticeNumberAndNethubLinks",
             GetObtainmentAccountInfo: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentAccountInfo",
+            GetObtainmentActionAttemptsTableList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentActionAttemptsTableList",
             SaveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkflow/SaveEmailAttachment",
             RemoveEmailAttachment: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveEmailAttachment",
             GetContactList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactList",
@@ -1606,8 +1607,42 @@
             //$(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
             //$(obtainmentObject.controls.dropdownlists.EmailTargets).enableControl(enable);
             //$("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").enable(enable);
+        };
 
+        var onObtainmentReqeustDetailDataBound = function (e) {
+            $('.progress-value').tooltip({
+                delay: 100,
+                //tooltipClass: "progress-value-tooltip-styling",
+                //placement: "bottom",
+                title: GetObtainmentWorkItemDueDiligence,
+                html: true
+            }); 
+        };
+
+        function GetObtainmentWorkItemDueDiligence() {
+            var id = this.id;
+            var split_id = id.split('_');
+            var owiItemId = split_id[1];
+
+            var ddHistory = "";
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                cache: false,
+                async: false,
+                url: controllerCalls.GetObtainmentActionAttemptsTableList,
+                data: { obtainmentWorkItemID: owiItemId },
+                success: function (result, textStatus, jqXHR) {
+                    ddHistory = result.ddHistory;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $(this).displayError(messages.errorMessages.GeneralError);
+                }
+            });
+
+            return ddHistory;
         }
+
 
         function SendEmailAndSaveObtainmentNextStep(strUrl, modalId) {
 
@@ -2046,6 +2081,7 @@
             onLoadChange: onLoadChanged,
             onCustomActionSupplierIdEnter: onCustomActionSupplierIdEnter,
             onObtainmentReqeustDataBound: onObtainmentReqeustDataBound,
+            onObtainmentReqeustDetailDataBound: onObtainmentReqeustDetailDataBound,
             loadSentEmail: loadSentEmail,
             selectedSuperMailSupplierId: selectedSuperMailSupplierId,
             ObtainmentDetailRoute: ObtainmentDetailRoute
