@@ -83,7 +83,7 @@
                     PhysicalState: "#lblPhysicalState",
                     lblXRefSource: "#lblXRefSource"
                 },
-                sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
+               // sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
             }
         };
         var criteriaCondition = { Contains: 0, ExactMatch: 1, StartsWith: 2, EndsWith: 3 };
@@ -161,7 +161,7 @@
             var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
             $(xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
-            $(xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
+           // $(xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
             //$("#atlwdg-trigger").css({ top: '100px' });
             DisableSideMenuItems();
         };
@@ -765,6 +765,7 @@
                             else
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                         }
+                        DisableSideMenuItems();
                     })
                     .error(function () {
                         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
@@ -888,26 +889,43 @@
             xreferenceSearchObj.on("click", btnObj, function (e) {
                 e.preventDefault();
 
-                if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
-                    $("#hdnDialogOpen").val("resolveOpen");
+                // Nitin- If no item selected
+                var targetGridSelector = xreferenceObject.controls.grids.GridRequests;
+                var grid = $(targetGridSelector).data("kendoGrid");
+                if (grid && grid.dataSource._total > 0) {
+                    var selectedIds = new Array();
+                    $.each(grid.dataSource.data(),
+                        function() {
+                            if (this.IsSelected === true)
+                                selectedIds.push(this.id);
+                        });
+
+                    if (selectedIds.length === 0) {
+                        $(this).displayError(messages.errorMessages.NoItemsSelected);
+                        return false;
+                    }
 
 
-                if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
-                    //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
-                    //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
-                    IdentifyRequests();
+                    if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
+                        $("#hdnDialogOpen").val("resolveOpen");
+
+
+                    if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+                        //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
+                        //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
+                        IdentifyRequests();
+                    }
+
+                    //Obsolete this feature based on the TRECOMPLI-1271
+                    //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                    //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
+                    //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
+                    //}
+
+                    DisableSideMenuItems();
+                    EnableSideMenuItem(btnObj);
+                    $(mdlObj).displayModal();
                 }
-
-                //Obsolete this feature based on the TRECOMPLI-1271
-                //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
-                //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
-                //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
-                //}
-
-                DisableSideMenuItems();
-                EnableSideMenuItem(btnObj);
-                $(mdlObj).displayModal();
-
             });
         }
 
@@ -1115,6 +1133,7 @@
 
                                     grid = $(targetGridSelector).data("kendoGrid");
                                     grid.dataSource.read();
+                                    DisableSideMenuItems();
                                 } else
                                     $(this).displayError(messages.errorMessages.GeneralError);
                             })

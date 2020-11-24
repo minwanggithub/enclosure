@@ -92,6 +92,7 @@
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",   //Replace with ADSupplierSearch
+                DocumentSearchRevisionDetailsSupplierView: "[id^=viewSearchRevisionSupplierIdBtn]",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
                 DocumentAddSibling: "#btnSibling_",
                 btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
@@ -2331,6 +2332,7 @@
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer, onDocumentRevisionSetUnknownCompanyBtnClick);
             //container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSupplierSearch, onDocumentRevisionCompanySearchBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentRevisionDetailsSupplierView, onDocumentRevisionCompanyViewBtnClick);
+            container.on('click', documentElementSelectors.buttons.DocumentSearchRevisionDetailsSupplierView, onDocumentRevisionCompanyViewBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onDocumentNewRevisionDetailsAddAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentNewRevisionDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
@@ -2418,7 +2420,8 @@
                     buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerView) ||
                     buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsSetUnknownManufacturer))
                     siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId;
-                else if (buttonElement.is(documentElementSelectors.buttons.DocumentSearchSearchSupplier))
+                else if (buttonElement.is(documentElementSelectors.buttons.DocumentSearchSearchSupplier) ||
+                    buttonElement.is(documentElementSelectors.buttons.DocumentSearchRevisionDetailsSupplierView))
                     siblingSelector = documentElementSelectors.textboxes.DocumentSearchSupplierId;
 
                 return siblingSelector;
