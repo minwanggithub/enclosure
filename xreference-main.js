@@ -805,6 +805,9 @@
         xreferenceDetailObj.on('hide', actionModals.CustomerAction, function () {
             EnableMenuItems();
         });
+        xreferenceDetailObj.on('hide', actionModals.RemoveWorkLoad, function () {
+            EnableMenuItems();
+        });
         xreferenceDetailObj.on('hide', actionModals.QCFail, function () {
           //  EnableMenuItems();
         });
