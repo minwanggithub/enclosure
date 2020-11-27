@@ -20,14 +20,14 @@
                 grids: { GridRequests: "#gdRequests", SearchSupplierNewGrid: "#gdSearchSupplierNew" },
                 buttons: {
                     CancelSupplierSearch: "#btnCancelSupplierSearch",
-                    ObtainmentSideMenuButton: "#btnObtainment",
-                    NotFoundSideMenuButton: "#btnNotFound",
-                    ResolveSideMenuButton: "#btnResolve",
-                    OnHoldSideMenuButton: "#btnOnHold",
-                    RemoveHoldSideMenuButton: "#btnRemoveHold",
-                    CustomerActionSideMenuButton: "#btnCustomerAction",
-                    PendingSideMenuButton: "#btnPending",
-                    QCFailSideMenuButton: "#btnQC",
+                    ObtainmentMenuButton: "#btnObtainment",
+                    NotFoundMenuButton: "#btnNotFound",
+                    ResolveMenuButton: "#btnResolve",
+                    OnHoldMenuButton: "#btnOnHold",
+                    RemoveHoldMenuButton: "#btnRemoveHold",
+                    CustomerActionMenuButton: "#btnCustomerAction",
+                    PendingMenuButton: "#btnPending",
+                    QCFailMenuButton: "#btnQC",
                     UnAssignFromButton: "#btnUnAssignFrom",
                     AssignToButton: "#btnAssignTo",
                     AssignMeButton: "#btnAssignMe",
@@ -163,7 +163,7 @@
             $(xreferenceObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
            // $(xreferenceObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
             //$("#atlwdg-trigger").css({ top: '100px' });
-            DisableSideMenuItems();
+            DisableMenuItems();
         };
 
         var loadSupplierPlugIn = function () {
@@ -174,8 +174,8 @@
 
             $(xreferenceObject.controls.buttons.CancelSupplierSearch).click(function () {
                 supplierSearchDialog.data("kendoWindow").close();
-                DisableSideMenuItems();
-                //EnableSideMenuItem(xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
+                DisableMenuItems();
+                //EnableMenuItem(xreferenceObject.controls.buttons.ObtainmentMenuButton);
                 $(actionModals.Obtainment).displayModal();
             });
 
@@ -198,12 +198,12 @@
                     $(xrefModals[i]).hideModal();
             }
 
-            if (btnObj === xreferenceObject.controls.buttons.ResolveSideMenuButton)
+            if (btnObj === xreferenceObject.controls.buttons.ResolveMenuButton)
                 $("#hdnDialogOpen").val("resolveOpen");
 
 
-            DisableSideMenuItems();
-            EnableSideMenuItem(btnObj);
+            DisableMenuItems();
+            EnableMenuItem(btnObj);
             $(mdlObj).displayModal();
         };
 
@@ -487,7 +487,7 @@
         });
 
         //Not Found
-        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton, function () {
+        xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.NotFoundMenuButton, function () {
             $(this).displayError("This feature has been obsolted based on the TRECOMPLI-1271");
             //if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() == "") {
             //    $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -765,7 +765,7 @@
                             else
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                         }
-                        DisableSideMenuItems();
+                        DisableMenuItems();
                     })
                     .error(function () {
                         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
@@ -794,93 +794,93 @@
 
 
         xreferenceDetailObj.on('hide', actionModals.Resolve, function () {
-            EnableSideMenuItems();
+            EnableMenuItems();
         });
         xreferenceDetailObj.on('hide', actionModals.Obtainment, function () {
-            EnableSideMenuItems();
+            EnableMenuItems();
         });
         xreferenceDetailObj.on('hide', actionModals.Pending, function () {
-            EnableSideMenuItems();
+            EnableMenuItems();
         });
         xreferenceDetailObj.on('hide', actionModals.CustomerAction, function () {
-            EnableSideMenuItems();
+            EnableMenuItems();
         });
         xreferenceDetailObj.on('hide', actionModals.QCFail, function () {
-            EnableSideMenuItems();
+          //  EnableMenuItems();
         });
 
-        function DisableSideMenuItems() {
-            $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.ResolveSideMenuButton);
-            //$("#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton).attr("disabled", "disabled");
-            //xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentSideMenuButton);
-            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).addClass("disabled-link");
-            //$(xreferenceObject.controls.buttons.NotFoundSideMenuButton).enableControl(false);
-            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.NotFoundSideMenuButton);
+        function DisableMenuItems() {
+            $(xreferenceObject.controls.buttons.ResolveMenuButton).enableControl(false);
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.ResolveMenuButton);
+            //$("#" + xreferenceObject.controls.buttons.ObtainmentMenuButton).attr("disabled", "disabled");
+            //xreferenceSearchObj.off("click", "#" + xreferenceObject.controls.buttons.ObtainmentMenuButton);
+            //$(xreferenceObject.controls.buttons.NotFoundMenuButton).addClass("disabled-link");
+            //$(xreferenceObject.controls.buttons.NotFoundMenuButton).enableControl(false);
+            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.NotFoundMenuButton);
 
-            //$(xreferenceObject.controls.buttons.PendingSideMenuButton).enableControl(false);
-            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingSideMenuButton);
-            $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.CustomerActionSideMenuButton);
+            //$(xreferenceObject.controls.buttons.PendingMenuButton).enableControl(false);
+            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingMenuButton);
+            $(xreferenceObject.controls.buttons.CustomerActionMenuButton).enableControl(false);
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.CustomerActionMenuButton);
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveRequestsButton);
-            $(xreferenceObject.controls.buttons.QCFailSideMenuButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.QCFailSideMenuButton);
+            $(xreferenceObject.controls.buttons.QCFailMenuButton).enableControl(false);
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.QCFailMenuButton);
 
-            $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(false);
-            //$(xreferenceObject.controls.buttons.OnHoldSideMenuButton).addClass("disabled-link");
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.OnHoldSideMenuButton);
+            $(xreferenceObject.controls.buttons.OnHoldMenuButton).enableControl(false);
+            //$(xreferenceObject.controls.buttons.OnHoldMenuButton).addClass("disabled-link");
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.OnHoldMenuButton);
 
-            $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(false);
-            //$(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).addClass("disabled-link");
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
+            $(xreferenceObject.controls.buttons.RemoveHoldMenuButton).enableControl(false);
+            //$(xreferenceObject.controls.buttons.RemoveHoldMenuButton).addClass("disabled-link");
+            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveHoldMenuButton);
         }
 
-        function EnableSideMenuItems() {
-            $(xreferenceObject.controls.buttons.ResolveSideMenuButton).enableControl(true);
-            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveSideMenuButton, actionModals.Resolve);
+        function EnableMenuItems() {
+            $(xreferenceObject.controls.buttons.ResolveMenuButton).enableControl(true);
+            ShowDisplayModal(xreferenceObject.controls.buttons.ResolveMenuButton, actionModals.Resolve);
 
-            $(xreferenceObject.controls.buttons.CustomerActionSideMenuButton).enableControl(true);
-            //ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionSideMenuButton, actionModals.CustomerAction);
+            $(xreferenceObject.controls.buttons.CustomerActionMenuButton).enableControl(true);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionMenuButton, actionModals.CustomerAction);
 
             $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
             ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
 
-            $(xreferenceObject.controls.buttons.OnHoldSideMenuButton).enableControl(true);
-            //$(xreferenceObject.controls.buttons.OnHoldSideMenuButton).removeClass("disabled-link");
-            ShowDisplayModal(xreferenceObject.controls.buttons.OnHoldSideMenuButton, actionModals.OnHold);
+            $(xreferenceObject.controls.buttons.OnHoldMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.OnHoldMenuButton).removeClass("disabled-link");
+            ShowDisplayModal(xreferenceObject.controls.buttons.OnHoldMenuButton, actionModals.OnHold);
            
-            $(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).enableControl(true);
-            //$(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton).removeClass("disabled-link");
-            ShowDisplayModal(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton, actionModals.RemoveOnHold);
+            $(xreferenceObject.controls.buttons.RemoveHoldMenuButton).enableControl(true);
+            //$(xreferenceObject.controls.buttons.RemoveHoldMenuButton).removeClass("disabled-link");
+            ShowDisplayModal(xreferenceObject.controls.buttons.RemoveHoldMenuButton, actionModals.RemoveOnHold);
         }
 
-        function EnableSideMenuItem(btnObj) {
+        function EnableMenuItem(btnObj) {
             $(btnObj).enableControl(true);
         }
 
-        function DisableSideMenuItem(btnObj) {
+        function DisableMenuItem(btnObj) {
             $(btnObj).enableControl(false);
             xreferenceSearchObj.off("click", btnObj);
         }
 
         function HotKeyDisplayModal(btnObj, mdlObj) {
-            if (btnObj === xreferenceObject.controls.buttons.ResolveSideMenuButton)
+            if (btnObj === xreferenceObject.controls.buttons.ResolveMenuButton)
                 $("#hdnDialogOpen").val("resolveOpen");
 
-            if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+            if (btnObj === xreferenceObject.controls.buttons.CustomerActionMenuButton) {
                 //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
                 //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
             }
 
             //Obsolete this feature based on the TRECOMPLI-1271
-            //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+            //if (btnObj == xreferenceObject.controls.buttons.PendingMenuButton) {
             //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
             //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
             //}
 
-            DisableSideMenuItems();
-            EnableSideMenuItem(btnObj);
+            DisableMenuItems();
+            EnableMenuItem(btnObj);
             $(mdlObj).displayModal();
 
         }
@@ -906,24 +906,24 @@
                     }
 
 
-                    if (btnObj == xreferenceObject.controls.buttons.ResolveSideMenuButton)
+                    if (btnObj == xreferenceObject.controls.buttons.ResolveMenuButton)
                         $("#hdnDialogOpen").val("resolveOpen");
 
 
-                    if (btnObj === xreferenceObject.controls.buttons.CustomerActionSideMenuButton) {
+                    if (btnObj === xreferenceObject.controls.buttons.CustomerActionMenuButton) {
                         //$(xreferenceObject.controls.labels.NotesLabel).css("display", "none");
                         //$(xreferenceObject.controls.textBoxes.NotesTextBox).css("display", "none");
                         IdentifyRequests();
                     }
 
                     //Obsolete this feature based on the TRECOMPLI-1271
-                    //if (btnObj == xreferenceObject.controls.buttons.PendingSideMenuButton) {
+                    //if (btnObj == xreferenceObject.controls.buttons.PendingMenuButton) {
                     //    $(xreferenceObject.controls.labels.PendingNotesLabel).css("display", "none");
                     //    $(xreferenceObject.controls.textBoxes.PendingNotesTextBox).css("display", "none");
                     //}
 
-                    DisableSideMenuItems();
-                    EnableSideMenuItem(btnObj);
+                    DisableMenuItems();
+                    EnableMenuItem(btnObj);
                     $(mdlObj).displayModal();
                 }
             });
@@ -932,13 +932,13 @@
 
         xreferenceSearchObj.on("change", xreferenceObject.controls.textBoxes.NumberOfItemsTextBox, function () {
             if (itemsChecked > 0) {
-                EnableSideMenuItems();
+                EnableMenuItems();
                 if (selectedRequests.length !== newRequestCount)
-                    DisableSideMenuItem(xreferenceObject.controls.buttons.OnHoldSideMenuButton);
+                    DisableMenuItem(xreferenceObject.controls.buttons.OnHoldMenuButton);
                 if (selectedRequests.length !== onHoldCount)
-                    DisableSideMenuItem(xreferenceObject.controls.buttons.RemoveHoldSideMenuButton);
+                    DisableMenuItem(xreferenceObject.controls.buttons.RemoveHoldMenuButton);
             } else
-                DisableSideMenuItems();
+                DisableMenuItems();
 
 
             ////If not supervisor, then disable exit
@@ -1133,7 +1133,7 @@
 
                                     grid = $(targetGridSelector).data("kendoGrid");
                                     grid.dataSource.read();
-                                    DisableSideMenuItems();
+                                    DisableMenuItems();
                                 } else
                                     $(this).displayError(messages.errorMessages.GeneralError);
                             })
