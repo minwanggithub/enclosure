@@ -99,7 +99,8 @@
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
                 DocumentAndProductSameMFR: "Documents and product should have the same manufacturer.",
                 OnlyOneCombinationLanguageJur: "Only one combination of language/Jurisdiction for a document type by product.",
-                KitsParentsDonotHaveEnoughChildren: "Attach kit parent to product, it must have two or more children.",
+                //KitsParentsDonotHaveEnoughChildren: "Attach kit parent to product, it must have two or more children.",
+                KitsParentsDonotHaveEnoughChildren: "A Kit is required to have at least two components to be resolved.",     //See TRECOMPLI:3500, will allow for attach
                 PleaseSelectDocumentToDelete: "Please select document(s) to delete.",
                 ErrorSavingProduct: "Error occured while saving the product",
                 NoRowSelected: "No row selected",
@@ -203,11 +204,9 @@
 
                 data = Array.from(data);
 
-                // some of the documents could not be added
+                // Any flag other than 0 or 6 -->> the documents could not be added
                 if (data.some(e => e != 0)) {
-
                     // map messages
-                    debugger;
                     var errors = [null, null, messages.errorMessages.DocumentAlreadyExistsCannotAttach,
                         messages.errorMessages.OnlyOneCombinationLanguageJur,
                         messages.errorMessages.DocumentAndProductSameMFR,
@@ -217,6 +216,16 @@
                     var flag = Math.min(data.filter(e => e > 0));
                     $(this).displayError(errors[flag]);
 
+                    //If error is 6, them we still added the doc to the product, so refresh the grid
+                    //This make the logic a little difficut, see TRECOMPLI-3500
+                    if (flag == 6) {
+                        var gridId = (newProductActive) ? productObject.controls.grids.GridProductDocuments + "_0" : productObject.controls.grids.GridProductDocuments + "_" + activeProduct;
+                        var curGdProductDoc = $(gridId).data("kendoGrid");
+                        if (curGdProductDoc) {
+                            curGdProductDoc.dataSource.page(1);
+                            curGdProductDoc.dataSource.read();
+                        }
+                    }
                 }
                 else {
 

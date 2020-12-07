@@ -330,6 +330,7 @@
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
                 InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
+                IncompleteKitsReminderRedirect: "A valid kit must have at least two components. You will be redirect to add components first.",
                 OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?"
             }
         };
@@ -1548,11 +1549,16 @@
                             if (clearAttachments == true)
                                 clearDocumentRevisionAttachments(form);
 
-                            if (callbackFunc) callbackFunc(data.DocumentId);
+                            if (callbackFunc)
+                                callbackFunc(data.DocumentId, formData.model.ContainerTypeId);
 
-                            if (formData.model.ContainerTypeId == 2) {
+                            if (formData.model.ContainerTypeId == 2 && callbackFunc.name == "saveNewDocument") {
                                 displayError(documentMessages.warnings.IncompleteKitsReminder);
                             }
+
+                            //if (formData.model.ContainerTypeId == 2) {
+                            //    displayError(documentMessages.warnings.IncompleteKitsReminder);
+                            //}
 
                         } else {
 
@@ -1590,20 +1596,48 @@
             closeNewDocument();
         }
 
-        function saveNewDocumentPopUp(documentId) {
-            if ($(this).getQueryStringParameterByName("docGuid") == "") {
-                if (window.opener) {
+        function saveNewDocumentPopUp(documentId, containerTypeId) {
+            if (containerTypeId != undefined && containerTypeId == 2) {
+                $("<div/>").kendoDialog({
+                    closable: false, // hide X
+                    title: "Kits Parent Reminder",
+                    content: documentMessages.warnings.IncompleteKitsReminderRedirect,
+                    actions: [{
+                        text: "OK",
+                        action: function (e) {
+                            displaySingleDocument({ DocumentID: documentId, RevisionID: 0 });
+                            if ($(this).getQueryStringParameterByName("docGuid") == "") {
+                                if (window.opener) {
 
-                    var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                    if (parentSearchWindow.length > 0) {
-                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                                    var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                                    if (parentSearchWindow.length > 0) {
+                                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                                        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                                    }
+                                }
+                            } else parent.window.opener.location.reload();
+                            closeNewDocumentPopUp();
+                            return true;
+                        },
+                        primary: true
+                    }]
+                }).data("kendoDialog").open().center();
+            }
+            else {
+                if ($(this).getQueryStringParameterByName("docGuid") == "") {
+                    if (window.opener) {
+
+                        var parentSearchWindow = $(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                        if (parentSearchWindow.length > 0) {
+                            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                        }
                     }
-                }
-            } else parent.window.opener.location.reload();
-
-            closeNewDocumentPopUp();
+                } else parent.window.opener.location.reload();
+                closeNewDocumentPopUp();
+            }
         }
 
         function showDpeDialog() {
