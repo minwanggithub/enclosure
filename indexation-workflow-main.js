@@ -40,7 +40,7 @@
                     UnAssignButton: "#btnUnAssignFrom",
                     SaveAssignButton: "#btnSaveAssign",
                     ManageUsers: "#btnManageUsers",
-                    StartWorkflow: "#btnStartIndexing",
+                    //StartWorkflow: "#btnStartIndexing",
                     StartIntelliFormsWorkflow: "#btnStartIntelliFormsIndexing"
                 },
 
@@ -85,7 +85,7 @@
                     CurrentRevisionOnly: "#chkCurrentRevisionOnly",
                     IncludeDoubleBlind: "#chkIncludeDoubleBlind",
                 },
-                sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
+               // sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
 
 
             }
@@ -178,19 +178,19 @@
 
         // 
 
-        function disableSideMenuItems() {
-            $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
-                $(v).enableControl(false);
-                $(v).addClass("disabled-link");
-            });
-        }
+        //function disableSideMenuItems() {
+        //    $("#eeeSideBarWorkLoad").find("[id^=btn]").each(function (i, v) {
+        //        $(v).enableControl(false);
+        //        $(v).addClass("disabled-link");
+        //    });
+        //}
 
-        function enableSideMenuItems() {
-            $("#eeeSideBarWorkLoad").find("[id^=btnStart]").each(function (i, v) {
-                $(v).enableControl(true);
-                $(v).removeClass("disabled-link");
-            });
-        }
+        //function enableSideMenuItems() {
+        //    $("#eeeSideBarWorkLoad").find("[id^=btnStart]").each(function (i, v) {
+        //        $(v).enableControl(true);
+        //        $(v).removeClass("disabled-link");
+        //    });
+        //}
 
         function enableAssignUnAssignButtons(enable) {
 
@@ -209,11 +209,11 @@
             grid.dataSource.read();
 
             // disable slide-out menu options
-            disableSideMenuItems();
+           // disableSideMenuItems();
             enableAssignUnAssignButtons(false);
 
             // show the slide out tab
-            $(obtainmentObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
+          //  $(obtainmentObject.controls.sideMenus.SideBarWorkLoad).sidemenu().show();
 
             // set ASSIGN/UNASSIGN default to GROUP
             $(obtainmentObject.controls.textBoxes.IndividualTextBox).closest(".k-widget").hide();
@@ -249,8 +249,12 @@
 
         workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartIntelliFormsWorkflow, function () {
 
+            // if items have not been selected, do nothing
+            if (Object.keys(selectedIds).length == 0) {
+                $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
+                return;
+            }
             // INTELLIFORMS SUPPORT
-
             var ids = (selectedIds || []);
 
             if (ids.length == 0) {
@@ -310,58 +314,58 @@
         });
 
         // clear search 
-        workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartWorkflow, function () {
+        //workflowSearchObj.on("click", obtainmentObject.controls.buttons.StartWorkflow, function () {
 
-            var ids = (selectedIds || []);           
-            if (ids.length == 0) {
-                $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
-            }
-            else {
+        //    var ids = (selectedIds || []);           
+        //    if (ids.length == 0) {
+        //        $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
+        //    }
+        //    else {
 
-                // this call "installs" the list of selected indexation workflow items.
-                // the call validates assignment and returns the first available indexing record.
+        //        // this call "installs" the list of selected indexation workflow items.
+        //        // the call validates assignment and returns the first available indexing record.
 
-                // ids must be passed in selected order
+        //        // ids must be passed in selected order
 
 
 
-                // start workflow
-                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: getSelectedIdsBySortOrder() })
-                .success(function (data) {
+        //        // start workflow
+        //        $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: getSelectedIdsBySortOrder() })
+        //        .success(function (data) {
 
-                    if (!data.Navigable) {
+        //            if (!data.Navigable) {
 
-                        // something happened. workload no longer assigne to user or some such thing
-                        // happened.
-                        if (isSupervisor())
-                            $(this).displayError(messages.errorMessages.SupervisorNoIndexingWorkloadAvailable);
-                        else
-                            $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
+        //                // something happened. workload no longer assigne to user or some such thing
+        //                // happened.
+        //                if (isSupervisor())
+        //                    $(this).displayError(messages.errorMessages.SupervisorNoIndexingWorkloadAvailable);
+        //                else
+        //                    $(this).displayError(messages.errorMessages.NoIndexingWorkloadAvailable);
 
-                    } else {
+        //            } else {
 
-                        var indexationSets = []
-                        if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
-                        if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
-                        indexationSets = indexationSets.join(",");
+        //                var indexationSets = []
+        //                if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
+        //                if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
+        //                indexationSets = indexationSets.join(",");
 
-                        // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
+        //                // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
 
-                        var url = window.location.href.split("/");
-                        url[url.length - 1] = "Indexation/Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
-                            "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
-                        window.open(url.join("/"), "_blank").focus();
+        //                var url = window.location.href.split("/");
+        //                url[url.length - 1] = "Indexation/Indexation?navigation=" + data.GUID + "&offset=" + data.IndexationId +
+        //                    "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + indexationSets;
+        //                window.open(url.join("/"), "_blank").focus();
 
-                    }
+        //            }
 
-                }).error(
-                function () {
+        //        }).error(
+        //        function () {
 
-                });
+        //        });
 
-            }
+        //    }
 
-        });
+        //});
 
         workflowSearchObj.on("click", obtainmentObject.controls.buttons.UploadIndexationUsers, function () {
             $("#fileUploadWindow").data("kendoWindow").center();
@@ -816,7 +820,7 @@
 
         function doPostGridRowAction() {
 
-            disableSideMenuItems();
+            //disableSideMenuItems();
             enableAssignUnAssignButtons(false);
 
             selectedIds = [];
@@ -829,7 +833,7 @@
 
             if (selectedIds.length > 0) {
                 enableAssignUnAssignButtons(true);
-                enableSideMenuItems();
+               // enableSideMenuItems();
             }
 
         }
