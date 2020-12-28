@@ -12,10 +12,10 @@
         var itemsChecked = 0;
         var selectedRequests = new Array();         // ids selected in the grid
         var preSelectedRequests = new Array();      // ids in previously sent email
-        var hasNoticeNumbers = false;
-        var hasNonSDS = false;
-        var hasRevision = false;
-        var hasRevisionCount = 0;
+        var hasNoticeNumbers = new Array();//changed to array from bool by hitesh
+        var hasNonSDS = new Array();//changed to array from bool by hitesh
+        var hasRevision = new Array();//changed to array from bool by hitesh
+        var hasRevisionCount = new Array();//changed to array from bool by hitesh
         var selectedRows = new Array();
 
         var obtainmentObject = {
@@ -252,9 +252,8 @@
         };
 
         var loadRequestsPlugin = function () {
-            initializeMultiSelectCheckboxes(obtainmentDetailWorkFlowObj);
-        }
-
+            initializeMultiSelectCheckboxes(obtainmentDetailWorkFlowObj);        
+        }      
         var loadRequests = function () {
             var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
@@ -323,10 +322,8 @@
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function () {
             $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
-        });
-
-
-
+        }); 
+        
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
 
             //Based on TRECOMPLI-1302, if supplier Id has value, then it will clear the rest filter and do super mail
@@ -799,14 +796,14 @@
                 //    return;
                 //}
 
-                if (hasNonSDS) {
+                if (hasNonSDS.length > 0) {
                     kendo.alert("Custom Action 47 applies to SDS document type only. Remove non SDS document types and perform action again.");
                     selNotes.select(0);
                     txtNotes.val("");
                     return;
                 }
 
-                if (hasRevisionCount > 0) {
+                if (hasRevisionCount.length > 0) {
                     kendo.alert("One or more of the selected item(s) are revisions. The customer action 47 can onlv be performed on new obtainment. Remove anv revision obtainment request selected and perform the action again.");
                     selNotes.select(0);
                     txtNotes.val("");
@@ -894,8 +891,9 @@
             var url = GetEnvironmentLocation() + "/Operations/XReference/XReferenceMain?productId=" + x.ProductID;
             window.open(url, '_blank');
 
-        });
-
+        });       
+      
+       
         var enableSuperEmail = function () {
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
@@ -1407,7 +1405,8 @@
             $(obtainmentObject.controls.buttons.SaveSearchSettings).enableControl(enable);
         };
 
-        function initializeMultiSelectCheckboxes(obj) {
+        //This functionality is updated in new method, can be removed after discussion
+        function initializeMultiSelectCheckboxesold(obj) {
             obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
                 selectedRequests = new Array();
                 hasNonSDS = false;
@@ -1473,7 +1472,6 @@
                 }
 
             });
-
             obj.on("click", ".chkMasterMultiSelect", function () {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
@@ -1535,9 +1533,178 @@
                 UpdateNumberOfItemsChecked(itemsChecked);
 
             });
-
-
         }
+
+        function initializeMultiSelectCheckboxes(obj) {          
+            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {  
+            /*commented by hitesh*/
+            //selectedRequests = new Array();
+            //hasNonSDS = false;
+            //hasRevision = false;
+            //hasRevisionCount = 0;
+                var checked = $(this).is(':checked');
+                if (checked) {
+                    $(".chkMasterMultiSelect")[0].checked = false;
+                }
+                var grid = $(this).parents('.k-grid:first');
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    var selectedRow = $(this).parent().parent();
+                    var dataItem = kgrid.dataItem($(this).closest('tr'));
+                    if (dataItem) {
+                        dataItem.set('IsSelected', !checked);
+                        if (selectedRow.length > 0) {
+                            if ($(this).is(':checked')) {
+                                var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
+                                if (indexUid > -1)
+                                    selectedRows.splice(indexUid, 1);
+                                var obtItemIndex = selectedRequests.indexOf(dataItem["ObtainmentWorkID"]);
+                                if (obtItemIndex > -1)
+                                    selectedRequests.splice(obtItemIndex, 1);
+                                if (dataItem['OWType'] === 'Revision') {
+                                    var indx = hasRevisionCount.indexOf(dataItem["ObtainmentWorkID"]);
+                                    if (indx > -1)
+                                        hasRevisionCount.splice(indx, 1);
+                                }
+                                if (dataItem['NoticeNumber'] != null) {
+                                    var indx = hasNoticeNumbers.indexOf(dataItem["ObtainmentWorkID"]);
+                                    if (indx > -1)
+                                        hasNoticeNumbers.splice(indx, 1);                                   
+                                }
+                                if (dataItem['DocumentType'] != 'SDS') {
+                                    var indx = hasNonSDS.indexOf(dataItem["ObtainmentWorkID"]);
+                                    if (indx > -1)
+                                        hasNonSDS.splice(indx, 1);                                    
+                                }
+                                grid.find('tr[data-uid="' + dataItem["uid"] + '"]').removeClass('k-state-selected');
+                            } else
+                            {
+                               
+                                selectedRows.push(selectedRow.attr('data-uid'));
+                                grid.find('tr[data-uid="' + dataItem["uid"] + '"]').addClass('k-state-selected');
+                                selectedRequests.push(dataItem["ObtainmentWorkID"]);
+                                if (dataItem['OWType'] === 'Revision')
+                                {
+                                    hasRevisionCount.push(dataItem["ObtainmentWorkID"]);
+                                }
+                                if (dataItem['NoticeNumber'] != null) {
+                                    hasNoticeNumbers.push(dataItem["ObtainmentWorkID"]);
+                                }
+                                if (dataItem['DocumentType'] != 'SDS') {
+                                    hasNonSDS.push(dataItem["ObtainmentWorkID"]);
+                                }
+                                
+                            }
+                               
+
+                        }
+                    }
+                    itemsChecked = 0;
+                    if (!checked) {
+                        var allSelceted = true;
+                        $.each(kgrid._data, function () {
+                            if (!this['IsSelected']) {                                                        
+                                $(".chkMasterMultiSelect")[0].checked = false;
+                                allSelceted = false;
+                                return false;                              
+                            }
+                        });
+                        if (allSelceted) {
+                            $(".chkMasterMultiSelect")[0].checked = true;
+                        }
+                    }                   
+                    itemsChecked = selectedRequests.length;
+                    UpdateNumberOfItemsChecked(itemsChecked);
+                    e.stopImmediatePropagation();
+                }
+
+            });
+            obj.on("click", ".chkMasterMultiSelect", function () {
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+                //selectedRequests = new Array();
+                //hasNonSDS = false;
+                //hasRevision = false;
+                //itemsChecked = 0;
+                //hasRevisionCount = 0;
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    if (kgrid._data.length > 0) {
+                        $.each(kgrid._data, function () {
+                            this['IsSelected'] = checked;
+                            if (this['IsSelected']) {
+                                var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
+                                if (index < 0) {
+                                    selectedRequests.push(this["ObtainmentWorkID"]);
+                                    if (this['OWType'] === 'Revision') {
+                                        var indx = hasRevisionCount.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx < 0) {
+                                            hasRevisionCount.push(this["ObtainmentWorkID"]);
+                                        }
+                                    }
+                                    if (this['NoticeNumber'] != null) {
+                                        var indx = hasNoticeNumbers.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx < 0) {
+                                            hasNoticeNumbers.push(this["ObtainmentWorkID"]);
+                                        }
+                                    }
+                                    if (this['DocumentType'] != 'SDS') {
+                                        var indx = hasNonSDS.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx < 0) {
+                                            hasNonSDS.push(this["ObtainmentWorkID"]);
+                                        }
+                                    }
+                                }
+                                  
+                            } else {
+                                var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
+                                if (index > -1)  {
+                                    selectedRequests.splice(index, 1);
+
+                                    if (this['OWType'] === 'Revision') {
+                                        var indx = hasRevisionCount.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx > -1)
+                                            hasRevisionCount.splice(indx, 1);     
+                                    }
+                                    if (this['NoticeNumber']!=null) {
+                                        var indx = hasNoticeNumbers.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx > -1)
+                                            hasNoticeNumbers.splice(indx, 1);
+                                    }
+                                    if (this['DocumentType'] != 'SDS') {
+                                        var indx = hasNonSDS.indexOf(this["ObtainmentWorkID"]);
+                                        if (indx > -1)
+                                            hasNonSDS.splice(indx, 1);
+                                    }
+                                }
+                            }
+                        });
+
+                        kgrid.refresh();
+
+                        $('tr', grid).each(function () {
+                            var tr = $(this);
+                            var cked = $('.chkMultiSelect', tr).is(':checked');
+                            if (cked)
+                                tr.addClass('k-state-selected');
+                            else
+                                tr.removeClass('k-state-selected');
+                        });
+                    } else {
+                        return false;
+                    }
+                }
+
+                itemsChecked = selectedRequests.length;
+                UpdateNumberOfItemsChecked(itemsChecked);
+
+            });
+        }
+
+        //This method is just for debugging purpose
+        $("#showSelected").click(function () {
+            alert("Number Of Selcted Items Are : " + selectedRequests.length +" \n"+ selectedRequests.join(","));
+        })
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
 
@@ -1565,7 +1732,7 @@
                 $(".chkMasterMultiSelect").prop("checked", false);
 
             }
-        }
+        }      
 
         function onDdlDataBound(e) {
             $(".unsupport").parent().click(false);
@@ -1616,9 +1783,23 @@
                 //placement: "bottom",
                 title: GetObtainmentWorkItemDueDiligence,
                 html: true
-            }); 
+            });                    
+            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");                     
+            var pager = grid.pager;            
+            var allSelceted = true;
+            $.each(grid._data, function () {
+                if (!this['IsSelected']) {
+                    $(".chkMasterMultiSelect")[0].checked = false;
+                    allSelceted = false;
+                    return false;
+                }
+            });
+            if (allSelceted) {
+                $(".chkMasterMultiSelect")[0].checked = true;
+            }     
         };
 
+        
         function GetObtainmentWorkItemDueDiligence() {
             var id = this.id;
             var split_id = id.split('_');
