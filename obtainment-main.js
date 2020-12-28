@@ -1210,6 +1210,7 @@
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
                     SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
+                    $('#txtObtainmentActionNotesLogExternalEmail').val('');
                     $(actionModals.LogExternalEmail).displayModal();
                     break;
                 case obtainmentActions.SetFollowUp:
