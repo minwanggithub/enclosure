@@ -57,7 +57,6 @@
                     AccountId: "#txtAccountId",
                     NumberOfItemsTextBox: "#numberOfItems",
                     ObtainmentActionNotes: "#txtObtainmentActionNotes",
-                    ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
                     ObtainmentEmailRecepients: "#txtObtainmentEmailSendEmailTo",
                     ObtainmentEmailSubject: "#txtObtainmentEmailSendEmailSubject",
                     NoticeNumberSearch: "#NoticeNumber",
@@ -68,8 +67,14 @@
                     SupplierId: "#txtSupplierId",
                     NotificationRecepient: "#txtNotificationRecepient",
                     SupplierSiblingId: "#txtObtainmentCASupplierIDName_CloseRequest",
+                    ObtainmentActionNotesLogExternalEmail: "#txtObtainmentActionNotesLogExternalEmail",
+                    ObtainmentActionNotesLogWebSearch: "#txtObtainmentActionNotesLogWebSearch",
+                    ObtainmentActionNotesFollowUp: "#txtObtainmentActionNotesFollowUp",
+                    ObtainmentActionNotesPhoneCall: "#txtObtainmentActionNotesPhoneCall",
+                    ObtainmentActionNotesFlagDiscontinued: "#txtObtainmentActionNotesFlagDiscontinued",
+                    ObtainmentActionNotesNotRequired: "#txtObtainmentActionNotesNotRequired",
+                    ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
                     ObtainmentActionNotesConfirmNotAvailable: "#txtObtainmentActionNotesConfirmNotAvailable"
-
                 },
                 dateTime: {
                     NextStepDueDate: "#dteNextStepDueDate",
@@ -1210,14 +1215,16 @@
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
                     SetNextStep(nextStepsValues.Empty, "LogExternalEmail", true);
-                    $('#txtObtainmentActionNotesLogExternalEmail').val('');
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesLogExternalEmail).val('');
                     $(actionModals.LogExternalEmail).displayModal();
                     break;
                 case obtainmentActions.SetFollowUp:
                     SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp", true);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFollowUp).val('');
                     $(actionModals.FollowUp).displayModal();
                     break;
                 case obtainmentActions.LogPhoneCall:
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesPhoneCall).val('');
                     var owid = $("#hdnOwid").val().replace("Owid: ", "");
                     var companyid = owid.split('-')[0];
                     var contactgrid = $(obtainmentObject.controls.grids.GridSupplier).data("kendoGrid");
@@ -1268,6 +1275,7 @@
 
                 case obtainmentActions.LogWebSearch:
                     SetNextStep(nextStepsValues.FirstAutomatedEmail, "LogWebSearch", true);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesLogWebSearch).val('');
                     $(actionModals.LogWebSearch).displayModal();
                     break;
 
@@ -1351,16 +1359,19 @@
 
                 case obtainmentActions.FlagDiscontinued:
                     SetNextStep(nextStepsValues.Completed, "FlagDiscontinued", false);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFlagDiscontinued).val('');
                     $(actionModals.FlagDiscontinued).displayModal();
                     break;
 
                 case obtainmentActions.FlagNotRequired:
                     SetNextStep(nextStepsValues.Completed, "NotRequired", false);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesNotRequired).val('');
                     $(actionModals.NotRequired).displayModal();
                     break;
 
                 case obtainmentActions.ConfirmAsCurrent:
                     SetNextStep(nextStepsValues.Completed, "CloseRequest", false);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val('');
                     $("#dvCustomerAction").hide();
                     $("#lblTitle").text("Confirm as Current");
                     $(actionModals.CloseRequest).displayModal();
@@ -1377,9 +1388,9 @@
 
                 case obtainmentActions.ConfirmNotAvailable:
                     SetNextStep(nextStepsValues.Completed, "ConfirmNotAvailable", false);
+                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesConfirmNotAvailable).val("");
                     $("#lblTitle").text("Confirm not available");
                     $("#dvConfirmNotAvailable").show();
-                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest).val("");
                     $(obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList).data("kendoDropDownList").select(0);
                     $(actionModals.ConfirmNotAvailable).displayModal();
                     break;
