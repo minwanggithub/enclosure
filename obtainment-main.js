@@ -1722,6 +1722,15 @@
                 // clean this out too
                 while (selectedRequests.length > 0) selectedRequests.pop();
 
+                // clean has notice number history
+                while (hasNoticeNumbers.length > 0) hasNoticeNumbers.pop();
+
+                // clean has non SDS  history
+                while (hasNonSDS.length > 0) hasNonSDS.pop();
+
+                // clean has revision  history
+                while (hasRevisionCount.length > 0) hasRevisionCount.pop();
+
                 // un-select highlighted rows
                 var grid = $(".chkMasterMultiSelect").parents('.k-grid:first');
                 $('tr', grid).each(function () {
@@ -1738,7 +1747,6 @@
         function onDdlDataBound(e) {
             $(".unsupport").parent().click(false);
         }
-
 
         function onCustomActionSupplierIdEnter(e) {
             if (e.keyCode == 13 || (e.ctrlKey && e.keyCode == 86)) {
@@ -1785,8 +1793,7 @@
                 title: GetObtainmentWorkItemDueDiligence,
                 html: true
             });                    
-            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");                     
-            var pager = grid.pager;            
+            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");                                           
             var allSelceted = true;
             $.each(grid._data, function () {
                 if (!this['IsSelected']) {
