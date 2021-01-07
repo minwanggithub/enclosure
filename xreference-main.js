@@ -655,6 +655,18 @@
             }
         });
 
+        //For testing purpose
+        xreferenceSearchObj.on("click", "#btnShowSelected", function () {
+            var selectedIds = new Array();
+            var targetGrid=xreferenceObject.controls.grids.GridRequests
+            var targetGridSelector = targetGrid;
+            var grid = $(targetGridSelector).data("kendoGrid");
+            $.each(grid.dataSource.data(), function () {
+                if (this.IsSelected === true)
+                    selectedIds.push(this.id);
+            });
+            alert("Number Of Selcted Items  : " + selectedIds.length + " \n" + selectedIds.join(","));
+        });
 
 
         //Display Modal Pop Up for History of Requests
@@ -1192,6 +1204,14 @@
         
         var OngdRequestDataBound = function (e) {
             resizeGridToWindow(e);
+            //for reseting checkbox
+            var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+            $(".chkMasterMultiSelect")[0].checked = true;
+            $.each(grid._data, function () {
+                if (!this['IsSelected']) {
+                    $(".chkMasterMultiSelect")[0].checked = false;
+                }
+            });  
         };
 
         return {
