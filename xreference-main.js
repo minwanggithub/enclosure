@@ -42,7 +42,7 @@
                     SavePendingButton: "#btnSavePending",
                     SaveQCFailButton: "#btnSaveQC",
                     SaveRemoveWorkLoad: "#btnSaveRemoveWorkLoad",
-                    RemoveRequestsButton: "#btnRemoveRequests",
+                   // RemoveRequestsButton: "#btnRemoveRequests",
                     SaveOnHoldWorkLoadButton: "#btnSaveOnHoldWorkLoad",
                     SaveRemoveOnHoldWorkLoadButton: "#btnSaveRemoveOnHoldWorkLoad"
                 },
@@ -837,8 +837,8 @@
             //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.PendingMenuButton);
             $(xreferenceObject.controls.buttons.CustomerActionMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.CustomerActionMenuButton);
-            $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(false);
-            xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveRequestsButton);
+            //$(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(false);
+            //xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.RemoveRequestsButton);
             $(xreferenceObject.controls.buttons.QCFailMenuButton).enableControl(false);
             xreferenceSearchObj.off("click", xreferenceObject.controls.buttons.QCFailMenuButton);
 
@@ -858,8 +858,8 @@
             $(xreferenceObject.controls.buttons.CustomerActionMenuButton).enableControl(true);
             //ShowDisplayModal(xreferenceObject.controls.buttons.CustomerActionMenuButton, actionModals.CustomerAction);
 
-            $(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
-            ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
+            //$(xreferenceObject.controls.buttons.RemoveRequestsButton).enableControl(true);
+            //ShowDisplayModal(xreferenceObject.controls.buttons.RemoveRequestsButton, actionModals.RemoveWorkLoad);
 
             $(xreferenceObject.controls.buttons.OnHoldMenuButton).enableControl(true);
             //$(xreferenceObject.controls.buttons.OnHoldMenuButton).removeClass("disabled-link");
