@@ -2082,6 +2082,9 @@
             if (addNewDocumentPopUp.length > 0) {
                 $(documentElementSelectors.containers.NewDocument).show(500);
                 $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentPopUpCancelBtnClick);
+
+                addNewDocumentPopUp.off('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers);
+                addNewDocumentPopUp.on('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers, loadMulitNameNumberPopup);
             } else {
                 $(documentElementSelectors.buttons.DocumentNewDocumentCancel).on("click", onNewDocumentCancelBtnClick);
             }
@@ -2379,6 +2382,7 @@
             // Containers
             container.on('click', documentElementSelectors.buttons.DocumentAddContainerComponents, onDocumentAddContainerComponentsBtnClick);
             container.on('click', documentElementSelectors.buttons.DocumentDeleteContainerComponent, onDocumentDeleteContainerComponentBtnClick);
+
 
             // Multiple name numbers
             container = $(documentElementSelectors.containers.DocumentRevisionMultipleNameNumbers);
@@ -2793,6 +2797,16 @@
             }
         }
 
+        function loadMulitNameNumberPopup(e) {
+            $("<div></div>").multinamenumber({
+                documentId: 0,
+                revisionId: 0,
+                token: $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val(),
+                crudUrl: GetEnvironmentLocation() + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.CreateMultipleNameNumbers,
+                targetGrid: $(documentElementSelectors.grids.DocumentRevisionNameNumbers + 0).data("kendoGrid")
+            });
+        }
+
         function onDocumentAddMultipleNameNumbersBtnClick(e) {
             e.preventDefault();
 
@@ -2812,7 +2826,6 @@
                         return -($(this).width() / 2);
                     }
             });
-
         }
 
         function onDocumentRevisionAddMultipleNameNumbersBtnClick(e) {
@@ -2909,7 +2922,7 @@
             data['aliasesText'] = texts;
 
             if (data['documentId'] == 0 && data['revisionId'] == 0) {
-                data['token'] = token;
+                data[' token'] = token;
             }
 
             $(this).ajaxJSONCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.CreateMultipleNameNumbers), JSON.stringify(data))
