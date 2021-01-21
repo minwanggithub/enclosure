@@ -50,7 +50,11 @@
                     btnCancelSuperEmailButton: "#btnCancelSuperEmail",
                     btnSendSuperEmailButton: "#btnSendSuperEmail",
                     btnCancelConfirmNotAvailable: "#btnCancelConfirmNotAvailable",
-                    btnSaveConfirmNotAvailable: "#btnSaveConfirmNotAvailable"
+                    btnSaveConfirmNotAvailable: "#btnSaveConfirmNotAvailable",
+                    SentToProcessingSaveButton: "#btnSaveSentToProcessing",
+                    SentToProcessingCancelButton: "#btnCancelSentToProcessing",
+                    AwaitingSupplierResponseSaveButton: "#btnSaveAwaitingSupplierResponse",
+                    AwaitingSupplierResponseCancelButton: "#btnCancelAwaitingSupplierResponse"
 
                 },
                 textBoxes: {
@@ -74,7 +78,9 @@
                     ObtainmentActionNotesFlagDiscontinued: "#txtObtainmentActionNotesFlagDiscontinued",
                     ObtainmentActionNotesNotRequired: "#txtObtainmentActionNotesNotRequired",
                     ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
-                    ObtainmentActionNotesConfirmNotAvailable: "#txtObtainmentActionNotesConfirmNotAvailable"
+                    ObtainmentActionNotesConfirmNotAvailable: "#txtObtainmentActionNotesConfirmNotAvailable",
+                    ObtainmentActionNotesSentToProcessing: "#txtObtainmentActionNotesSentToProcessing",
+                    ObtainmentActionNotesAwaitingSupplierResponse: "#txtObtainmentActionNotesAwaitingSupplierResponse"
                 },
                 dateTime: {
                     NextStepDueDate: "#dteNextStepDueDate",
@@ -120,7 +126,9 @@
             ViewHistory: "#mdlViewHistory",
             AccountInfo: "#mdlViewAccount",
             SuperMail: "#superEmailWindow",
-            ConfirmNotAvailable: "#mdlConfirmNotAvailable"
+            ConfirmNotAvailable: "#mdlConfirmNotAvailable",
+            SentToProcessing: "#mdlSentToProcessing",
+            AwaitingSupplierResponse: "#mdlAwaitingSupplierResponse"
         };
 
         var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
@@ -145,8 +153,8 @@
             SaveConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveConfirmNotAvailable",
 
         };
-        var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6" };
-        var obtainmentActions = { Empty: "", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6", AwaitingSupplierResponse: "9", SentToProcessing: "10" };
+        var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11",LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             instructionMessages: {
 
@@ -697,6 +705,14 @@
             $(actionModals.FlagDiscontinued).toggleModal();
         });
 
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SentToProcessingCancelButton, function () {
+            $(actionModals.SentToProcessing).toggleModal();
+        });
+
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.AwaitingSupplierResponseCancelButton, function () {
+            $(actionModals.AwaitingSupplierResponse).toggleModal();
+        });
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredCancelButton, function () {
             $(actionModals.NotRequired).toggleModal();
         });
@@ -731,6 +747,12 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
+        });
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SentToProcessingSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "SentToProcessing", actionModals.SentToProcessing);
+        });
+        obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.AwaitingSupplierResponseSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "AwaitingSupplierResponse", actionModals.AwaitingSupplierResponse);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredSaveButton, function () {
@@ -1065,6 +1087,13 @@
             dteDateAssigned.enable(enable);
         }
 
+        function SetNextStepForSendToProcessingandAwaitSuppRes(nextStepValue, actionName, enable) {
+            var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+            var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
+            ddlNextSteps.value(nextStepValue);
+            ddlNextSteps.enable(enable);
+        }
+
         function getQueryVariable(variable) {
             var query = window.location.search.substring(1);
 
@@ -1393,6 +1422,18 @@
                     $("#dvConfirmNotAvailable").show();
                     $(obtainmentObject.controls.dropdownlists.ConfirmNotAvailableDropDownList).data("kendoDropDownList").select(0);
                     $(actionModals.ConfirmNotAvailable).displayModal();
+                    break;
+
+                case obtainmentActions.AwaitingSupplierResponse:
+                    SetNextStepForSendToProcessingandAwaitSuppRes(nextStepsValues.AwaitingSupplierResponse, "AwaitingSupplierResponse", false);
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesAwaitingSupplierResponse).val('');
+                    $(actionModals.AwaitingSupplierResponse).displayModal();
+                    break;
+
+                case obtainmentActions.SentToProcessing:
+                    SetNextStepForSendToProcessingandAwaitSuppRes(nextStepsValues.SentToProcessing, "SentToProcessing", false);
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesSentToProcessing).val('');
+                    $(actionModals.SentToProcessing).displayModal();
                     break;
             }
         }
