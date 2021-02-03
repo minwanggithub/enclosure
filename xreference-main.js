@@ -1,4 +1,6 @@
-﻿; (function ($) {
+﻿/*below var is used to clear the selected item after operation performed outside this file like in cutom action model popup*/
+var anyOperationPerformedOutside = false; 
+; (function ($) {
     if ($.fn.complibXReference == null) {
         $.fn.complibXReference = {};
 
@@ -455,15 +457,15 @@
                     // product selected do not match.
                     var states = [];
                     var physicalState = $(xreferenceObject.controls.labels.PhysicalState).text();
-                    
-                    // get the physical states of the selected rows
-                    var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
+                    // get the physical states of the selected rows          
+                    //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
+                    /*Hitesh 2/03/2021 : replaced above code with below to check physical state across the page above code was working for current page*/
+                    var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.data();                  
                     Array.from(grid).forEach(i => {
                         if (selectedRequests.indexOf(i.RequestWorkItemID) >= 0 && i.PhysicalState != null) {
                             states.push(i.PhysicalState);
                         }
-                    });
-
+                    });     
                     if (Array.from(states).some(e => e != physicalState)) {
 
                         var message = messages.confirmationMessages.CrossReferenceResolutionStateMismatch;
@@ -503,7 +505,6 @@
 
         //Save Request for Obtainment
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveObtainmentButton, function () {
-
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val().length === 0 || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "0" || $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
                 $(actionModals.Obtainment).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
@@ -518,13 +519,11 @@
                     $(this).displayError(messages.errorMessages.NoSupplierSelected);
                 }
             }
-
         });
 
         //Save Request for Customer Action
         xreferenceSearchObj.on("click", xreferenceObject.controls.buttons.SaveCustomerActionButton, function () {
             if ($(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).val() === "") {
-
                 $(actionModals.CustomerAction).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
 
@@ -657,15 +656,8 @@
 
         //For testing purpose
         xreferenceSearchObj.on("click", "#btnShowSelected", function () {
-            var selectedIds = new Array();
-            var targetGrid=xreferenceObject.controls.grids.GridRequests
-            var targetGridSelector = targetGrid;
-            var grid = $(targetGridSelector).data("kendoGrid");
-            $.each(grid.dataSource.data(), function () {
-                if (this.IsSelected === true)
-                    selectedIds.push(this.id);
-            });
-            alert("Number Of Selcted Items  : " + selectedIds.length + " \n" + selectedIds.join(","));
+
+            alert("Number Of Selcted Items  : " + selectedRequests.length + " \n" + selectedRequests.join(","));
         });
 
 
@@ -784,8 +776,10 @@
                     })
                     .done(function () {
                         kendo.ui.progress(xreferenceDetailObj, false);
-                        var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+                        var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");                      
                         grid.dataSource.read();
+                     //Hitesh 02/03/2021 called to clear the selected items
+                        UpdateNumberOfItemsChecked(0)
                     });
                 //kendo.ui.progress(xreferenceDetailObj, false);
                 //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
@@ -803,7 +797,6 @@
             });
             // Mousetrap.bind(keyCombination, function () { $("#" + btnObj).click(); });
         }
-
 
         xreferenceDetailObj.on('hide', actionModals.Resolve, function () {
             EnableMenuItems();
@@ -903,7 +896,6 @@
         function ShowDisplayModal(btnObj, mdlObj) {
             xreferenceSearchObj.on("click", btnObj, function (e) {
                 e.preventDefault();
-
                 // Nitin- If no item selected
                 var targetGridSelector = xreferenceObject.controls.grids.GridRequests;
                 var grid = $(targetGridSelector).data("kendoGrid");
@@ -983,8 +975,8 @@
         function initializeMultiSelectCheckboxes(obj) {
 
             obj.on(/*"mouseup MSPointerUp"*/ "click", ".chkMultiSelect", function (e) {
-
-                selectedRequests = new Array();
+               /*Commented by Hitesh on 02/03/2021 as it was resetting selected items after each selection*/
+                //selectedRequests = new Array();
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
                 if (grid) {
@@ -992,13 +984,10 @@
                     var selectedRow = $(this).parent().parent();
                     var dataItem = kgrid.dataItem($(this).closest('tr'));
                     if (dataItem) {
-
                         dataItem.set('IsSelected', checked);
                         if (selectedRow.length > 0) {
-
                             //if ($(this).is(':checked')) {
                             if (!checked) {
-
                                 $("#hdnSupplierName").val("").trigger('change');
                                 $("#hdnProductName").val("").trigger('change');
                                 $("#hdnProductPartNumber").val("").trigger('change');
@@ -1006,12 +995,17 @@
                                 $("#hdnSupplier").val("").trigger('change');
                                 $("#lblProductName").text("");
                                 $("#lblSupplierName").text("");
-                                $("#lblSupplierName").text("");
-                                
+                                $("#lblSupplierName").text("");                               
                                 var indexUid = selectedRows.indexOf(selectedRow.attr('data-uid'));
                                 if (indexUid > -1)
                                     selectedRows.splice(indexUid, 1);
-
+                                var index = selectedRequests.indexOf(dataItem["RequestWorkItemID"]);
+                                if (index > -1) {
+                                    selectedRequests.splice(index, 1);
+                                    itemsChecked--;
+                                    LogHoldStatus(dataItem['Status'], false);
+                                    grid.find('tr[data-uid="' + dataItem["uid"] + '"]').removeClass('k-state-selected');
+                                }
                             } else {
 
                                 if (dataItem["ProductName"] !== $("#hdnProductName").val() || dataItem["SupplierID"] !== $("#hdnSupplier").val() ) {
@@ -1019,38 +1013,44 @@
                                     $("#hdnProductName").val(dataItem["ProductName"]).trigger('change');
                                     $("#hdnProductPartNumber").val(dataItem["ProductPartNumber"]).trigger('change');
                                     $("#hdnPhysicalState").val(dataItem["PhysicalState"]).trigger('change');
-                                    $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');
-                                    
+                                    $("#hdnSupplier").val(dataItem["SupplierID"]).trigger('change');                                    
                                 }
 
                                 selectedRows.push(selectedRow.attr('data-uid'));
+                                var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                                if (index < 0) {
+                                    selectedRequests.push(dataItem["RequestWorkItemID"]);
+                                    itemsChecked++;
+                                    LogHoldStatus(dataItem['Status'], true);
+                                    if (selectedRows.indexOf(dataItem["uid"]) > -1)
+                                        grid.find('tr[data-uid="' + dataItem["uid"] + '"]').addClass('k-state-selected');
+                                }   
                             }
 
                             if (typeof performXrefProductSearch != "undefined")
                                 performXrefProductSearch(checked);
-
                         }
                     }
+                    /*below code is commented as handling only for current page now selection managed using global variables*/
+                    //itemsChecked = 0;
+                    //newRequestCount = 0;
+                    //onHoldCount = 0;
+                    //$.each(kgrid._data, function () {
+                    //    if (this['IsSelected']) {
+                    //        selectedRequests.push(this["RequestWorkItemID"]);
+                    //        itemsChecked++;
+                    //        LogHoldStatus(this['Status']);
+                    //    } else {
+                    //        var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                    //        if (index > -1)
+                    //            selectedRequests.splice(index, 1);
+                    //    }
 
-                    itemsChecked = 0;
-                    newRequestCount = 0;
-                    onHoldCount = 0;
-                    $.each(kgrid._data, function () {
-                        if (this['IsSelected']) {
-                            selectedRequests.push(this["RequestWorkItemID"]);
-                            itemsChecked++;
-                            LogHoldStatus(this['Status']);
-                        } else {
-                            var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                            if (index > -1)
-                                selectedRequests.splice(index, 1);
-                        }
-
-                        if (selectedRows.indexOf(this["uid"]) > -1)
-                            grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
-                        else
-                            grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
-                    });
+                    //    if (selectedRows.indexOf(this["uid"]) > -1)
+                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').addClass('k-state-selected');
+                    //    else
+                    //        grid.find('tr[data-uid="' + this["uid"] + '"]').removeClass('k-state-selected');
+                    //});
 
                     UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
@@ -1060,23 +1060,29 @@
             obj.on("click", ".chkMasterMultiSelect", function () {
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
-                selectedRequests = new Array();
-                onHoldCount = 0;
-                itemsChecked = 0;
-
+            /*Commented by Hitesh on 02/03/2021 as it was resetting selected items after each selection*/
+               // selectedRequests = new Array();
+               // onHoldCount = 0;
+               // itemsChecked = 0;
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
                     if (kgrid._data.length > 0) {
-                        $.each(kgrid._data, function () {
-                            LogHoldStatus(this['Status']);
+                        $.each(kgrid._data, function () {                           
                             this['IsSelected'] = checked;
                             if (this['IsSelected']) {
-                                selectedRequests.push(this["RequestWorkItemID"]);
-                                itemsChecked++;
+                                var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
+                                if (index < 0) {
+                                    selectedRequests.push(this["RequestWorkItemID"]);
+                                    itemsChecked++;
+                                    LogHoldStatus(this['Status'], true);
+                                }
                             } else {
                                 var index = selectedRequests.indexOf(this["RequestWorkItemID"]);
-                                if (index > -1)
+                                if (index > -1) {
                                     selectedRequests.splice(index, 1);
+                                    itemsChecked--;
+                                    LogHoldStatus(this['Status'], false);
+                                }                           
                             }
                         });
                         kgrid.refresh();
@@ -1136,7 +1142,6 @@
 
                     var args = { message: 'Are you sure you would like to ' + objName + '?', header: 'Confirm Requests Selected' };
                     _DisplayConfirmationModal(args, function () {
-
                         $(this).ajaxJSONCall(url, JSON.stringify(data))
                             .success(function (successData) {
                                 if (successData.success === true) {
@@ -1144,17 +1149,15 @@
                                     var checkbox = $(grid.element).find('.chkMasterMultiSelect');
                                     if (checkbox && checkbox.is(':checked'))
                                         checkbox.attr('checked', false);
-
-
                                     grid = $(targetGridSelector).data("kendoGrid");
                                     grid.dataSource.read();
                                     DisableMenuItems();
+                                    UpdateNumberOfItemsChecked(0);
                                 } else
                                     $(this).displayError(messages.errorMessages.GeneralError);
                             })
                             .error(function () { $(this).displayError(messages.errorMessages.RequestsCouldNotBeAssigned); })
                             .complete(function (compData) {
-
                                 kendo.ui.progress(xreferenceDetailObj, false);
                                 $(this).savedSuccessFully(messages.successMessages.Saved);
                                 if (completeCallback)
@@ -1168,19 +1171,39 @@
         };
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
-            if (numberOfItems === 0)
+            if (numberOfItems === 0) {
                 $("#hdnSupplier").val("").trigger('change');
+                // clean selectedRequests
+                while (selectedRequests.length > 0) selectedRequests.pop();
+                itemsChecked = 0;
+                newRequestCount = 0;
+                onHoldCount = 0;
 
+                // un-select highlighted rows
+                var grid = $(".chkMasterMultiSelect").parents('.k-grid:first');
+                $('tr', grid).each(function () {
+                    var tr = $(this);
+                    tr.removeClass('k-state-selected');
+                });
+            }              
             $(xreferenceObject.controls.textBoxes.NumberOfItemsTextBox).text("(" + numberOfItems + ")").val(numberOfItems).trigger("change");
         }
 
 
-        function LogHoldStatus(status) {
-            if (status === 'New Request')
-                newRequestCount++;
-
-            if (status === 'On Hold')
-                onHoldCount++;
+        function LogHoldStatus(status, isIncrement) {
+            if (isIncrement) {
+                if (status === 'New Request')
+                    newRequestCount++;
+                if (status === 'On Hold')
+                    onHoldCount++;
+            }
+            else {
+                if (status === 'New Request')
+                    newRequestCount--
+                if (status === 'On Hold')
+                    onHoldCount--;
+            }
+          
         }
 
         var IdentifyRequests = function () {
@@ -1212,6 +1235,10 @@
                     $(".chkMasterMultiSelect")[0].checked = false;
                 }
             });  
+            if (anyOperationPerformedOutside) {
+                UpdateNumberOfItemsChecked(0);
+                anyOperationPerformedOutside = false;
+            }
         };
 
         return {

@@ -224,14 +224,12 @@ if (jQuery) (function ($, kdo) {
                     kendo.alert("Custom action required!");
                     return;
                 }
-
                 var customData = {};
                 customData['ids'] = selectedRequests;
                 customData['customerAction'] = "Customer Action";
                 customData['notes'] = this.get("customNotes");
                 customData['siblingSupplierId'] = this.get("silbingSupplierId");
                 customData['actionId'] = this.get("customActionId");
-
                 $(this).ajaxJSONCall(Settings.controller.SaveCustomAction, JSON.stringify(customData))
                     .success(function (successData) {
                         if (successData.success === true) {
@@ -248,6 +246,7 @@ if (jQuery) (function ($, kdo) {
                     })
                     .done(function () {
                         //kendo.ui.progress(xreferenceDetailObj, false);
+                        anyOperationPerformedOutside = true;
                         targetGrid.dataSource.read();
                     });
 
@@ -275,9 +274,8 @@ if (jQuery) (function ($, kdo) {
 
         //Check the selected entry, in theory there should be at least one, otherwise the menu should disabled and won't come here
         targetGrid = $(gridTarget.selector).data("kendoGrid");
-
-        if (targetGrid._data.length > 0) {
-            $.each(targetGrid._data, function () {
+        if (targetGrid.dataSource.data().length > 0) {
+            $.each(targetGrid.dataSource.data(), function () {
                 //this['IsSelected'] = checked;
                 if (this['IsSelected']) {
                     selectedRequests.push(this["RequestWorkItemID"]);
