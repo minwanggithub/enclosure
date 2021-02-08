@@ -21,6 +21,7 @@
                 RemoveRevisionAttachment: "RemoveAttachmentAlt",
                 SaveDocumentContainerComponent: "SaveDocumentContainerComponent",
                 SaveDocumentRevisionAttachments: "SaveDocumentRevisionAttachments",
+                ReplaceDocumentRevisionAttachments: "ReplaceDocumentRevisionAttachments",
                 UpdateDocumentInfoDescription: "UpdateDocumentInfoDescriptionAlt",
                 ClearSessionVariablesDocument: "ClearSessionsVariables",
                 GetSupplierName: "GetSupplierName",
@@ -76,6 +77,7 @@
                 DocumentAddMultipleNameNumbers: ".doc-multinamenum-add",
                 DocumentRevisionAddNewRevision: "[id^=btnAddDocumentRevision_]",
                 DocumentRevisionDetailsAddAttachment: "[id^=addNewFilesBtn_]",
+                DocumentRevisionDetailsReplaceAttachment: "[id^=replaceOldFilesBtn_]",
                 DocumentRevisionDetailsDeleteAttachment: ".revision-attachment-delete",
                 DocumentRevisionDetailsCancel: "[id^=btnDocumentRevisionCancel_]",
                 DocumentRevisionDetailsManufacturerSearch: "[id^=revisionMfgIdBtn_]",
@@ -317,9 +319,11 @@
                 PrivateAccessForDocument: "This document is being marked private. Only documents marked public will be searchable on certain client systems.",
                 PublicAccessForDocument: "This document is being marked public. Only Documents marked public will be searchable on certain client systems.",
                 DocumentAccessConfirmation: "Document access change confirmation.",
+                RevisionAttachmentReplacementConfirmation: "Revision attachment replacement confirmation.",
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
+                DocumentRevisionAttachmentsReplaced: "Attachment Replaced",
                 DocumentRevisionMultipleNameNumbersSaved: "Items Saved Successful",
                 DocumentRevisionSaved: "Revision Saved",
                 DocumentSaved: "Document Saved",
@@ -384,9 +388,9 @@
             Enter: 13,
             V: 86,
             ctrlKeyState:
-                {
-                    Pressed: false
-                }
+            {
+                Pressed: false
+            }
         };
 
         var dsSearchOption = kendo.observable({
@@ -753,32 +757,32 @@
         function getContainerSearchCriteria(container) {
             if (container && container.length > 0) {
                 var result =
-                    {
-                        ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                        DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                        DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                        DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                        DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                        IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                        LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                        PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                        PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
-                        PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                        ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                        RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                        SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
-                        SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
-                        SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
-                        SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
-                        UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
-                        UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
-                        DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
-                        DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
-                        DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
-                        ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                        Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
-                        AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
-                    };
+                {
+                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
+                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
+                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
+                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
+                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
+                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
+                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
+                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
+                    PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions + ":checked").val(),
+                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
+                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
+                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
+                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                    SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
+                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
+                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions + ":checked").val(),
+                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
+                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions + ":checked").val(),
+                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
+                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
+                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions + ":checked").val(),
+                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
+                    Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
+                    AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions + ":checked").val()
+                };
                 var dateRange = container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if (dateRange != "Custom") {
                     result.DateRangeFrom = "";
@@ -830,7 +834,7 @@
                 onKeyPressEnter(e, performDocumentSearch);
         }
 
-        function onDocumentSearchSearchBtnClick(e) {            
+        function onDocumentSearchSearchBtnClick(e) {
             keyCodeValues.ctrlKeyState.Pressed = e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
@@ -906,7 +910,7 @@
         var onDisplayNewDocumentPopUp = function (pKey) {
             displayAddNewDocumentPopUp(pKey);
         }
-         
+
         var DocumentRowSelect = function (e) {
             var dataItem = $(documentElementSelectors.grids.DocumentSearch).data("kendoGrid").dataItem(this);
             if (e.ctrlKey) {
@@ -1221,7 +1225,7 @@
             //"<input id='siblingDocType' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, source: columnDataSource, events: { change: onSiblingDocTypeChange }'/>"
 
             var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div>" +
-                "<div>Choose Doc Type: <span><input id='siblingDocType' style='margin: 5px 0px 0px 10px; width: 332px;' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, disabled:usingExistingDocument, source: docTypeDataSource, events: { change: onSiblingDocTypeChange }'/></span></div>" + 
+                "<div>Choose Doc Type: <span><input id='siblingDocType' style='margin: 5px 0px 0px 10px; width: 332px;' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, disabled:usingExistingDocument, source: docTypeDataSource, events: { change: onSiblingDocTypeChange }'/></span></div>" +
                 "<label style='margin-top:8px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='width: 100px;'></label></div>");
             //$("<div>siblingRequest</div>").dialog({
             var rowModel;
@@ -1249,7 +1253,7 @@
                             read: {
                                 url: generateActionUrl(documentAjaxSettings.controllers.Svc, documentAjaxSettings.actions.GetDocumentTypeInJson),
                                 type: "POST",
-                                contentType: "application/json"                               
+                                contentType: "application/json"
                             }
                         }
                     }),
@@ -1257,7 +1261,7 @@
                         //kendo.alert("check changed");
                     },
                     onSiblingDocTypeChange: function (e) {
-                       //kendo.alert("Doc Type changed to " + this.newDocumentTypeId);
+                        //kendo.alert("Doc Type changed to " + this.newDocumentTypeId);
                     },
                 });
                 siblingObservable.get("docTypeDataSource").fetch();
@@ -1294,7 +1298,7 @@
                             SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle, rowModel.newDocumentTypeId);
                         }
                     },
-                    Cancel: function () {                        
+                    Cancel: function () {
                         $(this).dialog("close")
                     }
                 },
@@ -1414,7 +1418,7 @@
             });
         }
 
-    /******************************** New Document Methods ********************************/
+        /******************************** New Document Methods ********************************/
 
         function clearNewDocumentNameNumberGrid() {
             var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.ResetNameNumbersInSession;
@@ -2374,6 +2378,7 @@
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentNewRevisionDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onDocumentRevisionDetailsAddAttachmentBtnClick);
+            container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsReplaceAttachment, onDocumentRevisionDetailsReplaceAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentRevisionDetailsDeleteAttachmentBtnClick);
             container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId, onCompanyIdFieldKeyUp);
@@ -2772,7 +2777,7 @@
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
-                
+
                 // make call to get latest revision details
                 $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
                     .success(function (data) {
@@ -2791,7 +2796,7 @@
                             function () {
                                 $("#RevisionDate_" + documentId + "_0").focus();
                             }, 1000);
-                        
+
                     });
 
             }
@@ -2825,7 +2830,7 @@
                     'margin-left': function () {
                         return -($(this).width() / 2);
                     }
-            });
+                });
         }
 
         function onDocumentRevisionAddMultipleNameNumbersBtnClick(e) {
@@ -3464,7 +3469,7 @@
         };
 
         var onNameNumberGridDataBound = function (e) {
-           $(window).resize();   //temp fix for kendo grid page information not displaying
+            $(window).resize();   //temp fix for kendo grid page information not displaying
         }
 
         var onDocumentRevisionNameNumberGridEdit = function (e) {
@@ -3891,7 +3896,7 @@
                 }
             });
         };
-        
+
 
         var initializeSearchOperator = function (index = 0) {
             if ($.type(index) != 'number')
@@ -3903,7 +3908,7 @@
             kendo.bind($(documentElementSelectors.div.searchPartNumOptionDiv)[index], dsPartNumSearchOption);
             kendo.bind($(documentElementSelectors.div.searchAliashOptionDiv)[index], dsAliasSearchOption);
             kendo.bind($(documentElementSelectors.div.searchDocSupplierNameOptionDivPre)[index], dsSupplierNameSearchOption);
-            
+
             $($(documentElementSelectors.buttons.btnDocSupplierNameOperatorDropdown)[index]).prop("disabled", true);
             switchBetweenMfgNameAndID();
         };
@@ -3925,7 +3930,7 @@
         var onEmojiHappyRevisionClick = function (e, docSequenceId, versionId) {
             var dpeData = $("#" + e.id).data('dpedata');
             var dpeDataStatus = $("#" + e.id).data('dpedata_status');
-            
+
             var dpeDataLib = $("#dpeExtractDataPopup").dpedataresult({
                 dpeDataSource: dpeData,
                 dpeFields: dpeFields.fields.Resequence(dpeFields.fields.Revision, docSequenceId, versionId),
@@ -3948,11 +3953,11 @@
 
             kendo.ui.progress($("#mdlConflictingFileUpload"), true);
 
-            if (attachingFileFor.toLowerCase().indexOf("_new") < 0) {
+            if (attachingFileFor.toLowerCase().indexOf("_new") < 0 && attachingFileFor != "FORREPLACEMENT") {
 
                 var documentId = parseInt(Array.from(attachingFileFor.split("_")).reverse()[1]);
                 var revisions = (Array.from(response.Revisions || [])).filter(e => e.DocumentId == documentId);
-                
+
                 // the file being uploaded may be associated with the current document itself.
                 // possibilities - document has only one revision. document has two or more revisions
                 // and the file is associated with the latest revision or the file is associated with
@@ -3983,12 +3988,115 @@
             $("#mdlConflictingFileUpload").modal();
             $("#mdlConflictingFileUpload > .modal-body").html("Fetching a list of matches ...");
             $("#conflictingFileName").html(response.Attachments[0].FileName);
-                        
+
+            var message = "exists under the following Doc ID(s).Clicks on the links below to access the Document(s) and create siblings.Or click on 'Close' to upload a different file.";
+            if (attachingFileFor == "FORREPLACEMENT") message = "exists under the following Doc ID(s). Click on 'Close' and upload another different file.";
+            $("#conflictingFileMessage").html(message);
+
             $.post(GetEnvironmentLocation() + '/Operations/Document/ShowSiblingRevisions', response,
                 function (response) {
                     kendo.ui.progress($("#mdlConflictingFileUpload"), false);
                     $("#mdlConflictingFileUpload > .modal-body").html(response);
                 });
+        }
+
+        var replaceRevisionAttachment = function (e) {
+
+            e.preventDefault();
+
+
+
+            // **********************************************************************
+
+            // confirm 
+            var msg = "With this confirmation you are replacing the exact SDS with a better version."
+
+            var settings = {
+                message: msg,
+                header: documentMessages.modals.RevisionAttachmentReplacementConfirmation
+            };
+
+            displayConfirmationModal(settings,
+                function () {
+
+                    var tr = $(e.target).closest("tr"); // get current row
+                    var grid = $("#" + e.delegateTarget.id).data("kendoGrid");
+                    var dataItem = grid.dataItem(tr);
+
+                    var documentInfoId = dataItem.DocumentInfoId;
+                    var revisionId = dataItem.RevisionId;
+                    var documentId = dataItem.DocumentId;
+
+                    // ---- YES FUNCTION
+
+                    if ($(e.currentTarget).hasClass('k-state-disabled')) {
+                        return false;
+                    }
+
+                    if (displayUploadModal) {
+
+                        attachingFileFor = "FORREPLACEMENT";
+                        displayUploadModal(function () {
+                            return { documentInfoId: documentInfoId, revisionId: revisionId, documentId: 0 };
+                        }, function (data) {
+
+                            var deferred = $.Deferred();
+
+                            setTimeout(function () {
+
+                                $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.ReplaceDocumentRevisionAttachments), {
+                                    files: data.map(function (item) { return { FileName: item.filename, PhysicalPath: item.physicalPath, DocumentId: documentId, RevisionId: revisionId }; }),
+                                    documentInfoId: documentInfoId,
+                                    revisionId: revisionId,
+                                    documentId: 0,
+                                    isNewRevision: false
+                                })
+                                    .success(function (result) {
+
+                                        if (result.message == "Error" || result.success == false) {
+                                            displayError(documentMessages.errors.DocumentRevisionAttachment);
+                                            deferred.reject();
+                                        } else {
+
+                                            var attachmentGrid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+                                            if (attachmentGrid) attachmentGrid.dataSource.read();
+
+                                            // message indicating replaced
+                                            displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsReplaced);
+                                            deferred.resolve();
+
+                                            $(e.currentTarget).addClass('k-state-disabled');
+                                        }
+
+                                    })
+                                    .error(function () {
+                                        // message ok
+                                        displayError(documentMessages.errors.DocumentRevisionAttachment);
+                                        deferred.reject();
+                                    });
+
+
+
+                            }, 750);
+
+                            return deferred.promise();
+                        });
+
+
+
+                    } else
+                        displayError(documentMessages.errors.DocumentRevisionAttachmentPopUp);
+
+                    // ---- END OF YES FUNCTION
+
+                }, function () {
+                    // do nothing
+                });
+
+            // **********************************************************************
+
+
+
         }
 
         return {
@@ -4035,7 +4143,8 @@
             onEmojiHappyNewClick: onEmojiHappyNewClick,
             onEmojiHappyRevisionClick: onEmojiHappyRevisionClick,
             onConflictingFileUpload: conflictingFileUpload,
-            error_handler: error_handler
+            error_handler: error_handler,
+            replaceRevisionAttachment: replaceRevisionAttachment
         };
     };
 
