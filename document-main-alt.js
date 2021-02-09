@@ -2378,7 +2378,7 @@
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentNewRevisionDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentNewRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentNewRevisionDetailsDeleteAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsAddAttachment, onDocumentRevisionDetailsAddAttachmentBtnClick);
-            container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsReplaceAttachment, onDocumentRevisionDetailsReplaceAttachmentBtnClick);
+            //container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsReplaceAttachment, onDocumentRevisionDetailsReplaceAttachmentBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsCancel, onDocumentRevisionDetailsCancelBtnClick);
             container.on('click', documentElementSelectors.containers.DocumentRevisionDetails + ' ' + documentElementSelectors.buttons.DocumentRevisionDetailsDeleteAttachment, onDocumentRevisionDetailsDeleteAttachmentBtnClick);
             container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionDetailsManufacturerId, onCompanyIdFieldKeyUp);
@@ -4058,8 +4058,8 @@
                                             deferred.reject();
                                         } else {
 
-                                            var attachmentGrid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
-                                            if (attachmentGrid) attachmentGrid.dataSource.read();
+                                            //var attachmentGrid = container.find(documentElementSelectors.grids.DocumentRevisionAttachments).data('kendoGrid');
+                                            grid.dataSource.read();
 
                                             // message indicating replaced
                                             displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsReplaced);
