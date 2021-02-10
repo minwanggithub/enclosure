@@ -3140,34 +3140,36 @@
                 var availalbeRevisions = revListGrid.dataSource.data();
                 var quitPost = false;
                 $.each(availalbeRevisions, function (i, row) {
-                    if (row.RevisionDate != null) {
-                        var previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
-                        var previousConfirmationDate = (row.VerifyDate.getMonth() + 1) + '/' + row.VerifyDate.getDate() + '/' + row.VerifyDate.getFullYear();
+                    debugger;
+                    var previousRevisionDate = (row.RevisionDate != null) ? (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear() : "";
+                    //if (row.RevisionDate != null)
+                    //    previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
+                    var previousConfirmationDate = (row.VerifyDate.getMonth() + 1) + '/' + row.VerifyDate.getDate() + '/' + row.VerifyDate.getFullYear();
 
-                        //This only consider for the new revision
-                        if (formData.model.RevisionId == 0) {
-                            if (newRevisionDate == previousRevisionDate) {
-                                displayError("Can not create revision with duplicate revision date.");
-                                quitPost = true;
-                                return false;
-                            } else if (newVerifyDate == previousConfirmationDate) {
-                                displayError("New revision should have updated confirmation date.");
-                                quitPost = true;
-                                return false;
-                            }
-                        }
-                        else if (formData.model.RevisionId != row.RevisionId) {
-                            if (newRevisionDate == previousRevisionDate) {
-                                displayError("Revision with same revision date already exists.");
-                                quitPost = true;
-                                return false;
-                            } else if (newVerifyDate == previousConfirmationDate) {
-                                displayError("Revision with same confirmation date already exists.");
-                                quitPost = true;
-                                return false;
-                            }
+                    //This only consider for the new revision
+                    if (formData.model.RevisionId == 0) {
+                        if (row.RevisionDate != null && newRevisionDate == previousRevisionDate) {
+                            displayError("Can not create revision with duplicate revision date.");
+                            quitPost = true;
+                            return false;
+                        } else if (newVerifyDate == previousConfirmationDate) {
+                            displayError("New revision should have updated confirmation date.");
+                            quitPost = true;
+                            return false;
                         }
                     }
+                    else if (formData.model.RevisionId != row.RevisionId) {
+                        if (row.RevisionDate != null && newRevisionDate == previousRevisionDate) {
+                            displayError("Revision with same revision date already exists.");
+                            quitPost = true;
+                            return false;
+                        } else if (newVerifyDate == previousConfirmationDate) {
+                            displayError("Revision with same confirmation date already exists.");
+                            quitPost = true;
+                            return false;
+                        }
+                    }
+
                 });
 
                 if (quitPost)
