@@ -237,6 +237,7 @@
                 DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
                 DocumentShowAllResults: "[id^=ShowAllResults]",
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
+                DocumentType: "#hdnDocAssoMfrAllProducts_",
                 DocumentUnAssociatedProduct: "#lblTotalUnAssociatedProduct_",
                 DocumentSearchResultTotal: "#lblDocumentSearchResultTotal",
                 DocumentSearchFiltering: "#lblDocumentSearchFilter",
@@ -1409,11 +1410,18 @@
                 success: function (result) {
                     $(documentElementSelectors.textboxes.DocumentAssociatedProduct + did).text('Total products in db: ' + result.associatedItems);
                     $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
-
+                    var docType = $(documentElementSelectors.textboxes.DocumentType + did).val();
+                    
                     if (result.unassociatedItems > 5000)
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to first 5000 products');
                     else
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems + ' products');
+                    if (docType.toUpperCase() == "SDS") {
+                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).prop('disabled', true);
+                    }
+                    else {
+                        $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).prop('disabled', false);
+                    }
                 }
             });
         }
