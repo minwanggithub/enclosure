@@ -225,11 +225,19 @@
             }
         };
 
-        var onFileUploadSelect = function (e) {
-
+        var onFileUploadSelect = function (e) {         
             var copiedArray = uploadStake.slice(0);
-            $.each(e.files, function (index, value) {
-
+            var isvalidFile = true;
+            $.each(e.files, function (index, value) {          
+                var fileExtension = ['.htm', '.html'];
+                if ($.inArray(value.extension, fileExtension) > -1) {
+                    e.preventDefault();
+                    displayError("HTML files are not allowed")
+                    isvalidFile = false;
+                }              
+                if (isvalidFile == false) {
+                    return false;
+                }
                 // Check if we already have a file uploaded with that given name
                 var lowerCaseName = value.name.toLowerCase();
                 if ($.inArray(lowerCaseName, copiedArray) >= 0) {
