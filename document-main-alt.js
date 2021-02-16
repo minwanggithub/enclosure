@@ -321,6 +321,8 @@
                 PublicAccessForDocument: "This document is being marked public. Only Documents marked public will be searchable on certain client systems.",
                 DocumentAccessConfirmation: "Document access change confirmation.",
                 RevisionAttachmentReplacementConfirmation: "Revision attachment replacement confirmation.",
+                NullRevisionConfirmTitle: "Confirm for null revision date",
+                NullRevisionConfirmMessage: "The revision date is blank; if you wish to proceed with this save press Confirm<br/> or hit Cancel to enter the missed revision date."
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -1537,6 +1539,29 @@
                 };
             }
 
+            if (formData.model.RevisionDate.toString() == "") {
+                $("<div/>").kendoConfirm({
+                    title: documentMessages.modals.NullRevisionConfirmTitle,
+                    content: documentMessages.modals.NullRevisionConfirmMessage,
+                    actions: [
+                        {
+                            text: 'Confirm',
+                            primary: true,
+                            action: function (e) {
+                                doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments);
+                                return true;
+                            },
+                        },
+                        { text: 'Cancel' }
+                    ]
+                }).data("kendoConfirm").open().center();
+            }
+            else
+                doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments);
+
+        }
+
+        function doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments) {
             if (formData.model) {
                 if (formData.attachments != null) {
                     if (formData.attachments.length == 0 && $(this).getQueryStringParameterByName("docGuid") == "") {
@@ -3140,6 +3165,29 @@
                 attachments: getDocumentRevisionAttachments(form)
             };
 
+            if (formData.model.RevisionDate.toString() == "") {
+                $("<div/>").kendoConfirm({
+                    title: documentMessages.modals.NullRevisionConfirmTitle,
+                    content: documentMessages.modals.NullRevisionConfirmMessage,
+                    actions: [
+                        {
+                            text: 'Confirm',
+                            primary: true,
+                            action: function (event) {
+                                SaveDocumentRevisionData(form, formData, e);
+                                // Returning false will prevent the closing of the dialog
+                                return true;
+                            },
+                        },
+                        { text: 'Cancel' }
+                    ]
+                }).data("kendoConfirm").open().center();
+            }
+            else
+                SaveDocumentRevisionData(form, formData, e);
+        }
+
+        function SaveDocumentRevisionData(form, formData, e) {
             if (formData.model) {
                 //Make sure the new revision is bigger than the latest revision
                 var newRevisionDate = formData.model.RevisionDate.toString();
@@ -3148,7 +3196,6 @@
                 var availalbeRevisions = revListGrid.dataSource.data();
                 var quitPost = false;
                 $.each(availalbeRevisions, function (i, row) {
-                    debugger;
                     var previousRevisionDate = (row.RevisionDate != null) ? (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear() : "";
                     //if (row.RevisionDate != null)
                     //    previousRevisionDate = (row.RevisionDate.getMonth() + 1) + '/' + row.RevisionDate.getDate() + '/' + row.RevisionDate.getFullYear();
@@ -3232,7 +3279,8 @@
                             //Parent will throw error
                         }
                     });
-            } else
+            }
+            else
                 displayError(documentMessages.errors.SaveDocumentRevisionError);
         }
 
