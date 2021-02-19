@@ -2960,7 +2960,7 @@
             data['aliasesText'] = texts;
 
             if (data['documentId'] == 0 && data['revisionId'] == 0) {
-                data[' token'] = token;
+                data['token'] = token;
             }
 
             $(this).ajaxJSONCall(generateActionUrl(documentAjaxSettings.controllers.Document, documentAjaxSettings.actions.CreateMultipleNameNumbers), JSON.stringify(data))
