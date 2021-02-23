@@ -3208,7 +3208,7 @@
                             quitPost = true;
                             return false;
                         } else if (newVerifyDate == previousConfirmationDate) {
-                            displayError("New revision should have updated confirmation date.");
+                            displayError("New revision should have updated verify date.");
                             quitPost = true;
                             return false;
                         }
@@ -3219,7 +3219,7 @@
                             quitPost = true;
                             return false;
                         } else if (newVerifyDate == previousConfirmationDate) {
-                            displayError("Revision with same confirmation date already exists.");
+                            displayError("Revision with same verify date already exists.");
                             quitPost = true;
                             return false;
                         }
