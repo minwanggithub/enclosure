@@ -102,8 +102,9 @@
             ViewHistory: "#mdlViewHistory",
             OnHold: "#mdlOnHold",
             RemoveOnHold: "#mdlRemoveOnHold",
-            ManageUsers: "#mdlManageUsers"
-
+            ManageUsers: "#mdlManageUsers",
+            // added by nitin- 22 Feb
+            AccountInfo: "#mdlViewAccount"
         };
 
         var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
@@ -115,6 +116,7 @@
             AllocateSelectedItems: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/AllocateSelectedItems",
             StartIndexingWorkflow: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/StartIndexingWorkflow",
             IndexationWorkflowHistory: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/IndexationWorkflowHistory",
+            GetIndexationAccountInfo: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/GetIndexationAccountInfo",
 
         };
 
@@ -818,6 +820,13 @@
                    });
         });
 
+        // display account info -- added by nitin 22 Feb
+        workflowDetailObj.on("click", ".showAccount", function (e) {
+            e.preventDefault();
+            ShowAccount(this.id, null);
+        });
+
+
         function doPostGridRowAction() {
 
             //disableSideMenuItems();
@@ -921,6 +930,18 @@
             //   }).error(function () {
             //       $(this).displayError(messages.errorMessages.GeneralError);
             //   });
+        }
+
+        // Show account Information-- Added by Nitin on 22 Feb
+        function ShowAccount(indexationWorkItemID) {
+            $(this).ajaxCall(controllerCalls.GetIndexationAccountInfo, { indexationWorkItemID: indexationWorkItemID })
+                .success(function (data) {
+                    $("#dvAccountInformation").html(data);
+                    $(kendoWindows.ViewAccount).data("kendoWindow").center().open();
+                    $("div.k-widget.k-window").css("top", "20px");
+                }).error(function () {
+                    $(this).displayError(messages.errorMessages.GeneralError);
+                });
         }
 
         // UTILITY FUNCTION
