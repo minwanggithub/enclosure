@@ -256,6 +256,7 @@
                 $(this).displayError(messages.errorMessages.OneOrMoreIndexationWorkflowItemsMustBeSelected);
                 return;
             }
+        
             // INTELLIFORMS SUPPORT
             var ids = (selectedIds || []);
 
@@ -272,11 +273,11 @@
 
                 // ids must be passed in selected order
 
-                // FOR NOW ONLY ONE ID IS HANDLED AT A TIME
-                ids = Array.from(ids[0]);
-
+                // FOR NOW ONLY ONE ID IS HANDLED AT A TIME              
+                ids = Array.from(ids[0]);              
+               //Changed  getSelectedIdsBySortOrder() by selectedIds[0] compli ticket 
                 // start workflow
-                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: getSelectedIdsBySortOrder(), include : true })
+                $(this).ajaxCall(controllerCalls.StartIndexingWorkflow, { ids: selectedIds[0], include : true })
                     .success(function (data) {
 
                         if (!data.Navigable) {
@@ -759,22 +760,26 @@
         function handleKendoGridEvents(e) { // TESTED
 
             var grid = e.sender;
+            var checkbox = $(grid.element).find('.chkMasterMultiSelect');          
+             checkbox.prop("checked", true);
             $(grid.dataSource.view()).each(function (i, v) {
 
                 // locate row
                 var row = grid.table.find("[data-uid=" + v.uid + "]");
 
                 // row preselected ?
-                var checked = (gridIds[v.IndexingWorkItemID] == true);
-
+                 var checked = (gridIds[v.IndexingWorkItemID] == true);
+              
+                //Added by hitesh to Uncheck Master chkbox on 2/25/21
+                if (!checked) { checkbox.prop("checked", false);}               
+                
                 // locate checkbox
                 $(row).find(".chkMultiSelect").prop("checked", checked);
 
                 // set row state
                 $(row).addClass(checked ? "k-state-selected" : "").removeClass(checked ? "" : "k-state-selected");
 
-            });
-
+            });          
         }
 
         function getSelectedIdsBySortOrder() {
@@ -843,8 +848,7 @@
             if (selectedIds.length > 0) {
                 enableAssignUnAssignButtons(true);
                // enableSideMenuItems();
-            }
-
+            }         
         }
 
         $(workflowDetailObj).on("click", ".chkMultiSelect", function () { // TESTED
@@ -863,6 +867,18 @@
 
             // set state of row
             gridIds[grid.dataItem(row).IndexingWorkItemID] = checked;
+
+            var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
+            //added by hitesh on 25/2/2021
+            var checkbox = $(grid.element).find('.chkMasterMultiSelect');
+            checkbox.prop("checked", true);
+            $(grid.dataSource.view()).each(function (i, v) {
+                // row preselected ?
+                var checked = (gridIds[v.IndexingWorkItemID] == true);
+                if (!checked) {
+                    checkbox.prop("checked", false);
+                }             
+            });
 
             // after select actions
             doPostGridRowAction();
