@@ -22,6 +22,7 @@
                 grids: { GridProductDocuments: "#gdProductDocuments", GridSearchProduct: "#gdSearchProduct", GridProductStatusHistory: "#grdProductStatusHistory", GridSearchSupplier: "#gdSearchSupplier", GridNotAvailable: "#gdNotAvailable" },
                 buttons: {
                     AddDocToProduct: "#btnAddDocToProduct",
+                    AttachInboundDocToProduct: "#btnAttachInboundDocToProduct",
                     AddNotAvailable: "#btnAddNotAvailable",
                     SaveNotAvailable: "#btnSaveNotAvailable",
                     ClearProductBtn: "#clearProductBtn",
@@ -762,8 +763,7 @@
 
             }
 
-            $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
-                
+            $(productObject.controls.buttons.AttachInboundDocToProduct + "_" + pKey).on("click", function () {
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
@@ -772,25 +772,28 @@
                 if (guid != "") {
                     $.post(controllerCalls.IfExistsDocRev, { docGuid: guid }, function (ifExists) {
 
-                            if (ifExists == false) {
-                                doclib.onDisplayNewDocumentPopUp(pKey);
-                            } else {
-                                attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid, supplierid);
-                            }
+                        if (ifExists == false) {
+                            doclib.onDisplayNewDocumentPopUp(pKey);
+                        } else {
+                            attachDocRevToProd(pKey, guid, noticeNo, inboundResponseid, supplierid);
+                        }
                     });
                 }
                 else {
+                    kendo.alert("Can not detect inbound document attachment.");
+                }
+            });
 
-                    activeProduct = pKey;
-                    newProductActive = false;
+            $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
+                activeProduct = pKey;
+                newProductActive = false;
 
-                    if (displayDocumentPopUp) {
-                        displayDocumentPopUp(function (data) {
-                            var doclists = [];
-                            doclists.push(data.ReferenceId);
-                            addDocumentListToProduct(doclists);
-                        });
-                    }
+                if (displayDocumentPopUp) {
+                    displayDocumentPopUp(function (data) {
+                        var doclists = [];
+                        doclists.push(data.ReferenceId);
+                        addDocumentListToProduct(doclists);
+                    });
                 }
             });
 
