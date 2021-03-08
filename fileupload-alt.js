@@ -218,8 +218,8 @@
             }
         };
 
-        var onFileUploadRemove = function (e) {
-
+        var onFileUploadRemove = function (e) { 
+            $('#uploadFilesConfirmSelect').attr('disabled', 'disabled');
             if (parentArgsCallback) {
                 e.data = parentArgsCallback(e);
             }
@@ -275,11 +275,13 @@
 
             if (uploadStake.length >= 1) {
                 $('#files').attr('disabled', 'disabled');
+                $('#uploadFilesConfirmSelect').removeAttr("disabled")
             }
             else {
                 $('#files').removeAttr("disabled");
+                $('#uploadFilesConfirmSelect').attr('disabled', 'disabled');
             }
-
+           
         };
 
         var onFileUploadUpload = function (e) {
