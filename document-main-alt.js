@@ -3331,9 +3331,31 @@
                 });
         }
 
-
         function submitInboundRevision(form, formData) {
             var url = form.attr("action");
+
+            if (formData.model.RevisionDate.toString() == "") {
+                $("<div/>").kendoConfirm({
+                    title: documentMessages.modals.NullRevisionConfirmTitle,
+                    content: documentMessages.modals.NullRevisionConfirmMessage,
+                    actions: [
+                        {
+                            text: 'Confirm',
+                            primary: true,
+                            action: function (e) {
+                                doInboundRevisionSubmit(url, formData);
+                                return true;
+                            },
+                        },
+                        { text: 'Cancel' }
+                    ]
+                }).data("kendoConfirm").open().center();
+            }
+            else
+                doInboundRevisionSubmit(url, formData);
+        }
+
+        function doInboundRevisionSubmit(url, formData) {
             $(this).ajaxCall(url, formData)
                 .success(function (data) {
                     var errorMessage = parseErrorMessage(data);
