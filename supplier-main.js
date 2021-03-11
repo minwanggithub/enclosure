@@ -876,7 +876,7 @@
 
                 var supplierId = $("#SupplierId").val();
                 data["SupplierId"] = supplierId;
-            }
+            }           
         };
 
         var onGridEditChangeTitle = function (e) {
@@ -987,26 +987,48 @@
 
                
                //validation to check before saving
-               if (data.phoneType != null) {
-                   if (isNaN(data.areaCode) || data.areaCode == null)
-                       validationMessage = "Area Code must be numeric";
-
-                   if (isNaN(data.localNo) || data.localNo == null || (data.localNo % 1) > 0) {
-                       if (validationMessage.length > 0)
-                           validationMessage += "<br />";
-
-                       validationMessage += "Local Number must be numeric";
-                   }
-
-                   if (validationMessage.length > 0) {
-                       onDisplayError(validationMessage);
-                       return;
-                   }
-               } else {
+               if (data.phoneType == null || data.areaCode == null || data.localNo == null) {
                    onDisplayError("Area Code, Local Number and Type are required");
                    return;
                }
+               var errMsg = "";
 
+               var regx = new RegExp('[\\d+\/()\\- ]{' + data.areaCode.length + ',' + data.areaCode.length + '}', 'g')
+               if (data.areaCode.length>20) {
+                   errMsg += ("Area Code should be less then 20 characters.<br />");
+                   
+               }
+               else if (!(regx.test(data.areaCode))) {
+                   errMsg += ("Area Code is invalid.<br />");
+                   
+               }
+
+               regx = new RegExp('[\\d+\/()\\- ]{' + data.localNo.length + ',' + data.localNo.length + '}', 'g')
+               if (data.localNo.length > 20) {
+                   errMsg += ("Local Number should be less then 20 characters.<br />");
+                   
+               }
+               else if (!(regx.test(data.localNo))) {
+                   errMsg += ("Local Number is invalid.<br />");
+                   
+               }
+
+               regx = new RegExp('[\\d+\/()\\- ]{' + data.internationalDialingCode.length + ',' + data.internationalDialingCode.length + '}', 'g')
+
+               if (data.internationalDialingCode && data.internationalDialingCode.length > 20) {
+                   errMsg += ("Country Code should be less then 20 characters.<br />");
+
+               }
+               else if (data.internationalDialingCode && !(regx.test(data.internationalDialingCode))) {
+                   errMsg += ("Country Code is invalid.<br />");
+
+               }
+
+               if (errMsg.length > 0) {
+                   onDisplayError(errMsg);
+                   return;
+               }
+               
                $.post(validationUrl, data, function (data1) {
                    
                    if (data1.indexOf("Duplicate") >=0) {
@@ -1020,7 +1042,9 @@
                    }
                    else {
                        if (data.phoneType != null) {
-                           if (IsNumeric(data.localNo) && IsNumeric(data.areaCode))
+                           var regx_LN = new RegExp('[\\d+\/()\\- ]{' + data.localNo.length + ',' + data.localNo.length + '}', 'g')
+                           var regx_AC = new RegExp('[\\d+\/()\\- ]{' + data.areaCode.length + ',' + data.areaCode.length + '}', 'g')
+                           if ((regx_LN.test(data.localNo)) && (regx_AC.test(data.areaCode)))
                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
                            else
                                onDisplayError("Area Code and Local Number must be numeric");
