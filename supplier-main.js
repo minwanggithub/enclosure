@@ -967,7 +967,7 @@
         };
        
        //contact phone
-       var onGridEditChangeContactPhone = function (e) {
+        var onGridEditChangeContactPhone = function (e) {
            InitializePopUpWindows(e, e.model.SupplierNotesId);
            var update = $(e.container).parent().find(".k-grid-update");
 
@@ -987,7 +987,7 @@
 
                
                //validation to check before saving
-               if (data.phoneType == null || data.areaCode == null || data.localNo == null) {
+               if (data.phoneType == null || data.areaCode == null || data.localNo == null || data.phoneType == '' || data.areaCode == '' || data.localNo == '') {
                    onDisplayError("Area Code, Local Number and Type are required");
                    return;
                }
