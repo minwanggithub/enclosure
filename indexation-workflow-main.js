@@ -710,9 +710,11 @@
         // ASSIGN SELECTED WORKFLOW ITEMS
         workflowDetailObj.on("click", obtainmentObject.controls.buttons.AssignToButton, function (e) {
             e.preventDefault();
-            onItemsSelectedAndConfirmed(messages.confirmationMessages.AssignRequests, function(){
-                $(actionModals.Assign).displayModal();
-            });
+            //Removed Confirmation button by hitesh TriCompli Ticket TRECOMPLI-4150
+            $(actionModals.Assign).displayModal();
+            //onItemsSelectedAndConfirmed(messages.confirmationMessages.AssignRequests, function(){
+            //    $(actionModals.Assign).displayModal();
+            //});
         })
 
         // ASSIGN SELECTED WORKFLOW ITEMS
