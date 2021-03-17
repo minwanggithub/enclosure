@@ -1807,7 +1807,8 @@
                         var obtID = $("#ObtainmentSettingID").val();
                         var grid = $("#gdObtainmentSettings").data("kendoGrid");
                         grid.dataSource.read();
-                        $('#ObtainmentSettingsDetail').html(data);
+                        /*Commented by hitesh on as it just showing current id of saved obtainment */
+                        //$('#ObtainmentSettingsDetail').html(data);
                             if (obtID > 0) 
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings saved.');
                             else 
