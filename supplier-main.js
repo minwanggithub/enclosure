@@ -1802,7 +1802,7 @@
                         onDisplayError('Can not save duplicate obtainment setting.');
                     }
                     else if (data == '0')
-                        onDisplayError('Error occured while saving the contact details');
+                        onDisplayError('Error occured while saving the obtainment setting.');
                     else {
                         var obtID = $("#ObtainmentSettingID").val();
                         var grid = $("#gdObtainmentSettings").data("kendoGrid");
