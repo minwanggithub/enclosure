@@ -1909,7 +1909,11 @@
                 },
                 columns: [
                     //{ field: "CompanyWebsiteId", title: "ID"},
-                    { field: "Url", title: "Website/URL", template: '<a href=\"#=Url#\" target="_blank">#=Url#</a>' },
+                    {
+                        field: "Url", title: "Website/URL", template: function (dataItem) {
+                            return accountLinkTemplate(dataItem.Url);
+                        }
+                    },
                     { field: "WebSiteTypeDescription", title: "WebSite Type", width: "120px"}
                 ]
                 //dataBound: function (e) {
