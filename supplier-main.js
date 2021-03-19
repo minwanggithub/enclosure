@@ -1795,25 +1795,27 @@
 
 
                 //var url = '@Url.Action("SaveObtainmentSettingDetail", "ObtainmentSettings")';
+                /*Below Code is changed by hitesh on 3/19/21 earlear it was getting response in intiger changed to json*/
                 var url = "../ObtainmentSettings/SaveObtainmentSettingDetail";
-                $.post(url, { jsObtainmentSettingsModel: JSON.stringify(queryText) }, function (data) {                    
-                    if (data == -1)
-                    {
-                        onDisplayError('Can not save duplicate obtainment setting.');
+                $.post(url, { jsObtainmentSettingsModel: JSON.stringify(queryText) }, function (data) {  
+                    var errorSavingProduct = "Error occured while saving the obtainment setting.";
+                    if (!data || data.ErrorMessage) {
+                        var errorMessage = data.ErrorMessage || errorSavingProduct;
+                        $(this).displayError(errorMessage);
+                        return false;
                     }
-                    else if (data == '0')
-                        onDisplayError('Error occured while saving the obtainment setting.');
                     else {
                         var obtID = $("#ObtainmentSettingID").val();
                         var grid = $("#gdObtainmentSettings").data("kendoGrid");
                         grid.dataSource.read();
                         /*Commented by hitesh on as it just showing current id of saved obtainment */
                         //$('#ObtainmentSettingsDetail').html(data);
-                            if (obtID > 0) 
+                        if (obtID > 0)
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings saved.');
-                            else 
+                        else
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings added.');
-                        }
+                    }
+                   
                 });
             }
         };
