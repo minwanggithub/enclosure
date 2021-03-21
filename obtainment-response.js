@@ -38,7 +38,9 @@
                     ResendObtainmentEmail: "[id^=btnResendObtainmentEmail]",
                     ResendObtainmentEmailSpecific: "btnResendObtainmentEmail_",
                     ResendPreviewEmail: "#btnResendPreviewEmail", // preview functionality
-                    CancelPreviewEmail: "#btnCancelPreviewEmail"
+                    CancelPreviewEmail: "#btnCancelPreviewEmail",
+                    SendOutlookCompositionEmail: "[id^=btnSendOutlookCompositionEmail]",
+                    RefreshOutlookCompositionEmail: "[id^=btnRefreshOutlookCompositionEmail]",
 
                 },
                 containers: {
@@ -103,6 +105,7 @@
                 ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail",
                 GetObtainmentResponseContentBody: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetObtainmentResponseContentBody",
                 ChangeStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ChangeStatus",
+                SendInboundResponseEmailToOutlook: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SendInboundResponseEmailToOutlook"
 
             },
             warnings: {
@@ -211,7 +214,9 @@
 
                 onResponseStatusChange: function (e) {
                     //Also triggered by detailVM.bind change, so no need to check the dirty status
-                }
+                },
+
+                
             });
         }
 
