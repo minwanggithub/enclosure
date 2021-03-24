@@ -80,6 +80,8 @@
                     PreviewSubject: "PreviewSubject",
                     PreviewBody: "PreviewBody",
                     PreviewAttachments: "PreviewAttachments",
+                    SubjectSenderEmail: "SubjectSenderEmail",
+                    InboundResponseId: "InboundResponseId",
                 },
                 checkBoxes: {
                     chkHasNotes: "HasNotes"
@@ -234,6 +236,8 @@
                 DateRangeTo: null,
                 BodyText: "",
                 AccountId: "",
+                InboundResponseId: "",
+                SubjectSenderEmail: "",
                 DetailViewModel: null,
                 SearchClick: function (e) {
                     e.preventDefault();
@@ -248,7 +252,8 @@
                     this.BodyText = this.get(UIObject.controls.textBoxes.BodyText);
                     this.AccountId = this.get(UIObject.controls.textBoxes.AccountId);
 
-
+                    this.InboundResponseId = this.get(UIObject.controls.textBoxes.InboundResponseId);
+                    this.SubjectSenderEmail = this.get(UIObject.controls.textBoxes.SubjectSenderEmail);
 
                     this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
                     this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
@@ -284,6 +289,8 @@
                     $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
                     $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value("");
                     //$(UIObject.controls.dropdownlists.ResponseStatusId).data("kendoDropDownList").value("");
+                    this.set(UIObject.controls.textBoxes.SubjectSenderEmail, "");
+                    this.set(UIObject.controls.textBoxes.InboundResponseId, "");
 
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
                     if ((null != inboundGrid()) && (inboundGrid().dataSource.total() > 0))
