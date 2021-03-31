@@ -129,7 +129,9 @@ var anyOperationPerformedOutside = false;
                 OnHoldWorkLoadNotes: "Please type in a reason to hold or remove the item(s) frmo workload",
                 GeneralError: "Error Occurred",
                 SelectedStateForSqlError: "Selected State is only for SQL Search",
-                SelectedStateForEsError: "Selected State is only for Elastic Search"
+                SelectedStateForEsError: "Selected State is only for Elastic Search",
+                ItemsAlreadyResolved: "Please select only items which are not resolved",
+                ItemAlreadyResolved: "Selected item already resolved",
             }
         };
 
@@ -901,12 +903,22 @@ var anyOperationPerformedOutside = false;
                 var grid = $(targetGridSelector).data("kendoGrid");
                 if (grid && grid.dataSource._total > 0) {
                     var selectedIds = new Array();
+                    var resolvedCount = 0;
                     $.each(grid.dataSource.data(),
-                        function() {
-                            if (this.IsSelected === true)
+                        function () {                            
+                            if (this.IsSelected === true) {
                                 selectedIds.push(this.id);
+                                if (this.Status == "Resolved" && btnObj== xreferenceObject.controls.buttons.ResolveMenuButton) {
+                                    resolvedCount++;                                   
+                                }
+                            }
+                                
                         });
-
+                    if (resolvedCount > 0) {
+                        $(this).displayError(selectedIds.length > 1 ? messages.errorMessages.ItemsAlreadyResolved : messages.errorMessages.ItemAlreadyResolved);
+                        return false;
+                    }
+                   
                     if (selectedIds.length === 0) {
                         $(this).displayError(messages.errorMessages.NoItemsSelected);
                         return false;
