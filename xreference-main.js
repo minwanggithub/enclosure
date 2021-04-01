@@ -130,7 +130,7 @@ var anyOperationPerformedOutside = false;
                 GeneralError: "Error Occurred",
                 SelectedStateForSqlError: "Selected State is only for SQL Search",
                 SelectedStateForEsError: "Selected State is only for Elastic Search",
-                ItemsAlreadyResolved: "Please select only items which are not resolved",
+                ItemsAlreadyResolved: "One or more of the selected item(s) have already been resolved. Remove any resolved item(s) selected and perform the action again.",
                 ItemAlreadyResolved: "Selected item already resolved",
             }
         };
@@ -915,7 +915,7 @@ var anyOperationPerformedOutside = false;
                                 
                         });
                     if (resolvedCount > 0) {
-                        $(this).displayError(selectedIds.length > 1 ? messages.errorMessages.ItemsAlreadyResolved : messages.errorMessages.ItemAlreadyResolved);
+                        $(this).displayError( messages.errorMessages.ItemsAlreadyResolved);
                         return false;
                     }
                    
