@@ -2360,7 +2360,7 @@
 
                 var args = {
                     header: 'Confirm Document Access for Public',
-                    message: 'Do you wish to republish the Documents associated to this manufacturer?'
+                    message: 'Do you wish to republish the documents associated to this manufacturer and/or Supplier?'
                 };
 
                 DisplayConfirmationModal(args, function () {
