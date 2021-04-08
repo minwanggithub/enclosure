@@ -2364,7 +2364,9 @@
                 };
 
                 DisplayConfirmationModal(args, function () {
-
+                    /*Added by hitesh on 4/07/2021 to show loader*/
+                    $("#PublishedLoader").show();
+                    $("#supplieroverlay").addClass("overlay");
                     // ===========================================================
 
                     var url = GetEnvironmentLocation() + "/Operations/Company/SetAllDocumentVisibility";
@@ -2373,7 +2375,12 @@
                         url: url,
                         data: JSON.stringify({ supplierId: $("#SupplierId").val(), state: checked }),
                         type: "POST",
-                        contentType: 'application/json; charset=utf-8'
+                        contentType: 'application/json; charset=utf-8',
+                        complete: function () {
+                            /*Added by hitesh on 4/07/2021 to hide loader*/
+                            $("#PublishedLoader").hide();
+                            $("#supplieroverlay").removeClass("overlay");
+                        }
                     });
 
                     // ===========================================================
