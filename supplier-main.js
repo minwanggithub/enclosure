@@ -7,7 +7,7 @@
         //local var
         var obtainmentSettingId;
         var texts = [];
-        var regexExpressionEmail = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        var regexExpressionEmail = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,6}|[0-9]{1,3})(\]?)$/;
         var onErrorCallback;
         var notesModalSettings;
 
@@ -1073,20 +1073,30 @@
                 var data = {
                     supplierFacilityEmailId: supplierFacilityEmailId, companyId: supplierId, facilityid: supplierFacilityId, emailTxt: e.model.FacilityEmail
                 };
-                $.post(validationUrl, data, function (result) {
-                    if (result.indexOf("Duplicate") >= 0) {
-                      var args = {
-                          header : 'Confirm Save',
-                          message: result
-                    };
-                    DisplayConfirmationModal(args, function () {
-                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
+                if (!data.emailTxt) {
+                    onDisplayError('Email cannot be blank.')
+                }
+                else {
+                    if (regexExpressionEmail.test(data.emailTxt)) {
+                        $.post(validationUrl, data, function (result) {
+                            if (result.indexOf("Duplicate") >= 0) {
+                                var args = {
+                                    header : 'Confirm Save',
+                                    message: result
+                                };
+                                DisplayConfirmationModal(args, function () {
+                                    saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
+                                });
+                            }
+                            else
+                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
+
                         });
                     }
-                    else
-                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdFacilityEmail'));
-
-                });
+                    else {
+                        onDisplayError('Entered email is invalid.')
+                    }
+                }
             });
         };
     
@@ -1106,19 +1116,30 @@
                 var data = {
                     supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.Email
                 };
-                $.post(validationUrl, data, function (result) {
-                    if (result.indexOf("Duplicate") >=0) {
-                        var args = {
-                            header: 'Confirm Save',
-                            message: result
-                        };
-                        DisplayConfirmationModal(args, function () {
-                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                if (!data.emailTxt) {
+                    onDisplayError('Email cannot be blank.')
+                }
+                else {
+                    if (regexExpressionEmail.test(data.emailTxt)) {
+                        $.post(validationUrl, data, function (result) {
+                            if (result.indexOf("Duplicate") >=0) {
+                                var args = {
+                                    header: 'Confirm Save',
+                                    message: result
+                                };
+                                DisplayConfirmationModal(args, function () {
+                                    saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                                });
+                            }
+                            else
+                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
                         });
                     }
-                    else
-                        saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
-                });
+                    else {
+                        onDisplayError('Entered email is invalid.')
+                    }
+                }
+                
             });
         };
 
@@ -2311,8 +2332,8 @@
              var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
              for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
-                if (lines[i].length > 0)
-                    texts.push($.trim(lines[i]));
+                 if (lines[i].length > 0)
+                     texts.push($.trim(lines[i]));
             }
             var data = { };
             data['supplierContactId'] = $("#SupplierContactId").val();
