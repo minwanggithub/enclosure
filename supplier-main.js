@@ -35,7 +35,8 @@
                 advanceSearch: "AdvanceSearch"
             },
             controllerCalls: {
-                SaveCompanySearchSettings:  GetEnvironmentLocation() + "/Operations/Company/SaveCompanySearchSettings"
+                SaveCompanySearchSettings: GetEnvironmentLocation() + "/Operations/Company/SaveCompanySearchSettings",
+                GetCompanyContactEmailStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetCompanyContactEmailStatus"
             }
         };
 
@@ -1099,7 +1100,27 @@
                 }
             });
         };
-    
+
+        var onGridClickChangeContactEmail = function (ctrl) {
+
+            var url = supplierLiterSettings.controllerCalls.GetCompanyContactEmailStatus;
+            $.post(url, {notes : $(ctrl).html()}, function (data) {
+                var message = data;
+                $('#errorReport').find('.modal-body').html(message);
+                $("#errorReport").modal({
+                    backdrop: true,
+                    keyboard: true
+                }).css({
+                    width: 'auto',
+                    'margin-left': function () {
+                        return -($(this).width() / 2); //auto size depending on the message
+                    }
+                });
+               
+            });
+
+        }
+
         //contact email
         var onGridEditChangeContactEmail = function (e) {
             InitializePopUpWindows(e, e.model.SupplierNotesId);
@@ -2805,6 +2826,7 @@
             onGridEditChangeEmail: onGridEditChangeEmail,
             onGridEditChangeContactPhone: onGridEditChangeContactPhone,
             onGridEditChangeContactEmail: onGridEditChangeContactEmail,
+            onGridClickChangeContactEmail: onGridClickChangeContactEmail,
             extractSupplierCriteria: extractSupplierCriteria,
             advanceSearchInitialize: advanceSearchInitialize
         };
