@@ -1058,7 +1058,7 @@
                         var requestWindowHeight = 1024;
                         var requestWindowWidth = 1280;
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
-                        if ($(this).getQueryStringParameterByName("docGuid")) {
+                        if ($(this).getQueryStringParameterByName("docGuid") && typeof pKey != 'undefined') {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey;
                             } else {
