@@ -295,6 +295,7 @@
                 DocumentRevisionMultipleNameNumbersRequiredInformation: "Alias Type and Aliases are required.",
                 Error: "Error",
                 RevisionDateFuture: "Invalid revision date, it can't be a future date.",
+                RevisionDateLessThanConfirmationDate: "Invalid  revision date, it must be less than or equal to confirmation date.",
                 SaveDocumentError: "Saving the document could not be completed. Please review your changes and try again.",
                 SaveDocumentContainerComponent: "Saving the document container component could not be complete. Please try again.",
                 SaveDocumentRevisionError: "Save the document revision could not be completed. Please review your changes and try again.",
@@ -3575,17 +3576,29 @@
                 $(e.sender.element).val('');
                 return;
             }
-
+            
             // As per request by Ops if the date is today automatically set the confirm date to today's date as well
             var todaysDate = kendo.toString(kendo.date.today(), 'd');
             if (todaysDate == sDateEntered) {
-
                 var parentContainer = $(e.sender.element).parents("form");
                 if (parentContainer.length > 0) {
                     var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
                     if (kDatePicker) {
                         kDatePicker.value(sDateEntered);
                         kDatePicker.element.trigger("change");
+                    }
+                }
+            }
+
+            var parentContainer = $(e.sender.element).parents("form");
+            if (parentContainer.length > 0) {
+                var DCkDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+                if (DCkDatePicker) {
+                    var dateString = kendo.toString(DCkDatePicker.value(), 'd')
+                    confirmDate = new Date(dateString);                
+                    if (dateEntered > confirmDate) {
+                        displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
+                        $(e.sender.element).val('');
                     }
                 }
             }
