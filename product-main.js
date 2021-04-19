@@ -111,7 +111,8 @@
                 ErrorAtIfExistsDocRev: 'Error at action IfExistsDocRev.',
                 ObtainmentTypeError: "Obtainment Type needs to be selected.",
                 ObtianmentTypeAlreadyAdded: "Obtainment Type has already been added.",
-                NoReasonNotes: "Reason specifying unavailability of obtainment type is required."
+                NoReasonNotes: "Reason specifying unavailability of obtainment type is required.",
+                NoDocToDeactivatePrd: "Can not add document to DeActiveated product."
             }
         }
 
@@ -212,7 +213,9 @@
                         messages.errorMessages.OnlyOneCombinationLanguageJur,
                         messages.errorMessages.DocumentAndProductSameMFR,
                         null,
-                        messages.errorMessages.KitsParentsDonotHaveEnoughChildren];
+                        messages.errorMessages.KitsParentsDonotHaveEnoughChildren,
+                        messages.errorMessages.NoDocToDeactivatePrd
+                    ];
 
                     var flag = Math.min(data.filter(e => e > 0));
                     $(this).displayError(errors[flag]);
