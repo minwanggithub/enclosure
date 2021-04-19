@@ -219,7 +219,8 @@
                 MixedObtainmentTypesNotAllowed: "SDS and Non-SDS Obtainments can not be selected at the same time.",
                 NoProductIdSpecified: "No product id has been specified to resolve requests with",
                 NoContactEmailSelected: "A contact's email id has not been selected.",
-                CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for Administration Page."
+                CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for Administration Page.",
+                ImmediateLimitExceed: "For immediate processing, you can not select more than 50 records"
             }
         };
 
@@ -1312,9 +1313,15 @@
                     data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
                     data['ids'] = selectedIds;
                     data['notes'] = selCustomerAction;
-                    data['immediate'] = $("#chkImmediate").is(":checked");
-
+                    data['immediate'] = $("#chkImmediate").is(":checked");                   
                     // set selected ids before each call
+                    if (data['immediate']) {
+                        var recordsToProcess = getSelectedActionRecordCount();
+                        if (recordsToProcess > 50) {
+                            $(this).displayError(messages.errorMessages.ImmediateLimitExceed);
+                            return;
+                        }
+                    }
 
                     saveRequests(controllerCalls.SaveCustomerAction, data, actionModals.CustomerAction);
                     
@@ -1331,7 +1338,7 @@
 
         function saveRequests(strUrl, dataArray, modalId, callback) {
             if (selectedIds.length > 0) {
-                kendo.ui.progress(obtDetailObj, true);
+                kendo.ui.progress(obtDetailObj, true);                
                 $(this).ajaxJSONCall(strUrl, JSON.stringify(dataArray))
                     .success(function (successData) {
                         if (successData.success === true) {
@@ -1357,8 +1364,7 @@
                     .error(function () {
                         $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                     })
-                    .done(function () {
-
+                    .done(function () {                      
                         // stop progress indicator
                         kendo.ui.progress(obtDetailObj, false);
                         reloadGrids();
@@ -1747,6 +1753,24 @@
             // not implemented
         }
 
+        function getSelectedActionRecordCount() {
+            var recordCount = 0;
+            // highlight rows selected
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
+            var pageData = grid.dataSource.view();
+            pageData.forEach((v, i) => {
+
+                // see if the ObtainmentWorkItemId for the row is in the selected list.
+                // if yes, highlight the row.
+             
+                var row = grid.table.find("[data-uid=" + v.uid + "]");
+                if ($(row).hasClass("k-state-selected")) {
+                    recordCount = recordCount+ grid.dataItem(row).SDSCount + grid.dataItem(row).NonSDSCount;
+                }
+                console.log(grid.dataItem(row));
+            });
+            return recordCount;
+        }
         var gdSupplierContacts_Change = function (e) {
             e.preventDefault();
             var data = this.dataItem(this.select());
