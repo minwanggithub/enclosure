@@ -220,7 +220,7 @@
                 NoProductIdSpecified: "No product id has been specified to resolve requests with",
                 NoContactEmailSelected: "A contact's email id has not been selected.",
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for Administration Page.",
-                ImmediateLimitExceed: "For immediate processing, you can not select more than 50 records"
+                ImmediateLimitExceed: "You can not select more than 50 records for immediate processing"
             }
         };
 
