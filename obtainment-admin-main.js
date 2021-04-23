@@ -1347,8 +1347,7 @@
                             $(this).savedSuccessFully(messages.successMessages.Saved);
                             $(this).displayError(successData.message);
 
-                            removeGridSelections();
-
+                            removeGridSelections();                          
                             if (modalId != null) $(modalId).hideModal();                         
 
                         } else {
@@ -1366,9 +1365,12 @@
                     })
                     .done(function () {                      
                         // stop progress indicator
-                        kendo.ui.progress(obtDetailObj, false);
+                        kendo.ui.progress(obtDetailObj, false);                       
                         reloadGrids();
-
+                        if (dataArray['immediate']) {
+                            $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid").dataSource.read();
+                            $("#chkImmediate").prop('checked', false);
+                        }
                     });
 
             }
