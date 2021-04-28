@@ -151,7 +151,7 @@
             GetContactPhoneList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetContactPhoneList",
             GetSupplierPortalUrl: GetEnvironmentLocation() + "/Operations/Company/GetCompliSupplierPortalUrl",
             SaveConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveConfirmNotAvailable",
-
+            CheckWorkItemStatus: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentWorkItemItemStatus",
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6", AwaitingSupplierResponse: "9", SentToProcessing: "10" };
         var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11",LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
@@ -206,6 +206,7 @@
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
                 HasEmbeddedKeywords: "Email body has illegal keyword(s).",
                 SubjectHasEmbeddedKeywords: "Email subject has illegal keyword(s).",
+                AlreadyResolved: "This request is already completed, go to PID to see further details.",
             }
         };
 
@@ -2293,20 +2294,23 @@
             }
         }
 
-        function ObtainmentDetailRoute(OWType, OSourceId, ProductId, NextObtainmentStepLkpID, ObtainmentWorkItemID, SupplierId) {
+        function ObtainmentDetailRoute(OWType, OSourceId, ProductId, NextObtainmentStepLkpID, ObtainmentWorkItemID, SupplierId) {          
+            
             if (OWType == "Revision") {
                 if (NextObtainmentStepLkpID == "6") {
                     return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 } else {
-                    //return "<a href='../Document/AddNewRevision?id=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
-                    return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                    //return "<a href='../Document/AddNewRevision?id=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";                 
+                    return "<a onclick='obtainmentLib.AddRevisionPage(" + OSourceId + "," + ObtainmentWorkItemID +")' title='Add Revision',  target='_blank' style='cursor:pointer' class='3ecomplibuttontoggle'>" + "<span class='icon-plus' style='cursor:pointer;'></a>";
                 }
             }
             else if (OWType == "New") {
                 if (NextObtainmentStepLkpID == "6") {
-                    return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                    return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank' class='3ecomplibuttontoggle'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 } else {
-                    return "<a href='../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Document',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                     //Commented and updated  by hitesh on 4/27/2021 for ticket TRECOMPLI-4212 to check if item resolved
+                    //return "<a href='../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Document',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                    return "<a onclick='obtainmentLib.AddDocumentPage(" + ProductId + "," + SupplierId + "," + ObtainmentWorkItemID +")' title='Add Document',  target='_blank' style='cursor:pointer'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
                 }
             }
             else {
@@ -2315,6 +2319,41 @@
             }
         }
 
+        /*
+         * Created BY Hitesh on 4/27/2021
+         * This function open a new page for adding Revision only if item not resolved          
+         */
+        function AddRevisionPage(OSourceId, ObtainmentWorkItemID) {
+            $(this).ajaxCall(controllerCalls.CheckWorkItemStatus, { ObtainmentWorkItemID: ObtainmentWorkItemID})
+                .success(function (data) {    
+                    if (data.nextSteplkpID == 6) {
+                        kendo.alert(messages.errorMessages.AlreadyResolved);
+                        $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid").dataSource.read()
+                    }
+                    else {
+                        var val = "../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID;
+                        window.open(val, '_blank');
+                    }
+                })
+        }
+        /*
+         * Created BY Hitesh on 4/27/2021
+         * This function open a new page for adding new document only if item not resolved
+    
+         */
+        function AddDocumentPage(ProductId, SupplierId, ObtainmentWorkItemID) {
+            $(this).ajaxCall(controllerCalls.CheckWorkItemStatus, { ObtainmentWorkItemID: ObtainmentWorkItemID })
+                .success(function (data) {
+                    if (data.nextSteplkpID == 6) {
+                        kendo.alert(messages.errorMessages.AlreadyResolved);
+                        $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid").dataSource.read()
+                    }
+                    else {
+                        var val = "../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID ;
+                        window.open(val, '_blank');
+                    }
+                })
+        }
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
@@ -2326,7 +2365,9 @@
             onObtainmentReqeustDetailDataBound: onObtainmentReqeustDetailDataBound,
             loadSentEmail: loadSentEmail,
             selectedSuperMailSupplierId: selectedSuperMailSupplierId,
-            ObtainmentDetailRoute: ObtainmentDetailRoute
+            ObtainmentDetailRoute: ObtainmentDetailRoute,
+            AddRevisionPage: AddRevisionPage,
+            AddDocumentPage: AddDocumentPage
         };
     };
 })(jQuery);
