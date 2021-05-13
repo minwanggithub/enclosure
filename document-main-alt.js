@@ -3544,9 +3544,11 @@
             var parentContainer = $(e.sender.element).parents("form");
             if (parentContainer.length > 0) {
                 var revisionDate = new Date(parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val());
-                if (dateEntered < revisionDate) {
-                    displayError(documentMessages.errors.ConfirmationDateGreaterThanRevisionDate);
+                if (dateEntered < revisionDate) {  
+                    var kVDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+                    kVDatePicker.value('');
                     $(e.sender.element).val('');
+                    displayError(documentMessages.errors.ConfirmationDateGreaterThanRevisionDate);
                     return;
                 }
             }
@@ -3592,16 +3594,19 @@
                     }
                 }
             }
-
+            //added validation for revesion date to be less than confirmation date
             var parentContainer = $(e.sender.element).parents("form");
             if (parentContainer.length > 0) {
                 var DCkDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
                 if (DCkDatePicker) {
                     var dateString = kendo.toString(DCkDatePicker.value(), 'd')
                     confirmDate = new Date(dateString);                
-                    if (dateEntered > confirmDate) {
-                        displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
+                    if (dateEntered > confirmDate) {  
+                        var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
                         $(e.sender.element).val('');
+                        kDatePicker.value('');
+                        displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
+                      
                     }
                 }
             }
