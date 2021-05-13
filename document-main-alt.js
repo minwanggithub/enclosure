@@ -251,7 +251,8 @@
                 DocumentIdentification_Revision: "#DocumentIdentification_",
                 DocumentVersion_Revision: "#DocumentVersion_",
                 DocumentManufacturerId_Revision: "#txtManufacturerId_",
-                DocumentSupplierId_Revision: "#txtSupplierId_"
+                DocumentSupplierId_Revision: "#txtSupplierId_",
+                DocumentStatus: "#hdnDocAssoMfrAllProductsDocStatusId_",
             },
             label: {
                 DocumentLinkToAllMfrProductWarning: "#lblDuplicateAssociation_",
@@ -1414,12 +1415,14 @@
                     $(documentElementSelectors.textboxes.DocumentAssociatedProduct + did).text('Total products in db: ' + result.associatedItems);
                     $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
                     var docType = $(documentElementSelectors.textboxes.DocumentType + did).val();
+                    var docStatusId = $(documentElementSelectors.textboxes.DocumentStatus + did).val();
                     
                     if (result.unassociatedItems > 5000)
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to first 5000 products');
                     else
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to ' + result.unassociatedItems + ' products');
-                    if (docType.toUpperCase() == "SDS") {
+                    //If document type is SDS or Document Status is Suspect(4) or Deactivated(5) then disable the link(By Nitin on 13 May 2021)
+                    if (docType.toUpperCase() == "SDS" || docStatusId == 4 || docStatusId == 5) {
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).prop('disabled', true);
                     }
                     else {
