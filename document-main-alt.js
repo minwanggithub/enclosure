@@ -3536,6 +3536,11 @@
             var now = new Date();
             var dateEntered = new Date(sDateEntered);
             if (dateEntered > now) {
+                // added by nitin 17 May 2021(Future date check)
+                var parentContainer = $(e.sender.element).parents("form");
+                var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+                kDatePicker.value('');
+                // end
                 displayError(documentMessages.errors.ConfirmationDateFuture);
                 $(e.sender.element).val('');
                 return;
@@ -3577,6 +3582,11 @@
             var now = new Date();
             var dateEntered = new Date(sDateEntered);
             if (dateEntered > now) {
+               // added by nitin 17 May 2021(Future date check)
+                var parentContainer = $(e.sender.element).parents("form");
+                var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
+                kDatePicker.value('');
+                // end
                 displayError(documentMessages.errors.RevisionDateFuture);
                 $(e.sender.element).val('');
                 return;
