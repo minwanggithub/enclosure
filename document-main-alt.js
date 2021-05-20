@@ -4307,7 +4307,8 @@
             error_handler: error_handler,
             replaceRevisionAttachment: replaceRevisionAttachment,
             onGDDocumentProductDataBound: onGDDocumentProductDataBound,
-            onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound
+            onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound,
+            onCustomDeleteRevision: onCustomDeleteRevision
         };
     };
 
