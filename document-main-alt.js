@@ -275,7 +275,8 @@
             GetAsynchData: GetEnvironmentLocation() + "/Operations/Document/GetAsynchData",
             RetrieveLatestDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/RetrieveLatestDocumentRevision",
             GetIndexationDataForInboundAttachment: GetEnvironmentLocation() + "/Operations/Document/GetIndexationDataForInboundAttachment",
-            DoLookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter"
+            DoLookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
+            DeleteDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/DeleteRevisionAllowAsynch"
         }
 
         var documentMessages = {
@@ -336,6 +337,7 @@
             warnings: {
                 DocumentRevisionAttachments: "Reminder: No attachment has been provided for this document.",
                 UnlinkDocumentFromProudct: "Are you sure you want to remove the above document from ths product?",
+                ConfirmDeleteRevision: "Are you sure you want to delete this revision?",
                 LinkDocumentToAllMfrProudct: "Are you sure you want to link the document to first N product(s) from the list?",
                 InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
@@ -4233,6 +4235,29 @@
 
 
 
+        }
+
+        var onCustomDeleteRevision = function (sender, docId, revId) {
+            var confirmDelete = confirm(documentMessages.warnings.ConfirmDeleteRevision);
+            if (confirmDelete == false)
+                return;
+            //kendo.alert("Delete: " + docId + ',' + revId);
+            var targetGridName = "#" + sender + docId;
+            kendo.ui.progress($(targetGridName), true);
+            $.post(controllerCalls.DeleteDocumentRevision, { documentId: docId, revisionId: revId }, function (data) {
+                kendo.ui.progress($(targetGridName), false);
+
+                if (data.result > 0) {
+                    var targetGrid = $(targetGridName).data("kendoGrid");
+                    targetGrid.dataSource.page(1);
+                    targetGrid.dataSource.read();
+                }
+                else {  //Notify user the revsion was queued on server for deletion
+                    //$(this).displayError(data);
+                    kendo.alert(data.message);
+                }
+            });
+            
         }
 
         return {
