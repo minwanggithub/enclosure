@@ -94,7 +94,9 @@
                 RemoveThisDocument: "Are you sure you want to delete this document from product?",
                 ProductChangesReverted: "All product changes will be reverted. Are you sure you would like to reload the product?",
                 ObtainmentTypeSaved: "Obtainment Type Not Avaialbe Saved Succesfully",
-                OverwriteComments: "Overwrite action notes ?"
+                OverwriteComments: "Overwrite action notes ?",
+                ToBeMergedProduct: "This PID status is listed as to be merged.",
+                Inbound_ToBeMergedProduct:"This PID status is listed as to be merged, select another PID to resolve request."
             },
             errorMessages:{
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
@@ -363,6 +365,15 @@
             }
         }
 
+        var onGDSearchProductDataBound = function () {
+            var grid = $("#gdSearchProduct").data("kendoGrid");
+            var data = grid.dataSource.data();
+            $.each(data, function (i, row) {
+                if (row.SelectedStatusId == 11) {
+                    $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
+                }
+            })
+        }
         function saveBtnEvent(activeSaveButton) {
             var form = $("#frmProductDetail_" + activeSaveButton).updateValidation();
             if (!form.valid())
@@ -767,6 +778,10 @@
             }
 
             $(productObject.controls.buttons.AttachInboundDocToProduct + "_" + pKey).on("click", function () {
+                if ($(productObject.controls.dropdownlists.ProductStatus + "_" + pKey).data("kendoDropDownList").value() == 11) {
+                    onDisplayError(messages.confirmationMessages.Inbound_ToBeMergedProduct);
+                    return;
+                }
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
@@ -788,6 +803,11 @@
             });
 
             $(productObject.controls.buttons.AddDocToProduct + "_" + pKey).on("click", function () {
+               
+                if ($(productObject.controls.dropdownlists.ProductStatus + "_" + pKey).data("kendoDropDownList").value() == 11) {
+                    onDisplayError(messages.confirmationMessages.ToBeMergedProduct);
+                    return;
+                }
                 activeProduct = pKey;
                 newProductActive = false;
 
@@ -846,7 +866,14 @@
 
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
-        var setDeleteImageIcon = function () {
+        var setDeleteImageIcon = function (e) {
+            var grid = e.sender;
+            var data = grid.dataSource.data();
+            $.each(data, function (i, row) {
+                if (row.DocumentStatusId == 4 || row.DocumentStatusId == 5) {
+                    $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
+                }
+            })
             $(".k-grid-remove").html("<span class='k-icon k-i-close'></span>");
         };
 
@@ -1021,7 +1048,8 @@
             onProductPhysicalStateChange: onProductPhysicalStateChange,
             resetSupplierNameOptionObservable: resetSupplierNameOptionObservable,
             updateProductStatusLayout: updateProductStatusLayout,
-            dsProductNameOption: dsProductNameOption
+            dsProductNameOption: dsProductNameOption,
+            onGDSearchProductDataBound: onGDSearchProductDataBound
         };
     };
 

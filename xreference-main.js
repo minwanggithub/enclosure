@@ -111,7 +111,10 @@ var anyOperationPerformedOutside = false;
                 AssignRequests: "assign these request item(s)",
                 OverwriteComments: "Overwrite previous customer action comments?",
                 CrossReferenceResolutionStateMismatch: "The physical state of the selected product does not match the physical state of one or more of the cross reference requests.<br>" +
-                  "Proceed with the match ?"
+                    "Proceed with the match ?",
+                ToBeMergedProduct: 'This PID status is listed as to be merged, select another PID to resolve request.',
+                ToBeSuspectProduct: "This PID status is listed as suspect, select another PID to resolve request.",
+                ToBeDeactivatedProduct:"This PID status is listed as deactivated, select another PID to resolve request."
             },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
@@ -452,41 +455,51 @@ var anyOperationPerformedOutside = false;
                 $(actionModals.Resolve).toggleModal();
                 $(this).displayError(messages.errorMessages.NoItemsSelected);
             } else {
-
-                if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0 && $("#lblProductName").text().length > 0 && $("#lblSupplierName").text().length > 0) {
-
-                    // prompt for confirmation if the physical state requested in the xref and the
-                    // product selected do not match.
-                    var states = [];
-                    var physicalState = $(xreferenceObject.controls.labels.PhysicalState).text();
-                    // get the physical states of the selected rows          
-                    //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
-                    /*Hitesh 2/03/2021 : replaced above code with below to check physical state across the page above code was working for current page*/
-                    var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.data();                  
-                    Array.from(grid).forEach(i => {
-                        if (selectedRequests.indexOf(i.RequestWorkItemID) >= 0 && i.PhysicalState != null) {
-                            states.push(i.PhysicalState);
-                        }
-                    });     
-                    if (Array.from(states).some(e => e != physicalState)) {
-
-                        var message = messages.confirmationMessages.CrossReferenceResolutionStateMismatch;
-                        var args = { message: message, header: 'Confirm cross reference resolution.' };
-
-                        _DisplayConfirmationModal(args, function () {
-                            resolveRequests();
-                        }, function () {
-                            // do nothing
-                        });
-                    }
-                    else {
-                        resolveRequests();
-                    }
-
-                } else {
-                    $(actionModals.Resolve).toggleModal();
-                    $(this).displayError(messages.errorMessages.NoProductSelected);
+                if ($("#hdnProductStatus").val() == 11) {
+                    onDisplayError(messages.confirmationMessages.ToBeMergedProduct);
                 }
+                else if ($("#hdnProductStatus").val() == 9){
+                    onDisplayError(messages.confirmationMessages.ToBeSuspectProduct);
+                }
+                else if ($("#hdnProductStatus").val() == 14) {
+                    onDisplayError(messages.confirmationMessages.ToBeDeactivatedProduct);
+                }
+                else {
+                    if ($(xreferenceObject.controls.textBoxes.ProductIdTextBox).val().length > 0 && $("#lblProductName").text().length > 0 && $("#lblSupplierName").text().length > 0) {
+
+                        // prompt for confirmation if the physical state requested in the xref and the
+                        // product selected do not match.
+                        var states = [];
+                        var physicalState = $(xreferenceObject.controls.labels.PhysicalState).text();
+                        // get the physical states of the selected rows          
+                        //var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.view();
+                        /*Hitesh 2/03/2021 : replaced above code with below to check physical state across the page above code was working for current page*/
+                        var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid").dataSource.data();
+                        Array.from(grid).forEach(i => {
+                            if (selectedRequests.indexOf(i.RequestWorkItemID) >= 0 && i.PhysicalState != null) {
+                                states.push(i.PhysicalState);
+                            }
+                        });
+                        if (Array.from(states).some(e => e != physicalState)) {
+
+                            var message = messages.confirmationMessages.CrossReferenceResolutionStateMismatch;
+                            var args = { message: message, header: 'Confirm cross reference resolution.' };
+
+                            _DisplayConfirmationModal(args, function () {
+                                resolveRequests();
+                            }, function () {
+                                // do nothing
+                            });
+                        }
+                        else {
+                            resolveRequests();
+                        }
+
+                    } else {
+                        $(actionModals.Resolve).toggleModal();
+                        $(this).displayError(messages.errorMessages.NoProductSelected);
+                    }
+                }               
             }
         });
 

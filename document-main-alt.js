@@ -986,7 +986,7 @@
 
 
         var onDataBound = function (e) {
-
+            
             // remove filtering details
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("");
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
@@ -1006,7 +1006,7 @@
 
             // display filtering
 
-            var grid = searchGrid.data("kendoGrid");
+            var grid = searchGrid.data("kendoGrid"); 
             var dataSource = grid.dataSource;
             var columns = grid.columns;
             var filters = dataSource.filter();
@@ -1024,7 +1024,14 @@
                 $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "" });
 
             }
-
+            //Changes for TRECOMPLI-4231 Document- Suspect/Deactivated status highlight results grid
+            
+            var data = grid.dataSource.data();
+            $.each(data, function (i, row) {
+                if (row.DocumentStatusId == 4 || row.DocumentStatusId == 5) {
+                    $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
+                }
+            })
         }
 
         var onGenericDataBound = function (e) {
@@ -1174,32 +1181,50 @@
                 }
             }, 500);
         };
+        var onGDDocumentProductDataBound = function (e) {
+            var grid = e.sender;
+            var data = grid.dataSource.data();
+            $.each(data, function (i, row) {
+                if (row.SelectedStatusId == 11) {
+                    $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
+                }
+            })
+        }
+        var onGDSearchDocumentPopUpDataBound = function (e) {
+            var grid = e.sender;
+            var data = grid.dataSource.data();
+            $.each(data, function (i, row) {
+                if (row.DocumentStatusId == 4 || row.DocumentStatusId == 5) {
+                    $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
+                }
+            })
+        }
 
-        var initializeProductAssociation = function (did) {
+        var initializeProductAssociation = function (did) {            
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
                 //Make sure if the did is kit, then it must contain at least two children
-                $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
-                    if (data != 'True') {
-                        kendo.alert("In order to associate to a product, kits parent document must have at least two children.");
-                        return;
-                    }
-                    DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
-                        kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
-                        kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
-                        duplicateObtainmentTypeTextWaring(did);
+                    $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
+                        if (data != 'True') {
+                            kendo.alert("In order to associate to a product, kits parent document must have at least two children.");
+                            return;
+                        }
+                        DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                            kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
+                            kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
+                            duplicateObtainmentTypeTextWaring(did);
 
-                        $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
-                            if (!data.Success) {
-                                $(this).displayError(data.Message);
-                                return;
-                            }
-                            refereshAssociationGrid(did);
+                            $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
+                                if (!data.Success) {
+                                    $(this).displayError(data.Message);
+                                    return;
+                                }
+                                refereshAssociationGrid(did);
+                            });
                         });
                     });
-                });
 
-
+                 
             });
             getRealNumberForProductAssociation(did);
         };
@@ -4255,7 +4280,9 @@
             onEmojiHappyRevisionClick: onEmojiHappyRevisionClick,
             onConflictingFileUpload: conflictingFileUpload,
             error_handler: error_handler,
-            replaceRevisionAttachment: replaceRevisionAttachment
+            replaceRevisionAttachment: replaceRevisionAttachment,
+            onGDDocumentProductDataBound: onGDDocumentProductDataBound,
+            onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound
         };
     };
 
