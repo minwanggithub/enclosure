@@ -23,7 +23,8 @@
             containers: {
                 NewNotification: "#pnlNewNotification",
                 NotificationModalPopup: "#NotificationModalPopup",
-                NotificationGrid: "#NotificationGrid"
+                NotificationGrid: "#NotificationGrid",
+                NotificationModalPopupDiv: "#divNotificationModalPopup",
             },
 
             controls: {
@@ -49,7 +50,9 @@
                     EditEmailTemplate: "#ddlEditEmailTemplate",
                     EditNoticeStatus: "#ddlEditNoticeStatus",
                     ObtainmentState: "#ddlObtainmentState",
-
+                    OverrideNextStep: "#ddlOverrideNextStep",
+                    CustomerAction: "#ddlCustomerAction",
+                    ObtainmentAction: "#ddlObtainmentAction",
                 },
 
                 textbox: {
@@ -64,7 +67,10 @@
                     EditScheduledDate: "#dteEditScheduledDate"
                 },
 
-                div: { EmailTemplateBodyDiv: "#emailTemplateBody" }
+                div: {
+                    EmailTemplateBodyDiv: "#emailTemplateBody",
+                    CustomerActionDiv:"#dvnoticeCustomerAction",
+                }
 
             },
 
@@ -133,8 +139,10 @@
                 EmailSubjectMissing: "Email subject missing.",
                 MissingNoticeNumber: "Notice number token missing from email subject line.",
                 MissingSummaryRecipient: "Notice summary recipient is required.",
-                SingleAccountRequired: "A single Account must be specified for Notifications for 'All Steps'."
-                
+                SingleAccountRequired: "A single Account must be specified for Notifications for 'All Steps'.",
+                CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for bulk notices.",
+                NoCustomerActionSelected: "No customer action has been selected.",
+                CustomerActionRequired: "Customer action required.",
             }
         };
         
@@ -280,6 +288,75 @@
             return false;
         });
 
+        var onOverrideNextStep = function () {
+            debugger;
+            var nextStepvalue = $(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").text();
+            if (nextStepvalue == 'Completed') {
+                $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(true);
+            }
+            else {
+                $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(false);
+                $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").value("");
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'none' });
+            }
+        };
+
+        var onCustomerActionObtainmentAction = function () {
+            debugger;
+            var nextStepvalue = $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").text();
+            if (nextStepvalue == 'Customer Action') {
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'block' });
+                $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").value("3E has been unsuccessful in multiple attempts to obtain the requested document(s) with the manufacturer information provided. Thank you.");
+            }
+            else {
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'none' });
+            }
+        };
+
+        // customer notes action
+        var onCustomerAction = function () {
+            debugger;
+            var selNotes = $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList");
+            // selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+
+            var dashIndex = selCustomerAction.indexOf("-");
+            var actionNumber = selCustomerAction.substr(0, dashIndex - 1);
+
+            if (actionNumber === "47") {
+                alert(messages.errorMessages.CustomAction47NotAvailable);
+                selNotes.select(0);
+                
+                return false;
+            }
+            
+        };
+
+        // display Obtainment action dropdown
+        function onOverrideNextStepDataBound() {
+            var nextStepvalue = $(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").text();
+            if (nextStepvalue == 'Completed') {
+                $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(true);
+            }
+            else {
+                $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(false);
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'none' });
+            }
+        }
+
+        // display customer action dropdown
+        function onObtainmentActionDataBound() {
+            var nextStepvalue = $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").text();
+            if (nextStepvalue == 'Customer Action') {
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'block' });
+            }
+            else {
+                $(UIObject.controls.div.CustomerActionDiv).css({ display: 'none' });
+            }
+        }
+
+
 
         function SearchNotification(searchCriteria) {
             $(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: searchCriteria })
@@ -340,7 +417,36 @@
 
             $(UIObject.controls.buttons.EditCancel).click(function () { onEditCancelButtonClick(); });
             $(UIObject.controls.buttons.EditSave).click(function () { onEditSaveButtonClick(); });
+
+            // hide condition, enable as required
+            $(UIObject.controls.div.CustomerActionDiv).css({ display: 'none' });
+            $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(false);
+
+            $(UIObject.controls.dropdownlists.OverrideNextStep).change(function () { onOverrideNextStep(); });
+            $(UIObject.controls.dropdownlists.CustomerAction).change(function () { onCustomerAction(); });
+            $(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").bind("dataBound", onOverrideNextStepDataBound);
+
+
+            $(UIObject.controls.dropdownlists.ObtainmentAction).change(function () { onCustomerActionObtainmentAction(); });
+            $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").bind("dataBound", onObtainmentActionDataBound);
+            //onCustomerActionObtainmentAction
+            //setTimeout(
+            //    function () {
+            //        var nextStepvalue = $(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").text();
+            //        if (nextStepvalue == 'Customer Action') {
+            //            $(UIObject.controls.div.CustomerActionDiv).css({ visibility: '' });
+            //        }
+            //    }, 3000);
         };
+
+       
+       
+      
+
+       
+
+      
+
 
         var LoadNotificationBatchItems = function()
         {
@@ -367,10 +473,21 @@
                 ObtainmentState: Number($(UIObject.controls.dropdownlists.ObtainmentState).data("kendoDropDownList").value()),
                 NotificationAttachment: [],
                 SummaryRecipient: $(UIObject.controls.textbox.SummaryRecipient).val(),
+                NextObtainmentStepLkpId: Number($(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").value()),
+                ObtainmentActionLkpId: Number($(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").value()),
+                CustomerAction: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").text(),
+                ObtainmentNotes: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").value(),
 
                 MissingRequired: function () {
-
+                    debugger;
                     var nextStepValid = true;
+                    var customerActionvalid = true;
+
+                    var nextStepvalue = $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").text();
+                    if (nextStepvalue == 'Customer Action') {
+                        if (this.ObtainmentNotes == -1)
+                            customerActionvalid = false;
+                    }
 
                     if (this.NextStepId == -1)
                         nextStepValid = false;
@@ -382,7 +499,7 @@
                         || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)
                         || (this.EmailSubject == "")
                         || (this.SummaryRecipient == "")
-                        || (this.ObtainmentList.length == 0);
+                        || (this.ObtainmentList.length == 0 || (!customerActionvalid));
                 },
 
                 InvalidSchedueDate: function () {
@@ -889,3 +1006,4 @@
         };
     };
 })(jQuery);
+

@@ -42,6 +42,7 @@
                     SendEmail: "#btnSendEmail",                                     // bulk action
                     LogPhoneCall: "#btnLogPhone",                                   // bulk action
                     MakeCustomerActionBtn: "#btnMakeCustomerActionItem",            // bulk action
+                    NextStepBatchChange: "#btnNextStepBatchChange",                // bulk action
                     UnAssignFromButton: "#btnUnAssignFrom",
                     AssignToButton: "#btnAssignTo",
                     AssignMeButton: "#btnAssignMe",
@@ -58,6 +59,8 @@
                     CancelSuperEmail: "#btnCancelSuperEmail",
                     SendSuperEmail: "#btnSendSuperEmail",
                     ResolveActionButton: "#btnSaveResolve",                         // resolve the selected work items
+                    FollowUpCancelButton: "#btnCancelFollowUp",
+                    FollowUpSaveButton: "#btnSaveFollowUp",
                 },
 
                 grids: {
@@ -73,7 +76,7 @@
                 dateTime: {
                     NextStepDueDatePhoneCall: "#dteNextStepDueDatePhoneCall",
                     SuperEmailNextStepDueDate: "#dteSuperEmailNextStepDueDate",
-
+                    NextStepDueDate: "#dteNextStepDueDate",
                 },
 
                 dropdownlists: {
@@ -83,7 +86,8 @@
                     NextStepsPhoneCall: "#ddlNextStepsPhoneCall",
                     InternalNotes: "#ddlInternalNotes",
                     SuperEmailNextStep: "#ddlSuperEmailNextStep",
-                    EmailTargets: "#ddlEmailTarget"
+                    EmailTargets: "#ddlEmailTarget",
+                    NextStepsDropDownList: "#ddlNextSteps",
 
                 },
 
@@ -102,9 +106,10 @@
                     NotificationRecepient: "#txtNotificationRecepient",
                     SuperEmailSubject: "#txtSuperEmailSubject",
                     SuperEmailBody: "#txtSuperEmailBody",
-                    SuperEmailId: "#txtSuperEmailId"
+                    SuperEmailId: "#txtSuperEmailId",
+                    ObtainmentActionNotes: "#txtObtainmentActionNotes",
                 },
-
+               
                 checkboxes: {
                     LiveCall: "#chkLiveCall",
                     InsertProductsList: "#chkInsertProductsList",
@@ -131,7 +136,8 @@
             CustomerAction: "#mdlCustomerAction",
             LogPhoneCall: "#mdlLogPhoneCall",
             SendEmail: "#mdlSendSuperEmail",
-            Assign:"#mdlAssign"
+            Assign: "#mdlAssign",
+            FollowUp: "#mdlFollowUp",
         };
 
         var kendoWindows = {
@@ -151,7 +157,8 @@
             ValidateObtainmentsForDocumentId: GetEnvironmentLocation() + "/Administration/Obtainment/ValidateObtainmentsForDocumentId",
             SendSuperEmail: GetEnvironmentLocation() + "/Administration/Obtainment/SendSuperEmail",
             ResolveRequests: GetEnvironmentLocation() + "/Administration/Obtainment/ResolveRequests",
-            SaveCustomerAction: GetEnvironmentLocation() + "/Administration/Obtainment/SaveCustomerAction"
+            SaveCustomerAction: GetEnvironmentLocation() + "/Administration/Obtainment/SaveCustomerAction",
+            SaveNextStep: GetEnvironmentLocation() + "/Administration/Obtainment/SaveNextStep"
 
 
         };
@@ -167,7 +174,8 @@
                 SendEmail: "send emails for the selected obtainment item(s)",
                 LogPhoneCall: "log a phone call for the selected obtainment item(s)",
                 CustomerAction: "set a customer action for the selected obtainment item(s)",
-                OverwriteComments: "Overwrite previously entered action note ?"
+                OverwriteComments: "Overwrite previously entered action note ?",
+                FollowUp: "set a follow up for the selected obtainment item(s)",
 
             },
             errorMessages: {
@@ -191,6 +199,7 @@
                 NoItemsSelected: "No items have been selected",
                 NoRowSelected: "No row selected",
                 NoStepSelected: "Invalid Next Step",
+                InvalidNextStepDueDate: "Invalid Next Step Due Date",
                 NoActionSelected: "No action has been selected",
                 RequestsCouldNotBeSaved: "Requests could not be saved",
                 RequestsCouldNotBeAssigned: "Requests could not be assigned",
@@ -332,6 +341,16 @@
         obtSearchObj.on("click", obtainmentObjects.controls.buttons.SearchObtainmentAdminBtn, function () {
             doObtainmentSearch();
         });
+
+
+        // Follow up actions added by Nitin
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.FollowUpCancelButton, function () {
+            $(actionModals.FollowUp).toggleModal();
+        });
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.FollowUpSaveButton, function () {
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
+        });
+
 
         // customer notes action
         obtSearchObj.on("change", obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList, function () {
@@ -1245,6 +1264,28 @@
 
         }
 
+// for follow up action added by nitin
+        function doSetFollowUpAction() {
+
+            var _gridIds = getSelectedActionBlockIds();
+            var actionName = "FollowUp";
+            $(obtainmentObjects.controls.textBoxes.ObtainmentActionNotes + actionName).val("");
+            $(obtainmentObjects.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList").value("");
+
+            // no items selected ?
+            if (Object.keys(_gridIds).length == 0) {
+                $(this).displayError(messages.errorMessages.NoItemsSelected);
+            } else {
+
+                // display confirmation dialog
+                var message = 'Are you sure you would like to ' + messages.confirmationMessages.FollowUp + '?';
+                var args = { message: message, header: 'Confirm Requests Selected' };
+                DisplayConfirmationModal(args, function () {
+                    $(actionModals.FollowUp).displayModalEx();
+                }, function () {
+                });
+            }
+        }
         // ---- save actions
 
         function savePhoneCall() {
@@ -1336,6 +1377,36 @@
 
         }
 
+        // for saving  Obtainment Next step
+        function SaveObtainmentNextSteps(strUrl, actionName, modalId) {
+            selectedIds = getSelectedActionBlockIds();
+            var ddlNextSteps = $(obtainmentObjects.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+            //var ddlActions = $(obtainmentObjects.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
+            var dteDateAssigned = $(obtainmentObjects.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
+            if (dteDateAssigned.value()==null) {
+                $(modalId).toggleModal();
+                $(this).displayError(messages.errorMessages.InvalidNextStepDueDate);
+                return false;
+            }
+            if (ddlNextSteps.value() != "") {
+                var data = {};
+                // set values
+                data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
+                data['ids'] = selectedIds;
+                data['notes'] = $(obtainmentObjects.controls.textBoxes.ObtainmentActionNotes + actionName).val();
+                data['nextStep'] = ddlNextSteps.value();
+                data['nextStepDueDate'] = dteDateAssigned.value();
+
+                saveRequests(controllerCalls.SaveNextStep, data, actionModals.FollowUp);
+            }
+            else {
+                $(modalId).toggleModal();
+                $(this).displayError(messages.errorMessages.NoStepSelected);
+            }
+        }
+       
+
+
         function saveRequests(strUrl, dataArray, modalId, callback) {
             if (selectedIds.length > 0) {
                 kendo.ui.progress(obtDetailObj, true);                
@@ -1399,6 +1470,7 @@
             // ---- setup action handlers
 
             $(obtainmentObjects.controls.buttons.MakeCustomerActionBtn).off("click");
+            $(obtainmentObjects.controls.buttons.NextStepBatchChange).off("click");
             $(obtainmentObjects.controls.buttons.SaveCustomerActionButton).off("click");
 
             if (!wiredUp) {
@@ -1407,6 +1479,10 @@
 
                 obtDetailObj.on("click", obtainmentObjects.controls.buttons.MakeCustomerActionBtn, function (e) {
                     doCustomerActionAction();
+                });
+
+                obtDetailObj.on("click", obtainmentObjects.controls.buttons.NextStepBatchChange, function (e) {
+                    doSetFollowUpAction();
                 });
 
                 obtDetailObj.on("click", obtainmentObjects.controls.buttons.SaveCustomerActionButton, function (e) {

@@ -531,12 +531,17 @@
         }
 
         function displayError(message) {
-            kendo.alert(message);
+            //kendo.alert(message);
             //if (onDisplayError)
             //    onDisplayError(message);
 
             //else
             //    kendo.alert(message);
+            // changes by nitin to add title
+            $("<div></div>").kendoAlert({
+                title: "Error",
+                content: message
+            }).data("kendoAlert").open();
         }
 
         function extractReferenceId(value) {
@@ -3556,20 +3561,25 @@
         };
 
         var onDocumentRevisionConfirmationDateChange = function (e) {
-            if (this.value() == null || this.value().length <= 0)
+            var parentContainer = $(e.sender.element).parents("form");
+            var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+            if (this.value() == null) {
+                //displayError(documentMessages.errors.ConfirmationDateFuture);
+                //kDatePicker.value(new Date());
+                //kDatePicker.trigger("change");
+               // this._oldText = new Date();
                 return;
+            }
 
             var sDateEntered = kendo.toString(this.value(), 'd');
             var now = new Date();
             var dateEntered = new Date(sDateEntered);
             if (dateEntered > now) {
                 // added by nitin 17 May 2021(Future date check)
-                var parentContainer = $(e.sender.element).parents("form");
-                var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
-                kDatePicker.value('');
+                kDatePicker.value(null);
                 // end
                 displayError(documentMessages.errors.ConfirmationDateFuture);
-                $(e.sender.element).val('');
+              //  $(e.sender.element).val(new Date());
                 return;
             }
 
@@ -3577,9 +3587,9 @@
             if (parentContainer.length > 0) {
                 var revisionDate = new Date(parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val());
                 if (dateEntered < revisionDate) {  
-                    var kVDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
-                    kVDatePicker.value('');
-                    $(e.sender.element).val('');
+                   // var kVDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+                    kDatePicker.value(null);
+                   // $(e.sender.element).val(new Date());
                     displayError(documentMessages.errors.ConfirmationDateGreaterThanRevisionDate);
                     return;
                 }
@@ -3604,18 +3614,24 @@
         };
 
         var onDocumentRevisionRevisionDateChange = function (e) {
+            var parentContainer = $(e.sender.element).parents("form");
+            var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
             var sDateEntered = kendo.toString(this.value(), 'd');
-            if (sDateEntered == null) return;
+            if (sDateEntered == null) {
+                ///displayError(documentMessages.errors.RevisionDateFuture);
+               // kDatePicker.value(null);
+               // kDatePicker.trigger("change");
+               // kDatePicker.value(null);
+                return
+            };
             var now = new Date();
             var dateEntered = new Date(sDateEntered);
             if (dateEntered > now) {
                // added by nitin 17 May 2021(Future date check)
-                var parentContainer = $(e.sender.element).parents("form");
-                var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
-                kDatePicker.value('');
+                kDatePicker.value(null);
                 // end
                 displayError(documentMessages.errors.RevisionDateFuture);
-                $(e.sender.element).val('');
+              //  $(e.sender.element).val(new Date());
                 return;
             }
             
@@ -3640,14 +3656,17 @@
                     confirmDate = new Date(dateString);                
                     if (dateEntered > confirmDate) {  
                         var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
-                        $(e.sender.element).val('');
-                        kDatePicker.value('');
+                       // $(e.sender.element).val(new Date());
+                        kDatePicker.value(null);
                         displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
                       
                     }
                 }
             }
         };
+
+
+       
 
         /******************************** Notes Methods ********************************/
         function displayDocumentNote(documentId, message) {
