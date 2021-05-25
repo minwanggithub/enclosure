@@ -52,6 +52,7 @@
                     CustomerActionSideMenuButton: "#btnCustomerAction",
                     SaveObtainmentButton: "#btnSaveObtainment",
                     SaveCustomerActionButton: "#btnSaveCustomerAction",
+                    CustomerActionCancelButton: "#btnCancelCustomerAction",
                     SearchSupplierButton: "#searchSupplierIdBtn",                   // bring up supplier search
                     CancelSupplierSearch: "#btnCancelSupplierSearch",               // exit supplier search
                     CancelPhoneCall: "#btnCancelPhoneCall",
@@ -342,7 +343,10 @@
             doObtainmentSearch();
         });
 
-
+        // Customer actions close pop up added by Nitin
+        obtSearchObj.on("click", obtainmentObjects.controls.buttons.CustomerActionCancelButton, function () {
+            $(actionModals.CustomerAction).toggleModal();
+        });
         // Follow up actions added by Nitin
         obtSearchObj.on("click", obtainmentObjects.controls.buttons.FollowUpCancelButton, function () {
             $(actionModals.FollowUp).toggleModal();
@@ -1254,12 +1258,13 @@
             } else {
 
                 // display confirmation dialog
-                var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
-                var args = { message: message, header: 'Confirm Requests Selected' };
-                DisplayConfirmationModal(args, function () {
-                    $(actionModals.CustomerAction).displayModalEx();
-                }, function () {
-                });
+                //var message = 'Are you sure you would like to ' + messages.confirmationMessages.CustomerAction + '?';
+                //var args = { message: message, header: 'Confirm Requests Selected' };
+                //DisplayConfirmationModal(args, function () {
+                //    $(actionModals.CustomerAction).displayModalEx();
+                //}, function () {
+                //});
+                $(actionModals.CustomerAction).displayModalEx();
             }
 
         }
@@ -1278,12 +1283,13 @@
             } else {
 
                 // display confirmation dialog
-                var message = 'Are you sure you would like to ' + messages.confirmationMessages.FollowUp + '?';
-                var args = { message: message, header: 'Confirm Requests Selected' };
-                DisplayConfirmationModal(args, function () {
-                    $(actionModals.FollowUp).displayModalEx();
-                }, function () {
-                });
+                //var message = 'Are you sure you would like to ' + messages.confirmationMessages.FollowUp + '?';
+                //var args = { message: message, header: 'Confirm Requests Selected' };
+                //DisplayConfirmationModal(args, function () {
+                //    $(actionModals.FollowUp).displayModalEx();
+                //}, function () {
+                //});
+                $(actionModals.FollowUp).displayModalEx();
             }
         }
         // ---- save actions
