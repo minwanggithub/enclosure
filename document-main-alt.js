@@ -3652,14 +3652,15 @@
             if (parentContainer.length > 0) {
                 var DCkDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
                 if (DCkDatePicker) {
-                    var dateString = kendo.toString(DCkDatePicker.value(), 'd')
-                    confirmDate = new Date(dateString);                
-                    if (dateEntered > confirmDate) {  
-                        var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
-                       // $(e.sender.element).val(new Date());
-                        kDatePicker.value(null);
-                        displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
-                      
+                    if (DCkDatePicker.value() != null) {
+                        var dateString = kendo.toString(DCkDatePicker.value(), 'd')
+                        confirmDate = new Date(dateString);
+                        if (dateEntered > confirmDate) {
+                            var kDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).data('kendoDatePicker');
+                            // $(e.sender.element).val(new Date());
+                            kDatePicker.value(null);
+                            displayError(documentMessages.errors.RevisionDateLessThanConfirmationDate);
+                        }
                     }
                 }
             }
