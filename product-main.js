@@ -364,14 +364,32 @@
                 readonlyKendoDropDownList(ddlId);
             }
         }
-
-        var onGDSearchProductDataBound = function () {
+        function getUrlVars() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                //vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+        function onGDSearchProductDataBound(e) {
+            var selectedPhysicalState = $("#hdnPhysicalState").val();
             var grid = $("#gdSearchProduct").data("kendoGrid");
             var data = grid.dataSource.data();
             $.each(data, function (i, row) {
                 if (row.SelectedStatusId == 11) {
                     $('tr[data-uid="' + row.uid + '"] ').addClass('grid-red-row');
                 }
+                var params = getUrlVars();
+                if (params && params["from"] == "xref") {
+                    if (selectedPhysicalState && selectedPhysicalState == row.PhysicalStateText) {
+                        $('tr[data-uid="' + row.uid + '"] ').addClass('grid-green-row');
+                    }
+                }
+                
+                
             })
         }
         function saveBtnEvent(activeSaveButton) {
