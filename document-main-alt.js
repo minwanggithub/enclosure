@@ -284,8 +284,8 @@
                 AddNewDocumentPopup: "An error occured displaying the add new document screen. Please container you adminstrator.",
                 AddNewRevisionPopup: "An error occured displaying the add new revision screen. Please container you adminstrator.",
                 CompanyViewError: "An error occurred displaying the selected company. Please review you selection and try again.",
-                ConfirmationDateFuture: "Invalid confirmation date, it can't be a future date.",
-                ConfirmationDateGreaterThanRevisionDate: "Invalid confirmation date, it must be greater than or equal to revision date.",
+                ConfirmationDateFuture: "Invalid verify date, it can't be a future date.",
+                ConfirmationDateGreaterThanRevisionDate: "Invalid verify date, it must be greater than or equal to revision date.",
                 DocumentContainerComponentDelete: "An error occurred deleting the selected container component.",
                 DocumentRevisionAttachment: "An error occurred uploading the revision attachment(s). Please try again.",
                 DocumentRevisionAttachmentData: "An error occurred retrieving information to save the revision attachment. Please try again.",
@@ -297,7 +297,7 @@
                 DocumentRevisionMultipleNameNumbersRequiredInformation: "Alias Type and Aliases are required.",
                 Error: "Error",
                 RevisionDateFuture: "Invalid revision date, it can't be a future date.",
-                RevisionDateLessThanConfirmationDate: "Invalid  revision date, it must be less than or equal to confirmation date.",
+                RevisionDateLessThanConfirmationDate: "Invalid  revision date, it must be less than or equal to verify date.",
                 SaveDocumentError: "Saving the document could not be completed. Please review your changes and try again.",
                 SaveDocumentContainerComponent: "Saving the document container component could not be complete. Please try again.",
                 SaveDocumentRevisionError: "Save the document revision could not be completed. Please review your changes and try again.",
@@ -305,7 +305,9 @@
                 SaveNewDocumentError: "Save the new document could not be completed. Please review you changes and try again.",
                 SaveNewDocumentRevisionAttachmentError: "New revisions cannot be created without an attachment. Add an attachment and please try again.",
                 KitsComponentsTotalError: "This component can not be removed, kits must have two or more components",
-                GettingDataSourceError: "Error while retrieving data..."
+                GettingDataSourceError: "Error while retrieving data...",
+                InvalidVerifyDate: "Invalid verify date, it can't be less than 1/1/1979.",
+                InvalidRevisionyDate: "Invalid revision date, it can't be less than 1/1/1979.",
             },
             modals: {
                 GeneralConfirm: "Confirmation Required",
@@ -3583,6 +3585,19 @@
                 return;
             }
 
+             // added by nitin 3 June 2021(1/1/1979 date check)
+            var sDateEntered = kendo.toString(this.value(), 'd');
+            var minDate = new Date('1/1/1979');
+            var dateEntered = new Date(sDateEntered);
+            if (dateEntered < minDate) {
+                kDatePicker.value(null);
+                // end
+                displayError(documentMessages.errors.InvalidVerifyDate);
+                //  $(e.sender.element).val(new Date());
+                return;
+            }
+
+
             var parentContainer = $(e.sender.element).parents("form");
             if (parentContainer.length > 0) {
                 var revisionDate = new Date(parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val());
@@ -3634,7 +3649,19 @@
               //  $(e.sender.element).val(new Date());
                 return;
             }
-            
+
+            // added by nitin 3 June 2021(1/1/1979 date check)
+            var sDateEntered = kendo.toString(this.value(), 'd');
+            var minDate = new Date('1/1/1979');
+            var dateEntered = new Date(sDateEntered);
+            if (dateEntered < minDate) {
+                kDatePicker.value(null);
+                // end
+                displayError(documentMessages.errors.InvalidRevisionyDate);
+                //  $(e.sender.element).val(new Date());
+                return;
+            }
+
             // As per request by Ops if the date is today automatically set the confirm date to today's date as well
             var todaysDate = kendo.toString(kendo.date.today(), 'd');
             if (todaysDate == sDateEntered) {
