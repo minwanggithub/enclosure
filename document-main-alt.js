@@ -276,7 +276,8 @@
             RetrieveLatestDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/RetrieveLatestDocumentRevision",
             GetIndexationDataForInboundAttachment: GetEnvironmentLocation() + "/Operations/Document/GetIndexationDataForInboundAttachment",
             DoLookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
-            DeleteDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/DeleteRevisionAllowAsynch"
+            DeleteDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/DeleteRevisionAllowAsynch",
+            GetSupplierName: GetEnvironmentLocation() + "/Operations/Company/GetSupplierName",
         }
 
         var documentMessages = {
@@ -2182,10 +2183,16 @@
         }
 
         var onNewRevisionPanelActivate = function (e) {
-            var documentId = location.search.substring(1).split('&')[1].split('=')[1];
-            var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
 
-            $(this).ajaxCall(generateActionUrl("../../" + documentAjaxSettings.controllers.Company, documentAjaxSettings.actions.GetSupplierName), { supplierId: supplierId })
+            var tokens = Array.from(location.search.substring(1).split("&"));
+           
+            var documentId = parseInt(tokens.find(e => e.toLowerCase().indexOf("documentid") == 0).split("=")[1]);
+            var supplierId = parseInt(tokens.find(e => e.toLowerCase().indexOf("sid") == 0).split("=")[1]);
+
+            //var documentId = location.search.substring(1).split('&')[1].split('=')[1];
+            //var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
+
+            $(this).ajaxCall(controllerCalls.GetSupplierName, { supplierId: supplierId })
                 .success(function (result) {
                     if (result.message == "Error" || result.success == false) {
                         $("[id*=txtSupplierId_" + documentId + "]").val(supplierId);
@@ -3398,8 +3405,19 @@
                 .success(function (data) {
                     var errorMessage = parseErrorMessage(data);
                     if (!errorMessage) {
-                        parent.window.opener.location.reload();
+
+                        var tokens = Array.from(location.search.substring(1).split("&"));
+                        var clientRevision = false;
+                        try {
+                            clientRevision = (tokens.find(e => e.toLowerCase().indexOf("clientrevision") == 0).split("=")[1] == "yes");
+                        }
+                        catch (e) { }
+
+                        if (!clientRevision) parent.window.opener.location.reload();
+                        if (clientRevision) parent.window.focus();
+
                         window.close();
+
                     } else
                         displayError(errorMessage);
                 })
@@ -3410,7 +3428,11 @@
 
         function onDocRevSaveForInboundResponseBtnClick(e) {
             e.preventDefault();
-            var documentId = location.search.substring(1).split('&')[1].split('=')[1];
+            //var documentId = location.search.substring(1).split('&')[1].split('=')[1];
+
+            var tokens = Array.from(location.search.substring(1).split("&"));
+            var documentId = parseInt(tokens.find(e => e.toLowerCase().indexOf("documentid") == 0).split("=")[1]);
+
             var form = $(e.currentTarget).parents(documentElementSelectors.containers.DocumentRevisionDetailsForm + ":first");
 
             var formData = {
