@@ -1836,6 +1836,21 @@
             //$(obtainmentObject.controls.buttons.SuperSupplierEmailButton).enableControl(enable);
             //$(obtainmentObject.controls.dropdownlists.EmailTargets).enableControl(enable);
             //$("#divSearchSection " + obtainmentObject.controls.dropdownlists.EmailTargets).data("kendoDropDownList").enable(enable);
+
+            var grid = $("#gdRequests").data("kendoGrid");
+            var current_NewObtainmentCount = 0;
+            var current_RevisionObtainmentCount = 0;
+            var rows = grid.dataSource.view();
+            for (var i = 0; i <= rows.length; i++) {
+                    if (rows[i] != undefined) {
+                        current_NewObtainmentCount += rows[i].NewObtainmentCount;
+                        current_RevisionObtainmentCount += rows[i].RevisionObtainmentCount;
+                    }
+
+                }
+            $('#current_NewObtainmentCount').html(current_NewObtainmentCount);
+            $('#current_RevisionObtainmentCount').html(current_RevisionObtainmentCount);
+
         };
 
         var onObtainmentReqeustDetailDataBound = function (e) {
