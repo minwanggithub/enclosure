@@ -1249,6 +1249,31 @@ var anyOperationPerformedOutside = false;
         var IdentifyCustomSupplier = function (supplierId) {
             silbingSupplierId = supplierId;
         };
+
+        function ShowOrHideCancelledOnHold(grid, show) {
+            //var gridData = grid.dataSource.view();
+            if (grid == null)
+                return;
+            var items = grid.dataSource.view();
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].Status == "Workflow Cancelled" || items[i].Status == "On Hold") {
+                    if (show)
+                        grid.tbody.find("tr[data-uid='" + items[i].uid + "']").show();
+                    else
+                        grid.tbody.find("tr[data-uid='" + items[i].uid + "']").hide();
+                }
+            }
+        }
+
+        $(document).on('click', '#chkExclueCancelled', function () {
+            var grid = $(xreferenceObject.controls.grids.GridRequests).data("kendoGrid");
+            if ($("#chkExclueCancelled").is(":checked")) {
+                ShowOrHideCancelledOnHold(grid, false);
+            }
+            else
+                ShowOrHideCancelledOnHold(grid, true);
+        });
+
         
         var OngdRequestDataBound = function (e) {
             resizeGridToWindow(e);
@@ -1264,7 +1289,21 @@ var anyOperationPerformedOutside = false;
                 UpdateNumberOfItemsChecked(0);
                 anyOperationPerformedOutside = false;
             }
+
+
+            //Filter will time out and running out of memory: Maximum call stack size exceeded
+            //grid.dataSource.filter({
+            //    field: "Status",
+            //    operator: "neq",
+            //    value: "Workflow Cancelled"
+            //});
+
+            if ($("#chkExclueCancelled").is(":checked")) {
+                ShowOrHideCancelledOnHold(grid, false);
+            }
         };
+
+
 
         return {
             loadRequestsPlugin: loadRequestsPlugin,
