@@ -136,6 +136,7 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
+            SaveObtainmentWorkItemAction_ConfirmCurrent: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_ConfirmCurrent",
             SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
@@ -735,10 +736,11 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
+            debugger;
             if ($("#dvCustomerAction").is(":visible"))
                 SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
             else
-                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_ConfirmCurrent, "CloseRequest", actionModals.CloseRequest);
 
         });
 
