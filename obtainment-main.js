@@ -140,8 +140,8 @@
             SaveObtainmentWorkItemAction_LogPhoneCall: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogPhoneCall",
             SaveObtainmentWorkItemAction_LogWebSearch: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogWebSearch",
             SaveObtainmentAction_SetFollowUp: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SetFollowUp",
-            
-            SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
+            SaveObtainmentAction_LogExternalEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogExternalEmail",
+
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -667,7 +667,7 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogExternalEmailSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveLogExternalEmailAction, "LogExternalEmail", actionModals.LogExternalEmail);
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_LogExternalEmail, "LogExternalEmail", actionModals.LogExternalEmail);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnCancelConfirmNotAvailable, function () {
