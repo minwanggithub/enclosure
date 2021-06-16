@@ -17,6 +17,7 @@
         var hasRevision = new Array();//changed to array from bool by hitesh
         var hasRevisionCount = new Array();//changed to array from bool by hitesh
         var selectedRows = new Array();
+        var useSeparateCustomerAction = false;
 
         var obtainmentObject = {
             controls: {
@@ -136,13 +137,15 @@
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
             SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
+            SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
+
             SaveObtainmentWorkItemAction_ConfirmCurrent: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_ConfirmCurrent",
             SaveObtainmentWorkItemAction_LogPhoneCall: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogPhoneCall",
             SaveObtainmentWorkItemAction_LogWebSearch: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogWebSearch",
             SaveObtainmentAction_SetFollowUp: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SetFollowUp",
             SaveObtainmentAction_LogExternalEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogExternalEmail",
             SaveObtainmentAction_FlagDiscontinued: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagDiscontinued",
-            
+
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -668,7 +671,10 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogExternalEmailSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_LogExternalEmail, "LogExternalEmail", actionModals.LogExternalEmail);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_LogExternalEmail, "LogExternalEmail", actionModals.LogExternalEmail);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveLogExternalEmailAction, "LogExternalEmail", actionModals.LogExternalEmail);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnCancelConfirmNotAvailable, function () {
@@ -729,24 +735,35 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FollowUpSaveButton, function () {
-            //SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_SetFollowUp, "FollowUp", actionModals.FollowUp);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_SetFollowUp, "FollowUp", actionModals.FollowUp);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FollowUp", actionModals.FollowUp);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogWebSearchSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_LogWebSearch, "LogWebSearch", actionModals.LogWebSearch);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_LogWebSearch, "LogWebSearch", actionModals.LogWebSearch);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "LogWebSearch", actionModals.LogWebSearch);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.LogPhoneCallSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_LogPhoneCall, "PhoneCall", actionModals.LogPhoneCall);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_LogPhoneCall, "PhoneCall", actionModals.LogPhoneCall);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "PhoneCall", actionModals.LogPhoneCall);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
             if ($("#dvCustomerAction").is(":visible"))
                 SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
-            else
-                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_ConfirmCurrent, "CloseRequest", actionModals.CloseRequest);
-
+            else {
+                if (useSeparateCustomerAction)
+                    SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_ConfirmCurrent, "CloseRequest", actionModals.CloseRequest);
+                else
+                    SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CloseRequest", actionModals.CloseRequest);
+            }
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SendEmailButton, function () {
@@ -754,8 +771,10 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedSaveButton, function () {
-            //SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagDiscontinued, "FlagDiscontinued", actionModals.FlagDiscontinued);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagDiscontinued, "FlagDiscontinued", actionModals.FlagDiscontinued);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SentToProcessingSaveButton, function () {
