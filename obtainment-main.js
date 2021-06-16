@@ -141,7 +141,8 @@
             SaveObtainmentWorkItemAction_LogWebSearch: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogWebSearch",
             SaveObtainmentAction_SetFollowUp: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SetFollowUp",
             SaveObtainmentAction_LogExternalEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogExternalEmail",
-
+            SaveObtainmentAction_FlagDiscontinued: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagDiscontinued",
+            
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -754,10 +755,13 @@
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
+            //SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagDiscontinued, "FlagDiscontinued", actionModals.FlagDiscontinued);
         });
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SentToProcessingSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "SentToProcessing", actionModals.SentToProcessing);
         });
+
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.AwaitingSupplierResponseSaveButton, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "AwaitingSupplierResponse", actionModals.AwaitingSupplierResponse);
         });
@@ -769,7 +773,6 @@
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnSaveConfirmNotAvailable, function () {
             SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "ConfirmNotAvailable", actionModals.ConfirmNotAvailable);
         });
-
 
         obtianmentDetailModals.on("change", obtainmentObject.controls.dropdownlists.CloseRequestCustomerActionsDropDownList, function (e) {
             var txtNotes = $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesCloseRequest);
