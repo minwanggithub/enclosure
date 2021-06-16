@@ -754,8 +754,8 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.FlagDiscontinuedSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
-            //SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagDiscontinued, "FlagDiscontinued", actionModals.FlagDiscontinued);
+            //SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "FlagDiscontinued", actionModals.FlagDiscontinued);
+            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagDiscontinued, "FlagDiscontinued", actionModals.FlagDiscontinued);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.SentToProcessingSaveButton, function () {
