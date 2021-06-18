@@ -2161,8 +2161,10 @@
 
                     if (actionName == "SentToProcessing") {
                         obtainmentMultipleWorkItemActionModel.Reference = $("#ppcFilesReference").val();
+                        obtainmentMultipleWorkItemActionModel.OWID = GetOWID().owid;
                     } else {
                         obtainmentMultipleWorkItemActionModel.Reference = null;
+
                     }
 
                     if (selectedRequests.length > 0) {
