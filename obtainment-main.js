@@ -2160,8 +2160,20 @@
                     }
 
                     if (actionName == "SentToProcessing") {
+
+                        if ((obtainmentMultipleWorkItemActionModel.Notes + "").trim() == "") {
+                            kendo.alert("Sent to processing notes are required.");
+                            return;
+                        }
+
+                        if ($("td[id^='ppcFiles_']").html().indexOf("removePPCAttachments") < 0) {
+                            kendo.alert("The selected items can not be sent to processing without files.");
+                            return;
+                        }
+
                         obtainmentMultipleWorkItemActionModel.Reference = $("#ppcFilesReference").val();
                         obtainmentMultipleWorkItemActionModel.OWID = GetOWID().owid;
+
                     } else {
                         obtainmentMultipleWorkItemActionModel.Reference = null;
 
