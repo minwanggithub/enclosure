@@ -145,6 +145,7 @@
             SaveObtainmentAction_SetFollowUp: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SetFollowUp",
             SaveObtainmentAction_LogExternalEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogExternalEmail",
             SaveObtainmentAction_FlagDiscontinued: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagDiscontinued",
+            SaveObtainmentAction_FlagNotRequired: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagNotRequired",
             SaveObtainmentAction_ConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_ConfirmNotAvailable",
             
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
@@ -787,7 +788,10 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "NotRequired", actionModals.NotRequired);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_FlagNotRequired, "NotRequired", actionModals.NotRequired);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "NotRequired", actionModals.NotRequired);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.btnSaveConfirmNotAvailable, function () {
