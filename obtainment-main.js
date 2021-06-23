@@ -147,7 +147,8 @@
             SaveObtainmentAction_FlagDiscontinued: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagDiscontinued",
             SaveObtainmentAction_FlagNotRequired: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_FlagNotRequired",
             SaveObtainmentAction_ConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_ConfirmNotAvailable",
-            
+            SaveObtainmentAction_AwaitingSupplierResponse: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_AwaitingSupplierResponse",
+
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -784,7 +785,10 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.AwaitingSupplierResponseSaveButton, function () {
-            SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "AwaitingSupplierResponse", actionModals.AwaitingSupplierResponse);
+            if (useSeparateCustomerAction)
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_AwaitingSupplierResponse, "AwaitingSupplierResponse", actionModals.AwaitingSupplierResponse);
+            else
+                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "AwaitingSupplierResponse", actionModals.AwaitingSupplierResponse);
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.NotRequiredSaveButton, function () {
