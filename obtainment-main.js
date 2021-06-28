@@ -136,9 +136,6 @@
         var controllerCalls = {
             SearchRequests: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SearchObtainmentRequests",
             SaveSearchSettings: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveSearchSettings",
-            SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
-            SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
-
             SaveObtainmentWorkItemAction_ConfirmCurrent: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_ConfirmCurrent",
             SaveObtainmentWorkItemAction_LogPhoneCall: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogPhoneCall",
             SaveObtainmentWorkItemAction_LogWebSearch: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_LogWebSearch",
@@ -150,8 +147,10 @@
             SaveObtainmentAction_AwaitingSupplierResponse: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_AwaitingSupplierResponse",
             SaveObtainmentAction_SendToProcessing: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SendToProcessing",
             SaveObtainmentAction_SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_SendEmail",
+            SaveObtainmentAction_CustomerAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentAction_CustomerAction",
 
-
+            SaveObtainmentWorkItemAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveObtainmentWorkItemAction",
+            SaveLogExternalEmailAction: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveLogExternalEmailAction",
             ObtainmentWorkItemLoadHistory: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/ObtainmentWorkItemLoadHistoryContent",
             SendEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendEmail",
             SendSuperEmail: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SendSuperEmail",
@@ -762,8 +761,12 @@
         });
 
         obtianmentDetailModals.on("click", obtainmentObject.controls.buttons.CloseRequestSaveButton, function () {
-            if ($("#dvCustomerAction").is(":visible"))
-                SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
+            if ($("#dvCustomerAction").is(":visible")) {
+                if (useSeparateCustomerAction)
+                    SaveObtainmentNextSteps(controllerCalls.SaveObtainmentAction_CustomerAction, "CustomerAction", actionModals.CloseRequest);
+                else
+                    SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction, "CustomerAction", actionModals.CloseRequest);
+            }
             else {
                 if (useSeparateCustomerAction)
                     SaveObtainmentNextSteps(controllerCalls.SaveObtainmentWorkItemAction_ConfirmCurrent, "CloseRequest", actionModals.CloseRequest);
