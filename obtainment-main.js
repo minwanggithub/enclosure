@@ -17,7 +17,7 @@
         var hasRevision = new Array();//changed to array from bool by hitesh
         var hasRevisionCount = new Array();//changed to array from bool by hitesh
         var selectedRows = new Array();
-        var useSeparateCustomerAction = false;
+        var useSeparateCustomerAction = true;
 
         var obtainmentObject = {
             controls: {
