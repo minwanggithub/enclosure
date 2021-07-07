@@ -882,6 +882,23 @@
         };
         //--------------------end of _SearchProduct.cshtml-----------------------
 
+
+        //***************Due Deligence Methods*********************??
+        var ClearCommunicationText = function () {
+            $('#ProductDueDiligenceText').html("");
+        };
+
+       
+        var SelectProductDueDiligence = function (e) {
+            var inputId = this.element.attr("id");
+            e.preventDefault();
+            var selectedObj = this.select();
+            var selectedData = this.dataItem(selectedObj);
+            console.log(selectedData);
+            $('#ProductDueDiligenceText_' + selectedData.ProductId).html(selectedData.CommunicationNotes);
+        };
+        //***************END Due Deligence Methods*********************??
+
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
         var setDeleteImageIcon = function (e) {
@@ -1067,7 +1084,9 @@
             resetSupplierNameOptionObservable: resetSupplierNameOptionObservable,
             updateProductStatusLayout: updateProductStatusLayout,
             dsProductNameOption: dsProductNameOption,
-            onGDSearchProductDataBound: onGDSearchProductDataBound
+            onGDSearchProductDataBound: onGDSearchProductDataBound,
+            SelectProductDueDiligence: SelectProductDueDiligence,
+            ClearCommunicationText: ClearCommunicationText
         };
     };
 

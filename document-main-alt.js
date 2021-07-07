@@ -3996,6 +3996,21 @@
         }
 
 
+        //***************Due Diligence Methods*********************??
+        var ClearCommunicationText = function () {
+            $('#DocumentDueDiligenceText').html("");
+        };
+
+        
+        var SelectDocumentDueDiligence = function (e) {
+            e.preventDefault();
+            var selectedObj = this.select();
+            var selectedData = this.dataItem(selectedObj);
+            console.log(selectedData);
+            $('#DocumentDueDiligenceText_' + selectedData.DocumentId).html(selectedData.CommunicationNotes);
+        };
+        //***************End Due Diligence Methods*********************??
+
         function error_handler(e) {
             //console.log(e);
             //if (e.errors) {
@@ -4377,7 +4392,9 @@
             replaceRevisionAttachment: replaceRevisionAttachment,
             onGDDocumentProductDataBound: onGDDocumentProductDataBound,
             onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound,
-            onCustomDeleteRevision: onCustomDeleteRevision
+            onCustomDeleteRevision: onCustomDeleteRevision,
+            SelectDocumentDueDiligence: SelectDocumentDueDiligence,
+            ClearCommunicationText: ClearCommunicationText
         };
     };
 

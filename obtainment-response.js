@@ -263,6 +263,8 @@
                         kendo.ui.progress(UIObject.sections.responseDetailGridSection(), false);
                         return;
                     }
+                    // declare sarch variable here and use it for download inbonud excel download
+                    inboundSearchCriteria = JSON.stringify(this);
 
                     $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                         .success(function (data) {
