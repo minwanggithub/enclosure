@@ -481,7 +481,7 @@
         };
 
         var onInboundResponseDataBound = function () {
-            $(window).resize();   //temp fix for kendo grid page information not displaying
+            alert("inbound");
         };
 
         var setNotesModalSettings = function (settings) {

@@ -3634,7 +3634,6 @@
         };
 
         var onNameNumberGridDataBound = function (e) {
-            $(window).resize();   //temp fix for kendo grid page information not displaying
         }
 
         var onDocumentRevisionNameNumberGridEdit = function (e) {
