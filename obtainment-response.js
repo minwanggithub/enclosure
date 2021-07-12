@@ -481,7 +481,6 @@
         };
 
         var onInboundResponseDataBound = function () {
-            alert("inbound");
         };
 
         var setNotesModalSettings = function (settings) {
