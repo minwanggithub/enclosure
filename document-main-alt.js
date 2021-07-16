@@ -2184,11 +2184,20 @@
 
         var onNewRevisionPanelActivate = function (e) {
 
-            var tokens = Array.from(location.search.substring(1).split("&"));
-           
-            var documentId = parseInt(tokens.find(e => e.toLowerCase().indexOf("documentid") == 0).split("=")[1]);
-            var supplierId = parseInt(tokens.find(e => e.toLowerCase().indexOf("sid") == 0).split("=")[1]);
+            var documentId = 0;
+            var supplierId = 0;
 
+            try {
+                var tokens = Array.from(location.search.substring(1).split("&"));
+
+                documentId = parseInt(tokens.find(e => e.toLowerCase().indexOf("documentid") == 0).split("=")[1]);
+                supplierId = parseInt(tokens.find(e => e.toLowerCase().indexOf("supplierid") == 0).split("=")[1]);
+            }
+            catch (err) {
+                alert("Unable to parse information either for documentId or supplierId.\r\nThis new revision window will be closed.\r\n\r\nInner exception error: " + err + ".");
+                window.close();
+                return;
+            }
             //var documentId = location.search.substring(1).split('&')[1].split('=')[1];
             //var supplierId = location.search.substring(1).split('&')[2].split('=')[1];
 
