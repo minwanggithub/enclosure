@@ -803,7 +803,7 @@
                 var guid = $(this).getQueryStringParameterByName("docGuid");
                 var noticeNo = $(this).getQueryStringParameterByName("nnumber");
                 var inboundResponseid = $(this).getQueryStringParameterByName("inboundResponseid");
-                var supplierid = $(this).getQueryStringParameterByName("sid");
+                var supplierid = $(this).getQueryStringParameterByName("supplierid");
 
                 if (guid != "") {
                     $.post(controllerCalls.IfExistsDocRev, { docGuid: guid }, function (ifExists) {

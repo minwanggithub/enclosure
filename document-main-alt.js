@@ -1079,9 +1079,9 @@
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
                         if ($(this).getQueryStringParameterByName("docGuid") && typeof pKey != 'undefined') {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
-                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey;
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&supplierid=" + $(this).getQueryStringParameterByName("supplierid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey;
                             } else {
-                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&sid=" + $(this).getQueryStringParameterByName("sid"));
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&supplierid=" + $(this).getQueryStringParameterByName("supplierid"));
                             }
                         }
                         else

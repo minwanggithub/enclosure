@@ -2543,7 +2543,7 @@
                         $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid").dataSource.read()
                     }
                     else {
-                        var val = "../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID ;
+                        var val = "../Document/AddNewDocument?productid=" + ProductId + "&supplierid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID ;
                         window.open(val, '_blank');
                     }
                 })
