@@ -278,6 +278,7 @@
             DoLookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
             DeleteDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/DeleteRevisionAllowAsynch",
             GetSupplierName: GetEnvironmentLocation() + "/Operations/Company/GetSupplierName",
+            DocumentSiblingChainingVerify: GetEnvironmentLocation() + "/Operations/Document/DocumentSiblingChainingVerify",
         }
 
         var documentMessages = {
@@ -328,7 +329,9 @@
                 DocumentAccessConfirmation: "Document access change confirmation.",
                 RevisionAttachmentReplacementConfirmation: "Revision attachment replacement confirmation.",
                 NullRevisionConfirmTitle: "Confirm for null revision date",
-                NullRevisionConfirmMessage: "The revision date is blank; if you wish to proceed with this save press Confirm<br/> or hit Cancel to enter the missed revision date."
+                NullRevisionConfirmMessage: "The revision date is blank; if you wish to proceed with this save press Confirm<br/> or hit Cancel to enter the missed revision date.",
+                SiblingCascadingConfirmTitle: "Sibling Cascading Warning",
+                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings which can only be undone one by one within Compli.  Do you wish to proceed?",
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -2267,12 +2270,12 @@
                             if (displayStatusNoteConfirmation) {
                                 displayStatusNoteConfirmation(data, function (eval) {
                                     formData.StatusNotes = eval.modalNotes;
-                                    saveDocumentDetails(form, formData);
+                                    verifySiblingChaining(form, formData);
                                 });
                             }
                         }
                     } else
-                        saveDocumentDetails(form, formData);
+                        verifySiblingChaining(form, formData);
                 });
             }
         }
@@ -2302,8 +2305,39 @@
             return null;
         }
 
-        function saveDocumentDetails(form, formData) {
+        function verifySiblingChaining(form, formData) {
+            //Verify impacted sibling if any SDS Not required or FlagDiscontinued turned on/off 
+            if (form && formData) {
+                var url = controllerCalls.DocumentSiblingChainingVerify;
+                $.post(url, formData, function (result) {
+                    if (result.hasChange && result.siblingCount > 1) {
+                        $("<div/>").kendoConfirm({
+                            title: documentMessages.modals.SiblingCascadingConfirmTitle,
+                            content: documentMessages.modals.SiblingCascadingConfirmMessage.format(result.siblingCount - 1),
+                            actions: [
+                                {
+                                    text: 'Confirm',
+                                    primary: true,
+                                    action: function (e) {
+                                        saveDocumentDetails(form, formData)
+                                    },
+                                },
+                                {
+                                    text: 'Cancel',
+                                    action: function (e) {
+                                    },
+                                }
+                            ]
+                        }).data("kendoConfirm").open().center();
+                    }
+                    else
+                        saveDocumentDetails(form, formData)
+                });
+            }
+        }
 
+        function saveDocumentDetails(form, formData) {
+          
             if (form && formData) {
                 var url = form.attr('action');
                 $.post(url, formData, function (data) {
