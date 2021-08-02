@@ -2310,7 +2310,7 @@
             if (form && formData) {
                 var url = controllerCalls.DocumentSiblingChainingVerify;
                 $.post(url, formData, function (result) {
-                    if (result.hasChange && result.siblingCount > 1) {
+                    if (result.hasChange && (result.siblingCount - 1) > 1) {
                         $("<div/>").kendoConfirm({
                             title: documentMessages.modals.SiblingCascadingConfirmTitle,
                             content: documentMessages.modals.SiblingCascadingConfirmMessage.format(result.siblingCount - 1),

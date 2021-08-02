@@ -171,9 +171,10 @@
             GetSupplierPortalUrl: GetEnvironmentLocation() + "/Operations/Company/GetCompliSupplierPortalUrl",
             SaveConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveConfirmNotAvailable",
             CheckWorkItemStatus: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentWorkItemItemStatus",
+            GetSiblingCountWithObtainmentList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetSiblingCountWithObtainmentList"
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6", AwaitingSupplierResponse: "9", SentToProcessing: "10" };
-        var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11",LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
+        var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
         var messages = {
             instructionMessages: {
 
@@ -188,7 +189,9 @@
             confirmationMessages: {
                 UnAssigneRequests: "unassign these request item(s)",
                 AssignRequests: "assign these request item(s)",
-                OverwriteComments: "Overwrite previous customer action comments?"
+                OverwriteComments: "Overwrite previous customer action comments?",
+                SiblingCascadingConfirmTitle: "Sibling Cascading Warning",
+                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings which can only be undone one by one within Compli.  Do you wish to proceed?",
             },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
@@ -254,7 +257,7 @@
             ObtainmentActionCloseRequest: null,
             siblingSupplierId: 0,
             AdditionalObtainmentActionLkpID: null,
-            AdditionalNotes:null
+            AdditionalNotes: null
         };
 
         var obtainmentActionLogPhoneCallModel = {
@@ -290,8 +293,8 @@
         };
 
         var loadRequestsPlugin = function () {
-            initializeMultiSelectCheckboxes(obtainmentDetailWorkFlowObj);        
-        }      
+            initializeMultiSelectCheckboxes(obtainmentDetailWorkFlowObj);
+        }
         var loadRequests = function () {
             var grid = $(obtainmentObject.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
@@ -360,8 +363,8 @@
 
         obtainmentSearchObj.on("click", obtainmentObject.controls.checkBox.IncludeInboundResponses, function () {
             $(obtainmentObject.controls.buttons.SearchRequestsButton).click();
-        }); 
-        
+        });
+
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SearchRequestsButton, function () {
 
             //Based on TRECOMPLI-1302, if supplier Id has value, then it will clear the rest filter and do super mail
@@ -437,7 +440,7 @@
         // SUPER EMAIL BUTTON CLICK HANDLER
         obtainmentSearchObj.on("click", obtainmentObject.controls.buttons.SuperSupplierEmailButton, function () {
 
-//Nitin-10/21/2020:TRECOMPLI-3990 Obtainment- Email pop-up tab function (In case of Super Email)
+            //Nitin-10/21/2020:TRECOMPLI-3990 Obtainment- Email pop-up tab function (In case of Super Email)
             $(".k-tool-group .k-tool,.k-tool-group .k-colorpicker").attr("tabindex", - 1);
             // ---- reset event handlers 
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).off("click");
@@ -446,8 +449,8 @@
 
             // ---- wire modal close
             $(obtainmentObject.controls.buttons.btnCancelSuperEmailButton).click(function () {
-               // $(actionModals.SuperMail).toggleModal();
-               $(actionModals.SuperMail).data('kendoWindow').close();
+                // $(actionModals.SuperMail).toggleModal();
+                $(actionModals.SuperMail).data('kendoWindow').close();
             });
 
             // ---- wire email target
@@ -544,9 +547,9 @@
 
                     //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
-                       // $(actionModals.SuperMail).show();
-                     //  $('#superEmailWindow').data('kendoWindow').open();
-                      //  $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
+                        // $(actionModals.SuperMail).show();
+                        //  $('#superEmailWindow').data('kendoWindow').open();
+                        //  $(this).off('hidden.bs.modal'); // Remove the 'on' event binding
                     })
 
                     var message = "Please correct the following issue(s): <br><br>";
@@ -638,10 +641,10 @@
                 setTimeout(function () {
                     $(actionModals.SuperMail).attr("tabindex", -1).focus();
                     $(actionModals.SuperMail).removeAttr("tabindex");
-                  
+
                 }, 1000);
-              
-               // $(actionModals.SuperMail).displayModal();
+
+                // $(actionModals.SuperMail).displayModal();
 
 
             }
@@ -990,9 +993,9 @@
             var url = GetEnvironmentLocation() + "/Operations/XReference/XReferenceMain?productId=" + x.ProductID;
             window.open(url, '_blank');
 
-        });       
-      
-       
+        });
+
+
         var enableSuperEmail = function () {
             var drpTeams = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.TeamsDropDownList).data("kendoDropDownList");
             var drpLang = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.PrefLangDropDownList).data("kendoDropDownList");
@@ -1113,8 +1116,8 @@
                     $(actionModals.SuperMail).data('kendoWindow').close();
 
                     DisplayErrorMessageInPopUp(prompts, function () {
-                      //  $(actionModals.SuperMail).toggleModal();
-                      $(actionModals.SuperMail).data('kendoWindow').close();
+                        //  $(actionModals.SuperMail).toggleModal();
+                        $(actionModals.SuperMail).data('kendoWindow').close();
                     });
 
                 });
@@ -1149,7 +1152,7 @@
             $(obtainmentObject.controls.textBoxes.ObtainmentEmailRecepients).val(contacts.Email);
             SetAdditionalObtainmentActionForComplete(actionName);
         }
-       
+
         function SetNextStep(nextStepValue, actionName, enable) {
             var ddlNextSteps = $(obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
             var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
@@ -1389,7 +1392,7 @@
                 kendo.alert(messages.errorMessages.FlagNotRequiredActionForRevisionOnly);
                 return;
             }
-       
+
 
             switch (ddlActions.value()) {
                 case obtainmentActions.LogExternalEmail:
@@ -1538,7 +1541,7 @@
 
                 case obtainmentActions.FlagDiscontinued:
                     SetNextStep(nextStepsValues.Completed, "FlagDiscontinued", false);
-                    //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFlagDiscontinued).val('');
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFlagDiscontinued).val('');
                     $(actionModals.FlagDiscontinued).displayModal();
                     break;
 
@@ -1584,10 +1587,6 @@
                     SetNextStepForSendToProcessingandAwaitSuppRes(nextStepsValues.SentToProcessing, "SentToProcessing", false);
                     $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesSentToProcessing).val('');
                     $(actionModals.SentToProcessing).displayModal();
-
-                    var guid = $("td[id^='ppcFiles_']").attr("id").replace("ppcFiles_","");
-                    removePPCAttachments(guid, "ALL");
-
                     break;
             }
         }
@@ -1742,13 +1741,13 @@
             });
         }
 
-        function initializeMultiSelectCheckboxes(obj) {          
-            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {  
-            /*commented by hitesh*/
-            //selectedRequests = new Array();
-            //hasNonSDS = false;
-            //hasRevision = false;
-            //hasRevisionCount = 0;
+        function initializeMultiSelectCheckboxes(obj) {
+            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
+                /*commented by hitesh*/
+                //selectedRequests = new Array();
+                //hasNonSDS = false;
+                //hasRevision = false;
+                //hasRevisionCount = 0;
                 var checked = $(this).is(':checked');
                 if (checked) {
                     $(".chkMasterMultiSelect")[0].checked = false;
@@ -1776,22 +1775,20 @@
                                 if (dataItem['NoticeNumber'] != null) {
                                     var indx = hasNoticeNumbers.indexOf(dataItem["ObtainmentWorkID"]);
                                     if (indx > -1)
-                                        hasNoticeNumbers.splice(indx, 1);                                   
+                                        hasNoticeNumbers.splice(indx, 1);
                                 }
                                 if (dataItem['DocumentType'] != 'SDS') {
                                     var indx = hasNonSDS.indexOf(dataItem["ObtainmentWorkID"]);
                                     if (indx > -1)
-                                        hasNonSDS.splice(indx, 1);                                    
+                                        hasNonSDS.splice(indx, 1);
                                 }
                                 grid.find('tr[data-uid="' + dataItem["uid"] + '"]').removeClass('k-state-selected');
-                            } else
-                            {
-                               
+                            } else {
+
                                 selectedRows.push(selectedRow.attr('data-uid'));
                                 grid.find('tr[data-uid="' + dataItem["uid"] + '"]').addClass('k-state-selected');
                                 selectedRequests.push(dataItem["ObtainmentWorkID"]);
-                                if (dataItem['OWType'] === 'Revision')
-                                {
+                                if (dataItem['OWType'] === 'Revision') {
                                     hasRevisionCount.push(dataItem["ObtainmentWorkID"]);
                                 }
                                 if (dataItem['NoticeNumber'] != null) {
@@ -1800,9 +1797,9 @@
                                 if (dataItem['DocumentType'] != 'SDS') {
                                     hasNonSDS.push(dataItem["ObtainmentWorkID"]);
                                 }
-                                
+
                             }
-                               
+
 
                         }
                     }
@@ -1810,16 +1807,16 @@
                     if (!checked) {
                         var allSelceted = true;
                         $.each(kgrid._data, function () {
-                            if (!this['IsSelected']) {                                                        
+                            if (!this['IsSelected']) {
                                 $(".chkMasterMultiSelect")[0].checked = false;
                                 allSelceted = false;
-                                return false;                              
+                                return false;
                             }
                         });
                         if (allSelceted) {
                             $(".chkMasterMultiSelect")[0].checked = true;
                         }
-                    }                   
+                    }
                     itemsChecked = selectedRequests.length;
                     UpdateNumberOfItemsChecked(itemsChecked);
                     e.stopImmediatePropagation();
@@ -1862,18 +1859,18 @@
                                         }
                                     }
                                 }
-                                  
+
                             } else {
                                 var index = selectedRequests.indexOf(this["ObtainmentWorkID"]);
-                                if (index > -1)  {
+                                if (index > -1) {
                                     selectedRequests.splice(index, 1);
 
                                     if (this['OWType'] === 'Revision') {
                                         var indx = hasRevisionCount.indexOf(this["ObtainmentWorkID"]);
                                         if (indx > -1)
-                                            hasRevisionCount.splice(indx, 1);     
+                                            hasRevisionCount.splice(indx, 1);
                                     }
-                                    if (this['NoticeNumber']!=null) {
+                                    if (this['NoticeNumber'] != null) {
                                         var indx = hasNoticeNumbers.indexOf(this["ObtainmentWorkID"]);
                                         if (indx > -1)
                                             hasNoticeNumbers.splice(indx, 1);
@@ -1910,7 +1907,7 @@
 
         //This method is just for debugging purpose
         $("#showSelected").click(function () {
-            alert("Number Of Selcted Items Are : " + selectedRequests.length +" \n"+ selectedRequests.join(","));
+            alert("Number Of Selcted Items Are : " + selectedRequests.length + " \n" + selectedRequests.join(","));
         })
 
         function UpdateNumberOfItemsChecked(numberOfItems) {
@@ -1948,7 +1945,7 @@
                 $(".chkMasterMultiSelect").prop("checked", false);
 
             }
-        }      
+        }
 
         function onDdlDataBound(e) {
             $(".unsupport").parent().click(false);
@@ -1995,12 +1992,12 @@
             var current_RevisionObtainmentCount = 0;
             var rows = grid.dataSource.view();
             for (var i = 0; i <= rows.length; i++) {
-                    if (rows[i] != undefined) {
-                        current_NewObtainmentCount += rows[i].NewObtainmentCount;
-                        current_RevisionObtainmentCount += rows[i].RevisionObtainmentCount;
-                    }
-
+                if (rows[i] != undefined) {
+                    current_NewObtainmentCount += rows[i].NewObtainmentCount;
+                    current_RevisionObtainmentCount += rows[i].RevisionObtainmentCount;
                 }
+
+            }
             $('#current_NewObtainmentCount').html(current_NewObtainmentCount);
             $('#current_RevisionObtainmentCount').html(current_RevisionObtainmentCount);
 
@@ -2013,8 +2010,8 @@
                 //placement: "bottom",
                 title: GetObtainmentWorkItemDueDiligence,
                 html: true
-            });                    
-            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");                                           
+            });
+            var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
             var allSelceted = true;
             $.each(grid._data, function () {
                 if (!this['IsSelected']) {
@@ -2025,10 +2022,10 @@
             });
             if (allSelceted) {
                 $(".chkMasterMultiSelect")[0].checked = true;
-            }     
+            }
         };
 
-        
+
         function GetObtainmentWorkItemDueDiligence() {
             var id = this.id;
             var split_id = id.split('_');
@@ -2139,7 +2136,7 @@
                 //console.log("DDLNS:" + obtainmentObject.controls.dropdownlists.NextStepsDropDownList + actionName);
                 var ddlActions = $(obtainmentObject.controls.dropdownlists.ActionsDropDownList).data("kendoDropDownList");
                 var dteDateAssigned = $(obtainmentObject.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
-                
+
 
                 if (ddlNextSteps.value() != "") {
 
@@ -2311,35 +2308,71 @@
 
                     } else {
                         obtainmentMultipleWorkItemActionModel.Reference = null;
-
                     }
 
-                    if (selectedRequests.length > 0) {
-                        $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
-                            .success(function (successData) {
-                                if (successData.success == true) {
-                                    kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
-                                    var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
-
-                                    grid.dataSource.read();
-
-                                    while (selectedRequests.length > 0) selectedRequests.pop();
-                                    UpdateNumberOfItemsChecked(0);
-
-                                    if (modalId != null)
-                                        $(modalId).hideModal();
-                                    $(this).savedSuccessFully(messages.successMessages.Saved);
-                                } else
-                                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                    if (actionName == "FlagDiscontinued" || actionName == "NotRequired") {
+                        var url = controllerCalls.GetSiblingCountWithObtainmentList;
+                        $(this).ajaxJSONCall(url, JSON.stringify(obtainmentMultipleWorkItemActionModel))
+                            .success(function (result) {
+                                if ((result.siblingCount - selectedRequests.length) > 0) {
+                                    $("<div/>").kendoConfirm({
+                                        title: messages.confirmationMessages.SiblingCascadingConfirmTitle,
+                                        content: messages.confirmationMessages.SiblingCascadingConfirmMessage.format(result.siblingCount - selectedRequests.length),
+                                        actions: [
+                                            {
+                                                text: 'Confirm',
+                                                primary: true,
+                                                action: function (e) {
+                                                    ExecuteSaveObtainmentNextSteps(strUrl, obtainmentMultipleWorkItemActionModel)
+                                                },
+                                            },
+                                            {
+                                                text: 'Cancel',
+                                                action: function (e) {
+                                                },
+                                            }
+                                        ]
+                                    }).data("kendoConfirm").open().center();
+                                }
+                                else
+                                    ExecuteSaveObtainmentNextSteps(modalId, strUrl, obtainmentMultipleWorkItemActionModel)
                             }).error(function () {
                                 $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
                             });
+                        return;
                     }
-                } else {
+
+                    if (selectedRequests.length > 0) {
+                        ExecuteSaveObtainmentNextSteps(modalId, strUrl, obtainmentMultipleWorkItemActionModel)
+                    }
+                }
+                else {
                     $(modalId).toggleModal();
                     $(this).displayError(messages.errorMessages.NoStepSelected);
                 }
             }
+        }
+
+        function ExecuteSaveObtainmentNextSteps(modalId, strUrl, obtainmentMultipleWorkItemActionModel) {
+            $(this).ajaxJSONCall(strUrl, JSON.stringify(obtainmentMultipleWorkItemActionModel))
+                .success(function (successData) {
+                    if (successData.success == true) {
+                        kendo.ui.progress(obtainmentDetailWorkFlowObj, false);
+                        var grid = $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid");
+
+                        grid.dataSource.read();
+
+                        while (selectedRequests.length > 0) selectedRequests.pop();
+                        UpdateNumberOfItemsChecked(0);
+
+                        if (modalId != null)
+                            $(modalId).hideModal();
+                        $(this).savedSuccessFully(messages.successMessages.Saved);
+                    } else
+                        $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                }).error(function () {
+                    $(this).displayError(messages.errorMessages.RequestsCouldNotBeSaved);
+                });
         }
 
         function FillCloseRequest(actionName) {
@@ -2482,7 +2515,7 @@
                     supplierId: supplierId,
                     supplierName: supplierName,
                     responses: responses,
-                    status:true
+                    status: true
                 };
 
             } catch (e) {
@@ -2492,23 +2525,23 @@
             }
         }
 
-        function ObtainmentDetailRoute(OWType, OSourceId, ProductId, NextObtainmentStepLkpID, ObtainmentWorkItemID, SupplierId) {          
-            
+        function ObtainmentDetailRoute(OWType, OSourceId, ProductId, NextObtainmentStepLkpID, ObtainmentWorkItemID, SupplierId) {
+
             if (OWType == "Revision") {
                 if (NextObtainmentStepLkpID == "6") {
                     return "<a href='../Document/RevisonObtainmentDocument?rorid=" + OSourceId + "' title='View Revision Detail',  target='_blank'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 } else {
                     //return "<a href='../Document/AddNewRevision?id=" + OSourceId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Revision',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";                 
-                    return "<a onclick='obtainmentLib.AddRevisionPage(" + OSourceId + "," + ObtainmentWorkItemID +")' title='Add Revision',  target='_blank' style='cursor:pointer' class='3ecomplibuttontoggle'>" + "<span class='icon-plus' style='cursor:pointer;'></a>";
+                    return "<a onclick='obtainmentLib.AddRevisionPage(" + OSourceId + "," + ObtainmentWorkItemID + ")' title='Add Revision',  target='_blank' style='cursor:pointer' class='3ecomplibuttontoggle'>" + "<span class='icon-plus' style='cursor:pointer;'></a>";
                 }
             }
             else if (OWType == "New") {
                 if (NextObtainmentStepLkpID == "6") {
                     return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank' class='3ecomplibuttontoggle'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
                 } else {
-                     //Commented and updated  by hitesh on 4/27/2021 for ticket TRECOMPLI-4212 to check if item resolved
+                    //Commented and updated  by hitesh on 4/27/2021 for ticket TRECOMPLI-4212 to check if item resolved
                     //return "<a href='../Document/AddNewDocument?productid=" + ProductId + "&sid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID + "' title='Add Document',  target='_blank'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
-                    return "<a onclick='obtainmentLib.AddDocumentPage(" + ProductId + "," + SupplierId + "," + ObtainmentWorkItemID +")' title='Add Document',  target='_blank' style='cursor:pointer'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                    return "<a onclick='obtainmentLib.AddDocumentPage(" + ProductId + "," + SupplierId + "," + ObtainmentWorkItemID + ")' title='Add Document',  target='_blank' style='cursor:pointer'>" + "<span class='icon-plus' style='cursor: hand;'></a>";
                 }
             }
             else {
@@ -2522,8 +2555,8 @@
          * This function open a new page for adding Revision only if item not resolved          
          */
         function AddRevisionPage(OSourceId, ObtainmentWorkItemID) {
-            $(this).ajaxCall(controllerCalls.CheckWorkItemStatus, { ObtainmentWorkItemID: ObtainmentWorkItemID})
-                .success(function (data) {    
+            $(this).ajaxCall(controllerCalls.CheckWorkItemStatus, { ObtainmentWorkItemID: ObtainmentWorkItemID })
+                .success(function (data) {
                     if (data.nextSteplkpID == 6) {
                         kendo.alert(messages.errorMessages.AlreadyResolved);
                         $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid").dataSource.read()
@@ -2547,7 +2580,7 @@
                         $(obtainmentObject.controls.grids.GridDetailRequests).data("kendoGrid").dataSource.read()
                     }
                     else {
-                        var val = "../Document/AddNewDocument?productid=" + ProductId + "&supplierid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID ;
+                        var val = "../Document/AddNewDocument?productid=" + ProductId + "&supplierid=" + SupplierId + "&obtainmentWorkItemID=" + ObtainmentWorkItemID;
                         window.open(val, '_blank');
                     }
                 })
