@@ -2587,35 +2587,67 @@
         }
 
         function uploadPPCAttachments(ctrl, guid) {
-
+            var maxFileSize_MB = 20;
+            var maxFileCount = 100;
             var files = ctrl.files;
             if (files.length > 0) {
+                var TotalFileSize = 0;
+                var TotalFileCount = 0;
+                var myEle = document.getElementById("id_paperClipAttachments_totalSize");
+                if (myEle) {
+                    TotalFileSize = +myEle.value;
+                    TotalFileCount=(+(document.getElementById("id_paperClipAttachments_Count").value))
+                }
+                
+                if ((files.length + TotalFileCount) > maxFileCount) {
+                    var prompt = {};
+                    prompt.header = "Message";
+                    prompt.message = "Total number of files cannot not be more than " + maxFileCount+".";
+
+                    DisplayErrorMessageInPopUp(prompt, function () {
+                        // do nothing
+                    });
+                    return ;
+                }
 
                 if (window.FormData !== undefined) {
-
+                    var _size = 0;
                     var data = new FormData();
                     for (var x = 0; x < files.length; x++) {
                         data.append("file" + x, files[x]);
+                        _size += files[x].size;
                     }
+                    //debugger
+                    if ((_size + TotalFileSize) <= (maxFileSize_MB*1024*1024)) {
+                        
+                        $.ajax({
+                            type: "POST",
+                            url: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/UploadPPCFiles?guid=" + guid,
+                            contentType: false,
+                            processData: false,
+                            data: data,
+                            success: function (result) {
+                                $("#ppcFiles_" + guid).html(result);
+                                return;
+                            },
+                            error: function (xhr, status, p3, p4) {
+                                var err = "Error " + " " + status + " " + p3 + " " + p4;
+                                if (xhr.responseText && xhr.responseText[0] == "{")
+                                    err = JSON.parse(xhr.responseText).Message;
+                                console.log(err);
+                                return;
+                            }
+                        });
+                    }
+                    else {
+                        var prompt = {};
+                        prompt.header = "Message";
+                        prompt.message = "Total files size should not be more than " + maxFileSize_MB+" MB.";
 
-                    $.ajax({
-                        type: "POST",
-                        url: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/UploadPPCFiles?guid=" + guid,
-                        contentType: false,
-                        processData: false,
-                        data: data,
-                        success: function (result) {
-                            $("#ppcFiles_" + guid).html(result);
-                            return;
-                        },
-                        error: function (xhr, status, p3, p4) {
-                            var err = "Error " + " " + status + " " + p3 + " " + p4;
-                            if (xhr.responseText && xhr.responseText[0] == "{")
-                                err = JSON.parse(xhr.responseText).Message;
-                            console.log(err);
-                            return;
-                        }
-                    });
+                        DisplayErrorMessageInPopUp(prompt, function () {
+                            // do nothing
+                        });
+                    }
                 } else {
                     alert("This browser doesn't support HTML5 file uploads!");
                     return;
