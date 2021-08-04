@@ -107,7 +107,10 @@
                     CompletedObtainmentActionsDropDownList: "#ddlObtainmentAction",
                     CompletedCustomerActionDropDownList: "#ddlCustomerAction"
                 },
-                labels: { ContactName: "#lblContactName" },
+                labels: {
+                    ContactName: "#lblContactName",
+                    lblNotes: "#lblNotes"
+                },
                 checkBox: {
                     LiveCall: "#chkLiveCall",
                     IncludeInboundResponses: "#chkOnlyWithInboundResponses",
@@ -1542,12 +1545,16 @@
                 case obtainmentActions.FlagDiscontinued:
                     SetNextStep(nextStepsValues.Completed, "FlagDiscontinued", false);
                     $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFlagDiscontinued).val('');
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesFlagDiscontinued).hide();
+                    $(obtainmentObject.controls.labels.lblNotes).hide();
                     $(actionModals.FlagDiscontinued).displayModal();
                     break;
 
                 case obtainmentActions.FlagNotRequired:
                     SetNextStep(nextStepsValues.Completed, "NotRequired", false);
                     //$(obtainmentObject.controls.textBoxes.ObtainmentActionNotesNotRequired).val('');
+                    $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesNotRequired).hide();
+                    $(obtainmentObject.controls.labels.lblNotes).hide();
                     $(actionModals.NotRequired).displayModal();
                     break;
 
