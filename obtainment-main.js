@@ -1594,6 +1594,9 @@
                     SetNextStepForSendToProcessingandAwaitSuppRes(nextStepsValues.SentToProcessing, "SentToProcessing", false);
                     $(obtainmentObject.controls.textBoxes.ObtainmentActionNotesSentToProcessing).val('');
                     $(actionModals.SentToProcessing).displayModal();
+
+                    var guid = $("td[id^='ppcFiles_']").attr("id").replace("ppcFiles_", "");
+                    removePPCAttachments(guid, "ALL");
                     break;
             }
         }
