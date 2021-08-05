@@ -2593,9 +2593,19 @@
                 })
         }
 
+        function displayMessageAlert(message) {
+            var prompt = {};
+            prompt.header = "Message";
+            prompt.message = message;
+
+            DisplayErrorMessageInPopUp(prompt, function () {
+                // do nothing
+            });
+        }
         function uploadPPCAttachments(ctrl, guid) {
-            var maxFileSize_MB = 20;
-            var maxFileCount = 100;
+            var maxSizeForEachSingleFile_MB = 20;
+            var maxFilesSize_MB = 25;
+            var maxFilesCount = 100;
             var files = ctrl.files;
             if (files.length > 0) {
                 var TotalFileSize = 0;
@@ -2606,27 +2616,24 @@
                     TotalFileCount=(+(document.getElementById("id_paperClipAttachments_Count").value))
                 }
                 
-                if ((files.length + TotalFileCount) > maxFileCount) {
-                    var prompt = {};
-                    prompt.header = "Message";
-                    prompt.message = "Total number of files cannot not be more than " + maxFileCount+".";
-
-                    DisplayErrorMessageInPopUp(prompt, function () {
-                        // do nothing
-                    });
+                if ((files.length + TotalFileCount) > maxFilesCount) {
+                    displayMessageAlert("Number of files cannot exceed " + maxFilesCount + ", please remove the necessary file(s).");
                     return ;
                 }
 
                 if (window.FormData !== undefined) {
                     var _size = 0;
                     var data = new FormData();
-                    for (var x = 0; x < files.length; x++) {
+                    for (var x = 0; x < files.length; x++) {                        
                         data.append("file" + x, files[x]);
                         _size += files[x].size;
                     }
-                    //debugger
-                    if ((_size + TotalFileSize) <= (maxFileSize_MB*1024*1024)) {
-                        
+                    if (_size > (maxSizeForEachSingleFile_MB * 1024 * 1024)) {
+                        displayMessageAlert("More than " + maxSizeForEachSingleFile_MB + " MB file(s) are not allowed in one batch upload, please remove the necessary file(s).");
+                        return;
+                    }
+                    if ((_size + TotalFileSize) <= (maxFilesSize_MB * 1024 * 1024)) {
+
                         $.ajax({
                             type: "POST",
                             url: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/UploadPPCFiles?guid=" + guid,
@@ -2647,13 +2654,8 @@
                         });
                     }
                     else {
-                        var prompt = {};
-                        prompt.header = "Message";
-                        prompt.message = "Total files size should not be more than " + maxFileSize_MB+" MB.";
-
-                        DisplayErrorMessageInPopUp(prompt, function () {
-                            // do nothing
-                        });
+                        displayMessageAlert("Total file size cannot exceed " + maxFilesSize_MB + " MB, please remove the necessary file(s).");
+                        return;
                     }
                 } else {
                     alert("This browser doesn't support HTML5 file uploads!");
