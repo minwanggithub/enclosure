@@ -2632,7 +2632,9 @@
                         _size += files[x].size;
                     }
                     if (_size > (maxSizeForEachSingleFile_MB * 1024 * 1024)) {
-                        displayMessageAlert("More than " + maxSizeForEachSingleFile_MB + " MB file(s) are not allowed in one batch upload, please remove the necessary file(s).");
+
+                        displayMessageAlert("One or more files are larger than " + maxSizeForEachSingleFile_MB + "MB, please remove these file(s).");
+
                         return;
                     }
                     if ((_size + TotalFileSize) <= (maxFilesSize_MB * 1024 * 1024)) {
