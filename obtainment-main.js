@@ -2606,11 +2606,25 @@
             });
         }
         function uploadPPCAttachments(ctrl, guid) {
+            var isvalidFile = true;
+            $.each(ctrl.files, function (index, value) {
+                //var fileExtension = ['.htm', '.html'];
+                var fileExtension = ['.txt', '.doc', '.docx', '.xls', '.xlsx', '.tif', '.tiff', '.ppt', '.pptx', '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.pdf'];
+                if (value.name.length && $.inArray('.'+value.name.split('.')[1], fileExtension) == -1) {
+                    //ctrl.preventDefault();
+                    //displayMessageAlert("HTML files are not allowed")
+                    displayMessageAlert("Only these files are allowed: .txt, .doc, .docx, .xls, .xlsx, .tif, .tiff, .ppt, .pptx, .jpg, .jpeg, .png, .bmp, .gif, .pdf")
+                    isvalidFile = false;
+                }
+                if (isvalidFile == false) {
+                    return false;
+                }
+            });
             var maxSizeForEachSingleFile_MB = 20;
             var maxFilesSize_MB = 25;
             var maxFilesCount = 100;
             var files = ctrl.files;
-            if (files.length > 0) {
+            if (files.length > 0 && isvalidFile) {
                 var TotalFileSize = 0;
                 var TotalFileCount = 0;
                 var myEle = document.getElementById("id_paperClipAttachments_totalSize");

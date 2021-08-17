@@ -794,6 +794,20 @@
         };
 
         function onUploadSelect(e) {
+            var isvalidFile = true;
+            $.each(e.files, function (index, value) {
+                //var fileExtension = ['.htm', '.html'];
+                var fileExtension = ['.txt', '.doc', '.docx', '.xls', '.xlsx', '.tif', '.tiff', '.ppt', '.pptx', '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.pdf'];
+                if ($.inArray(value.extension, fileExtension) == -1) {
+                    e.preventDefault();
+                    //displayError("HTML files are not allowed")
+                    $(this).displayError("Only these files are allowed: .txt, .doc, .docx, .xls, .xlsx, .tif, .tiff, .ppt, .pptx, .jpg, .jpeg, .png, .bmp, .gif ,.pdf")
+                    isvalidFile = false;
+                }
+                if (isvalidFile == false) {
+                    return false;
+                }                
+            });
         };
 
         //http://blog.raselahmmed.com/kendo-ui-image-upload-and-instant-preview-in-aspnet-mvc/

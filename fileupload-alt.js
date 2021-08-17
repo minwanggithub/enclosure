@@ -228,11 +228,14 @@
         var onFileUploadSelect = function (e) {         
             var copiedArray = uploadStake.slice(0);
             var isvalidFile = true;
+            
             $.each(e.files, function (index, value) {          
-                var fileExtension = ['.htm', '.html'];
-                if ($.inArray(value.extension, fileExtension) > -1) {
+                //var fileExtension = ['.htm', '.html'];
+                var fileExtension = ['.txt', '.doc', '.docx', '.xls', '.xlsx', '.tif', '.tiff', '.ppt', '.pptx', '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.pdf'];
+                if ($.inArray(value.extension, fileExtension) == -1) {
                     e.preventDefault();
-                    displayError("HTML files are not allowed")
+                    //displayError("HTML files are not allowed")
+                    displayError("Only these files are allowed: .txt, .doc, .docx, .xls, .xlsx, .tif, .tiff, .ppt, .pptx, .jpg, .jpeg, .png, .bmp, .gif ,.pdf")
                     isvalidFile = false;
                 }              
                 if (isvalidFile == false) {
