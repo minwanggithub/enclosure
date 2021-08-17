@@ -53,6 +53,7 @@
                     OverrideNextStep: "#ddlOverrideNextStep",
                     CustomerAction: "#ddlCustomerAction",
                     ObtainmentAction: "#ddlObtainmentAction",
+                    Teams: "#ddlTeams",
                 },
 
                 textbox: {
@@ -64,7 +65,9 @@
                 },
 
                 datepickers: {
-                    EditScheduledDate: "#dteEditScheduledDate"
+                    EditScheduledDate: "#dteEditScheduledDate",
+                    NoticeDueDateFrom: "#dteNoticeDueDateFrom",
+                    NoticeDueDateTo: "#dteNoticeDueDateTo"
                 },
 
                 div: {
@@ -477,6 +480,10 @@
                 ObtainmentActionLkpId: Number($(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").value()),
                 CustomerAction: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").text(),
                 ObtainmentNotes: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").value(),
+
+                NextObtainmentStepDueDateFrom: $(UIObject.controls.datepickers.NoticeDueDateFrom).data("kendoDatePicker").value(),
+                NextObtainmentStepDueDateTo: $(UIObject.controls.datepickers.NoticeDueDateTo).data("kendoDatePicker").value(),
+                CompanyFilterTeamId: Number($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value()),
 
                 MissingRequired: function () {
                     debugger;
