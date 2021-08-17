@@ -114,6 +114,7 @@
             SendNotificationImmediately: GetEnvironmentLocation() + "/Operations/Notification/SendNotificationImmediately",
             AddNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/AddNewBatchAttachments",
             RemoveNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/RemoveAttachmentsAlt",
+            Load_SDS_NonSDS_Obtainment_Type_Ids: GetEnvironmentLocation() + "/Operations/Notification/LoadObtainmentTypeSdsAndNonSdsIds",
         };
 
         var messages = {
@@ -146,6 +147,7 @@
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for bulk notices.",
                 NoCustomerActionSelected: "No customer action has been selected.",
                 CustomerActionRequired: "Customer action required.",
+                Load_SDS_NonSDS_Obtainment_Type_Failure:"Cannot load obtainment type's for selecting all SDS and Non SDS."
             }
         };
         
@@ -292,7 +294,6 @@
         });
 
         var onOverrideNextStep = function () {
-            debugger;
             var nextStepvalue = $(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").text();
             if (nextStepvalue == 'Completed') {
                 $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").enable(true);
@@ -305,7 +306,6 @@
         };
 
         var onCustomerActionObtainmentAction = function () {
-            debugger;
             var nextStepvalue = $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").text();
             if (nextStepvalue == 'Customer Action') {
                 $(UIObject.controls.div.CustomerActionDiv).css({ display: 'block' });
@@ -318,7 +318,6 @@
 
         // customer notes action
         var onCustomerAction = function () {
-            debugger;
             var selNotes = $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList");
             // selected customer action
             var selCustomerAction = selNotes.text();
@@ -399,7 +398,7 @@
                              UIObject.sections.noticeDetailSection().html(data);
                          }).error(
                          function () {
-                             $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                                 $(this).displayError(messages.errorMessages.LoadNewNotificationFailure);
                          });
         };
 
@@ -409,10 +408,65 @@
                              UIObject.sections.existFileSection().html(data);
                          }).error(
                          function () {
-                             $(this).displayError(errorMessages.LoadNewNotificationFailure);
+                                 $(this).displayError(messages.errorMessages.LoadNewNotificationFailure);
                          });
         };
+        var sDS_NonSDS_Obtainment_Type_Ids = undefined;
+        var Load_SDS_NonSDS_Obtainment_Type_Ids = function () {
+            $(this).ajaxCall(controllerCalls.Load_SDS_NonSDS_Obtainment_Type_Ids, {  })
+                .success(function (data) {
+                    sDS_NonSDS_Obtainment_Type_Ids = data;
+                    //UIObject.sections.existFileSection().html(data);
+                }).error(
+                    function (e) {
+                        $(this).displayError(messages.errorMessages.Load_SDS_NonSDS_Obtainment_Type_Failure);
+                    });
+        };
 
+        var chk_AllSds_Change = function (e) {
+            if (sDS_NonSDS_Obtainment_Type_Ids) {
+                var sdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeSdsIds;
+                var multiSelect = $("#mltDdlEditObtainmentType").data("kendoMultiSelect");
+                var selectedValues = multiSelect._old;
+
+                for (var i = 0; i < multiSelect.dataSource.data().length; i++) {
+                    var item = multiSelect.dataSource.data()[i];
+                    if (sdsIds.filter(id => id == +item.Value).length) {
+                        if (e.checked) {
+                            selectedValues.push(item.Value);
+                        }
+                        else {
+                            selectedValues.splice(selectedValues.indexOf(item.Value), 1);
+                        }
+                    }
+
+                }
+                multiSelect.value(selectedValues);
+                multiSelect.trigger("change");
+            }
+        }
+        var chk_AllNonSDS_Change = function (e) {
+            if (sDS_NonSDS_Obtainment_Type_Ids) {
+                var nonSdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeNonSdsIds;
+                var multiSelect = $("#mltDdlEditObtainmentType").data("kendoMultiSelect");
+                var selectedValues = multiSelect._old;
+
+                for (var i = 0; i < multiSelect.dataSource.data().length; i++) {
+                    var item = multiSelect.dataSource.data()[i];
+                    if (nonSdsIds.filter(id => id == +item.Value).length) {
+                        if (e.checked) {
+                            selectedValues.push(item.Value);
+                        }
+                        else {
+                            selectedValues.splice(selectedValues.indexOf(item.Value), 1);
+                        }
+                    }
+
+                }
+                multiSelect.value(selectedValues);
+                multiSelect.trigger("change");
+            }
+        }
 
         var InitializePopUpDetailDynamic = function () {
             //var container = $("#divNotificationModalPopup");
@@ -486,7 +540,6 @@
                 CompanyFilterTeamId: Number($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value()),
 
                 MissingRequired: function () {
-                    debugger;
                     var nextStepValid = true;
                     var customerActionvalid = true;
 
@@ -1021,7 +1074,10 @@
             onUploadSuccess: onUploadSuccess,
             onWindowClose: onWindowClose,
             onWindowOpen: onWindowOpen,
-            onGridBound: onGridBound
+            onGridBound: onGridBound,
+            Load_SDS_NonSDS_Obtainment_Type_Ids: Load_SDS_NonSDS_Obtainment_Type_Ids,
+            chk_AllSds_Change: chk_AllSds_Change,
+            chk_AllNonSDS_Change: chk_AllNonSDS_Change
         };
     };
 })(jQuery);
