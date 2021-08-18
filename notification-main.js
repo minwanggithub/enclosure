@@ -64,6 +64,11 @@
                     SummaryRecipient:"#txtEditSummaryRecipient"
                 },
 
+                checkbox: {
+                    AllSDS: "#AllSDS",
+                    AllNonSDS: "#AllNonSDS",
+                },
+
                 datepickers: {
                     EditScheduledDate: "#dteEditScheduledDate",
                     NoticeDueDateFrom: "#dteNoticeDueDateFrom",
@@ -427,13 +432,15 @@
             if (sDS_NonSDS_Obtainment_Type_Ids) {
                 var sdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeSdsIds;
                 var multiSelect = $("#mltDdlEditObtainmentType").data("kendoMultiSelect");
-                var selectedValues = multiSelect._old;
+                var selectedValues = multiSelect._old.map(String);
 
                 for (var i = 0; i < multiSelect.dataSource.data().length; i++) {
                     var item = multiSelect.dataSource.data()[i];
                     if (sdsIds.filter(id => id == +item.Value).length) {
                         if (e.checked) {
-                            selectedValues.push(item.Value);
+                            if (selectedValues.filter(id => id == item.Value).length == 0) {
+                                selectedValues.push(item.Value);
+                            }
                         }
                         else {
                             selectedValues.splice(selectedValues.indexOf(item.Value), 1);
@@ -449,13 +456,15 @@
             if (sDS_NonSDS_Obtainment_Type_Ids) {
                 var nonSdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeNonSdsIds;
                 var multiSelect = $("#mltDdlEditObtainmentType").data("kendoMultiSelect");
-                var selectedValues = multiSelect._old;
+                var selectedValues = multiSelect._old.map(String);
 
                 for (var i = 0; i < multiSelect.dataSource.data().length; i++) {
                     var item = multiSelect.dataSource.data()[i];
                     if (nonSdsIds.filter(id => id == +item.Value).length) {
                         if (e.checked) {
-                            selectedValues.push(item.Value);
+                            if (selectedValues.filter(id => id == item.Value).length == 0) {
+                                selectedValues.push(item.Value);
+                            }
                         }
                         else {
                             selectedValues.splice(selectedValues.indexOf(item.Value), 1);
@@ -538,6 +547,9 @@
                 NextObtainmentStepDueDateFrom: $(UIObject.controls.datepickers.NoticeDueDateFrom).data("kendoDatePicker").value(),
                 NextObtainmentStepDueDateTo: $(UIObject.controls.datepickers.NoticeDueDateTo).data("kendoDatePicker").value(),
                 CompanyFilterTeamId: Number($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value()),
+
+                AllSDS: $(UIObject.controls.checkbox.AllSDS).prop("checked"),
+                AllNonSDS: $(UIObject.controls.checkbox.AllNonSDS).prop("checked"),
 
                 MissingRequired: function () {
                     var nextStepValid = true;
