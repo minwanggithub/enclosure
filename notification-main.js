@@ -707,6 +707,7 @@
                             noticeModel.NoticeBatchId = Number(data.Id);
                             if (data.isNew) {
                                 noticeModel.EmailSubject = decodeURIComponent(noticeModel.EmailSubject);
+                                noticeModel.ObtainmentList = [];
                                 SearchNotification(JSON.stringify(noticeModel));
                             } else {
                                 var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch)
