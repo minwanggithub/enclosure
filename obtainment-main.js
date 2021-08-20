@@ -223,7 +223,7 @@
                 NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS super email body.",
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
-                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be performed on Revisions.",
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are new obtainment. The 'Confirm as Current' action can only be performed on Revisions.  <br/>Remove any new obtainment requests selected and perform the action again",
                 DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions. Remove any new obtainment selected and perform the action again.",
                 FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions. Remove any new obtainment request selected and perform the action again.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
