@@ -93,6 +93,7 @@
                 ScheduledDate: "ScheduledDate",
                 ActualSendDate: "ActualSendDate",
                 ObtainmentState: "ObtainmentState",
+                NoticeBatchId:"NoticeBatchId"
             },
 
 
@@ -166,7 +167,8 @@
                 NotificationStatusId: -1,
                 ScheduledDate: null,
                 ActualSendDate: null,
-                EmailSubject:"",
+                EmailSubject: "",
+                NoticeBatchId:"",
 
                 HasCriteria: function (e) {
                     var fieldCheck = (this.get(UIObject.observable.NextStepId) >= 0
@@ -176,6 +178,7 @@
                         || this.get(UIObject.observable.NotificationStatusId) > 0
                         || this.get(UIObject.observable.ScheduledDate) != null
                         || this.get(UIObject.observable.EmailSubject) !== ""
+                        || this.get(UIObject.observable.NoticeBatchId) !== ""
                         || this.get(UIObject.observable.ActualSendDate) != null);
                     return fieldCheck;
                 },
@@ -204,8 +207,9 @@
                         if (this.NotificationStatusId == "")
                             this.NotificationStatusId = 0;
 
-                        this.EmailSubject = encodeURIComponent(this.EmailSubject);
-
+                        this.EmailSubject = decodeURIComponent(this.EmailSubject);
+                        if (this.NoticeBatchId == "")
+                            this.NoticeBatchId = 0;
                         SearchNotification(JSON.stringify(this));
                         //$(this).ajaxCall(controllerCalls.SearchNoticfication, { searchCriteria: JSON.stringify(this) })
                         //       .success(function (data) {
@@ -224,6 +228,7 @@
                     this.set(UIObject.observable.AccountIdArray,"");
                     this.set(UIObject.observable.EmailTemplateId, 0);
                     this.set(UIObject.observable.EmailSubject, "");
+                    this.set(UIObject.observable.NoticeBatchId, "");
                     this.set(UIObject.observable.NotificationStatusId, 0);
                     this.set(UIObject.observable.ScheduledDate, null);
                     this.set(UIObject.observable.ActualSendDate, null);
@@ -476,7 +481,20 @@
                 multiSelect.trigger("change");
             }
         }
+        var mltDdlEditObtainmentType_deselect = function (e) {
+            var deselectId = e.dataItem.Value;
+            var chkSDS = $(UIObject.controls.checkbox.AllSDS).prop("checked");
+            var chkNonSDS = $(UIObject.controls.checkbox.AllNonSDS).prop("checked");
+            var nonSdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeNonSdsIds;
+            var SdsIds = sDS_NonSDS_Obtainment_Type_Ids.ObtainmentTypeSdsIds;
+            if (chkNonSDS && nonSdsIds.filter(id => id == +deselectId).length) {
+                $(UIObject.controls.checkbox.AllNonSDS).prop('checked', false);
+            }
+            else if (chkSDS && SdsIds.filter(id => id == +deselectId).length) {
+                $(UIObject.controls.checkbox.AllSDS).prop('checked', false);
+            }
 
+        }
         var InitializePopUpDetailDynamic = function () {
             //var container = $("#divNotificationModalPopup");
             //UIObject.buttons.EditCancel, onEditCancelButtonClick);
@@ -634,7 +652,7 @@
                                     hideNotificationPopUp();
                                     noticeModel.NoticeBatchId = Number(data.Id);
                                     if (data.isNew) {
-                                        noticeModel.EmailSubject = encodeURIComponent(noticeModel.EmailSubject);
+                                        noticeModel.EmailSubject = decodeURIComponent(noticeModel.EmailSubject);
                                         SearchNotification(JSON.stringify(noticeModel));
                                     } else {
                                         var searchResultGrid =
@@ -688,7 +706,7 @@
                             hideNotificationPopUp();
                             noticeModel.NoticeBatchId = Number(data.Id);
                             if (data.isNew) {
-                                noticeModel.EmailSubject = encodeURIComponent(noticeModel.EmailSubject);
+                                noticeModel.EmailSubject = decodeURIComponent(noticeModel.EmailSubject);
                                 SearchNotification(JSON.stringify(noticeModel));
                             } else {
                                 var searchResultGrid = $(UIObject.controls.grids.GridSearchNoticeBatch)
@@ -713,7 +731,7 @@
 
         var InitializeNotificationPopUpDetail = function () {
             editModel = kendo.observable({
-                NoticeBatchId: 0,
+                NoticeBatchId: "",
                 NextStepId: 0,
                 ObtainmentList: null,
                 ObtainmentIndex: null,
@@ -729,6 +747,7 @@
                                         && (this.get(UIObject.observable.ObtainmentIndex)).length > 0                                        
                                         && this.get(UIObject.observable.EmailTemplateId) > 0
                                         && this.get(UIObject.observable.EmailSubject) != ""
+                                        && this.get(UIObject.observable.NoticeBatchId) != ""
                                         && this.get(UIObject.observable.ScheduledDate) != null);
                                         
                     return fieldCheck;
@@ -1089,7 +1108,8 @@
             onGridBound: onGridBound,
             Load_SDS_NonSDS_Obtainment_Type_Ids: Load_SDS_NonSDS_Obtainment_Type_Ids,
             chk_AllSds_Change: chk_AllSds_Change,
-            chk_AllNonSDS_Change: chk_AllNonSDS_Change
+            chk_AllNonSDS_Change: chk_AllNonSDS_Change,
+            mltDdlEditObtainmentType_deselect: mltDdlEditObtainmentType_deselect
         };
     };
 })(jQuery);
