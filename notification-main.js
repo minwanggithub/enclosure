@@ -564,7 +564,7 @@
 
                 NextObtainmentStepDueDateFrom: $(UIObject.controls.datepickers.NoticeDueDateFrom).data("kendoDatePicker").value(),
                 NextObtainmentStepDueDateTo: $(UIObject.controls.datepickers.NoticeDueDateTo).data("kendoDatePicker").value(),
-                CompanyFilterTeamId: Number($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value()),
+                CompanyFilterTeamId: +($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value())==-1?null: Number($(UIObject.controls.dropdownlists.Teams).data("kendoDropDownList").value()),
 
                 AllSDS: $(UIObject.controls.checkbox.AllSDS).prop("checked"),
                 AllNonSDS: $(UIObject.controls.checkbox.AllNonSDS).prop("checked"),
