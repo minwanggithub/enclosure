@@ -331,7 +331,7 @@
                 NullRevisionConfirmTitle: "Confirm for null revision date",
                 NullRevisionConfirmMessage: "The revision date is blank; if you wish to proceed with this save press Confirm<br/> or hit Cancel to enter the missed revision date.",
                 SiblingCascadingConfirmTitle: "Sibling Cascading Warning",
-                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings which can only be undone one by one within Compli.  Do you wish to proceed?",
+                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings.  Do you wish to proceed?",
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",

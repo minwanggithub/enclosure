@@ -194,7 +194,7 @@
                 AssignRequests: "assign these request item(s)",
                 OverwriteComments: "Overwrite previous customer action comments?",
                 SiblingCascadingConfirmTitle: "Sibling Cascading Warning",
-                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings which can only be undone one by one within Compli.  Do you wish to proceed?",
+                SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings. Do you wish to proceed?",
             },
             errorMessages: {
                 SelectGroup: "Please select a group to assign request item(s)",
