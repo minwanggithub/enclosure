@@ -189,6 +189,7 @@
                 DocumentProduct: "#gdDocumentProduct_",
                 NonDocumentProduct: "#gdNonDocumentProduct_",
                 DocumentSibling: "#gdDocumentSibling_",
+                DocumentStatusHistory: "#gdSupplierStatusHistory_",
             },
             hidden: {
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
@@ -1244,6 +1245,17 @@
 
         var onRefreshSiblingRequest = function (did) {
             var sbGrid = $(documentElementSelectors.grids.DocumentSibling + did).data("kendoGrid");
+
+            if (sbGrid.dataSource.view().length > 0) {
+                sbGrid.dataSource.page(1);
+            }
+            sbGrid.dataSource.data([]);
+            sbGrid.dataSource.read();
+        }
+
+        
+        var onRefreshStatusHistoryRequest = function (did) {
+            var sbGrid = $(documentElementSelectors.grids.DocumentStatusHistory + did).data("kendoGrid");
 
             if (sbGrid.dataSource.view().length > 0) {
                 sbGrid.dataSource.page(1);
@@ -4395,6 +4407,7 @@
             initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onAddSiblingRequest: onAddSiblingRequest,
             onRefreshSiblingRequest: onRefreshSiblingRequest,
+            onRefreshStatusHistoryRequest: onRefreshStatusHistoryRequest,
             initializeProductAssociation: initializeProductAssociation,
             onDocumentContainerClassificationTypeChange: onDocumentContainerClassificationTypeChange,
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
