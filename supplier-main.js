@@ -289,7 +289,7 @@
                 onErrorCallback(errorMessage);
                 else
                 kendo.alert(errorMessage);
-        };
+        };        
 
         function getCountryDropdownData(ddlCountry, acState) {
             var countryComponent = $(ddlCountry).data("kendoDropDownList");
@@ -694,9 +694,17 @@
 
 
         var gdObtainmentSettings_Remove = function (e) {
-            if (e.type == "destroy")
-                $("#ObtainmentSettingsDetail").html("");
-        };
+            if (e.type == "destroy") {
+                if (e.response && e.response.Message && e.response.Message.length) {
+                    displayErrorMessage(e.response.Message)
+                    var _grid = $("#gdObtainmentSettings").data("kendoGrid");
+                    _grid.dataSource.read();
+                }
+                else
+                    $("#ObtainmentSettingsDetail").html("");
+            }
+
+        };        
 
         var docGridSave_FacilityAddress = function (e) {
                 var val = $("#FacilityCountry").data().kendoDropDownList.value();
