@@ -136,9 +136,10 @@ if (jQuery) (function ($, kdo) {
                         id: "CompanyId",
                         fields: {
                             "CompanyId": { type: "integer" },
-                            "Duns": { type: "string" },
+                            //"Duns": { type: "string" },
                             "Name": { type: "string" },
                             "Alias": { type: "string" },
+                            "ParentCompanyName": { type: "string" },
                             "CreatedBy": { type: "string" },
                             "CreatedDate": { type: "datetime" },
                             "LastUpdateBy": { type: "string" },
@@ -176,9 +177,10 @@ if (jQuery) (function ($, kdo) {
             },
             columns: [
                 { field: "CompanyId", title: "ID" },
-                { field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
+                //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
+                { field: "ParentCompanyName", title: "Parent to Redirect" },
                 { field: "CreatedBy", title: "CreatedBy|Date", template: "#=CreatedBy#@#= kendo.toString(kendo.parseDate(CreatedDate), 'MM/dd/yyyy')#" },
                 { field: "UpdateBy", title: "UpdateBy|Date", template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
                 
