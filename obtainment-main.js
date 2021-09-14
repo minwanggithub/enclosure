@@ -2610,7 +2610,8 @@
             $.each(ctrl.files, function (index, value) {
                 //var fileExtension = ['.htm', '.html'];
                 var fileExtension = ['.txt', '.doc', '.docx', '.xls', '.xlsx', '.tif', '.tiff', '.ppt', '.pptx', '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.pdf'];
-                if (value.name.length && $.inArray('.'+value.name.split('.')[1], fileExtension) == -1) {
+                var splitStr = value.name.split('.');
+                if (value.name.length && $.inArray('.' + splitStr[splitStr.length - 1].toLowerCase(), fileExtension) == -1) {
                     //ctrl.preventDefault();
                     //displayMessageAlert("HTML files are not allowed")
                     displayMessageAlert("Only these files are allowed: .txt, .doc, .docx, .xls, .xlsx, .tif, .tiff, .ppt, .pptx, .jpg, .jpeg, .png, .bmp, .gif, .pdf")
