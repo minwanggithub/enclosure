@@ -77,7 +77,8 @@
 
                 div: {
                     EmailTemplateBodyDiv: "#emailTemplateBody",
-                    CustomerActionDiv:"#dvnoticeCustomerAction",
+                    CustomerActionDiv: "#dvnoticeCustomerAction",
+                    productDetailsTemplateDiv:"#productDetailsTemplateBody"
                 }
 
             },
@@ -101,7 +102,9 @@
                 NotificationPopUpWindow: "#notificationPopUpWindow"
             },
 
-            notificationModals: { EmailTemplatePreview: "#mdlEmailTemplatePreview" }
+            notificationModals: { EmailTemplatePreview: "#mdlEmailTemplatePreview" },
+            productDetailsModals: { PreviewProductDetails: "#mdProductDetails" }
+            // mdProductDetails
     }
         
                 
@@ -121,6 +124,7 @@
             AddNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/AddNewBatchAttachments",
             RemoveNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/RemoveAttachmentsAlt",
             Load_SDS_NonSDS_Obtainment_Type_Ids: GetEnvironmentLocation() + "/Operations/Notification/LoadObtainmentTypeSdsAndNonSdsIds",
+            PreviewProductDetails: GetEnvironmentLocation() + "/Operations/Notification/LoadNoticebatchProductDetailsGrid",
         };
 
         var messages = {
@@ -976,27 +980,56 @@
 
         var PreviewEmail = function (id) {
             $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+            $(UIObject.controls.div.EmailTemplateBodyDiv).html("");
+            displayLoading("#windowloader");
             $(this).ajaxCall(controllerCalls.EmailTemplatePreview, { emailTemplateId: id })
                 .success(function (data) {
+                    hideLoading("#windowloader");
                     $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.message));
                 }).error(
                     function () {
+                        hideLoading("#windowloader");
                         $(this).displayError(messages.errorMessages.LoadEmailPreviewError);
                     });
         };
 
-       var PreviewMergedEmail = function (emailTemplateId, noticeBatchDetailId, companyId) {
-           $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+        var PreviewMergedEmail = function (emailTemplateId, noticeBatchDetailId, companyId) {
+            $(UIObject.notificationModals.EmailTemplatePreview).toggleModal();
+            $(UIObject.controls.div.EmailTemplateBodyDiv).html("");
+            displayLoading("#windowloader");
+            //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
+            $(this).ajaxCall(controllerCalls.FinalMergedEmail, { emailTemplateId: emailTemplateId, noticeBatchDetailId: noticeBatchDetailId, companyId: companyId })
+                .success(function (data) {
+                    hideLoading("#windowloader");
+                    $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
 
-           //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
-           $(this).ajaxCall(controllerCalls.FinalMergedEmail, { emailTemplateId: emailTemplateId, noticeBatchDetailId: noticeBatchDetailId, companyId: companyId })
-                       .success(function (data) {
-                           $(UIObject.controls.div.EmailTemplateBodyDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
-                       }).error(
-                       function (e) {
-                           $(this).displayError(e);
-                       });
-       }
+                }).error(
+                    function (e) {
+                        hideLoading("#windowloader");
+                        $(this).displayError(e);
+                    });
+        }
+        function displayLoading(target) {
+            var element = $(target);
+            kendo.ui.progress(element, true);
+        }
+        function hideLoading(target) {
+            var element = $(target);
+            kendo.ui.progress(element, false);
+        }
+        var PreviewProductDetails = function (noticeBatchDetailId) {
+            $(UIObject.productDetailsModals.PreviewProductDetails).toggleModal();
+
+            //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
+            $(this).ajaxCall(controllerCalls.PreviewProductDetails, { noticeBatchDetailId: noticeBatchDetailId})
+                .success(function (data) {
+                    //$(UIObject.controls.div.productDetailsTemplateDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
+                    $(UIObject.controls.div.productDetailsTemplateDiv).html(data);
+                }).error(
+                    function (e) {
+                        $(this).displayError(e);
+                    });
+        }
 
        function initializeMultiSelectCheckboxes(obj) {
            obj.on("mouseup MSPointerUp", ".chkMultiSelect", function (e) {
@@ -1110,7 +1143,8 @@
             Load_SDS_NonSDS_Obtainment_Type_Ids: Load_SDS_NonSDS_Obtainment_Type_Ids,
             chk_AllSds_Change: chk_AllSds_Change,
             chk_AllNonSDS_Change: chk_AllNonSDS_Change,
-            mltDdlEditObtainmentType_deselect: mltDdlEditObtainmentType_deselect
+            mltDdlEditObtainmentType_deselect: mltDdlEditObtainmentType_deselect,
+            PreviewProductDetails: PreviewProductDetails,
         };
     };
 })(jQuery);
