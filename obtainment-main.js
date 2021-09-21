@@ -2333,7 +2333,7 @@
                                                 text: 'Confirm',
                                                 primary: true,
                                                 action: function (e) {
-                                                    ExecuteSaveObtainmentNextSteps(strUrl, obtainmentMultipleWorkItemActionModel)
+                                                    ExecuteSaveObtainmentNextSteps(modalId, strUrl, obtainmentMultipleWorkItemActionModel)
                                                 },
                                             },
                                             {
