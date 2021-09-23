@@ -1018,13 +1018,18 @@
             kendo.ui.progress(element, false);
         }
         var PreviewProductDetails = function (noticeBatchDetailId) {
-            $(UIObject.productDetailsModals.PreviewProductDetails).toggleModal();
-
+            //$(UIObject.productDetailsModals.PreviewProductDetails).toggleModal();
+           // $(UIObject.productDetailsModals.PreviewProductDetails).html(data);
+           //// $("#noticebatchProductDetails").data("kendoWindow").center().open();
+           // $("div.k-widget.k-window").css("top", "20px");
             //$(this).ajaxCall(controllerCalls.LoadNotificationTemplate, { noticeBatchId: 0 })
             $(this).ajaxCall(controllerCalls.PreviewProductDetails, { noticeBatchDetailId: noticeBatchDetailId})
                 .success(function (data) {
                     //$(UIObject.controls.div.productDetailsTemplateDiv).html(decodeURIComponent(data.EmailRender) + "<hr class='style-dash'><br>" + data.ItemRender);
-                    $(UIObject.controls.div.productDetailsTemplateDiv).html(data);
+                    $(UIObject.productDetailsModals.PreviewProductDetails).html(data);
+                    $("#noticebatchProductDetails").data("kendoWindow").center().open();
+                    $("div.k-widget.k-window").css("top", "20px");
+                   // $(UIObject.controls.div.productDetailsTemplateDiv).html(data);
                 }).error(
                     function (e) {
                         $(this).displayError(e);
