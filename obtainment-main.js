@@ -235,6 +235,7 @@
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment from here.",
                 ObtainmentActionMissing: "Obtainment action has not been selected.",
                 CustomerActionMissing: "No customer action has been selected",
+                OneOrMoreSelectionsAreCompleted:"The following Action will not be done for selected Obtainment Requests that are marked Completed."
             }
         };
 
@@ -1374,14 +1375,22 @@
             }
 
             var newSelected = false;
+            var anyCompletedRecordSelected = false;
             var grid = $("#gdDetailRequests").data("kendoGrid");
             $.each(grid._data, function () {
                 if (this['IsSelected']) {
+                    if (this.Step.toLowerCase() == 'completed') {
+                        anyCompletedRecordSelected = true;
+                    }
                     if ((this['OWType']).toUpperCase().indexOf("NEW") >= 0) {
                         newSelected = true;
                     }
                 }
             });
+            if (anyCompletedRecordSelected) {
+                kendo.alert(messages.errorMessages.OneOrMoreSelectionsAreCompleted);
+                return;
+            }
 
             if (ddlActions.value() == obtainmentActions.ConfirmAsCurrent && newSelected) {
                 kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
