@@ -223,9 +223,9 @@
                 NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS super email body.",
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
-                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are new obtainment. The 'Confirm as Current' action can only be performed on Revisions.  <br/>Remove any new obtainment requests selected and perform the action again.",
-                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Discontinued' action can only be performed on Revisions. Remove any new obtainment selected and perform the action again.",
-                FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The 'Flag Not Required' action can only be performed on Revisions. Remove any new obtainment request selected and perform the action again.",
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are new obtainment. The Confirm as Current action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
+                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The Flag Discontinued action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
+                FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The Flag Not Required action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
@@ -235,7 +235,8 @@
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment from here.",
                 ObtainmentActionMissing: "Obtainment action has not been selected.",
                 CustomerActionMissing: "No customer action has been selected",
-                OneOrMoreSelectionsAreCompleted:"The following Action will not be done for selected Obtainment Requests that are marked Completed."
+                OneOrMoreSelectionsAreCompleted: "One or more of the selected item(s) are listed with a completed next step. Obtainment actions cannot be be performed on these requests.<br/>"+
+                                                    "Remove any completed next step obtainment requests selected and perform the action again."
             }
         };
 
@@ -1387,21 +1388,28 @@
                     }
                 }
             });
-            if (anyCompletedRecordSelected) {
-                kendo.alert(messages.errorMessages.OneOrMoreSelectionsAreCompleted);
+
+            var isConfirmAsCurrent_New = (ddlActions.value() == obtainmentActions.ConfirmAsCurrent && newSelected);
+            var isFlagDiscontinue_New = (ddlActions.value() == obtainmentActions.FlagDiscontinued && newSelected);
+            var isFlagNotRequired_New = (ddlActions.value() == obtainmentActions.FlagNotRequired && newSelected);
+
+            
+
+            if (isConfirmAsCurrent_New) {
+                kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions + (anyCompletedRecordSelected ? "<br/><br/>" +messages.errorMessages.OneOrMoreSelectionsAreCompleted:""));
+                return;
+            }
+            else if (isFlagDiscontinue_New) {
+                kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly + (anyCompletedRecordSelected ? "<br/><br/>" +messages.errorMessages.OneOrMoreSelectionsAreCompleted : ""));
+                return;
+            }
+            else if (isFlagNotRequired_New) {
+                kendo.alert(messages.errorMessages.FlagNotRequiredActionForRevisionOnly + (anyCompletedRecordSelected ? "<br/><br/>" +messages.errorMessages.OneOrMoreSelectionsAreCompleted : ""));
                 return;
             }
 
-            if (ddlActions.value() == obtainmentActions.ConfirmAsCurrent && newSelected) {
-                kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
-                return;
-            }
-            if (ddlActions.value() == obtainmentActions.FlagDiscontinued && newSelected) {
-                kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly);
-                return;
-            }
-            if (ddlActions.value() == obtainmentActions.FlagNotRequired && newSelected) {
-                kendo.alert(messages.errorMessages.FlagNotRequiredActionForRevisionOnly);
+            if (anyCompletedRecordSelected) {
+                kendo.alert(messages.errorMessages.OneOrMoreSelectionsAreCompleted);
                 return;
             }
 
