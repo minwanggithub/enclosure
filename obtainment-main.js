@@ -235,8 +235,8 @@
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment from here.",
                 ObtainmentActionMissing: "Obtainment action has not been selected.",
                 CustomerActionMissing: "No customer action has been selected",
-                OneOrMoreSelectionsAreCompleted: "One or more of the selected item(s) are listed with a completed next step. Obtainment actions cannot be be performed on these requests.<br/>"+
-                                                    "Remove any completed next step obtainment requests selected and perform the action again."
+                OneOrMoreSelectionsAreCompleted: "One or more of the selected item(s) are listed with a Completed next step. Obtainment actions cannot be performed on these requests.<br/>"+
+                                                    "Remove any Completed next step obtainment requests selected and perform the action again."
             }
         };
 
