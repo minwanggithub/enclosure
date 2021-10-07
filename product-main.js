@@ -71,7 +71,10 @@
                 },
 
                 divs: { NewProductDetail: "#divNewProductDetail" },
-                labels: { ProductFull: "#lblProductName"}
+                labels: { ProductFull: "#lblProductName" },
+            hidden: {
+                ProductAliasNumberSession: "#hdnProductAliasSession"
+                }
             }
         }
         var controllerCalls = {
@@ -443,7 +446,8 @@
                         SelectedProductScopeId: selectedProductScopeId,
                         StatusNotes: $(productObject.controls.hiddenTextBoxes.HiddenStatusNotes + "_" + activeSaveButton).val(),
                         SelectedPhysicalStateId: selectedPhysicalStateId,
-                        PhysicalStateText: selectedPhysicalStateText
+                PhysicalStateText: selectedPhysicalStateText,
+                ProductAliasSession: $(productObject.controls.hidden.ProductAliasNumberSession).val()
             };
            
             $(productObject.controls.hiddenTextBoxes.HiddenProductName).val($(productObject.controls.textBoxes.ProductName + "_" + activeSaveButton).val());

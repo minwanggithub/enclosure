@@ -4079,6 +4079,32 @@
             //    alert(message);
             //}
         }
+        var afterSaveProductAlias=function (e) {
+            // create event - triggered after a new row has been addd to the grid
+            if (e.type == "create" || e.type == "update") {
+
+                // check for errors
+                if (e.response.Errors != null) {
+
+                    // error response
+                    console.log(Array.from(e.response.Errors.ServerError.errors)[0]);
+                    var data = JSON.parse(Array.from(e.response.Errors.ServerError.errors)[0]);
+
+                    var grid = $('#gdProductAlias_' + data.ProductId).data('kendoGrid');
+                    grid.one("dataBinding", function (e) {
+                        e.preventDefault();
+                    });
+
+                    // display the first error and keep the grid in edit mode
+
+                    $(this).displayError("Duplicate Alias Name not allowed : " + data.AliasName);
+                    e.preventDefault();
+
+                }
+
+            }
+
+        };
 
         var afterSaveNameNumber = function (e) {
 
@@ -4436,6 +4462,7 @@
             onGenericDataBound: onGenericDataBound,
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
+            afterSaveProductAlias: afterSaveProductAlias,
             initializeSearchOperator: initializeSearchOperator,
             cloneNextNewRevision: cloneNextNewRevision,
             addFieldClone: addFieldClone,
