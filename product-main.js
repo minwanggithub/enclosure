@@ -19,7 +19,11 @@
         var updateStatusLayoutCallback;
         var productObject = {
             controls: {
-                grids: { GridProductDocuments: "#gdProductDocuments", GridSearchProduct: "#gdSearchProduct", GridProductStatusHistory: "#grdProductStatusHistory", GridSearchSupplier: "#gdSearchSupplier", GridNotAvailable: "#gdNotAvailable" },
+                grids: {
+                    GridProductDocuments: "#gdProductDocuments", GridSearchProduct: "#gdSearchProduct", GridProductStatusHistory: "#grdProductStatusHistory",
+                    GridSearchSupplier: "#gdSearchSupplier", GridNotAvailable: "#gdNotAvailable",
+                    ProductAliasGrid: "#gdProductAlias_"
+                },
                 buttons: {
                     AddDocToProduct: "#btnAddDocToProduct",
                     AttachInboundDocToProduct: "#btnAttachInboundDocToProduct",
@@ -89,7 +93,8 @@
             ISProductExist: GetEnvironmentLocation() + "/Configuration/ProductManager/CheckExistProduct",
             AttachDocRevToProd: GetEnvironmentLocation() + '/Operations/Document/AttachDocRevToProd',
             IfExistsDocRev: GetEnvironmentLocation() + '/Operations/Document/IfExistsDocRev',
-            SaveObtainmentNotAvailable: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveObtainmentNotAvailable"
+            SaveObtainmentNotAvailable: GetEnvironmentLocation() + "/Configuration/ProductManager/SaveObtainmentNotAvailable",
+            SaveMultipleProductAlias: GetEnvironmentLocation() + "/Configuration/ProductManager/ProductAlias_Multiple_Create"
         }
         var actionModals = { NotAvailable: "#mdlNotAvailable" }
         var messages = {
@@ -903,6 +908,17 @@
         };
         //***************END Due Deligence Methods*********************??
 
+
+        var loadMulitProductAliasPopup = function (_prodId) {
+            //var _prodId = 0;
+            $("<div></div>").multiproductalias({
+                productId: _prodId,
+                token: $(productObject.controls.hidden.ProductAliasNumberSession).val(),
+                crudUrl: controllerCalls.SaveMultipleProductAlias,
+                targetGrid: $(productObject.controls.grids.ProductAliasGrid + _prodId).data("kendoGrid")
+            });
+        }
+
         //--------------------start of _NewProductView.cshtml-----------------------
         ////currently not used due to the concern over the default routing behavior
         var setDeleteImageIcon = function (e) {
@@ -1090,7 +1106,8 @@
             dsProductNameOption: dsProductNameOption,
             onGDSearchProductDataBound: onGDSearchProductDataBound,
             SelectProductDueDiligence: SelectProductDueDiligence,
-            ClearCommunicationText: ClearCommunicationText
+            ClearCommunicationText: ClearCommunicationText,
+            loadMulitProductAliasPopup: loadMulitProductAliasPopup
         };
     };
 
