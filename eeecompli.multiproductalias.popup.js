@@ -140,7 +140,6 @@ if (jQuery) (function ($, kdo) {
                 "</table></div>");
 
             var templateResult = $(contentTemplate({}));
-            debugger
             PopDiv.append(templateResult);
             parentPopDiv.append(PopDiv, [windowFootDiv]);
 
