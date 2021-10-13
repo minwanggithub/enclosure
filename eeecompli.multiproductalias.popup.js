@@ -121,9 +121,9 @@ if (jQuery) (function ($, kdo) {
                 kdo.alert(dialogProperty.Text.UnableToCreateCtl + ": crudUrl parameter is requried.");
                 return;
             }
-
-            var popDiv = $("<div id='name-number-section'></div>");
-            var windowFootDiv = "<div class='window-footer' style='position:absolute;bottom:0;display:block;width:95%;margin-top:100px;padding:19px 0 20px;text-align:right;border-top:1px solid #e5e5e5;'>"+
+            var parentPopDiv = $("<div id='name-number-section' style='padding: 0;'></div>");
+            var PopDiv = $("<div class='modal-body'></div>");
+            var windowFootDiv = "<div class='modal-footer' style='position:absolute;bottom:0;display:block;width: 94.5%;text-align:right;border-top:1px solid #e5e5e5;'>"+
                 "<button id='saveMultiProductAliasBtn' data-bind='click: onSaveClick' type='button' class='k-primary k-button'style='margin-right: 5px;'>Save</button>" +
                 "<button id='cancelMultiProductAliasBtn' type='button' class='k-button' data-bind='click: onCancelClick'>Cancel</button></div>";
 
@@ -140,12 +140,15 @@ if (jQuery) (function ($, kdo) {
                 "</table></div>");
 
             var templateResult = $(contentTemplate({}));
-            popDiv.append(templateResult, [windowFootDiv]);
+            debugger
+            PopDiv.append(templateResult);
+            parentPopDiv.append(PopDiv, [windowFootDiv]);
+
 
             productAliasObservableModel = GetObservable();
-            kdo.bind(popDiv, productAliasObservableModel);
+            kdo.bind(parentPopDiv, productAliasObservableModel);
 
-            winPop = popDiv.kendoWindow({
+            winPop = parentPopDiv.kendoWindow({
                 width: "550px",
                 title: dialogProperty.Text.WindowTitle,
                 modal: true,
