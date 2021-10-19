@@ -123,20 +123,24 @@ if (jQuery) (function ($, kdo) {
             }
             var parentPopDiv = $("<div id='name-number-section' style='padding: 0;'></div>");
             var PopDiv = $("<div class='modal-body'></div>");
-            var windowFootDiv = "<div class='modal-footer' style='position:absolute;bottom:0;display:block;width: 94.5%;text-align:right;border-top:1px solid #e5e5e5;'>"+
+            var windowFootDiv = "<div class='modal-footer' style='bottom:0;display:block;width: 94.5%;text-align:right;border-top:1px solid #e5e5e5;'>"+
                 "<button id='saveMultiProductAliasBtn' data-bind='click: onSaveClick' type='button' class='k-primary k-button'style='margin-right: 5px;'>Save</button>" +
                 "<button id='cancelMultiProductAliasBtn' type='button' class='k-button' data-bind='click: onCancelClick'>Cancel</button></div>";
 
             var contentTemplate = kendo.template(
                 "<div id='divContentSection'><table>" +
                 "<tr>" +
-                "<td style='min-width:120px;'><label style='font-weight:bold'>Product Alias:</label></td>" +
-                "<td><textarea rows='5' cols='60' data-bind='value: productAliasText, events: {keyup: onProductAliasTextKeyup }' style='min-width:300px;'></textarea></td>" +
+                "<td style='min-width:120px;'><label style='font-weight:bold'>Product Alias: " +
+                "<span class='k-icon k-i-help' title='Press enter to insert multiple values.'></span> " +
+                "</label></td>" +
+                "<td><textarea rows='5' cols='60' data-bind='value: productAliasText, events: {keyup: onProductAliasTextKeyup }' style='min-width:300px;'></textarea>" +
+                "<p><strong>Note: </strong>Duplicates will be removed automatically.<br />To add multiple values press enter between each value.</p>" +
+                "</td>" +
                 "</tr>" +
-                "<tr>" +
-                "<td style='min-width:120px;'><br/><label style='font-weight:bold' data-bind='visible: isNoteVisiable'>Note:</label></td>" +
-                "<td style='min-width:120px;'><br/><label style='font-weight:bold' data-bind='visible: isNoteVisiable'>Duplicates will be removed automatically.</label><td/>" +
-                "</tr>" +
+                //"<tr>" +
+                //"<td style='min-width:120px;'><br/><label style='font-weight:bold' data-bind='visible: isNoteVisiable'>Note:</label></td>" +
+                //"<td style='min-width:120px;'><br/><label style='font-weight:bold' data-bind='visible: isNoteVisiable'>Duplicates will be removed automatically.</label><td/>" +
+                //"</tr>" +
                 "</table></div>");
 
             var templateResult = $(contentTemplate({}));
@@ -148,7 +152,7 @@ if (jQuery) (function ($, kdo) {
             kdo.bind(parentPopDiv, productAliasObservableModel);
 
             winPop = parentPopDiv.kendoWindow({
-                width: "550px",
+               // width: "550px",
                 title: dialogProperty.Text.WindowTitle,
                 modal: true,
                 visible: false,
@@ -159,7 +163,7 @@ if (jQuery) (function ($, kdo) {
                     //"Maximize",
                     "Close"
                 ],
-                height: 270,
+                //height: 270,
                 close: onClose
             }).data("kendoWindow");
 
