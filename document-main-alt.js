@@ -190,6 +190,7 @@
                 NonDocumentProduct: "#gdNonDocumentProduct_",
                 DocumentSibling: "#gdDocumentSibling_",
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
+                ProductAliasGrid: "#gdProductAlias_",
             },
             hidden: {
                 DocumentDetailsStatusNotes: "[id^=hdnStatusNotes_]",
@@ -3703,6 +3704,20 @@
             var dataItem = e.sender.tbody.find(editClass);
             dataItem.closest("tr").removeClass("k-state-selected").addClass("k-active");
         };
+        var onProductAliasGridDestroy = function (e) {
+            e.preventDefault();
+            var dataItem = e.model;//this.dataItem($(e.currentTarget).closest("tr"));
+            var grid = $(documentElementSelectors.grids.ProductAliasGrid + dataItem.ProductId).data("kendoGrid");
+            kendo.confirm('Are you sure you want to delete: ' + dataItem.AliasName)
+                .done(function () {                    
+                    grid.dataSource.remove(dataItem);
+                    grid.dataSource.sync();
+                    grid.refresh();
+                })
+                .fail(function () {
+                    grid.refresh();
+                });
+        };
 
         var onDocumentRevisionRevisionDateChange = function (e) {
             var parentContainer = $(e.sender.element).parents("form");
@@ -4090,7 +4105,7 @@
                     console.log(Array.from(e.response.Errors.ServerError.errors)[0]);
                     var data = JSON.parse(Array.from(e.response.Errors.ServerError.errors)[0]);
 
-                    var grid = $('#gdProductAlias_' + data.ProductId).data('kendoGrid');
+                    var grid = $(documentElementSelectors.grids.ProductAliasGrid  + data.ProductId).data('kendoGrid');
                     grid.one("dataBinding", function (e) {
                         e.preventDefault();
                     });
@@ -4450,6 +4465,7 @@
             onDocumentRevisionRevisionDateChange: onDocumentRevisionRevisionDateChange,
             onDocumentRevisionNameNumberGridEdit: onDocumentRevisionNameNumberGridEdit,
             onDocumentRevisionNameNumberGridSave: onDocumentRevisionNameNumberGridSave,
+            onProductAliasGridDestroy: onProductAliasGridDestroy,
             onNameNumberGridDataBound: onNameNumberGridDataBound,
             onDocumentRevisionNameNumberError: onDocumentRevisionNameNumberError,
             onDocumentStatusHistoryChange: onDocumentStatusHistoryChange,

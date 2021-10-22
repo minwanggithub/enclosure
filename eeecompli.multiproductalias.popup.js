@@ -58,9 +58,7 @@ if (jQuery) (function ($, kdo) {
                 onSaveClick: function (e) {
                     e.stopPropagation();
                     e.preventDefault();
-
-                    
-                    var nnArray = this.get("productAliasText").split("\n");
+                    var nnArray = $('#txtAreaMultipleProductAliases').val().split("\n");
                     var nnResult = DeDupProductAlias(nnArray);
                     if (nnResult.length == 0) {
                         kdo.alert("Nothing to save.");
@@ -133,7 +131,7 @@ if (jQuery) (function ($, kdo) {
                 "<td style='min-width:120px;'><label style='font-weight:bold'>Product Alias: " +
                 "<span class='k-icon k-i-help' title='Press enter to insert multiple values.'></span> " +
                 "</label></td>" +
-                "<td><textarea rows='5' cols='60' data-bind='value: productAliasText, events: {keyup: onProductAliasTextKeyup }' style='min-width:300px;'></textarea>" +
+                "<td><textarea id='txtAreaMultipleProductAliases' rows='5' cols='60' data-bind='value: productAliasText, events: {keyup: onProductAliasTextKeyup }' style='min-width:300px;'></textarea>" +
                 "<p><strong>Note: </strong>Duplicates will be removed automatically.<br />To add multiple values press enter between each value.</p>" +
                 "</td>" +
                 "</tr>" +
