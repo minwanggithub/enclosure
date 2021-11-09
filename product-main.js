@@ -696,13 +696,17 @@
 
             UnBindingSaveCancel(pKey);
 
-            $(productObject.controls.buttons.AddNotAvailable + "_" + pKey).on("click", function () {
-                $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Add Obtainment Type");
-                var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
-                ddlObtainmentType.select(0);
-               $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", false);
-               $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-            });
+            var tabId = pKey + "_tbProductDetail"
+            var tabstrip = $("#" + tabId).data("kendoTabStrip")
+            if (tabstrip.select()[0].id == tabId + '-tab-1') {
+                $(productObject.controls.buttons.AddNotAvailable + "_" + pKey).on("click", function () {
+                    $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Add Obtainment Type");
+                    var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
+                    ddlObtainmentType.select(0);
+                    $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", false);
+                    $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                });
+            }
 
 
             $(productObject.controls.buttons.RefreshProduct + '_' + pKey).on('click', function () {
