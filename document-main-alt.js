@@ -481,6 +481,7 @@
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
+            alert("trigged");
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
