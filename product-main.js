@@ -704,6 +704,10 @@
                     var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
                     ddlObtainmentType.select(0);
                     $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", false);
+
+                    $(productObject.controls.dropdownlists.ConfirmNotAvailable + "_" + pKey).data("kendoDropDownList").value(-1);
+                    $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val("");
+
                     $(actionModals.NotAvailable + "_" + pKey).toggleModal();
                 });
             }
