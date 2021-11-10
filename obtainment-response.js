@@ -254,11 +254,16 @@
 
                     this.InboundResponseId = this.get(UIObject.controls.textBoxes.InboundResponseId);
                     this.SubjectSenderEmail = this.get(UIObject.controls.textBoxes.SubjectSenderEmail);
+                    if ($(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value() != null)
+                        this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value().toLocaleDateString();
+                    else
+                        this.DateRangeFrom = null;
+                    if ($(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value() != null)
+                        this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value().toLocaleDateString();
+                    else
+                        this.DateRangeTo = null;
 
-                    this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value();
-                    this.DateRangeTo = $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value();
-
-                    if (this.DateRangeFrom > this.DateRangeTo && this.DateRangeFrom != null && this.DateRangeTo != null) {
+                    if (new Date(this.DateRangeFrom) > new Date(this.DateRangeTo) && this.DateRangeFrom != null && this.DateRangeTo != null) {
                         $(this).displayError("Invalid date range. ");
                         kendo.ui.progress(UIObject.sections.responseDetailGridSection(), false);
                         return;
