@@ -1457,7 +1457,7 @@
 
         var loadRequests = function () {
 
-            // bind grid
+            // bind grid 
             var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
             grid.dataSource.read();
 
@@ -1669,7 +1669,7 @@
 
         function onDataBound(sender) {
 
-            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");            
+            var grid = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
             if ($('input[name="' + obtainmentObjects.controls.radiobuttons.GroupByAccount + '"]:checked').val() == "True") {
                 grid.hideColumn("SupplierID");
                 grid.hideColumn("SupplierName");
@@ -1678,6 +1678,28 @@
                 grid.hideColumn("AccountID");
                 grid.hideColumn("AccountName");
             }
+
+            var current_SDSCount = 0;
+            var current_SDSWithInboundResponse = 0;
+            var current_NonSDSCount = 0;
+            var current_NonSDSWithInboundResponse = 0;
+
+            var rows = grid.dataSource.view();
+            for (var i = 0; i <= rows.length; i++) {
+                if (rows[i] != undefined) {
+                    current_SDSCount += rows[i].SDSCount;
+                    current_SDSWithInboundResponse += rows[i].SDSWithInboundResponse;
+                    current_NonSDSCount += rows[i].NonSDSCount;
+                    current_NonSDSWithInboundResponse += rows[i].NonSDSWithInboundResponse;
+                }
+
+            }
+            $('#current_SDSCount').html(current_SDSCount);
+            $('#current_SDSWithInboundResponse').html(current_SDSWithInboundResponse);
+            $('#current_NonSDSCount').html(current_NonSDSCount);
+            $('#current_NonSDSWithInboundResponse').html(current_NonSDSWithInboundResponse);
+
+
 
             // after databinding, highlight all previously selected rows
 
@@ -1735,7 +1757,7 @@
 
                 //    //grid.select(selected);
 
-                    
+
                 //    //e.stopPropagation();
                 //    //console.log("SELECTED");
 
