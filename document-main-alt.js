@@ -141,7 +141,8 @@
                 DocumentRevisionDate_New: "#RevisionDate_New",
                 DocumentVerifyDate_New: "#VerifyDate_New",
                 DocumentRevisionDate_Revision: "#RevisionDate_",
-                DocumentVerifyDate_Revision: "#VerifyDate_"
+                DocumentVerifyDate_Revision: "#VerifyDate_",
+                //EpochDateTime: "[id^=EpochLastUpdate_]",
             },
             dropdownlists: {
                 DocumentContainerClassificationType: "#ClassificationType_",
@@ -481,7 +482,6 @@
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
-            alert("trigged");
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
@@ -2707,7 +2707,8 @@
                     DocumentDBGuidId: $(this).getQueryStringParameterByName("docGuid"),
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
-                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked")
+                    CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked"),
+                    //EpochLastUpdate: container.find(documentElementSelectors.datepickers.EpochDateTime).val(),
                 };
 
                 if (extractCompanyIdFromTemplate) {
