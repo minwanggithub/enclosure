@@ -142,7 +142,7 @@
                 DocumentVerifyDate_New: "#VerifyDate_New",
                 DocumentRevisionDate_Revision: "#RevisionDate_",
                 DocumentVerifyDate_Revision: "#VerifyDate_",
-                //EpochDateTime: "[id^=EpochLastUpdate_]",
+                EpochDateTime: "[id^=EpochLastUpdate_]",
             },
             dropdownlists: {
                 DocumentContainerClassificationType: "#ClassificationType_",
@@ -2708,7 +2708,7 @@
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
                     CopyIndexationData: container.find(documentElementSelectors.radiobuttons.DocumentRevisionDetailsReplicateIndexationData).is(":checked"),
-                    //EpochLastUpdate: container.find(documentElementSelectors.datepickers.EpochDateTime).val(),
+                    EpochLastUpdate: container.find(documentElementSelectors.datepickers.EpochDateTime).val(),
                 };
 
                 if (extractCompanyIdFromTemplate) {
