@@ -303,7 +303,10 @@
 
             $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Save Obtainment Type");
             $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-            var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList").value(dataItem["ObtainmentLkpID"]);
+
+            var obtTypeDDL = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
+            obtTypeDDL.enable(false);
+            obtTypeDDL.value(dataItem["ObtainmentLkpID"]);
             $(productObject.controls.dropdownlists.ConfirmNotAvailable + "_" + pKey).data("kendoDropDownList").value(-1);
 
             $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", dataItem["Obsolete"]);
@@ -703,6 +706,7 @@
                     $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).text("Add Obtainment Type");
                     var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
                     ddlObtainmentType.select(0);
+                    ddlObtainmentType.enable(true);
                     $(productObject.controls.checkBox.Obsolete + "_" + pKey).attr("checked", false);
 
                     $(productObject.controls.dropdownlists.ConfirmNotAvailable + "_" + pKey).data("kendoDropDownList").value(-1);
