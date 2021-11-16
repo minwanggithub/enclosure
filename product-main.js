@@ -748,50 +748,51 @@
                 }
             });
 
-            $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).on("click", function () {
-                var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
+            if (tabstrip.select()[0].id == tabId + '-tab-1') {
+                $(productObject.controls.buttons.SaveNotAvailable + "_" + pKey).on("click", function () {
+                    var ddlObtainmentType = $(productObject.controls.dropdownlists.ObtainmentType + "_" + pKey).data("kendoDropDownList");
 
-                notAvailableModel.ProductID = pKey;
+                    notAvailableModel.ProductID = pKey;
 
-                notAvailableModel.ObtainmentLkpID = ddlObtainmentType.value() === "" ? 0 : ddlObtainmentType.value();
-                notAvailableModel.Obsolete = $(productObject.controls.checkBox.Obsolete + "_" + pKey).is(":checked");
-                notAvailableModel.Notes = $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val();
+                    notAvailableModel.ObtainmentLkpID = ddlObtainmentType.value() === "" ? 0 : ddlObtainmentType.value();
+                    notAvailableModel.Obsolete = $(productObject.controls.checkBox.Obsolete + "_" + pKey).is(":checked");
+                    notAvailableModel.Notes = $(productObject.controls.textBoxes.ObtainmentActionNotes + "_" + pKey).val();
 
-                var errors = [];
+                    var errors = [];
 
-                if ((notAvailableModel.Notes + "").trim() == "") {
-                    errors.push(messages.errorMessages.NoReasonNotes);
-                }
+                    if ((notAvailableModel.Notes + "").trim() == "") {
+                        errors.push(messages.errorMessages.NoReasonNotes);
+                    }
 
-                if (notAvailableModel.ObtainmentLkpID <= 0) {
-                    errors.push(messages.errorMessages.ObtainmentTypeError);
-                }
+                    if (notAvailableModel.ObtainmentLkpID <= 0) {
+                        errors.push(messages.errorMessages.ObtainmentTypeError);
+                    }
 
-                if (errors.length == 0) {
-                    $(this).ajaxCall(controllerCalls.SaveObtainmentNotAvailable, { jsnotAvailableModel: JSON.stringify(notAvailableModel) })
-                        .success(function (data) {
-                            if (data == 0) {
-                                $(this).savedSuccessFully(messages.confirmationMessages.ObtainmentTypeSaved);
-                                var grid1 = $(productObject.controls.grids.GridNotAvailable + "_" + pKey).data("kendoGrid");
-                                grid1.dataSource.read();
-                                grid1.dataSource.page(1);
-                                $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-                            } else {
-                                $(actionModals.NotAvailable + "_" + pKey).toggleModal();
-                                $(this).displayError(messages.errorMessages.ObtianmentTypeAlreadyAdded);
-                            }
+                    if (errors.length == 0) {
+                        $(this).ajaxCall(controllerCalls.SaveObtainmentNotAvailable, { jsnotAvailableModel: JSON.stringify(notAvailableModel) })
+                            .success(function (data) {
+                                if (data == 0) {
+                                    $(this).savedSuccessFully(messages.confirmationMessages.ObtainmentTypeSaved);
+                                    var grid1 = $(productObject.controls.grids.GridNotAvailable + "_" + pKey).data("kendoGrid");
+                                    grid1.dataSource.read();
+                                    grid1.dataSource.page(1);
+                                    $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                                } else {
+                                    $(actionModals.NotAvailable + "_" + pKey).toggleModal();
+                                    $(this).displayError(messages.errorMessages.ObtianmentTypeAlreadyAdded);
+                                }
 
-                        }).error(
-                            function () {
-                                $(this).displayError(messages.errorMessages.GeneralError);
-                            });
-                } else {
-                    var html = "Validation failed:<br><br>" + errors.join("<br>");
-                    $(this).displayError(html);
-                }
+                            }).error(
+                                function () {
+                                    $(this).displayError(messages.errorMessages.GeneralError);
+                                });
+                    } else {
+                        var html = "Validation failed:<br><br>" + errors.join("<br>");
+                        $(this).displayError(html);
+                    }
 
-            });
-
+                });
+            }
 
             //(SH) 4-16-2014
             $("#viewSupplierIdBtn_" + pKey).click(function () {
