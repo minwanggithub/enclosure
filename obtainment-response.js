@@ -954,7 +954,11 @@
         });
 
         function SetAllStatus(e)
-        {        
+        {
+            var status = $('#ddlSetResponseStatus').val();
+            var isNethubRecordSelected = false;
+            var isNonNethubRecordSelected = false;
+            var IsAnyProcessedNethubRecordSelected = false;
             selectedRequests = new Array();
             itemsChecked = 0;
 
@@ -968,6 +972,15 @@
                             if (this['IsSelected']) {
                                 selectedRequests.push(this["InboundResponseId"]);
                                 itemsChecked++;
+                                if (this['ResponseMethodId'] == 4 && this['ResponseStatusId'] == 3) {//NETHUB & ProcessedRecord
+                                    IsAnyProcessedNethubRecordSelected = true;
+                                }
+                                if (this['ResponseMethodId'] == 4) {//NethubRecord
+                                    isNethubRecordSelected = true;
+                                }
+                                else {//NonNethub
+                                    isNonNethubRecordSelected = true;
+                                }
                             } else {
                                 var index = selectedRequests.indexOf(this["InboundResponseId"]);
                                 if (index > -1)
@@ -979,22 +992,52 @@
                 }
             }
 
-            var status = $('#ddlSetResponseStatus').val();
-            if (itemsChecked > 0 && status > 0) {
+            var func_SubmitRequest = function () {
                 $(this).ajaxCall(UIObject.controllerCalls.ChangeStatus, { inboundResponseIDs: selectedRequests, statusID: status })
-                      .success(function (data) {
-                          if (data == 'success') {
+                    .success(function (data) {
+                        if (data == 'success') {
                             $('#searchResponseBtn').trigger('click');
                             $(this).savedSuccessFully("Inbound response status set.");
                         } else {
                             $(this).displayError("Error Set Status.");
                         }
                     }).error(
-                      function () {
-                          $(this).displayError("Error Set Status.");
-                      });
+                        function () {
+                            $(this).displayError("Error Set Status.");
+                        });
+            }
+            if (itemsChecked > 0 && status > 0) {
+                switch (true) {
+                    case (isNethubRecordSelected && isNonNethubRecordSelected):
+                        $(this).displayError("Status of NETHUB and non-NETHUB responses can not be set at the same time. ");
+                        break;
+                    case (isNethubRecordSelected && status != 1 && status!=3): //1=pending; 3=Processed;
+                        $(this).displayError("The status of NETHUB responses can only be set to Processed.");
+                        break;
+                    case (isNethubRecordSelected && status == 1 ):
+                        $(this).displayError("Status of NETHUB responses can not be changed to Pending");
+                        break;
+                    case (isNethubRecordSelected && status == 3):
+                        var msg = "Are you sure you want to change state of selected NETHUB responses to Processed? NETHUB responses marked Processed cannot be reset to Pending. ";
+                        var processedRecordSelectedMsg = 'Responses already in a Processed state will be ignored.';
+                        var finalMsg = msg + (IsAnyProcessedNethubRecordSelected ? processedRecordSelectedMsg : "")
+                        var settings = {
+                            message: (finalMsg),
+                            header: "Confirm"
+                        };
+                        _DisplayConfirmationModal(settings, function () {
+                            func_SubmitRequest();
+                        });
+                        break;
+                    default:
+                        func_SubmitRequest();
+                        break;
+                }
 
-                } else {
+               
+
+            }
+            else {
                   $(this).displayError("Please select inbound responses items and the status.");
             }
 
