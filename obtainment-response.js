@@ -999,25 +999,45 @@
                             $('#searchResponseBtn').trigger('click');
                             $(this).savedSuccessFully("Inbound response status set.");
                         } else {
-                            $(this).displayError("Error Set Status.");
+                            $(this).displayError("Status of any of the selected responses could not be set. They may already be in the selected state.");
                         }
                     }).error(
                         function () {
                             $(this).displayError("Error Set Status.");
                         });
             }
+
             if (itemsChecked > 0 && status > 0) {
-                switch (true) {
-                    case (isNethubRecordSelected && isNonNethubRecordSelected):
-                        $(this).displayError("Status of NETHUB and non-NETHUB responses can not be set at the same time. ");
-                        break;
-                    case (isNethubRecordSelected && status != 1 && status!=3): //1=pending; 3=Processed;
-                        $(this).displayError("The status of NETHUB responses can only be set to Processed.");
-                        break;
-                    case (isNethubRecordSelected && status == 1 ):
-                        $(this).displayError("Status of NETHUB responses can not be changed to Pending");
-                        break;
-                    case (isNethubRecordSelected && status == 3):
+
+                // no mixing
+                if (isNethubRecordSelected && isNonNethubRecordSelected) {
+                    $(this).displayError("Status of NETHUB and non-NETHUB responses can not be set at the same time. ");
+                    return;
+                }
+
+                if (isNethubRecordSelected) {
+
+                    if (status != 1 && status != 3) {
+                        $(this).displayError("NETHUB response(s) can not be set to the selected state.");
+                        return;
+                    }
+
+                    if (status == 1) {
+
+                        var msg = "Selected NETHUB responses can be set to Pending status if there are no additional submissions.<br>" +
+                            "You may alternately consider setting them to Processed status.<br><br>" +
+                            "You will still be able to Attach to Product and create revisions from attachments.";
+                        var settings = {
+                            message: (msg),
+                            header: "Confirm"
+                        };
+                        _DisplayConfirmationModal(settings, function () {
+                            func_SubmitRequest();
+                        });
+
+                    }
+
+                    if (status == 3) {
                         var msg = "Are you sure you want to change state of selected NETHUB responses to Processed? NETHUB responses marked Processed cannot be reset to Pending. ";
                         var processedRecordSelectedMsg = 'Responses already in a Processed state will be ignored.';
                         var finalMsg = msg + (IsAnyProcessedNethubRecordSelected ? processedRecordSelectedMsg : "")
@@ -1028,14 +1048,13 @@
                         _DisplayConfirmationModal(settings, function () {
                             func_SubmitRequest();
                         });
-                        break;
-                    default:
-                        func_SubmitRequest();
-                        break;
+
+                    }
+
+                } else {
+                    func_SubmitRequest();
                 }
-
                
-
             }
             else {
                   $(this).displayError("Please select inbound responses items and the status.");
