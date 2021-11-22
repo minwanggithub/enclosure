@@ -4323,12 +4323,33 @@
 
             e.preventDefault();
 
+            var tr = $(e.target).closest("tr"); // get current row
+            var grid = $("#" + e.delegateTarget.id).data("kendoGrid");
+            var dataItem = grid.dataItem(tr);
 
+            var documentInfoId = dataItem.DocumentInfoId;
+            var revisionId = dataItem.RevisionId;
+            var documentId = dataItem.DocumentId;
 
-            // **********************************************************************
+            $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
+                .success(function (data) {
+                    if (data == null) return;
+                    replaceRevisionAttachmentConfirmation(e, data.RevisionId, revisionId);
+                });
+
+        }
+
+        var replaceRevisionAttachmentConfirmation = function (e, currentRevisionId, revisionId) {
+
+            e.preventDefault();
 
             // confirm 
-            var msg = "With this confirmation you are replacing the exact SDS with a better version."
+            var msg = "With this confirmation you are replacing the exact SDS with a better version.<br><br>";
+            if (currentRevisionId == revisionId)
+                msg += "The current revision's attachment is being replaced, attachment of current siblings will be replaced.";
+            else
+                msg += "Since the previous revision's attachment is being replaced, attachment of previous revision siblings will be replaced.";
+
 
             var settings = {
                 message: msg,
