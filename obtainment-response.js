@@ -1011,14 +1011,15 @@
 
                 // no mixing
                 if (isNethubRecordSelected && isNonNethubRecordSelected) {
-                    $(this).displayError("Status of NETHUB and non-NETHUB responses can not be set at the same time. ");
+                    $(this).displayError("You selected NETHUB and non-NETHUB responses, the status cannot be changed for both types. " +
+                                            "Please remove either the NETHUB or non-NETHUB response from your selection.");
                     return;
                 }
 
                 if (isNethubRecordSelected) {
 
                     if (status != 1 && status != 3) {
-                        $(this).displayError("NETHUB response(s) can not be set to the selected state.");
+                        $(this).displayError("The NETHUB status can only be set to Processed.");
                         return;
                     }
 
@@ -1038,7 +1039,7 @@
                     }
 
                     if (status == 3) {
-                        var msg = "Are you sure you want to change state of selected NETHUB responses to Processed? NETHUB responses marked Processed cannot be reset to Pending. ";
+                        var msg = "Are you sure you want to change the selected NETHUB responses status to Processed? NETHUB responses marked Processed cannot be reset to Pending.";
                         var processedRecordSelectedMsg = 'Responses already in a Processed state will be ignored.';
                         var finalMsg = msg + (IsAnyProcessedNethubRecordSelected ? processedRecordSelectedMsg : "")
                         var settings = {
