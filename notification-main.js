@@ -54,6 +54,7 @@
                     CustomerAction: "#ddlCustomerAction",
                     ObtainmentAction: "#ddlObtainmentAction",
                     Teams: "#ddlTeams",
+                    DaysInProgressCondition: "#ddlDaysInProgressCondition",
                 },
 
                 textbox: {
@@ -61,7 +62,10 @@
                     NoticeBatchId: "#txtEditNoticeBatchId",
                     NumberOfItemsTextBox: "#numberOfItems",
                     EmailSubject: "#txtEditEmailSubject",
-                    SummaryRecipient:"#txtEditSummaryRecipient"
+                    SummaryRecipient:"#txtEditSummaryRecipient",
+                    Supplier:"#txtProductSearchSearchSupplierId",
+                    DaysInProgress:"#txtEditDaysInProgressId",
+                    BatchSize:"#txtEditBatchSizeId",
                 },
 
                 checkbox: {
@@ -125,6 +129,7 @@
             RemoveNewBatchAttachments: GetEnvironmentLocation() + "/Operations/Notification/RemoveAttachmentsAlt",
             Load_SDS_NonSDS_Obtainment_Type_Ids: GetEnvironmentLocation() + "/Operations/Notification/LoadObtainmentTypeSdsAndNonSdsIds",
             PreviewProductDetails: GetEnvironmentLocation() + "/Operations/Notification/LoadNoticebatchProductDetailsGrid",
+            LookUpSupplierOnKeyEnter: GetEnvironmentLocation() + "/Operations/Company/LookUpSupplierOnKeyEnter",
         };
 
         var messages = {
@@ -485,6 +490,37 @@
                 multiSelect.trigger("change");
             }
         }
+        var disableFields = function (disable) {
+            $("input[class='disableIfSupplierSelected']").each(function () {
+
+                if ($('#' + this.id).data("kendoDropDownList")) {
+                    $('#' + this.id).data("kendoDropDownList")?.value("");
+                    $('#' + this.id).data("kendoDropDownList")?.enable(!disable);
+                }
+                else {
+                    $('#' + this.id).val('');
+                    $('#' + this.id).prop("disabled", disable);
+                }
+            })
+            $(".disableIfSupplierSelected_datePicker").each(function () {
+                if ($('#' + this.id).data("kendoDatePicker")) {
+                    if ('#' + this.id == UIObject.controls.datepickers.EditScheduledDate && disable) {
+                        var todayDate = kendo.toString(kendo.parseDate(new Date()), 'MM/dd/yyyy');
+                        $('#' + this.id).data("kendoDatePicker").value(todayDate);
+                    }
+                    else {
+                        $('#' + this.id).data("kendoDatePicker")?.value("");
+                    }
+
+                    $('#' + this.id).data("kendoDatePicker")?.enable(!disable);
+                }
+            })
+            $('#mltDdlEditObtainmentType').data("kendoMultiSelect").readonly(disable);
+        }
+        var txtProductSearchSearchSupplier_change = function (e) {
+           
+            disableFields(e.value ? true : false);
+        }
         var mltDdlEditObtainmentType_deselect = function (e) {
             var deselectId = e.dataItem.Value;
             var chkSDS = $(UIObject.controls.checkbox.AllSDS).prop("checked");
@@ -549,12 +585,14 @@
 
 
         function onEditSaveButtonClick(e) {
+            var supplier = $(UIObject.controls.textbox.Supplier).val()?.split(',')[0];
             var noticeModel = {
                 NoticeBatchId: Number($(UIObject.controls.textbox.NoticeBatchId).val()),
                 NextStepId: Number($(UIObject.controls.dropdownlists.EditNextStep).data("kendoDropDownList").value()),
                 NotificationStatusId: Number($(UIObject.controls.dropdownlists.EditNoticeStatus).data("kendoDropDownList").value()),
                 EmailTemplateId: Number($(UIObject.controls.dropdownlists.EditEmailTemplate).data("kendoDropDownList").value()),
                 EmailSubject: $(UIObject.controls.textbox.EmailSubject).val(),
+                SupplierId: supplier,
                 ScheduledDate: $(UIObject.controls.datepickers.EditScheduledDate).data("kendoDatePicker").value(),                
                 ObtainmentList: $(UIObject.controls.dropdownlists.ObtainmentEditTypeDropDownList).data("kendoMultiSelect").value(),
                 AccountIdArray: $(UIObject.controls.textbox.AccountId).val(),
@@ -565,6 +603,9 @@
                 ObtainmentActionLkpId: Number($(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").value()),
                 CustomerAction: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").text(),
                 ObtainmentNotes: $(UIObject.controls.dropdownlists.CustomerAction).data("kendoDropDownList").value(),
+                BatchSize: Number($(UIObject.controls.textbox.BatchSize).val()),
+                DaysInProgress: Number($(UIObject.controls.textbox.DaysInProgress).val()),
+                DaysInProgressCondition: $(UIObject.controls.dropdownlists.DaysInProgressCondition).data("kendoDropDownList").value(),
 
                 NextObtainmentStepDueDateFrom: $(UIObject.controls.datepickers.NoticeDueDateFrom).data("kendoDatePicker").value(),
                 NextObtainmentStepDueDateTo: $(UIObject.controls.datepickers.NoticeDueDateTo).data("kendoDatePicker").value(),
@@ -582,13 +623,18 @@
                         if (this.ObtainmentNotes == -1)
                             customerActionvalid = false;
                     }
+                    if (!supplier) {
 
-                    if (this.NextStepId == -1)
-                        nextStepValid = false;
-                    else if (this.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
-                                                      noticeModel.AccountIdArray.indexOf(",") >= 0))
-                        nextStepValid = false;
+                        if (this.NextStepId == -1)
+                            nextStepValid = false;
+                        else if (this.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
+                            noticeModel.AccountIdArray.indexOf(",") >= 0))
+                            nextStepValid = false;
 
+                    }
+                    else {
+                        this.NextStepId = 0;
+                    }
                     return (!nextStepValid) || (this.NotificationStatusId == 0)
                         || (this.EmailTemplateId == 0) || (this.ScheduledDate == null)
                         || (this.EmailSubject == "")
@@ -599,6 +645,10 @@
                 InvalidSchedueDate: function () {
                     var today = new Date();
                     var selectedDate = new Date(noticeModel.ScheduledDate);
+                    if (supplier) {
+                        return (selectedDate.toDateString()!= today.toDateString());
+                    }
+                    
                     return (selectedDate <= today);
                 },
 
@@ -616,7 +666,6 @@
                 }
 
             };
-
             //alert(JSON.stringify(noticeModel));
 
             //Add this attachment to model
@@ -641,15 +690,16 @@
                 return;
             };
 
-            if (noticeModel.ConfirmOnInformationChange()) {
-                var args = {
-                    header: 'Confirm to regenerate batch on information change',
-                    message: messages.warningMessages.PromptForInformationChange
-                };
-                           
-                DisplayConfirmationModal(args, function () {
-                    kendo.ui.progress(UIObject.sections.searchResultSection(), true);
-                    $(this).ajaxCall(controllerCalls.ReDefineNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
+            function _save() {
+                if (noticeModel.ConfirmOnInformationChange()) {
+                    var args = {
+                        header: 'Confirm to regenerate batch on information change',
+                        message: messages.warningMessages.PromptForInformationChange
+                    };
+
+                    DisplayConfirmationModal(args, function () {
+                        kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                        $(this).ajaxCall(controllerCalls.ReDefineNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
                             .success(function (data) {
                                 if (data.success) {
                                     $(this).savedSuccessFully(data.message);
@@ -678,25 +728,25 @@
                                     $(this).displayError(data.message);
                                 }
                             }).error(
-                            function () {
-                                $(this).displayError(errorMessages.SearchFailure);
-                            });
-                    kendo.ui.progress(UIObject.sections.searchResultSection(), false);
-                });
-                return;
-            };
+                                function () {
+                                    $(this).displayError(errorMessages.SearchFailure);
+                                });
+                        kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+                    });
+                    return;
+                };
 
-            if (noticeModel.MissingNoticeNumber()) {
-                $(this).displayError(messages.errorMessages.MissingNoticeNumber);
-                return;
-            };
+                if (noticeModel.MissingNoticeNumber()) {
+                    $(this).displayError(messages.errorMessages.MissingNoticeNumber);
+                    return;
+                };
 
 
 
-            noticeModel.NotificationAttachment = notificatonAttachments;
+                noticeModel.NotificationAttachment = notificatonAttachments;
 
-            kendo.ui.progress(UIObject.sections.searchResultSection(), true);
-            $(this).ajaxCall(controllerCalls.SaveNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
+                kendo.ui.progress(UIObject.sections.searchResultSection(), true);
+                $(this).ajaxCall(controllerCalls.SaveNotificationTemplate, { searchCriteria: JSON.stringify(noticeModel) })
                     .success(function (data) {
                         if (data.success) {
 
@@ -726,10 +776,29 @@
                             $(this).displayError(data.message);
                         }
                     }).error(
-                    function () {
-                        $(this).displayError(errorMessages.SearchFailure);
-                    });
-            kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+                        function () {
+                            $(this).displayError(errorMessages.SearchFailure);
+                        });
+                kendo.ui.progress(UIObject.sections.searchResultSection(), false);
+
+            }
+            if (+supplier) {
+                $(this).ajaxCall(controllerCalls.LookUpSupplierOnKeyEnter, { supplierInfo: supplier })
+                    .success(function (data) {
+                        if (data) {
+                            _save();
+                        }
+                        else {
+                            $(this).displayError("Invalid Supplier!");
+                        }
+                    }).error(
+                            function () {
+                                $(this).displayError("Invalid Supplier!");
+                            });
+            }
+            else {
+                _save();
+            }
             
         };
 
@@ -1148,6 +1217,8 @@
             Load_SDS_NonSDS_Obtainment_Type_Ids: Load_SDS_NonSDS_Obtainment_Type_Ids,
             chk_AllSds_Change: chk_AllSds_Change,
             chk_AllNonSDS_Change: chk_AllNonSDS_Change,
+            txtProductSearchSearchSupplier_change: txtProductSearchSearchSupplier_change,
+            disableFields: disableFields,
             mltDdlEditObtainmentType_deselect: mltDdlEditObtainmentType_deselect,
             PreviewProductDetails: PreviewProductDetails,
         };
