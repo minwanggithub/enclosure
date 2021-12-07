@@ -539,7 +539,7 @@
             //var container = $("#divNotificationModalPopup");
             //UIObject.buttons.EditCancel, onEditCancelButtonClick);
 
-            $(UIObject.controls.buttons.EditCancel).click(function () { onEditCancelButtonClick(); });
+            $(UIObject.controls.buttons.EditCancel).click(function (e) { onEditCancelButtonClick(e); });
             $(UIObject.controls.buttons.EditSave).click(function () { onEditSaveButtonClick(); });
 
             // hide condition, enable as required
@@ -553,6 +553,10 @@
 
             $(UIObject.controls.dropdownlists.ObtainmentAction).change(function () { onCustomerActionObtainmentAction(); });
             $(UIObject.controls.dropdownlists.ObtainmentAction).data("kendoDropDownList").bind("dataBound", onObtainmentActionDataBound);
+            if ($(UIObject.controls.textbox.Supplier).val().length>0) {
+                disableFields(true);
+            }
+           // alert(($(UIObject.controls.textbox.Supplier).val()?.split(',')[0]));
             //onCustomerActionObtainmentAction
             //setTimeout(
             //    function () {
@@ -580,11 +584,15 @@
         }
 
         function onEditCancelButtonClick(e) {
+            e.preventDefault();
             hideNotificationPopUp();
         };
 
 
         function onEditSaveButtonClick(e) {
+            if ($('#btnEditSaveNotification')[0].attributes.disabled != null) {
+                return false;
+            }
             var supplier = $(UIObject.controls.textbox.Supplier).val()?.split(',')[0];
             var noticeModel = {
                 NoticeBatchId: Number($(UIObject.controls.textbox.NoticeBatchId).val()),
