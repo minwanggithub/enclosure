@@ -143,6 +143,7 @@
                 DocumentRevisionDate_Revision: "#RevisionDate_",
                 DocumentVerifyDate_Revision: "#VerifyDate_",
                 EpochDateTime: "[id^=EpochLastUpdate_]",
+                EpochDateTimeNew: "#EpochLastUpdate_New",
             },
             dropdownlists: {
                 DocumentContainerClassificationType: "#ClassificationType_",
@@ -1554,7 +1555,8 @@
                     SupplierId: null,
                     VerifyDate: container.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).val(),
                     IsExposureScenario: container.find(documentElementSelectors.checkboxes.DocumentIsExposureScenario).is(":checked"),
-                    ExposureScenarioStartingPage: container.find(documentElementSelectors.textboxes.DocumentExposureScenarioStartingPage).val()
+                    ExposureScenarioStartingPage: container.find(documentElementSelectors.textboxes.DocumentExposureScenarioStartingPage).val(),
+                    EpochLastUpdate: container.find(documentElementSelectors.datepickers.EpochDateTimeNew).val(),
                 };
 
                 if (extractCompanyIdFromTemplate) {
@@ -2115,7 +2117,6 @@
         }
 
         function onNewDocumentPopUpSaveBtnClick(e) {
-
             e.preventDefault();
             if ($(this).getQueryStringParameterByName("productid") != "") {
                 var formData = getNewDocumentData();
