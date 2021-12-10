@@ -161,6 +161,7 @@
                 SingleAccountRequired: "A single Account must be specified for Notifications for 'All Steps'.",
                 CustomAction47NotAvailable: "Custom Action 47 is not available at this moment for bulk notices.",
                 NoCustomerActionSelected: "No customer action has been selected.",
+                ObtainmentActionSelected: "No obtainment action has been selected.",
                 CustomerActionRequired: "Customer action required.",
                 Load_SDS_NonSDS_Obtainment_Type_Failure:"Cannot load obtainment type's for selecting all SDS and Non SDS."
             }
@@ -680,7 +681,7 @@
             if (noticeModel.MissingRequired()) {
     
                 // single account required
-                if (noticeModel.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
+                if (!supplier && noticeModel.NextStepId == 0 && (noticeModel.AccountIdArray.trim() == "" ||
                                                     noticeModel.AccountIdArray.indexOf(",") >= 0))
                     $(this).displayError(messages.errorMessages.SingleAccountRequired);
                 else 
@@ -697,6 +698,13 @@
                 $(this).displayError(messages.errorMessages.ReasonForNotAllowChange);
                 return;
             };
+
+            if ($(UIObject.controls.dropdownlists.OverrideNextStep).data("kendoDropDownList").text() == 'Completed') {
+                if (!$(UIObject.controls.dropdownlists.ObtainmentAction).val()) {
+                    $(this).displayError(messages.errorMessages.ObtainmentActionSelected);
+                    return;
+                }
+            }
 
             function _save() {
                 if (noticeModel.ConfirmOnInformationChange()) {
