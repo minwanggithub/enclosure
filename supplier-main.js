@@ -15,7 +15,8 @@
             actions: {},
             controls: {
                 grids: {
-                    SupplerSearchGrid: "#gdSearchSupplier"
+                    SupplerSearchGrid: "#gdSearchSupplier",
+                    SupplierContacts:"#gdSupplierContacts"
                 },
                 buttons: {
                     ClearSupplierSearchButton: "#clearSupplierBtn",
@@ -28,6 +29,9 @@
                 customControl: {
                     MainSupplierAdvanceSearchCtl: "#mainSupplierAdvanceSearchCtl",
                     SupplierAdvanceSearchCtlInPopUp: "#supplierAdvanceSearchCtlInPopUp"
+                },
+                tabs: {
+                    ContactTabstrip:"#ContactTabstrip"
                 }
             },
             data: {
@@ -451,9 +455,10 @@
                     var url = form.attr("action");
                     var formData = form.serialize();
                     $.post(url, formData, function (data) {
-                        var contactgrid = $("#gdSupplierContacts").data("kendoGrid");
+                        var contactgrid = $(supplierLiterSettings.controls.grids.SupplierContacts).data("kendoGrid");
                         contactgrid.dataSource.read();
-                        $('#CompanyContactDetailResult').html(data);
+                        //$('#CompanyContactDetailResult').html(data);
+                        $(supplierLiterSettings.controls.tabs.ContactTabstrip).data("kendoTabStrip").reload("li:first");
                     });
                 }
             });
@@ -1259,6 +1264,13 @@
 
             }
         };
+        var onContactGeneralSelect = function (e) {
+            if ($(e.item).find(".k-link").text() == "General") {
+                setTimeout(function () {
+                    $(supplierLiterSettings.controls.tabs.ContactTabstrip).data("kendoTabStrip").reload("li:first");
+                }, 300);
+            }
+        };
 
         var onObtainmentSettingsActivate = function (e) {
             //alert($(e.item).find("> .k-link").text());
@@ -1547,7 +1559,7 @@
             }
         };
 
-        var onGdContactAddressDataBound = function () {
+        var onGdContactAddressDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactAddress");
@@ -1567,7 +1579,7 @@
                 }
 
             }); 
-
+            refreshContactGrid(e, '#gdContactAddress');
         };
 
         
@@ -1612,22 +1624,28 @@
             });
         };
 
-        var onGdContactPhoneDataBound = function () {
+        var onGdContactPhoneDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactPhone");
                 }, 200);
             }
+            refreshContactGrid(e, '#gdContactPhone')
         };
 
-        var onGdContactEmailDataBound = function () {
+        var onGdContactEmailDataBound = function (e) {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
                     //DisableGridInLineEditing("gdContactEmail");
                 }, 200);
             }
+            refreshContactGrid(e,'#gdContactEmail')
         };
-
+        var refreshContactGrid = function (e, gridId) {
+            var contactgrid = $(supplierLiterSettings.controls.grids.SupplierContacts).data("kendoGrid");
+            contactgrid.dataSource.read();
+            
+        }
         var ongdObtainmentSettingsDataBound = function () {
             if (IsReadOnlyMode()) {
                 setTimeout(function () {
@@ -2836,7 +2854,8 @@
             onGridEditChangeContactEmail: onGridEditChangeContactEmail,
             onGridClickChangeContactEmail: onGridClickChangeContactEmail,
             extractSupplierCriteria: extractSupplierCriteria,
-            advanceSearchInitialize: advanceSearchInitialize
+            advanceSearchInitialize: advanceSearchInitialize,
+            onContactGeneralSelect: onContactGeneralSelect
         };
     };
 })(jQuery);
