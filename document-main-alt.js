@@ -4417,6 +4417,11 @@
             $("#SiblingRevisionId").val(revisionId);
             $("#SiblingRevisionsSelected").val(revisionId);
 
+            // reset file selections
+            $('#fileUploadReplacementFileUpload').files = null;
+            $("#txtSelectedReplacementFile").html("");
+
+
             siblingsGrid.dataSource.read();
           
         }
