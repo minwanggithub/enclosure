@@ -98,7 +98,9 @@
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
                 DocumentAddSibling: "#btnSibling_",
                 btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
-                ConflictingFileUploadClose: "#btnConflictingFileUploadClose"
+                ConflictingFileUploadClose: "#btnConflictingFileUploadClose",
+                CancelReplaceForSelectedRevisions: "#btnCancelReplaceForSelectedRevisions",
+                SaveReplaceForSelectedRevisions: "#btnSaveReplaceForSelectedRevisions"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -283,6 +285,7 @@
             DeleteDocumentRevision: GetEnvironmentLocation() + "/Operations/Document/DeleteRevisionAllowAsynch",
             GetSupplierName: GetEnvironmentLocation() + "/Operations/Company/GetSupplierName",
             DocumentSiblingChainingVerify: GetEnvironmentLocation() + "/Operations/Document/DocumentSiblingChainingVerify",
+            ReplaceFileForRevisionSiblings: GetEnvironmentLocation() + "/Operations/Document/ReplaceFileForRevisionSiblings",
         }
 
         var documentMessages = {
@@ -2531,6 +2534,17 @@
                 container.on('click', documentElementSelectors.buttons.DocumentRevisionMultipleNameNumbersSave, onDocumentRevisionMultipleNameNumbersSaveBtnClick);
                 container.on('keyup', documentElementSelectors.textboxes.DocumentRevisionMultipleNameNumbers, onDocumentRevisionMultipleNameNumbersKeyUp);
             }
+
+            // sibling replacement
+
+            $(documentElementSelectors.buttons.CancelReplaceForSelectedRevisions).on('click', function (e) {
+                e.preventDefault();
+                $("#mdlListofSiblingsForReplacement").toggleModal();
+            });
+
+            $(documentElementSelectors.buttons.SaveReplaceForSelectedRevisions).on('click', onSaveReplaceForSelectedRevisionsBtnClick);
+
+                      
         };
 
         function enableDisableExposureScenario(e) {
@@ -4320,6 +4334,69 @@
                 });
         }
 
+        var onSaveReplaceForSelectedRevisionsBtnClick = function (e) {
+
+            // prevent double processing
+            if ($(e.currentTarget).hasClass('k-state-disabled')) return false;
+            $(e.currentTarget).addClass('k-state-disabled');
+
+            var data = new FormData();
+            var files = $("#fileUploadReplacementFileUpload")[0].files;
+            
+            data.append("file", files[0]);
+            data.append("documentid", $("#SiblingDocumentId").val());
+            data.append("revisionid", $("#SiblingRevisionId").val());
+            data.append("revisionids", $("#SiblingRevisionsSelected").val());
+
+            var url = controllerCalls.ReplaceFileForRevisionSiblings;
+            $.ajax({
+                type: "POST",
+                url: controllerCalls.ReplaceFileForRevisionSiblings,
+                contentType: false,
+                processData: false,
+                data: data,
+                success: function (result) {
+
+                    // enable button
+                    $(e.currentTarget).removeClass('k-state-disabled');
+
+                    // refresh all attachment grids
+                    var gridId = "#gdRevisionFileInfoDetail_" + $("#SiblingDocumentId").val() + "_" + $("#SiblingRevisionId").val();
+
+                    // refresh attachments grid
+                    $(gridId).data("kendoGrid").dataSource.read();
+                  
+                    // close dialog
+                    $("#mdlListofSiblingsForReplacement").toggleModal();
+
+                    // display message
+                    displayCreatedMessage(documentMessages.success.DocumentRevisionAttachmentsReplaced);
+
+                },
+                error: function (xhr, status, p3, p4) {
+                    var err = "Error " + " " + status + " " + p3 + " " + p4;
+                    if (xhr.responseText && xhr.responseText[0] == "{")
+                        err = JSON.parse(xhr.responseText).Message;
+                    console.log(err);
+                    return;
+                }
+            });
+
+        }
+
+        var handleSiblingSelection = function (ctrl, id) {
+
+            var checked = $(ctrl).is(":checked");
+            debugger;
+            var ids = Array.from($("#SiblingRevisionsSelected").val().split(","));
+            if (!checked) ids[ids.indexOf(id + "")] = 0;
+            else ids.push(id);
+
+            // update selected ids
+            $("#SiblingRevisionsSelected").val(ids.filter(e => e != 0).join(","));
+            
+        }
+
         var replaceRevisionAttachment = function (e) {
 
             e.preventDefault();
@@ -4328,15 +4405,35 @@
             var grid = $("#" + e.delegateTarget.id).data("kendoGrid");
             var dataItem = grid.dataItem(tr);
 
-            var documentInfoId = dataItem.DocumentInfoId;
             var revisionId = dataItem.RevisionId;
             var documentId = dataItem.DocumentId;
+
+            // prompt selection of revisions
+            // open modal form
+
+            var siblingsGrid = $("#gdListofSiblingsForReplacement").data("kendoGrid");
+
+            $("#SiblingDocumentId").val(documentId);
+            $("#SiblingRevisionId").val(revisionId);
+            $("#SiblingRevisionsSelected").val(revisionId);
+
+            siblingsGrid.dataSource.read();
+          
+        }
+
+/*
 
             $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
                 .success(function (data) {
                     if (data == null) return;
                     replaceRevisionAttachmentConfirmation(e, data.RevisionId, revisionId);
-                });
+            });
+
+            */
+        var uploadReplacementFile = function (ctrl) {
+
+
+
 
         }
 
@@ -4516,7 +4613,9 @@
             onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound,
             onCustomDeleteRevision: onCustomDeleteRevision,
             SelectDocumentDueDiligence: SelectDocumentDueDiligence,
-            ClearCommunicationText: ClearCommunicationText
+            ClearCommunicationText: ClearCommunicationText,
+            HandleSiblingSelection: handleSiblingSelection,
+            UploadReplacementFile: uploadReplacementFile
         };
     };
 
