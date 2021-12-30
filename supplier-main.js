@@ -1070,7 +1070,8 @@
            });
 
        };
-      
+
+        var maxLengthForEmail = 80;
         //facility email
         var onGridEditChangeEmail = function (e) {
             InitializePopUpWindows(e, e.model.SupplierNotesId);
@@ -1092,6 +1093,10 @@
                 }
                 else {
                     if (regexExpressionEmail.test(data.emailTxt)) {
+                        if (data.emailTxt.length > maxLengthForEmail) {
+                            onDisplayError('Email should be less then ' + maxLengthForEmail + ' characters.');
+                            return;
+                        }
                         $.post(validationUrl, data, function (result) {
                             if (result.indexOf("Duplicate") >= 0) {
                                 var args = {
@@ -1155,6 +1160,10 @@
                 }
                 else {
                     if (regexExpressionEmail.test(data.emailTxt)) {
+                        if (data.emailTxt.length > maxLengthForEmail) {
+                            onDisplayError('Email should be less then ' + maxLengthForEmail + ' characters.');
+                            return;
+                        }
                         $.post(validationUrl, data, function (result) {
                             if (result.indexOf("Duplicate") >=0) {
                                 var args = {
@@ -2378,8 +2387,8 @@
              texts = [];
              var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
              for (var i = 0; i < lines.length; i++) {
-                // only push this line if it contains a non whitespace character.
-                 if (lines[i].length > 0)
+                 // only push this line if it contains a non whitespace character.
+                 if (lines[i].length > 0 && lines[i].length <= maxLengthForEmail)
                      texts.push($.trim(lines[i]));
             }
             var data = { };
@@ -2471,7 +2480,7 @@
             var lines = $('#DetailSupplier #txtMultipleEmails').val().split(/\n/);
             for (var i = 0; i < lines.length; i++) {
                 // only push this line if it contains a non whitespace character.
-                if (lines[i].length > 0)
+                if (lines[i].length > 0 && lines[i].length <= maxLengthForEmail)
                     texts.push($.trim(lines[i]));
             }
            var data = {};
