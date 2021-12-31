@@ -286,6 +286,7 @@
             GetSupplierName: GetEnvironmentLocation() + "/Operations/Company/GetSupplierName",
             DocumentSiblingChainingVerify: GetEnvironmentLocation() + "/Operations/Document/DocumentSiblingChainingVerify",
             ReplaceFileForRevisionSiblings: GetEnvironmentLocation() + "/Operations/Document/ReplaceFileForRevisionSiblings",
+            DocumentDeleteNameAndNumberPair: GetEnvironmentLocation() + "/Operations/Document/DeleteNameAndNumberMultiPair"
         }
 
         var documentMessages = {
@@ -339,6 +340,7 @@
                 NullRevisionConfirmMessage: "The revision date is blank; if you wish to proceed with this save press Confirm<br/> or hit Cancel to enter the missed revision date.",
                 SiblingCascadingConfirmTitle: "Sibling Cascading Warning",
                 SiblingCascadingConfirmMessage: "This action will be applied to {0} siblings.  Do you wish to proceed?",
+                DocumentRevisionNameNumbers: "Are you sure you want to delete all selected record(s)?"
             },
             success: {
                 DocumentRevisionAttachmentsSaved: "Attachments Saved",
@@ -1006,7 +1008,7 @@
 
 
         var onDataBound = function (e) {
-            
+
             // remove filtering details
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("");
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
@@ -1026,7 +1028,7 @@
 
             // display filtering
 
-            var grid = searchGrid.data("kendoGrid"); 
+            var grid = searchGrid.data("kendoGrid");
             var dataSource = grid.dataSource;
             var columns = grid.columns;
             var filters = dataSource.filter();
@@ -1045,7 +1047,7 @@
 
             }
             //Changes for TRECOMPLI-4231 Document- Suspect/Deactivated status highlight results grid
-            
+
             var data = grid.dataSource.data();
             $.each(data, function (i, row) {
                 if (row.DocumentStatusId == 4 || row.DocumentStatusId == 5) {
@@ -1220,31 +1222,31 @@
             })
         }
 
-        var initializeProductAssociation = function (did) {            
+        var initializeProductAssociation = function (did) {
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).click(function (e) {
                 e.preventDefault();
                 //Make sure if the did is kit, then it must contain at least two children
-                    $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
-                        if (data != 'True') {
-                            kendo.alert("In order to associate to a product, kits parent document must have at least two children.");
-                            return;
-                        }
-                        DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
-                            kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
-                            kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
-                            duplicateObtainmentTypeTextWaring(did);
+                $.post(controllerCalls.DocumentContainerComponentsCount, { documentId: did }, function (data) {
+                    if (data != 'True') {
+                        kendo.alert("In order to associate to a product, kits parent document must have at least two children.");
+                        return;
+                    }
+                    DisplayConfirmationModal({ message: documentMessages.warnings.LinkDocumentToAllMfrProudct, header: 'Confirm to link document to all products' }, function () {
+                        kendo.ui.progress($(documentElementSelectors.grids.DocumentProduct + did), true);
+                        kendo.ui.progress($(documentElementSelectors.grids.NonDocumentProduct + did), true);
+                        duplicateObtainmentTypeTextWaring(did);
 
-                            $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
-                                if (!data.Success) {
-                                    $(this).displayError(data.Message);
-                                    return;
-                                }
-                                refereshAssociationGrid(did);
-                            });
+                        $.post(controllerCalls.AssociateDocumentToAllManufacturerProducts, { documentId: did }, function (data) {
+                            if (!data.Success) {
+                                $(this).displayError(data.Message);
+                                return;
+                            }
+                            refereshAssociationGrid(did);
                         });
                     });
+                });
 
-                 
+
             });
             getRealNumberForProductAssociation(did);
         };
@@ -1259,7 +1261,7 @@
             sbGrid.dataSource.read();
         }
 
-        
+
         var onRefreshStatusHistoryRequest = function (did) {
             var sbGrid = $(documentElementSelectors.grids.DocumentStatusHistory + did).data("kendoGrid");
 
@@ -1472,7 +1474,7 @@
                     $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
                     var docType = $(documentElementSelectors.textboxes.DocumentType + did).val();
                     var docStatusId = $(documentElementSelectors.textboxes.DocumentStatus + did).val();
-                    
+
                     if (result.unassociatedItems > 5000)
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).text('Link to first 5000 products');
                     else
@@ -2355,7 +2357,7 @@
         }
 
         function saveDocumentDetails(form, formData) {
-          
+
             if (form && formData) {
                 var url = form.attr('action');
                 $.post(url, formData, function (data) {
@@ -2544,7 +2546,7 @@
 
             $(documentElementSelectors.buttons.SaveReplaceForSelectedRevisions).on('click', onSaveReplaceForSelectedRevisionsBtnClick);
 
-                      
+
         };
 
         function enableDisableExposureScenario(e) {
@@ -3664,7 +3666,7 @@
                 //displayError(documentMessages.errors.ConfirmationDateFuture);
                 //kDatePicker.value(new Date());
                 //kDatePicker.trigger("change");
-               // this._oldText = new Date();
+                // this._oldText = new Date();
                 return;
             }
 
@@ -3676,11 +3678,11 @@
                 kDatePicker.value(null);
                 // end
                 displayError(documentMessages.errors.ConfirmationDateFuture);
-              //  $(e.sender.element).val(new Date());
+                //  $(e.sender.element).val(new Date());
                 return;
             }
 
-             // added by nitin 3 June 2021(1/1/1979 date check)
+            // added by nitin 3 June 2021(1/1/1979 date check)
             var sDateEntered = kendo.toString(this.value(), 'd');
             var minDate = new Date('1/1/1979');
             var dateEntered = new Date(sDateEntered);
@@ -3696,10 +3698,10 @@
             var parentContainer = $(e.sender.element).parents("form");
             if (parentContainer.length > 0) {
                 var revisionDate = new Date(parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsRevisionDate).val());
-                if (dateEntered < revisionDate) {  
-                   // var kVDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
+                if (dateEntered < revisionDate) {
+                    // var kVDatePicker = parentContainer.find(documentElementSelectors.datepickers.DocumentRevisionDetailsVerifyDate).data('kendoDatePicker');
                     kDatePicker.value(null);
-                   // $(e.sender.element).val(new Date());
+                    // $(e.sender.element).val(new Date());
                     displayError(documentMessages.errors.ConfirmationDateGreaterThanRevisionDate);
                     return;
                 }
@@ -3726,7 +3728,7 @@
             var dataItem = e.model;//this.dataItem($(e.currentTarget).closest("tr"));
             var grid = $(documentElementSelectors.grids.ProductAliasGrid + dataItem.ProductId).data("kendoGrid");
             kendo.confirm('Are you sure you want to delete: ' + dataItem.AliasName)
-                .done(function () {                    
+                .done(function () {
                     grid.dataSource.remove(dataItem);
                     grid.dataSource.sync();
                     grid.refresh();
@@ -3742,19 +3744,19 @@
             var sDateEntered = kendo.toString(this.value(), 'd');
             if (sDateEntered == null) {
                 ///displayError(documentMessages.errors.RevisionDateFuture);
-               // kDatePicker.value(null);
-               // kDatePicker.trigger("change");
-               // kDatePicker.value(null);
+                // kDatePicker.value(null);
+                // kDatePicker.trigger("change");
+                // kDatePicker.value(null);
                 return
             };
             var now = new Date();
             var dateEntered = new Date(sDateEntered);
             if (dateEntered > now) {
-               // added by nitin 17 May 2021(Future date check)
+                // added by nitin 17 May 2021(Future date check)
                 kDatePicker.value(null);
                 // end
                 displayError(documentMessages.errors.RevisionDateFuture);
-              //  $(e.sender.element).val(new Date());
+                //  $(e.sender.element).val(new Date());
                 return;
             }
 
@@ -3802,7 +3804,7 @@
         };
 
 
-       
+
 
         /******************************** Notes Methods ********************************/
         function displayDocumentNote(documentId, message) {
@@ -4087,7 +4089,7 @@
             $('#DocumentDueDiligenceText').html("");
         };
 
-        
+
         var SelectDocumentDueDiligence = function (e) {
             e.preventDefault();
             var selectedObj = this.select();
@@ -4342,7 +4344,7 @@
 
             var data = new FormData();
             var files = $("#fileUploadReplacementFileUpload")[0].files;
-            
+
             data.append("file", files[0]);
             data.append("documentid", $("#SiblingDocumentId").val());
             data.append("revisionid", $("#SiblingRevisionId").val());
@@ -4365,7 +4367,7 @@
 
                     // refresh attachments grid
                     $(gridId).data("kendoGrid").dataSource.read();
-                  
+
                     // close dialog
                     $("#mdlListofSiblingsForReplacement").toggleModal();
 
@@ -4387,14 +4389,13 @@
         var handleSiblingSelection = function (ctrl, id) {
 
             var checked = $(ctrl).is(":checked");
-            debugger;
             var ids = Array.from($("#SiblingRevisionsSelected").val().split(","));
             if (!checked) ids[ids.indexOf(id + "")] = 0;
             else ids.push(id);
 
             // update selected ids
             $("#SiblingRevisionsSelected").val(ids.filter(e => e != 0).join(","));
-            
+
         }
 
         var replaceRevisionAttachment = function (e) {
@@ -4423,18 +4424,18 @@
 
 
             siblingsGrid.dataSource.read();
-          
+
         }
 
-/*
-
-            $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
-                .success(function (data) {
-                    if (data == null) return;
-                    replaceRevisionAttachmentConfirmation(e, data.RevisionId, revisionId);
-            });
-
-            */
+        /*
+        
+                    $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
+                        .success(function (data) {
+                            if (data == null) return;
+                            replaceRevisionAttachmentConfirmation(e, data.RevisionId, revisionId);
+                    });
+        
+                    */
         var uploadReplacementFile = function (ctrl) {
 
 
@@ -4562,7 +4563,130 @@
                     kendo.alert(data.message);
                 }
             });
-            
+
+        }
+
+        //Done by Vivek for multi selection master checkbox 24/Dec/2021. Jira Ticket: TRECOMPLI-4428
+        var onRevisionDocumentMultiSelection = function (e) {
+            revisionId = e;
+            $(documentElementSelectors.grids.DocumentRevisionNameNumbers + revisionId).on("click", ".chkMasterMultiSelect", function (e) {
+
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    if (kgrid._data.length > 0) {
+                        $.each(kgrid._data, function () {
+                            this['IsSelected'] = checked;
+                        });
+
+                        $('tr', grid).each(function () {
+                            var tr = $(this);
+                            if (checked) {
+                                tr.addClass('k-state-selected');
+                                $('.chkMultiSelect', tr).prop('checked', true);
+                            } else {
+                                tr.removeClass('k-state-selected');
+                                $('.chkMultiSelect', tr).removeAttr('checked');
+                            }
+                        });
+                    }
+
+                }
+                e.stopImmediatePropagation();
+
+            });
+        }
+
+        //Done by Vivek for multi selection ofeach row checkbox 24/Dec/2021. Jira Ticket: TRECOMPLI-4428
+        var onRevisionDocumentEachRowSelection = function (e) {
+            revisionId = e;
+            $(documentElementSelectors.grids.DocumentRevisionNameNumbers + revisionId).on("click", ".chkMultiSelect", function (e) {
+                selectedRequests = new Array();
+                var checked = $(this).is(':checked');
+                var grid = $(this).parents('.k-grid:first');
+                if (grid) {
+                    var kgrid = grid.data().kendoGrid;
+                    var selectedRow = $(this).closest('tr');
+                    var dataItem = kgrid.dataItem(selectedRow);
+                    if (dataItem) {
+                        dataItem['IsSelected'] = checked;
+                    }
+
+                    if (checked) {
+                        selectedRow.addClass('k-state-selected');
+                        $('.chkMultiSelect ', selectedRow).prop('checked', true);
+                    } else {
+                        selectedRow.removeClass('k-state-selected');
+                        $('.chkMultiSelect', selectedRow).removeAttr('checked');
+                        $('.chkMasterMultiSelect', selectedRow).removeAttr('checked');
+                        $(grid.find('th')[0].children[0]).removeClass('k-state-selected');
+                        $(grid.find('th')[0].children[0]).removeAttr('checked');
+                    }
+
+
+                }
+
+                e.stopImmediatePropagation();
+
+            });
+        }
+
+        //Done by Vivek for multi deletion for name and number grid 29/Dec/2021. Jira Ticket: TRECOMPLI-4428
+        var onNameNumberMultiDeletion = function (e, documentId) {
+            var revisionId = e;
+            var token = documentId == 0 ? $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val() : "";
+
+            var grid = $(documentElementSelectors.grids.DocumentRevisionNameNumbers + revisionId).data("kendoGrid");
+            kendo.confirm(documentMessages.modals.DocumentRevisionNameNumbers)
+                .done(function () {
+                    // array to store the dataItems                    
+                    var nameNumberViewModels = [];
+
+                    //get all selected rows (those which have the checkbox checked)  
+
+                    grid.select().each(function () {
+                        var nameNumberViewModel = {};
+                        //push the dataItem into the array
+
+                        var selectedRow = grid.dataItem(this);
+                        nameNumberViewModel.DocumentId = selectedRow.DocumentId;
+                        nameNumberViewModel.RevisionId = selectedRow.RevisionId;
+                        nameNumberViewModel.NameNumberId = selectedRow.NameNumberId;
+                        nameNumberViewModel.NameOrNumber = selectedRow.NameOrNumber;
+                        nameNumberViewModel.NameOrNumberTypeId = selectedRow.NameOrNumberTypeId;
+                        nameNumberViewModel.id = selectedRow.id;
+                        nameNumberViewModel.RevisionId = selectedRow.RevisionId;
+
+                        nameNumberViewModels.push(nameNumberViewModel);
+
+                    });
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        cache: false,
+                        url: controllerCalls.DocumentDeleteNameAndNumberPair,
+                        data: { nameNumberViewModels: nameNumberViewModels, token: token },
+                        success: function (data, textStatus, jqXHR) {
+                            grid.dataSource.read();
+                            grid.refresh();
+
+                        },
+                        error: function (jqXHR, status, errorThrown) {
+                            displayError(errorThrown);
+                            grid.dataSource.read();
+                            grid.refresh();
+                        },
+                        complete: function () {
+                            grid.dataSource.read();
+                            grid.refresh();
+
+                        }
+                    });
+
+
+                })
         }
 
         return {
@@ -4620,7 +4744,10 @@
             SelectDocumentDueDiligence: SelectDocumentDueDiligence,
             ClearCommunicationText: ClearCommunicationText,
             HandleSiblingSelection: handleSiblingSelection,
-            UploadReplacementFile: uploadReplacementFile
+            UploadReplacementFile: uploadReplacementFile,
+            onRevisionDocumentMultiSelection: onRevisionDocumentMultiSelection,
+            onRevisionDocumentEachRowSelection: onRevisionDocumentEachRowSelection,
+            onNameNumberMultiDeletion: onNameNumberMultiDeletion
         };
     };
 
