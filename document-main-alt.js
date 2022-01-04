@@ -4338,13 +4338,19 @@
 
         var onSaveReplaceForSelectedRevisionsBtnClick = function (e) {
 
+            var files = $("#fileUploadReplacementFileUpload")[0].files;
+            if (files == null || files.length == 0) {
+                kendo.alert("No file has been selected.");
+                return;
+            }
+
             // prevent double processing
             if ($(e.currentTarget).hasClass('k-state-disabled')) return false;
             $(e.currentTarget).addClass('k-state-disabled');
 
             var data = new FormData();
             var files = $("#fileUploadReplacementFileUpload")[0].files;
-
+            
             data.append("file", files[0]);
             data.append("documentid", $("#SiblingDocumentId").val());
             data.append("revisionid", $("#SiblingRevisionId").val());
@@ -4379,7 +4385,7 @@
                     var err = "Error " + " " + status + " " + p3 + " " + p4;
                     if (xhr.responseText && xhr.responseText[0] == "{")
                         err = JSON.parse(xhr.responseText).Message;
-                    console.log(err);
+                    $(e.currentTarget).removeClass('k-state-disabled');
                     return;
                 }
             });
