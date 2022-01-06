@@ -358,7 +358,7 @@
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
                 IncompleteKitsReminderRedirect: "A valid kit must have at least two components. You will be redirect to add components first.",
                 OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?",
-                DocumentRevisionNameNumbers: "Please select atleast 1 record."
+                DocumentRevisionNameNumbers: "No items have been selected."
             }
         };
 
