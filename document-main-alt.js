@@ -357,7 +357,8 @@
                 InvalidManufacturerSelection: "Invalid Manufacturer Selection. Proceed nevertheless ?",
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
                 IncompleteKitsReminderRedirect: "A valid kit must have at least two components. You will be redirect to add components first.",
-                OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?"
+                OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?",
+                DocumentRevisionNameNumbers: "Please select atleast 1 record."
             }
         };
 
@@ -488,6 +489,14 @@
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container, saveSelector, cancelSelector, saveFunc, changeCancelBtn) {
+            //Jira Ticket: TRECOMPLI-4428 Done by Vivek: Save button should not be activate/deactivate on name number grid check box selection 5/Jan/2022.
+            var newDocumentNameNumberGridCheckbox = false;
+            var revisionNameNumberGridcheckbox = false;
+            var nameNumberGridCheckboxSelected = false;
+            newDocumentNameNumberGridCheckbox = $(container.context.activeElement).hasClass('chkMasterMultiSelect') || $(container.context.activeElement).hasClass('chkMultiSelect') ? true : false;
+            revisionNameNumberGridcheckbox = $(container.context).hasClass('chkMasterMultiSelect') || $(container.context).hasClass('chkMultiSelect') ? true : false;
+            nameNumberGridCheckboxSelected = newDocumentNameNumberGridCheckbox == true || revisionNameNumberGridcheckbox == true ? true : false;
+
             if (container != null && container.length > 0) {
                 var saveBtn = container.find(saveSelector);
                 var cancelBtn = container.find(cancelSelector);
@@ -500,12 +509,14 @@
                     var saveBtnFunc = containerDirty == true ? saveFunc : onDisabledButtonClick;
                     var saveBtnRemoveClass = containerDirty == true ? documentElementClasses.DisabledButtonLink : null;
 
-                    saveBtn.off('click');
-                    saveBtn.on('click', saveBtnFunc);
-                    saveBtn.removeClass(saveBtnRemoveClass);
-                    saveBtn.addClass(saveBtnAddClass);
+                    if (!nameNumberGridCheckboxSelected == true) {
+                        saveBtn.off('click');
+                        saveBtn.on('click', saveBtnFunc);
+                        saveBtn.removeClass(saveBtnRemoveClass);
+                        saveBtn.addClass(saveBtnAddClass);
+                    }
 
-                    if (changeCancelBtn == true) {
+                    if (changeCancelBtn == true && !nameNumberGridCheckboxSelected == true) {
                         var cancelBtnParts = $.parseHTML(cancelBtn.html());
                         $(cancelBtnParts[0]).removeClass(cancelBtnRemoveClass).addClass(cancelBtnAddClass);
                         cancelBtnParts[1] = cancelBtnText;
@@ -2206,7 +2217,6 @@
         }
 
         var onNewRevisionPanelActivate = function (e) {
-
             var documentId = 0;
             var supplierId = 0;
 
@@ -4350,7 +4360,7 @@
 
             var data = new FormData();
             var files = $("#fileUploadReplacementFileUpload")[0].files;
-            
+
             data.append("file", files[0]);
             data.append("documentid", $("#SiblingDocumentId").val());
             data.append("revisionid", $("#SiblingRevisionId").val());
@@ -4579,7 +4589,6 @@
 
                 var checked = $(this).is(':checked');
                 var grid = $(this).parents('.k-grid:first');
-
                 if (grid) {
                     var kgrid = grid.data().kendoGrid;
                     if (kgrid._data.length > 0) {
@@ -4643,56 +4652,59 @@
         var onNameNumberMultiDeletion = function (e, documentId) {
             var revisionId = e;
             var token = documentId == 0 ? $(documentElementSelectors.hidden.DocumentRevisionNameNumberSession).val() : "";
-
             var grid = $(documentElementSelectors.grids.DocumentRevisionNameNumbers + revisionId).data("kendoGrid");
-            kendo.confirm(documentMessages.modals.DocumentRevisionNameNumbers)
-                .done(function () {
-                    // array to store the dataItems                    
-                    var nameNumberViewModels = [];
 
-                    //get all selected rows (those which have the checkbox checked)  
+            // array to store the dataItems                    
+            var nameNumberViewModels = [];
 
-                    grid.select().each(function () {
-                        var nameNumberViewModel = {};
-                        //push the dataItem into the array
+            //get all selected rows (those which have the checkbox checked)  
 
-                        var selectedRow = grid.dataItem(this);
-                        nameNumberViewModel.DocumentId = selectedRow.DocumentId;
-                        nameNumberViewModel.RevisionId = selectedRow.RevisionId;
-                        nameNumberViewModel.NameNumberId = selectedRow.NameNumberId;
-                        nameNumberViewModel.NameOrNumber = selectedRow.NameOrNumber;
-                        nameNumberViewModel.NameOrNumberTypeId = selectedRow.NameOrNumberTypeId;
-                        nameNumberViewModel.id = selectedRow.id;
-                        nameNumberViewModel.RevisionId = selectedRow.RevisionId;
+            //grid.select().each(function () {
+            grid.tbody.find("input:checked").closest("tr").each(function () {
+                var nameNumberViewModel = {};
+                //push the dataItem into the array
 
-                        nameNumberViewModels.push(nameNumberViewModel);
+                var selectedRow = grid.dataItem(this);
+                nameNumberViewModel.DocumentId = selectedRow.DocumentId;
+                nameNumberViewModel.RevisionId = selectedRow.RevisionId;
+                nameNumberViewModel.NameNumberId = selectedRow.NameNumberId;
+                nameNumberViewModel.NameOrNumber = selectedRow.NameOrNumber;
+                nameNumberViewModel.NameOrNumberTypeId = selectedRow.NameOrNumberTypeId;
+                nameNumberViewModel.id = selectedRow.id;
 
-                    });
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'json',
-                        cache: false,
-                        url: controllerCalls.DocumentDeleteNameAndNumberPair,
-                        data: { nameNumberViewModels: nameNumberViewModels, token: token },
-                        success: function (data, textStatus, jqXHR) {
-                            grid.dataSource.read();
-                            grid.refresh();
+                nameNumberViewModels.push(nameNumberViewModel);
+            });
+            if (nameNumberViewModels.length != 0) {
+                kendo.confirm(documentMessages.modals.DocumentRevisionNameNumbers)
+                    .done(function () {
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'json',
+                            cache: false,
+                            url: controllerCalls.DocumentDeleteNameAndNumberPair,
+                            data: { nameNumberViewModels: nameNumberViewModels, token: token },
+                            success: function (data, textStatus, jqXHR) {
+                                grid.dataSource.read();
+                                grid.refresh();
 
-                        },
-                        error: function (jqXHR, status, errorThrown) {
-                            displayError(errorThrown);
-                            grid.dataSource.read();
-                            grid.refresh();
-                        },
-                        complete: function () {
-                            grid.dataSource.read();
-                            grid.refresh();
+                            },
+                            error: function (jqXHR, status, errorThrown) {
+                                displayError(errorThrown);
+                                grid.dataSource.read();
+                                grid.refresh();
+                            },
+                            complete: function () {
+                                grid.dataSource.read();
+                                grid.refresh();
 
-                        }
-                    });
+                            }
+                        });
 
-
-                })
+                    })
+            }
+            else {
+                kendo.alert(documentMessages.warnings.DocumentRevisionNameNumbers);
+            }
         }
 
         return {
