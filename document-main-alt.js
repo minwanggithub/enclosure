@@ -4657,9 +4657,8 @@
             // array to store the dataItems                    
             var nameNumberViewModels = [];
 
-            //get all selected rows (those which have the checkbox checked)  
+            //get all selected rows (those which have the checkbox checked) 
 
-            //grid.select().each(function () {
             grid.tbody.find("input:checked").closest("tr").each(function () {
                 var nameNumberViewModel = {};
                 //push the dataItem into the array
@@ -4674,33 +4673,35 @@
 
                 nameNumberViewModels.push(nameNumberViewModel);
             });
+
             if (nameNumberViewModels.length != 0) {
-                kendo.confirm(documentMessages.modals.DocumentRevisionNameNumbers)
-                    .done(function () {
-                        $.ajax({
-                            type: 'POST',
-                            dataType: 'json',
-                            cache: false,
-                            url: controllerCalls.DocumentDeleteNameAndNumberPair,
-                            data: { nameNumberViewModels: nameNumberViewModels, token: token },
-                            success: function (data, textStatus, jqXHR) {
-                                grid.dataSource.read();
-                                grid.refresh();
 
-                            },
-                            error: function (jqXHR, status, errorThrown) {
-                                displayError(errorThrown);
-                                grid.dataSource.read();
-                                grid.refresh();
-                            },
-                            complete: function () {
-                                grid.dataSource.read();
-                                grid.refresh();
+                if (confirm(documentMessages.modals.DocumentRevisionNameNumbers) == true) {
 
-                            }
-                        });
+                    $.ajax({
+                        type: 'POST',
+                        dataType: 'json',
+                        cache: false,
+                        url: controllerCalls.DocumentDeleteNameAndNumberPair,
+                        data: { nameNumberViewModels: nameNumberViewModels, token: token },
+                        success: function (data, textStatus, jqXHR) {
+                            grid.dataSource.read();
+                            grid.refresh();
 
-                    })
+                        },
+                        error: function (jqXHR, status, errorThrown) {
+                            displayError(errorThrown);
+                            grid.dataSource.read();
+                            grid.refresh();
+                        },
+                        complete: function () {
+                            grid.dataSource.read();
+                            grid.refresh();
+
+                        }
+                    });
+                }
+
             }
             else {
                 kendo.alert(documentMessages.warnings.DocumentRevisionNameNumbers);
