@@ -99,7 +99,7 @@
             CustomerAction: "#mdlCustomerAction",
             RemoveWorkLoad: "#mdlRemove",
             Assign: "#mdlAssign",
-            ViewHistory: "#mdlViewHistory",
+            ViewHistory: "#dvIndexationWorkflowHistory",
             OnHold: "#mdlOnHold",
             RemoveOnHold: "#mdlRemoveOnHold",
             ManageUsers: "#mdlManageUsers",
@@ -107,7 +107,7 @@
             AccountInfo: "#mdlViewAccount"
         };
 
-        var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow" };
+        var kendoWindows = { ViewHistory: "#supplierSearchWindow", ViewAccount: "#accountSearchWindow", IWViewHistory: "#mdlViewHistory" };
         var controllerCalls = {
 
             SearchIndexationWorkflowContent: GetEnvironmentLocation() + "/Operations/IndexationWorkFlow/SearchIndexationWorkflowContent",
@@ -820,12 +820,23 @@
             var indexingWorkItemID = grid.dataItem($(this).closest("[data-uid]")).IndexingWorkItemID;
 
             $(this).ajaxCall(controllerCalls.IndexationWorkflowHistory, { indexingWorkItemID: indexingWorkItemID })
-                   .success(function (result) {
-                       $("#dvIndexationWorkflowHistory").html(result);
-                   }).done(function () {
-                       $(actionModals.ViewHistory).displayModal();
-                   });
+                .success(function (data) {
+                    //    $("#dvIndexationWorkflowHistory").html(result);
+                    //}).done(function () {
+                    //    $(actionModals.ViewHistory).displayModal();
+                    //});
+                    $(actionModals.ViewHistory).html(data);
+                    $(kendoWindows.IWViewHistory).data("kendoWindow").center().open();
+                    $("div.k-widget.k-window").css("top", "20px");
+                  
+                }).error(
+                    function (e) {
+                        $(this).displayError(e);
+                    });
         });
+
+       
+            //.done(function () {
 
         // display account info -- added by nitin 22 Feb
         workflowDetailObj.on("click", ".showAccount", function (e) {
