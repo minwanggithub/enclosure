@@ -4704,7 +4704,7 @@
 
             }
             else {
-                kendo.alert(documentMessages.warnings.DocumentRevisionNameNumbers);
+                alert(documentMessages.warnings.DocumentRevisionNameNumbers);
             }
         }
 
