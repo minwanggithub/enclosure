@@ -39,7 +39,9 @@
                 WindowTitle: "Adding revision for siblings"
             },
             Ids: {
-                SilbingSectionId: "#siblingsection"
+                SilbingSectionId: "#siblingsection",
+                IncludeCheckbox: "#chkAllSiblings"
+
             }
         };
 
@@ -98,13 +100,16 @@
             var totalSiblingCount = settings.siblingDataSource.length;
 
             var siblingTable = $("<table style='width: 100%' border='0' />");
-            var siblingRowTitle = $("<tr><th>Include</th><th>Document Id</th><th>New Revision Title</th><th>&nbsp;</th></tr><tr><td colspan='4'><hr></td></tr><tr><td colspan='4'>&nbsp;</tr>");
+            var siblingRowTitle = $("<tr><th><div style='width:85px;padding-top:5px'><div style='float:left;width:20%;padding-top:2px'><input type='checkbox' id='chkAllSiblings'  data-bind='checked: included, events: { change: CheckUncheckAllfun}'   style='margin-left: 10px'></div > <div style='float:right;width:80%'><label style='font-weight:bold' for='chkAllSiblings'>Include</label></div></div ></th ><th style='text-alogn:left;padding-left:10px'>Document Id</th><th>New Revision Title</th><th>&nbsp;</th></tr > <tr><td colspan='4'><hr></td></tr><tr><td colspan='4'>&nbsp;</tr>");
 
             siblingTable.append(siblingRowTitle);
 
+            var headRowModel = GetCkhAllObservable();
+            kdo.bind(siblingRowTitle, headRowModel);
+
             for (var rowId = 0; rowId < totalSiblingCount; rowId++) {
                 var siblingRow = $("<tr id='" + rowId + "' class='siblingrow'></tr>");
-                var siblingInclude = $("<td><input type='checkbox' id='includedId_'" + rowId + " data-bind='checked: included, events: { change: onIncludeCheckChange}'  style='margin-left: 10px'></td>");
+                var siblingInclude = $("<td><input class='chk-sibling' type='checkbox' id='includedId_'" + rowId + " data-bind='checked: included, events: { change: onIncludeCheckChange}'  style='margin-left: 10px'></td>");
                 //var siblingDocumentId = $("<td><input type='text' id='documentId_'" + rowId + " data-auto-bind='false' data-bind='value: documentId, title: exteredRevisionTitle' style='margin-left: 50px; width: 100px; height:18px; border: 0' readonly='readonly' title='DocumentId = 13434&#13;RevisionID = 343443&#13;Line3>'></td>");
                 var siblingDocumentId = $("<td><input type='text' id='documentId_'" + rowId + " data-auto-bind='false' data-bind='value: documentId' style='margin-left: 50px; width: 100px; height:18px; border: 0' readonly='readonly'></td>");
                 var siblingRevisionTitle = $("<td><input type='text' id='revisionTitle_" + rowId + "' data-auto-bind='false' data-bind='value: exteredRevisionTitle, visible: isVisible' style='width:360px; height:18px;'></td>");
@@ -165,10 +170,36 @@
                         warningMsg.show();
                     else
                         warningMsg.hide();
+                    // to change "select all" checkbox wrt other checkboxes selection present in grid
+                    $(plugInOptions.Ids.IncludeCheckbox).prop('checked', (target.find('.chk-sibling:checked').length == siblingRows.length));
+
                 },
 
                 onRemoveRowClick: function(e) {
                     kendo.alert("remove");
+                }
+            });
+        }
+        // for check/Uncheck all checkbox
+        function GetCkhAllObservable() {
+            return kdo.observable({
+                CheckUncheckAllfun: function (e) {
+                    $(plugInOptions.Ids.SilbingSectionId).find('.chk-sibling').prop('checked', (e.currentTarget.checked));
+                   
+                    var target = $(plugInOptions.Ids.SilbingSectionId);
+                    var siblingRows = target.find(".siblingrow");
+                    siblingRows.each(function (index,currentrow) {
+                        var checkBox = $(currentrow).find('input:checkbox');
+                        var bs = checkBox.get(0).kendoBindingTarget.source;
+                        if (e.currentTarget.checked) {
+                            bs.included = true;
+                            warningMsg.hide();
+                        }
+                        else {
+                            bs.included = false;
+                            warningMsg.show();
+                        }
+                    });
                 }
             });
         }
@@ -200,7 +231,7 @@
                 title: plugInOptions.Text.WindowTitle,
                 actions: ["Close"], //["Refresh"]
                 modal: true,
-                width: "660px",
+                width: "675px",
                 height: "500px",        
                 position: 'fixed',
                 close: onClose
@@ -246,6 +277,8 @@
             if (winPop.length > 0) {
                 winPop.data("kendoWindow").center().open();        
                 winPop.parent().find(".k-window-action").css("visibility", "hidden");
+                //to "check all" Checkbox true by default at start
+                $(plugInOptions.Ids.IncludeCheckbox).prop('checked', true);
             }
         }
 
