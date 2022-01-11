@@ -990,8 +990,7 @@
             var grid = $("#" + this.wrapper.closest("[data-role=grid]").get(0).id).data("kendoGrid");
             var dataSource = grid.dataSource;
 
-            if (dataSource.total() == 1)
-            {
+            if (dataSource.total() == 1) {
                 //Not using this column instead using Command.Destroy 
                 //grid.hideColumn("Actions");
 
@@ -1411,7 +1410,7 @@
         function SaveSiblingAsNewDocument(did, title, docTypeId) {
             kendo.ui.progress($(documentElementSelectors.grids.DocumentSibling + did), true);
             $.post(controllerCalls.AddDocumentSibling,
-                { documentId: did, documentTitle: title, docTypeId: docTypeId},
+                { documentId: did, documentTitle: title, docTypeId: docTypeId },
                 function (data) {
                     if (!data.Success) {
                         $(this).displayError(data.Message);
@@ -4123,7 +4122,7 @@
             //    alert(message);
             //}
         }
-        var afterSaveProductAlias=function (e) {
+        var afterSaveProductAlias = function (e) {
             // create event - triggered after a new row has been addd to the grid
             if (e.type == "create" || e.type == "update") {
 
@@ -4134,7 +4133,7 @@
                     console.log(Array.from(e.response.Errors.ServerError.errors)[0]);
                     var data = JSON.parse(Array.from(e.response.Errors.ServerError.errors)[0]);
 
-                    var grid = $(documentElementSelectors.grids.ProductAliasGrid  + data.ProductId).data('kendoGrid');
+                    var grid = $(documentElementSelectors.grids.ProductAliasGrid + data.ProductId).data('kendoGrid');
                     grid.one("dataBinding", function (e) {
                         e.preventDefault();
                     });
@@ -4676,35 +4675,64 @@
 
             if (nameNumberViewModels.length != 0) {
 
-                if (confirm(documentMessages.modals.DocumentRevisionNameNumbers) == true) {
+                //  if (confirm(documentMessages.modals.DocumentRevisionNameNumbers) == true) {
+                $("<div/>").kendoConfirm({
+                    title: 'Confirmation',
+                    content: documentMessages.modals.DocumentRevisionNameNumbers,
+                    actions: [
+                        {
+                            text: 'Confirm',
+                            primary: true,
+                            action: function (e) {
+                                $.ajax({
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    cache: false,
+                                    url: controllerCalls.DocumentDeleteNameAndNumberPair,
+                                    data: { nameNumberViewModels: nameNumberViewModels, token: token },
+                                    success: function (data, textStatus, jqXHR) {
+                                        grid.dataSource.read();
+                                        grid.refresh();
 
-                    $.ajax({
-                        type: 'POST',
-                        dataType: 'json',
-                        cache: false,
-                        url: controllerCalls.DocumentDeleteNameAndNumberPair,
-                        data: { nameNumberViewModels: nameNumberViewModels, token: token },
-                        success: function (data, textStatus, jqXHR) {
-                            grid.dataSource.read();
-                            grid.refresh();
+                                    },
+                                    error: function (jqXHR, status, errorThrown) {
+                                        displayError(errorThrown);
+                                        grid.dataSource.read();
+                                        grid.refresh();
+                                    },
+                                    complete: function () {
+                                        grid.dataSource.read();
+                                        grid.refresh();
 
+                                    }
+                                });
+                                return true;
+                            },
                         },
-                        error: function (jqXHR, status, errorThrown) {
-                            displayError(errorThrown);
-                            grid.dataSource.read();
-                            grid.refresh();
-                        },
-                        complete: function () {
-                            grid.dataSource.read();
-                            grid.refresh();
+                        { text: 'Cancel' }
+                    ]
+                }).data("kendoConfirm").open().center();
 
-                        }
-                    });
-                }
+
+
+                //}
 
             }
             else {
-                alert(documentMessages.warnings.DocumentRevisionNameNumbers);
+                $("<div/>").kendoConfirm({
+                    title: 'Warning',
+                    content: documentMessages.warnings.DocumentRevisionNameNumbers,
+                    actions: [
+                        {
+                            text: 'ok',
+                            primary: true,
+                            action: function (e) {
+
+                                return true;
+                            },
+                        }
+                    ]
+                }).data("kendoConfirm").open().center();
             }
         }
 
