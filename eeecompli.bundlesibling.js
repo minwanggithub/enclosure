@@ -41,9 +41,24 @@
             Ids: {
                 SilbingSectionId: "#siblingsection",
                 IncludeCheckbox: "#chkAllSiblings"
-
+            },
+            Message: {
+                WarningMessage: "WARNING: If you continue the excluded sibling(s) will be removed and will no longer be linked to this image."
             }
         };
+
+        var footModel = kdo.observable({
+            checkMessage: false,
+            warningMessage: plugInOptions.Message.WarningMessage,
+            onSiblingSaveButtonClick: function () {
+                winPop.data("kendoWindow").close();
+            },
+
+            onSiblingCancelButtonClick: function () {
+                cancelSave = true;
+                winPop.data("kendoWindow").close();
+            }
+        });
 
         function onClose(e) {            
             // if (!confirm("are you sure?")) {
@@ -157,19 +172,19 @@
                     var excludedCount = 0;
                     var target = $(plugInOptions.Ids.SilbingSectionId);
                     var siblingRows = target.find(".siblingrow");
-                    for (var index = 0; index < siblingRows.length; index++) {
-                        var checkBox = $(siblingRows[index]).find('input:checkbox');
-                        var bs = checkBox.get(0).kendoBindingTarget.source;
-                        
-                        if (bs != null && !bs.included) {
-                            excludedCount++;
-                        }
-                    }
 
-                    if (excludedCount > 0)
-                        warningMsg.show();
-                    else
-                        warningMsg.hide();
+                    //This code can be omitted after the data-binding
+                    //for (var index = 0; index < siblingRows.length; index++) {
+                    //    var checkBox = $(siblingRows[index]).find('input:checkbox');
+                    //    var bs = checkBox.get(0).kendoBindingTarget.source;
+                        
+                    //    if (bs != null && !bs.included) {
+                    //        excludedCount++;
+                    //    }
+                    //}
+
+                    footModel.set("checkMessage", (target.find('.chk-sibling:checked').length != siblingRows.length));
+
                     // to change "select all" checkbox wrt other checkboxes selection present in grid
                     $(plugInOptions.Ids.IncludeCheckbox).prop('checked', (target.find('.chk-sibling:checked').length == siblingRows.length));
 
@@ -188,18 +203,14 @@
                    
                     var target = $(plugInOptions.Ids.SilbingSectionId);
                     var siblingRows = target.find(".siblingrow");
-                    siblingRows.each(function (index,currentrow) {
+                    siblingRows.each(function (index, currentrow) {
                         var checkBox = $(currentrow).find('input:checkbox');
                         var bs = checkBox.get(0).kendoBindingTarget.source;
-                        if (e.currentTarget.checked) {
-                            bs.included = true;
-                            warningMsg.hide();
-                        }
-                        else {
-                            bs.included = false;
-                            warningMsg.show();
-                        }
+                        bs.included = e.currentTarget.checked;
                     });
+
+                    //footModel.set("checkMessage", (target.find('.chk-sibling:checked').length != siblingRows.length));
+                    footModel.set("checkMessage", !e.currentTarget.checked);
                 }
             });
         }
@@ -213,14 +224,17 @@
 //            var footMargin = $("<div style='float: right;'/>");
             var footMargin = $("<div />");
             //var saveButton = $("<button id='btnSiblingSave'>Save</button>");
-            warningMsg = $("<p id='txtWarning' style='margin-top: 7px;font-size:120%; display:none;max-width: 450px;' class='pull-left'><font color='red'>WARNING: If you continue the excluded sibling(s) will be removed and will no longer be linked to this image.<font></p>");
-            var saveButton = $("<a id='btnSiblingSave' style='margin-top: 20px;margin-left:5px;' class='k-button k-button-icontext pull-right' href='#' title='Save'><span class='k-icon k-i-pencil'></span>Save</a>");
-            var cancelButton = $("<a id='btnSiblingCancel' style='margin-top: 20px;' class='k-button k-button-icontext pull-right' href='#' title='Cancel'><span class='k-icon k-i-cancel'></span>Cancel</a>");
+            warningMsg = $("<span id='txtWarning' data-bind='visible: checkMessage, text: warningMessage' style='margin-top: 7px;font-size:120%; color:red; max-width: 450px;' class='pull-left'></span>");
+           
+            var saveButton = $("<a id='btnSiblingSave' data-bind='click: onSiblingSaveButtonClick' style='margin-top: 20px;margin-left:5px;' class='k-button k-button-icontext pull-right' href='#' title='Save'><span class='k-icon k-i-pencil'></span>Save</a>");
+            var cancelButton = $("<a id='btnSiblingCancel' data-bind='click: onSiblingCancelButtonClick' style='margin-top: 20px;' class='k-button k-button-icontext pull-right' href='#' title='Cancel'><span class='k-icon k-i-cancel'></span>Cancel</a>");
+            var testButton = $("<a id='btnTest' style='margin-top: 20px;' class='k-button k-button-icontext pull-right' href='#' title='Cancel'>Test</a>");
             //var addButton = $("<a id='btnSiblingAdd' style='margin-top: 20px;' class='k-button k-button-icontext pull-right' href='#' title='Cancel'><span class='k-icon k-add'></span>Add</a>");
             // var cancelButton = $("<button id='siblingButton' style='background-color: red'>Cancel</button>");            
             footMargin.append(warningMsg);
             footMargin.append(saveButton);
             footMargin.append(cancelButton);
+
             //footMargin.append(addButton);
             windowFoot.append(footMargin);
             windowConstraint.append(windowContent, windowFoot);
@@ -241,18 +255,18 @@
             });
 
 
-            saveButton.kendoButton({
-                click: function (e) {
-                    winPop.data("kendoWindow").close();
-                }
-            });
+            //saveButton.kendoButton({
+            //    click: function (e) {
+            //        winPop.data("kendoWindow").close();
+            //    }
+            //});
 
-            cancelButton.kendoButton({
-                click: function (e) {
-                    cancelSave = true;
-                    winPop.data("kendoWindow").close();
-                }
-            });
+            //cancelButton.kendoButton({
+            //    click: function (e) {
+            //        cancelSave = true;
+            //        winPop.data("kendoWindow").close();
+            //    }
+            //});
 
 //            addButton.kendoButton({
 //                click: function (e) {
@@ -274,6 +288,9 @@
 
             //AddSibilingRow($(plugInOptions.Ids.SilbingSectionId));            
             AddSibilingTableRow($(plugInOptions.Ids.SilbingSectionId));
+
+            kdo.bind(footMargin, footModel);
+
             if (winPop.length > 0) {
                 winPop.data("kendoWindow").center().open();        
                 winPop.parent().find(".k-window-action").css("visibility", "hidden");
