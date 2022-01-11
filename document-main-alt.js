@@ -3170,6 +3170,7 @@
                 var container = $(this).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
                 if (container.length > 0) {
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
+                    debugger;
                     var revisionId = extractReferenceId(this.getAttribute('id'));
 
                     displayUploadModal(function () {
@@ -4348,6 +4349,7 @@
         var onSaveReplaceForSelectedRevisionsBtnClick = function (e) {
 
             var files = $("#fileUploadReplacementFileUpload")[0].files;
+            debugger;
             if (files == null || files.length == 0) {
                 kendo.alert("No file has been selected.");
                 return;
@@ -4401,11 +4403,31 @@
 
         }
 
+        var handleSiblingSelectionAll = function (ctrl, id) {
+
+            var grid = $("#gdListofSiblingsForReplacement").data("kendoGrid");
+
+            var checked = $(ctrl).is(":checked");
+            var ids = [];
+
+            ids.push(parseInt($("#SiblingRevisionId").val()));
+            if (checked) {
+                Array.from(grid.dataSource.data().toJSON()).map(e => e.RevisionId).forEach(e => ids.push(e));
+            }
+
+            $("#SiblingRevisionsSelected").val(ids.join(","))
+            grid.dataSource.read();
+
+        }
+
         var handleSiblingSelection = function (ctrl, id) {
 
             var checked = $(ctrl).is(":checked");
             var ids = Array.from($("#SiblingRevisionsSelected").val().split(","));
-            if (!checked) ids[ids.indexOf(id + "")] = 0;
+            if (!checked) {
+                ids[ids.indexOf(id + "")] = 0;
+                $(".chkMasterMultiSelectSibling").prop("checked", "");
+            }
             else ids.push(id);
 
             // update selected ids
@@ -4442,19 +4464,7 @@
 
         }
 
-        /*
-        
-                    $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
-                        .success(function (data) {
-                            if (data == null) return;
-                            replaceRevisionAttachmentConfirmation(e, data.RevisionId, revisionId);
-                    });
-        
-                    */
         var uploadReplacementFile = function (ctrl) {
-
-
-
 
         }
 
@@ -4791,6 +4801,7 @@
             SelectDocumentDueDiligence: SelectDocumentDueDiligence,
             ClearCommunicationText: ClearCommunicationText,
             HandleSiblingSelection: handleSiblingSelection,
+            HandleSiblingSelectionAll: handleSiblingSelectionAll,
             UploadReplacementFile: uploadReplacementFile,
             onRevisionDocumentMultiSelection: onRevisionDocumentMultiSelection,
             onRevisionDocumentEachRowSelection: onRevisionDocumentEachRowSelection,
