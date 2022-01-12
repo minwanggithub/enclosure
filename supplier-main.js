@@ -613,7 +613,7 @@
         var onChangeSupplierAddressType = function (e) {
             if ($('#SelectAddressType').length > 0) 
                 DropDownValidationStyle(e);
-            }
+        }
 
         var gdSupplierContacts_Change = function (e) {
             e.preventDefault();
@@ -783,18 +783,22 @@
             var url = "../Company/ValidateContactAddress";
             var data = { contactAddressId: e.model.CompanyContactAddressId, companyId: supplierId, contactid: supplierContactId, add1: e.model.CompanyContactAddress1, add2: e.model.CompanyContactAddress2, city: e.model.CompanyContactCity, state: e.model.CompanyContactState, country: e.model.CompanyContactCountry, zip: e.model.CompanyContactPostalCode, type: e.model.SelectAddressType };
             $.post(url, data, function (data1) {
-                if (data1.indexOf("Duplicate")>=0) {
+                if (data1.indexOf("Duplicate") >= 0) {
                     var args = {
                         header: 'Confirm Save',
                         message: data1
                     };
                     DisplayConfirmationModal(args, function () {
                         saveSupplier(urlSave, data, $('#DetailSupplier #gdContactAddress'));
+                        refreshContactGrid()
                     });
-                } else
+                } else {
                     saveSupplier(urlSave, data, $('#DetailSupplier #gdContactAddress'));
+                    refreshContactGrid()
+                }
             });
         };
+       
       
         var EditSupplierNotes = function (e) {
 
@@ -979,7 +983,7 @@
                 });
             });
         };
-       
+        
        //contact phone
         var onGridEditChangeContactPhone = function (e) {
            InitializePopUpWindows(e, e.model.SupplierNotesId);
@@ -1052,6 +1056,7 @@
                        };
                        DisplayConfirmationModal(args, function () {
                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
+                           refreshContactGrid()
                        });
                    }
                    else {
@@ -1059,7 +1064,10 @@
                            var regx_LN = new RegExp('[\\d+\/()\\- ]{' + data.localNo.length + ',' + data.localNo.length + '}', 'g')
                            var regx_AC = new RegExp('[\\d+\/()\\- ]{' + data.areaCode.length + ',' + data.areaCode.length + '}', 'g')
                            if ((regx_LN.test(data.localNo)) && (regx_AC.test(data.areaCode)))
+                           {
                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactPhone'));
+                               refreshContactGrid()
+                           }
                            else
                                onDisplayError("Area Code and Local Number must be numeric");
                        } else
@@ -1139,6 +1147,21 @@
 
         }
 
+        var onGdContactAddressRemove = function (e) {
+            setTimeout(function () {
+                refreshContactGrid()
+            }, 700);            
+        };
+        var onGridRemoveContactEmail = function (e) {
+            setTimeout(function () {
+                refreshContactGrid()
+            }, 700);
+        };
+        var onGridRemoveContactPhone = function (e) {
+            setTimeout(function () {
+                refreshContactGrid()
+            }, 700);               
+        };
         //contact email
         var onGridEditChangeContactEmail = function (e) {
             InitializePopUpWindows(e, e.model.SupplierNotesId);
@@ -1165,17 +1188,20 @@
                             return;
                         }
                         $.post(validationUrl, data, function (result) {
-                            if (result.indexOf("Duplicate") >=0) {
+                            if (result.indexOf("Duplicate") >= 0) {
                                 var args = {
                                     header: 'Confirm Save',
                                     message: result
                                 };
                                 DisplayConfirmationModal(args, function () {
                                     saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                                    refreshContactGrid()
                                 });
                             }
-                            else
+                            else {
                                 saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                                refreshContactGrid()
+                            }
                         });
                     }
                     else {
@@ -1588,7 +1614,7 @@
                 }
 
             }); 
-            refreshContactGrid(e, '#gdContactAddress');
+            //refreshContactGrid(e, '#gdContactAddress');
         };
 
         
@@ -1639,7 +1665,7 @@
                     //DisableGridInLineEditing("gdContactPhone");
                 }, 200);
             }
-            refreshContactGrid(e, '#gdContactPhone')
+            //refreshContactGrid(e, '#gdContactPhone')
         };
 
         var onGdContactEmailDataBound = function (e) {
@@ -1648,9 +1674,9 @@
                     //DisableGridInLineEditing("gdContactEmail");
                 }, 200);
             }
-            refreshContactGrid(e,'#gdContactEmail')
+            //refreshContactGrid(e,'#gdContactEmail')
         };
-        var refreshContactGrid = function (e, gridId) {
+        var refreshContactGrid = function () {
             var contactgrid = $(supplierLiterSettings.controls.grids.SupplierContacts).data("kendoGrid");
             contactgrid.dataSource.read();
             
@@ -2409,6 +2435,8 @@
                             var grid = $("#DetailSupplier #gdContactEmail").data("kendoGrid");
                             grid.dataSource.read();
                             //should refressh grid
+                            refreshContactGrid()
+
                         } else
                             onDisplayError("Error Occurred");
                     },
@@ -2864,7 +2892,10 @@
             onGridClickChangeContactEmail: onGridClickChangeContactEmail,
             extractSupplierCriteria: extractSupplierCriteria,
             advanceSearchInitialize: advanceSearchInitialize,
-            onContactGeneralSelect: onContactGeneralSelect
+            onContactGeneralSelect: onContactGeneralSelect,
+            onGdContactAddressRemove :onGdContactAddressRemove,
+            onGridRemoveContactEmail :onGridRemoveContactEmail,
+            onGridRemoveContactPhone: onGridRemoveContactPhone
         };
     };
 })(jQuery);
