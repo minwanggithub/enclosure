@@ -151,6 +151,7 @@
                     "Please contact your supervisor, who will assign a workload to you.",
                 SupervisorNoIndexingWorkloadAvailable: "The indexing workload items you have selected have not been assigned to you.<br>" +
                     "Please assign yourself a workload using the 'Assign To' option above.",
+                SelectFilter: "A filter must be selected to execute a search",
             }
         };
 
@@ -228,8 +229,16 @@
 
         // ---------------------------------  BUTTONS AND MENUS    
 
-        disableButtons = function () { };
-        enableButtons = function () { };
+        disableButtons = function () {
+            $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(false);
+            $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(false);
+            $(obtainmentObject.controls.buttons.UploadIndexationUsers).enableControl(false);
+        };
+        enableButtons = function () {
+            $(obtainmentObject.controls.buttons.ClearRequestSearchButton).enableControl(true);
+            $(obtainmentObject.controls.buttons.SearchRequestsButton).enableControl(true);
+            $(obtainmentObject.controls.buttons.UploadIndexationUsers).enableControl(true);
+        };
 
         getSelectedCategories = function () {
             var list = $(obtainmentObject.controls.dropdownlists.CategoriesDropDownList).data("kendoMultiSelect").value();
@@ -381,7 +390,7 @@
             selectedIds = {};   
             gridIds = {};  
 
-            disableButtons();
+            
 
             // generate the search request
             indexationWorkLoadSearchModel.StateId = null;
@@ -407,25 +416,40 @@
 
             indexationWorkLoadSearchModel.LastStatusUpdateDateFrom = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateFrom).data("kendoDatePicker").value();
             indexationWorkLoadSearchModel.LastStatusUpdateDateTo = $(obtainmentObject.controls.dateTime.LastStatusUpdateDateTo).data("kendoDatePicker").value();
+            if (
+                indexationWorkLoadSearchModel.AssignedToDateFrom != null ||
+                indexationWorkLoadSearchModel.AssignedToDateTo != null ||
+                indexationWorkLoadSearchModel.LastStatusUpdateDateFrom != null ||
+                indexationWorkLoadSearchModel.LastStatusUpdateDateTo != null ||
+                indexationWorkLoadSearchModel.IndexationSets !== null||
+                indexationWorkLoadSearchModel.StateId !== null ||
+                (
+                    indexationWorkLoadSearchModel.Criterias &&
+                    indexationWorkLoadSearchModel.Criterias.length &&
+                    indexationWorkLoadSearchModel.Criterias.filter(word => (word.SearchFor!="")).length
+                )                
+            )
+            {      
+                disableButtons();
+                // get the data
 
+                // reload the search section
+                var url = controllerCalls.SearchRequests
+                var searchCriteria = JSON.stringify(indexationWorkLoadSearchModel);
 
-            // get the data
-
-            // reload the search section
-            var url = controllerCalls.SearchRequests
-            var searchCriteria = JSON.stringify(indexationWorkLoadSearchModel);
-
-            $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
-            .success(function (data) {
-                workflowDetailObj.html(data);
-                enableButtons();
-
-            }).error(
-            function () {
-
-                enableButtons();
-
-            });
+                $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
+                    .success(function (data) {
+                        workflowDetailObj.html(data);
+                        enableButtons();
+                    })                    
+                    .error(function () {
+                        enableButtons();
+                    });
+            }
+            else {
+                $(this).displayError(messages.errorMessages.SelectFilter);
+            }
+           
 
         });
 
