@@ -13,6 +13,7 @@
         var emailResent = false;
         var selectedRequests = new Array();
         var selectedRows = new Array();
+        var regexExpressionEmail = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,6}|[0-9]{1,3})(\]?)$/;
 
         var UIObject = {
             sections: {
@@ -112,7 +113,8 @@
             },
             warnings: {
                 NoRowSelected: "No row selected, please try again.",
-                NoSearchCriteria: "No search criteria entered."
+                NoSearchCriteria: "No search criteria entered.",
+                ValidEmail: "Email is not valid."
             },
             errorMessage: {
                 GeneralError: "Error Occurred on server call."
@@ -270,14 +272,25 @@
                     }
                     // declare sarch variable here and use it for download inbonud excel download
                     inboundSearchCriteria = JSON.stringify(this);
+                    
+                    //TRECOMPLI - 4449 Applied check if all Search fields are empty [Vivek/Kshtish]
+                    if (this.SupplierNameAndId != "" || this.HasNotes != null || this.AccountId != "" || this.InboundResponseId != ""
+                        || this.SubjectSenderEmail != "" || this.DateRangeFrom != null || this.DateRangeTo != null
+                        || this.ResponseStatusId != "0" || this.NoticeNumber != "") {
 
-                    $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
-                        .success(function (data) {
-                            UIObject.sections.responseDetailGridSection().html(data);
-                        }).error(
-                            function () {
-                                $(this).displayError(UIObject.errorMessage.GeneralError);
-                            });
+                        $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
+                            .success(function (data) {
+                                UIObject.sections.responseDetailGridSection().html(data);
+                            }).error(
+                                function () {
+                                    $(this).displayError(UIObject.errorMessage.GeneralError);
+                                });
+                    }
+                    else {
+                        $(this).displayError(UIObject.warnings.NoSearchCriteria);
+                        kendo.ui.progress(UIObject.sections.responseDetailGridSection(), false);
+                        return;
+                    }
 
                 },
 
@@ -1065,6 +1078,82 @@
 
         }
 
+        var UpdateEmailStatus = function(action, id, e) {
+
+            var data = {};
+
+            data.invalid = (action != "AUTOREPLY");
+            data.EmailIds = $("#txtEmailsToManage" + id).val();
+            data.Notes = $("#txtEmailStatusNotes" + id).val();
+            data.InboundResponseId = id;
+
+            //TRECOMPLI-4447 :  Validating Email and marking emails invalid on Manage Recipients tab in Inbound Response screen[Vivek and Kshitish]
+            ValidateEmail(e);
+
+            if (!$("#txtEmailsToManage" + id).val()) {
+                $(this).displayError(UIObject.warnings.ValidEmail);
+                return;
+            }
+
+            data.EmailIds = data.EmailIds.replaceAll('<', '').replaceAll('>', '');
+            if (action == "AUTOREPLY") {
+                data.Notes = data.Notes.replaceAll('<', '').replaceAll('>', '');
+            }
+
+            var maxLengthForNotes = 500;
+            if (action == "AUTOREPLY" && data.Notes.length > maxLengthForNotes) {
+                kendo.alert("Notes should be less then " + maxLengthForNotes + " characters.");
+                return;
+            }
+
+            if (data.invalid) data.Notes = "Marked invalid.";
+
+            var url = GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus";
+            $(this).ajaxCall(url, data)
+
+                .success(function (data) {
+                    $(this).savedSuccessFully("Email status updated.");
+
+                }).error(function () {
+                    kendo.alert("An error was encountered.");
+                });
+
+        }
+
+        //TRECOMPLI-4447 :  Validating Email and marking emails invalid on Manage Recipients tab in Inbound Response screen[Vivek and Kshitish]
+        var ValidateEmail = function (e) {
+            var keyCode = window.event.keyCode;
+            var ctrlKey = window.event.ctrlKey;
+            var txtAreaId = "#" + e.id;
+            if (keyCode === 13 || keyCode === 17 || (ctrlKey && keyCode === 86) ) {
+                DoMultipleItems(txtAreaId, regexExpressionEmail);
+            }
+        }
+
+        var OnfocusOutValidateEmail = function (e) {
+            var txtAreaId = "#" + e.id;
+            DoMultipleItems(txtAreaId, regexExpressionEmail);
+        }
+
+        var DoMultipleItems = function(txtObj, regExpression) {
+            var arr = $(txtObj).val().split("\n");
+            var arrDistinct = new Array();
+            $(arr).each(function (index, item) {
+                if (item.length > 0) {
+                    if ($.inArray(item, arrDistinct) == -1) {
+                        if (regExpression != null) {
+                            if (regExpression.test(item))
+                                arrDistinct.push(item);
+                        } else
+                            arrDistinct.push(item);
+                    }
+                }
+            });
+            $(txtObj).val("");
+            $(arrDistinct).each(function (index, item) {
+                $(txtObj).val($(txtObj).val() + item + "\n");
+            });
+        }        
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
@@ -1079,7 +1168,10 @@
             setNotesModalSettings: setNotesModalSettings,
             SearchBySupplierIdAndName: SearchBySupplierIdAndName,            
             onInboundResponseDetailBinding: onInboundResponseDetailBinding,
-            ReRouteIdDetail: ReRouteIdDetail
+            ReRouteIdDetail: ReRouteIdDetail,
+            ValidateEmail: ValidateEmail,
+            OnfocusOutValidateEmail: OnfocusOutValidateEmail,
+            UpdateEmailStatus: UpdateEmailStatus
         };
     };
 })(jQuery);
