@@ -615,18 +615,18 @@
         }
 
         function saveResponse(data, successFunc) {
+         
             $(this).ajaxJSONCall(UIObject.controllerCalls.SaveResponseDetail, JSON.stringify(data))
                 .success(function (successData) {
-                    // Attempt to save the information to the database
-                    if (typeof successData.displayMessage != 'undefined') {
-                        $(this).displayError("Error occurred.");
-                    }
-                    else if (successData == true) {
+
+                    if (successData.result == true) {
                         $(this).savedSuccessFully("Inbound response detail saved.");
                         if (successFunc) successFunc();
-                    } else {
-                        $(this).displayError("Error occurred.");
                     }
+                    else {
+                        $(this).displayError(successData.message);
+                    }
+
                 })
                 .error(function () {
                     $(this).displayError('Inbound response detail could not be saved.');
@@ -634,6 +634,7 @@
         }
 
         function onDdlResponseStatusesChange(e) {
+            alert("P");
             onInputFieldChange(e);
             changeLayoutOnInputChange(this.id.substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length));
         }
@@ -1006,6 +1007,8 @@
             }
 
             var func_SubmitRequest = function () {
+                alert("");
+                return;
                 $(this).ajaxCall(UIObject.controllerCalls.ChangeStatus, { inboundResponseIDs: selectedRequests, statusID: status })
                     .success(function (data) {
                         if (data == 'success') {
