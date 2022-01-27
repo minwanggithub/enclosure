@@ -634,7 +634,6 @@
         }
 
         function onDdlResponseStatusesChange(e) {
-            alert("P");
             onInputFieldChange(e);
             changeLayoutOnInputChange(this.id.substring(UIObject.controls.dropdownlists.ResponseStatusSpecific.length));
         }
