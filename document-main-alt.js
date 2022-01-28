@@ -844,6 +844,18 @@
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
 
+            //[TODO]: Remove this below code part to remove user activity log.
+            //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+            try {
+                var _msg = "Add new document button click from search section.";
+                var _element = e.target;
+                LogActivity_CommonShare(_element, _msg);
+
+            } catch (e) {
+
+            }
+            //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+
             var container = $(documentElementSelectors.containers.NewDocument);
             container.off('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers);
             container.on('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers, onDocumentAddMultipleNameNumbersBtnClick);
@@ -1108,6 +1120,12 @@
                         }
                         else
                             requestUrl = generateLocationUrl(requestUrl);
+
+                        //[TODO]: Remove this below code part to remove user activity log.
+                        //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+                        var _msg = "Add new document window open: _newDocumentPopUp";
+                        LogActivity_CommonShare(null, _msg);
+                        //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
                         requestWindow.onload = function () {
@@ -1806,6 +1824,18 @@
             if (displayUploadModal) {
                 var documentId = 0;
                 var revisionId = 0;
+
+                //[TODO]: Remove this below code part to remove user activity log.
+                //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+                try {
+                    var _msg = "Add new document attachment button click. FunctionName: onNewDocumentAddAttachmentBtnClick";
+                    var _element = e.target;
+                    LogActivity_CommonShare(_element, _msg, documentId, revisionId);
+
+                } catch (e) {
+
+                }
+                //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                 displayUploadModal(function () {
                     return { documentId: documentId, revisionId: revisionId };
@@ -2764,11 +2794,23 @@
             console.log(attachingFileFor);
 
             if (displayUploadModal) {
-
+                
                 var container = $(this).parents(documentElementSelectors.containers.DocumentNewRevisionDetails + ":first");
                 if (container.length > 0) {
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
                     var revisionId = 0;
+
+                    //[TODO]: Remove this below code part to remove user activity log.
+                    //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+                    try {
+                        var _msg = "Add new revision attachment button click. FunctionName: onDocumentNewRevisionDetailsAddAttachmentBtnClick";
+                        var _element = e.target;
+                        LogActivity_CommonShare(_element, _msg, documentId, revisionId);
+
+                    } catch (e) {
+
+                    }
+                    //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                     displayUploadModal(function () {
                         return { documentId: documentId, revisionId: revisionId };
@@ -3170,8 +3212,19 @@
                 var container = $(this).parents(documentElementSelectors.containers.DocumentRevisionDetails + ":first");
                 if (container.length > 0) {
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
-                    debugger;
                     var revisionId = extractReferenceId(this.getAttribute('id'));
+
+                    //[TODO]: Remove this below code part to remove user activity log.
+                    //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+                    try {
+                        var _msg = "Edit revision attachment button click. FunctionName: onDocumentRevisionDetailsAddAttachmentBtnClick";
+                        var _element = e.target;
+                        LogActivity_CommonShare(_element, _msg, documentId, revisionId);
+
+                    } catch (e) {
+
+                    }
+                    //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                     displayUploadModal(function () {
                         return { documentId: documentId, revisionId: revisionId };
@@ -4349,7 +4402,6 @@
         var onSaveReplaceForSelectedRevisionsBtnClick = function (e) {
 
             var files = $("#fileUploadReplacementFileUpload")[0].files;
-            debugger;
             if (files == null || files.length == 0) {
                 kendo.alert("No file has been selected.");
                 return;
@@ -4505,6 +4557,20 @@
                     if (displayUploadModal) {
 
                         attachingFileFor = "FORREPLACEMENT";
+
+                        //[TODO]: Remove this below code part to remove user activity log.
+                        //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+
+                        try {
+                            var _msg = msg + " FunctionName: replaceRevisionAttachmentConfirmation";
+                            var _element = e.target;
+                            LogActivity_CommonShare(_element, _msg, documentId, revisionId);
+
+                        } catch (e) {
+
+                        }
+                        //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+
                         displayUploadModal(function () {
                             return { documentInfoId: documentInfoId, revisionId: revisionId, documentId: 0 };
                         }, function (data) {
