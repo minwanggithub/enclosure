@@ -13,7 +13,6 @@
         var emailResent = false;
         var selectedRequests = new Array();
         var selectedRows = new Array();
-        var regexExpressionEmail = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,6}|[0-9]{1,3})(\]?)$/;
 
         var UIObject = {
             sections: {
@@ -108,7 +107,9 @@
                 ResendObtainmentEmail: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ResendObtainmentEmail",
                 GetObtainmentResponseContentBody: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetObtainmentResponseContentBody",
                 ChangeStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ChangeStatus",
-                SendInboundResponseEmailToOutlook: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SendInboundResponseEmailToOutlook"
+                SendInboundResponseEmailToOutlook: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SendInboundResponseEmailToOutlook",
+                ValidateEmailIds: GetEnvironmentLocation() + "/Operations/Company/ValidateEmailIds",
+                UpdateEmailStatus: GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus"
 
             },
             warnings: {
@@ -1090,9 +1091,10 @@
             data.InboundResponseId = id;
 
             //TRECOMPLI-4447 :  Validating Email and marking emails invalid on Manage Recipients tab in Inbound Response screen[Vivek and Kshitish]
-            ValidateEmail(e);
+            var txtAreaId = "#txtEmailsToManage" + id;
+            FilterEmailIds(txtAreaId);
 
-            if (!$("#txtEmailsToManage" + id).val()) {
+            if (!$("#txtEmailsToManage" + id).val() || $.trim($("#txtEmailsToManage" + id).val()) ==="") {
                 $(this).displayError(UIObject.warnings.ValidEmail);
                 return;
             }
@@ -1110,14 +1112,15 @@
 
             if (data.invalid) data.Notes = "Marked invalid.";
 
-            var url = GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus";
+            var url = UIObject.controllerCalls.UpdateEmailStatus;
             $(this).ajaxCall(url, data)
 
                 .success(function (data) {
+                    $("#txtEmailsToManage" + id).val(data+"\n");
                     $(this).savedSuccessFully("Email status updated.");
 
                 }).error(function () {
-                    kendo.alert("An error was encountered.");
+                    $(this).displayError(UIObject.errorMessage.GeneralError);
                 });
 
         }
@@ -1127,35 +1130,32 @@
             var keyCode = window.event.keyCode;
             var ctrlKey = window.event.ctrlKey;
             var txtAreaId = "#" + e.id;
-            if (keyCode === 13 || keyCode === 17 || (ctrlKey && keyCode === 86) ) {
-                DoMultipleItems(txtAreaId, regexExpressionEmail);
+            if (keyCode === 13 || keyCode === 17 || (ctrlKey && keyCode === 86)) {
+                FilterEmailIds(txtAreaId);
             }
         }
 
         var OnfocusOutValidateEmail = function (e) {
             var txtAreaId = "#" + e.id;
-            DoMultipleItems(txtAreaId, regexExpressionEmail);
+            FilterEmailIds(txtAreaId);
         }
 
-        var DoMultipleItems = function(txtObj, regExpression) {
-            var arr = $(txtObj).val().split("\n");
-            var arrDistinct = new Array();
-            $(arr).each(function (index, item) {
-                if (item.length > 0) {
-                    if ($.inArray(item, arrDistinct) == -1) {
-                        if (regExpression != null) {
-                            if (regExpression.test(item))
-                                arrDistinct.push(item);
-                        } else
-                            arrDistinct.push(item);
-                    }
-                }
-            });
-            $(txtObj).val("");
-            $(arrDistinct).each(function (index, item) {
-                $(txtObj).val($(txtObj).val() + item + "\n");
-            });
-        }        
+        var FilterEmailIds = function (id) {
+            var txtAreaId = id;
+            var data = {};
+            data.emailIds = $(txtAreaId).val().replaceAll('<', '').replaceAll('>', '');
+            var url = UIObject.controllerCalls.ValidateEmailIds;
+            $(this).ajaxCall(url, data)
+
+                .success(function (data) {
+                    $(txtAreaId).val(data+"\n");
+
+                }).error(function () {
+                    $(this).displayError(UIObject.warnings.ValidEmail);
+                    kendo.alert("An error was encountered.");
+                });
+        }
+       
 
         return {
             PanelLoadCompleted: function (e) { $(e.item).find("a.k-link").remove(); var selector = "#" +e.item.id; $(selector).parent().find("li").remove(); },
