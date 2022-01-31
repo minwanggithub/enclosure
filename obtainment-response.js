@@ -207,9 +207,40 @@
                         formData['ResponseStatusId'] = dataBindingSource.ResponseStatusId;
                         formData['ResponseNotes'] = dataBindingSource.ResponseNotes;
 
-                        saveResponse(formData, function () {
-                            dataBindingSource.set("Dirty", false);
-                        });
+                        if (dataBindingSource.ResponseMethodId == 4) {
+
+                            if (dataBindingSource.ResponseStatusDesc == "Pending" && dataBindingSource.ResponseStatusId == 1) {
+                                saveResponse(formData, function () {
+                                    dataBindingSource.set("Dirty", false);
+                                });
+                            }
+                            else if (dataBindingSource.ResponseStatusId != 3) {
+                                $(this).displayError("NETHUB Response can only be set to Processed.");
+                            }
+                            else if (dataBindingSource.ResponseStatusId == 3) {
+
+                                var msg = "Are you sure you want to change the selected NETHUB response status to Processed? NETHUB responses marked Processed cannot be reset to Pending.<br>" +
+                                    "You will still be able to Attach to Product and create revisions from attachments of an Inbound Response marked Pending.";
+                                var settings = {
+                                    message: (msg),
+                                    header: "Confirm"
+                                };
+                                _DisplayConfirmationModal(settings, function () {
+                                    saveResponse(formData, function () {
+                                        dataBindingSource.set("Dirty", false);
+                                    });
+                                });
+
+                            }
+
+                        }
+                        else {
+
+                            saveResponse(formData, function () {
+                                dataBindingSource.set("Dirty", false);
+                            });
+
+                        }
                     }
                 },
                 onBtnResponseResendClick: function (e) {
@@ -742,6 +773,8 @@
             detailVM.set("SupplierId", irModel.SupplierId);
             detailVM.set("SupplierName", irModel.SupplierName);
             detailVM.set("SupplierNameAndId", irModel.SupplierIdAndName);
+            detailVM.set("ResponseMethodId", irModel.ResponseMethodId);
+            detailVM.set("ResponseStatusDesc", irModel.ResponseStatusDesc);
 
             detailVM.bind("change", function (e) { //alert(e.field, "=", this.get(e.field));
                 if (e.field == "Dirty")
@@ -1007,8 +1040,6 @@
             }
 
             var func_SubmitRequest = function () {
-                alert("");
-                return;
                 $(this).ajaxCall(UIObject.controllerCalls.ChangeStatus, { inboundResponseIDs: selectedRequests, statusID: status })
                     .success(function (data) {
                         if (data == 'success') {
@@ -1034,11 +1065,12 @@
 
                 if (isNethubRecordSelected) {
 
-                    if (status != 1 && status != 3) {
+                    if (status != 3) {
                         $(this).displayError("The NETHUB status can only be set to Processed.");
                         return;
                     }
 
+                    /*
                     if (status == 1) {
 
                         var msg = "Selected NETHUB responses can be set to Pending status if there are no additional submissions.<br>" +
@@ -1053,10 +1085,12 @@
                         });
 
                     }
+                    */
 
                     if (status == 3) {
-                        var msg = "Are you sure you want to change the selected NETHUB responses status to Processed? NETHUB responses marked Processed cannot be reset to Pending.";
-                        var processedRecordSelectedMsg = 'Responses already in a Processed state will be ignored.';
+                        var msg = "Are you sure you want to change the selected NETHUB responses status to Processed? NETHUB responses marked Processed cannot be reset to Pending.<br>" + 
+                                  "You will still be able to Attach to Product and create revisions from attachments of an Inbound Response marked Pending.";
+                        var processedRecordSelectedMsg = '<br><br>Any selected NETHUB responses that are already in a Processed state will be ignored.';
                         var finalMsg = msg + (IsAnyProcessedNethubRecordSelected ? processedRecordSelectedMsg : "")
                         var settings = {
                             message: (finalMsg),
