@@ -520,7 +520,13 @@
             });
         };
 
-        var MasterExpand = function () {
+        var MasterExpand = function (e) {
+            //Show and Hide Manage recepient Tab on each row selection -Vivek
+            var element = e.sender.dataItem(e.masterRow);
+            var manageRecipientTab = $($(UIObject.controls.tabstrip.tabObtainmentResponseDetail + element.InboundResponseId).data("kendoTabStrip").items()[3]);
+
+            (element.ResponseStatusId == 4 || element.ResponseStatusId == 7) ? manageRecipientTab.show() : manageRecipientTab.hide();
+
             viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'inherit');
 
         };
