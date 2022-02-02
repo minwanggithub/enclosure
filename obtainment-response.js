@@ -521,11 +521,13 @@
         };
 
         var MasterExpand = function (e) {
-            //Show and Hide Manage recepient Tab on each row selection -Vivek
-            var element = e.sender.dataItem(e.masterRow);
-            var manageRecipientTab = $($(UIObject.controls.tabstrip.tabObtainmentResponseDetail + element.InboundResponseId).data("kendoTabStrip").items()[3]);
+            //TRECOMPLI-4455: Display Manage Recipient Tab on each row selection and status -Vivek
+            //On Each row expand ,it will pick the selected row,then getting the Manage Recipient tab.
+            //Based on the each row status, displaying the tab.
+            var selectedRow = e.sender.dataItem(e.masterRow);
+            var manageRecipientTab = $($(UIObject.controls.tabstrip.tabObtainmentResponseDetail + selectedRow.InboundResponseId).data("kendoTabStrip").items()[3]);
 
-            (element.ResponseStatusId == 4 || element.ResponseStatusId == 7) ? manageRecipientTab.show() : manageRecipientTab.hide();
+            (selectedRow.ResponseStatusId == 4 || selectedRow.ResponseStatusId == 7) ? manageRecipientTab.show() : manageRecipientTab.hide();
 
             viewModel.set(UIObject.controls.buttons.ShowCollapseObjField, 'inherit');
 
