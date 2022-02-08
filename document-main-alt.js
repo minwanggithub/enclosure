@@ -2977,14 +2977,14 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-
+           
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
-
-                // make call to get latest revision details
-                $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
-                    .success(function (data) {
+                
+                        // make call to get latest revision details
+                        $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
+                            .success(function (data) {
 
                         if (data == null) return;
 
@@ -3001,7 +3001,7 @@
                                 $("#RevisionDate_" + documentId + "_0").focus();
                             }, 1000);
 
-                    });
+                            });
 
             }
         }
@@ -3348,6 +3348,39 @@
                 attachments: getDocumentRevisionAttachments(form)
             };
 
+            
+            if (formData.model.RevisionId > 0 && form.find('.k-invalid-msg.field-validation-error').not('.k-hidden').length) {
+                var element = form.find('.k-invalid-msg.field-validation-error').not('.k-hidden')[0];
+                var _msg = '';
+                if ($(element).attr('data-valmsg-for') == 'NameOrNumberTypeId') {
+                    _msg += "<li>Name number type is required.</li>";
+                }
+                if ($(element).attr('data-valmsg-for') == 'NameOrNumber') {
+                    _msg += "<li>Name or number is required.</li>";
+                }
+                if (_msg) {
+                    displayError('<ul>' + _msg + '</ul>');
+                }
+                
+                return;
+            }
+            var errMsg = "";
+            if (formData.model.SupplierId =='' || formData.model.SupplierId<=0 ) {
+                errMsg +="<li>Supplier is required.</li>";
+            }
+            if (formData.model.VerifyDate == '') {
+                errMsg += "<li>Verify date is required.</li>";
+            }
+            if (formData.model.RevisionTitle == '') {
+                errMsg += "<li>Revision title is required.</li>";
+            }
+            if (formData.model.RevisionId==0 && (formData.model.DocumentSourceId == '' || formData.model.SupplierId <= 0)) {
+                errMsg += "<li>Document source is required.</li>";
+            }
+            if (errMsg != '') {
+                displayError('<ul>' + errMsg + '</ul>');
+                return;
+            }
             if (formData.model.RevisionDate.toString() == "") {
                 $("<div/>").kendoConfirm({
                     title: documentMessages.modals.NullRevisionConfirmTitle,
@@ -3517,6 +3550,38 @@
         function submitInboundRevision(form, formData) {
             var url = form.attr("action");
 
+            if (formData.model.RevisionId > 0 && form.find('.k-invalid-msg.field-validation-error').not('.k-hidden').length) {
+                var element = form.find('.k-invalid-msg.field-validation-error').not('.k-hidden')[0];
+                var _msg = '';
+                if ($(element).attr('data-valmsg-for') == 'NameOrNumberTypeId') {
+                    _msg += "<li>Name number type is required.</li>";
+                }
+                if ($(element).attr('data-valmsg-for') == 'NameOrNumber') {
+                    _msg += "<li>Name or number is required.</li>";
+                }
+                if (_msg) {
+                    displayError('<ul>' + _msg + '</ul>');
+                }
+
+                return;
+            }
+            var errMsg = "";
+            if (formData.model.SupplierId == '' || formData.model.SupplierId <= 0) {
+                errMsg += "<li>Supplier is required.</li>";
+            }
+            if (formData.model.VerifyDate == '') {
+                errMsg += "<li>Verify date is required.</li>";
+            }
+            if (formData.model.RevisionTitle == '') {
+                errMsg += "<li>Revision title is required.</li>";
+            }
+            if (formData.model.RevisionId == 0 && (formData.model.DocumentSourceId == '' || formData.model.SupplierId <= 0)) {
+                errMsg += "<li>Document source is required.</li>";
+            }
+            if (errMsg != '') {
+                displayError('<ul>' + errMsg + '</ul>');
+                return;
+            }
             if (formData.model.RevisionDate.toString() == "") {
                 $("<div/>").kendoConfirm({
                     title: documentMessages.modals.NullRevisionConfirmTitle,
