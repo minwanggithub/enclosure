@@ -1,8 +1,8 @@
-﻿//==============================================================================================
-//Min Wang: 05/01/2020 -- Note ----
-//An Universal jQuery Advance Search Control for dynamically creating criterias based datasource
-//It depends on kendo UI
-//==============================================================================================
+﻿//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//:::::Min Wang: 05/01/2020 -- Note ----
+//:::::An Universal jQuery Advance Search Control for dynamically extract criteria based on bypassing datasource
+//:::::Dependency: jQuery and Kendo UI
+//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 (function ($, kdo) {
     $.fn.advancedsearch = function (options) {
@@ -79,7 +79,8 @@
          * The value is no lower than min (or the next integer greater than min
          * if min isn't an integer) and no greater than max (or the next integer
          * lower than max if max isn't an integer).
-         * Using Math.round() will give you a non-uniform distribution!
+         * Using Math.round() will give you a non-uniform distribution! Therefore,
+         * the chance to have duplicate id on one page between 100000, 999999 is very small.
          */
 
         function getRandomInt(min, max) {
@@ -432,7 +433,7 @@
             totalrow++;
 
             //Set Next Column in Sequence
-            //Also need to find diable the column, then filter them
+            //Also need to find disable the column, then filter them
             if (nextColumnList.length === 0) {
                 SetNextSelectColumnDefault(column, rowModel.selectedColumn);
                 ConsoleLog(
