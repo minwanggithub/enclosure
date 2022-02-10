@@ -183,7 +183,12 @@
 
                 SupplierPortalEmailInstruction: "<br/>Please follow ||SupplierPortal(this link)|| to submit your document for the following products:<br/><br/>||ProductsList||<br/>",
                 RevisionSDSEmailInstruction: "<br/><b>Please provide updated SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>",
-                NewSDSEmailInstruction: "<br/><b>Please provide SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>"
+                NewSDSEmailInstruction: "<br/><b>Please provide SDS documents for the following:</b><br/><br/>||ProductsList|| <br/><br/>",
+
+                //[vikas 10Feb2022 start] Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
+                NotifySuperEmailForInboundResps: 'Obtainment work items having inbound response already received will automatically skipped while processing.'
+                //[vikas 10Feb2022 end] Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
+
             },
             successMessages: {
                 Saved: "Saved Successful",
@@ -601,22 +606,23 @@
                 $("#hasInboundResponses").hide();
                 $("#btnSendSuperEmail").hide();
 
-                if (hasInboundResponses) {
 
-                    $("#hasInboundResponses").show();
-                    $("#superEmailSupplier").parent().parent().nextAll().hide();
-
-                    var url = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/InboundResponse?supplierId=' + obtainment.supplierId + "&supplierName=" + obtainment.supplierName;
-                    $("#linkToInboundResponse").attr("href", url);
-
-                }
-                else {
-
-                    $("#hasNoInboundResponses").show();
-                    $("#btnSendSuperEmail").show();
-                    $("#superEmailSupplier").parent().parent().nextAll().show();
-
-                }
+                //--Start-- Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
+                //if (hasInboundResponses) {
+                //    $("#hasInboundResponses").show();
+                //    $("#superEmailSupplier").parent().parent().nextAll().hide();
+                //    var url = GetEnvironmentLocation() + '/Operations/ObtainmentResponse/InboundResponse?supplierId=' + obtainment.supplierId + "&supplierName=" + obtainment.supplierName;
+                //    $("#linkToInboundResponse").attr("href", url);
+                //}
+                //else {
+                //    $("#hasNoInboundResponses").show();
+                //    $("#btnSendSuperEmail").show();
+                //    $("#superEmailSupplier").parent().parent().nextAll().show();
+                //}
+                $("#hasNoInboundResponses").show();
+                $("#btnSendSuperEmail").show();
+                $("#superEmailSupplier").parent().parent().nextAll().show();
+                //--End-- Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
 
                 // ---- reset all controls
 
@@ -639,18 +645,55 @@
                 $(obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", ".")).prop("disabled", true);
                 $("[for='" + obtainmentObject.controls.checkBox.InsertSuppliersLink.replace("#", "") + "']").css({ "opacity": ".5" });
 
-                // display 
-                $(actionModals.SuperMail).data('kendoWindow').center();
-                $(actionModals.SuperMail).data('kendoWindow').open();
-                // Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
-                setTimeout(function () {
-                    $(actionModals.SuperMail).attr("tabindex", -1).focus();
-                    $(actionModals.SuperMail).removeAttr("tabindex");
+                //[vikas 10Feb2022 start] Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
 
-                }, 1000);
+
+                //Uncomment this below section if warning message is not needed.
+                //----No Warning message code start-------
+                    //// display
+                    //$(actionModals.SuperMail).data('kendoWindow').center();
+                    //$(actionModals.SuperMail).data('kendoWindow').open();
+                    //// Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
+                    //setTimeout(function () {
+                    //    $(actionModals.SuperMail).attr("tabindex", -1).focus();
+                    //    $(actionModals.SuperMail).removeAttr("tabindex");
+
+                    //}, 1000);
+
+                    //// $(actionModals.SuperMail).displayModal();
+                //----No Warning message code end-------
+
+                //----Warning message code start-------
+                if (hasInboundResponses) {
+
+                    var prompt = {};
+                    prompt.header = "Warning";
+                    prompt.message = messages.instructionMessages.NotifySuperEmailForInboundResps;
+
+                    DisplayErrorMessageInPopUp(prompt, function () {
+                         _displaySuperEmailPopup();
+                    });
+
+                }
+                else {
+                    _displaySuperEmailPopup()
+                }
+                function _displaySuperEmailPopup() {
+                    // display 
+                    $(actionModals.SuperMail).data('kendoWindow').center();
+                    $(actionModals.SuperMail).data('kendoWindow').open();
+                    // Nitin-TRECOMPLI-3990: Obtainment- Email pop-up tab function
+                    setTimeout(function () {
+                        $(actionModals.SuperMail).attr("tabindex", -1).focus();
+                        $(actionModals.SuperMail).removeAttr("tabindex");
+
+                    }, 1000);
 
                 // $(actionModals.SuperMail).displayModal();
+                }
+                //----Warning message code end-------
 
+                //[vikas 10Feb2022 end] Changes for adding warning message while sending super email when [inb. Response received] is 'yes'.
 
             }
             else {
