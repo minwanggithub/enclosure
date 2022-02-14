@@ -454,11 +454,60 @@
                 if (form.valid()) {
                     var url = form.attr("action");
                     var formData = form.serialize();
-                    $.post(url, formData, function (data) {
+                    $.post(url, formData, function (_data) {
                         var contactgrid = $(supplierLiterSettings.controls.grids.SupplierContacts).data("kendoGrid");
                         contactgrid.dataSource.read();
                         //$('#CompanyContactDetailResult').html(data);
                         $(supplierLiterSettings.controls.tabs.ContactTabstrip).data("kendoTabStrip").reload("li:first");
+
+                        //Chnages by vikas for ticket: Trecompli-4458 Supplier contact creation
+                        window.setTimeout(function () {
+                            if ($('#DetailSupplier input[name="SupplierContactId"]').val() == 0) {
+                                var reloaded_contactsGrid = $(supplierLiterSettings.controls.grids.SupplierContacts).data("kendoGrid");
+                                selectGridRow(_data.SupplierContactId, reloaded_contactsGrid, "SupplierContactId")
+                            }
+
+                            function selectGridRow(searchedId, grid, idField) {
+                                var dataSource = grid.dataSource;
+                                var filters = dataSource.filter() || {};
+                                var sort = dataSource.sort() || {};
+                                var models = dataSource.data();
+                                // We are using a Query object to get a sorted and filtered representation of the data, without paging applied, so we can search for the row on all pages
+                                var query = new kendo.data.Query(models);
+                                var rowNum = 0;
+                                var modelToSelect = null;
+
+                                models = query.filter(filters).sort(sort).data;
+
+                                // Now that we have an accurate representation of data, let's get the item position
+                                for (var i = 0; i < models.length; ++i) {
+                                    var model = models[i];
+                                    if (model[idField] == searchedId) {
+                                        modelToSelect = model;
+                                        rowNum = i;
+                                        break;
+                                    }
+                                }
+
+                                // If you have persistSelection = true and want to clear all existing selections first, uncomment the next line
+                                // grid._selectedIds = {};
+
+                                // Now go to the page holding the record and select the row
+                                var currentPageSize = grid.dataSource.pageSize();
+                                var pageWithRow = parseInt((rowNum / currentPageSize)) + 1; // pages are one-based
+                                grid.dataSource.page(pageWithRow);
+
+                                var row = grid.element.find("tr[data-uid='" + modelToSelect.uid + "']");
+                                if (row.length > 0) {
+                                    grid.select(row);
+
+                                    // Scroll to the item to ensure it is visible
+                                    //grid.content.scrollTop(grid.select().position().top);
+                                }
+                            }
+
+                        }, 1000)
+
                     });
                 }
             });
