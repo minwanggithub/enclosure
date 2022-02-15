@@ -1113,7 +1113,8 @@
                         var requestUrl = documentAjaxSettings.directory.Operations + "/" + documentAjaxSettings.controllers.Document + "/" + documentAjaxSettings.actions.AddNewDocument;
                         if ($(this).getQueryStringParameterByName("docGuid") && typeof pKey != 'undefined') {
                             if ($(this).getQueryStringParameterByName("inboundResponseid")) {
-                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&supplierid=" + $(this).getQueryStringParameterByName("supplierid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey;
+                                //TRECOMPLI-4468: Assigned  verify date with the response date of the Inbound email.[Vivek] 
+                                requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&supplierid=" + $(this).getQueryStringParameterByName("supplierid")) + "&inboundResponseid=" + $(this).getQueryStringParameterByName("inboundResponseid") + "&productid=" + pKey + "&inboundDate="+$(this).getQueryStringParameterByName("inboundDate");
                             } else {
                                 requestUrl = generateLocationUrl(requestUrl + "/?nnumber=" + $(this).getQueryStringParameterByName("nnumber") + "&docGuid=" + $(this).getQueryStringParameterByName("docGuid") + "&supplierid=" + $(this).getQueryStringParameterByName("supplierid"));
                             }
