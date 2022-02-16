@@ -89,7 +89,7 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        var randomPrefix = "_For_" + $this.selector.substring(1) + getRandomInt(100000, 999999);
+        var randomPrefix = "_For_" + ($this)[0].id + getRandomInt(100000, 999999);
         
         var settings = $.extend(
             {
