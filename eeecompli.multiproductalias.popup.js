@@ -59,9 +59,10 @@ if (jQuery) (function ($, kdo) {
                     e.stopPropagation();
                     e.preventDefault();
                     var nnArray = $('#txtAreaMultipleProductAliases').val().split("\n");
-                    var nnResult = DeDupProductAlias(nnArray);
+                    
+                    var nnResult = DeDupProductAlias(nnArray,true);
                     if (nnResult.length == 0) {
-                        kdo.alert("Nothing to save.");
+                        kdo.alert("Nothing to save."); 
                         return;
                     }
 
@@ -92,7 +93,7 @@ if (jQuery) (function ($, kdo) {
                 onProductAliasTextKeyup: function (e) {
                     if (e.keyCode == dialogProperty.KeyCode.Enter || (e.ctrlKey && e.keyCode == dialogProperty.KeyCode.KeyV)) {
                         var nnArray = e.currentTarget.value.split("\n");
-                        var result = DeDupProductAlias(nnArray);
+                        var result = DeDupProductAlias(nnArray,false);
                         e.currentTarget.value = "";
                         $(result).each(function (index, item) {
                             e.currentTarget.value = e.currentTarget.value + item + "\n";
@@ -102,10 +103,14 @@ if (jQuery) (function ($, kdo) {
             });
         }
 
-        function DeDupProductAlias(arr) {
+        function DeDupProductAlias(arr, removeMaxLengthValidation) {
             var arrDistinct = new Array();
             $(arr).each(function (index, item) {
-                if (item.trim().length > 0) {
+                if (
+                    (removeMaxLengthValidation && item.trim().length > 0 && item.trim().length <= 100)
+                    ||
+                    (!removeMaxLengthValidation && item.trim().length > 0)
+                ) {
                     if ($.inArray(item, arrDistinct) == -1)
                         arrDistinct.push(item);
                 }
@@ -132,7 +137,7 @@ if (jQuery) (function ($, kdo) {
                 "<span class='k-icon k-i-help' title='Press enter to insert multiple values.'></span> " +
                 "</label></td>" +
                 "<td><textarea id='txtAreaMultipleProductAliases' rows='5' cols='60' data-bind='value: productAliasText, events: {keyup: onProductAliasTextKeyup }' style='min-width:300px;'></textarea>" +
-                "<p><strong>Note: </strong>Duplicates will be removed automatically.<br />To add multiple values press enter between each value.</p>" +
+                "<p><strong>Note: </strong>Duplicates will be removed automatically.<br />Values having more than 100 characters will be removed automatically.<br />To add multiple values press enter between each value.</p>" +
                 "</td>" +
                 "</tr>" +
                 //"<tr>" +
