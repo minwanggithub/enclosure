@@ -46,7 +46,8 @@ if (jQuery) (function ($, kdo) {
         },
         message: {
             RequestsCouldNotBeSaved: "Requests could not be saved",
-            CustomActionSavedSucessfuly: "Custom ction saved sucessfuly!"
+            CustomActionSavedSucessfuly: "Custom ction saved sucessfuly!",
+            ItemsAlreadyResolved: "One or more of the selected item(s) have already been resolved. Remove any resolved item(s) selected and perform the action again.",
         }
         
     };
@@ -299,6 +300,11 @@ if (jQuery) (function ($, kdo) {
                 //        selectedRequests.splice(index, 1);
                 //}
             });
+           // [Vikas] 18 Feb 2022 TRECOMPLI - 4477 Skip RequestWorkItems already resolved.
+            if (anyRequestResolvedStatus) {
+                $(this).displayError(Settings.message.ItemsAlreadyResolved);
+                return false;
+            }
         }
 
         //Make sure not previously created, we don't do any cache for this particular case
