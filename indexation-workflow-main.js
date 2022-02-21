@@ -302,18 +302,29 @@
 
                             // http://compliweb01.dev.local/Complicore/Operations/Indexation/Indexation?documentId=5609770&revisionId=8123721
 
-                            var url = window.location.href.split("/");
-                            url[url.length - 1] = "Indexation/IntelliForms?navigation=" + data.GUID + "&indexationId=" + data.IndexationId +
-                                "&documentTypeId=" + data.DocumentTypeId + 
-                                "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + data.IndexationSets;
 
-                            // open intelliforms directly
-                            //url[url.length - 1] = "Indexation/LoadIntelliform?indexationWorkItemId=" + data.IndexationId +
-                            //    "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&documentTypeId=" + data.DocumentTypeId;
+                            //NK- 18 feb 2022 commented this code for calling Intelliform directly from Intelliform Controller
+                            //var url = window.location.href.split("/");
+                            //url[url.length - 1] = "Indexation/IntelliForms?navigation=" + data.GUID + "&indexationId=" + data.IndexationId +
+                            //    "&documentTypeId=" + data.DocumentTypeId + 
+                            //    "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&indexationSets=" + data.IndexationSets;
 
-                            window.open(url.join("/"), "_blank").focus();
+                            //// open intelliforms directly
+                            ////url[url.length - 1] = "Indexation/LoadIntelliform?indexationWorkItemId=" + data.IndexationId +
+                            ////    "&documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId + "&documentTypeId=" + data.DocumentTypeId;
+
+                            //window.open(url.join("/"), "_blank").focus();
+                            // end of commented code
+
+                            //NK- 18 feb 2022 new code for calling Intelliform directly from Intelliform Controller
+                            var currenturl = window.location.href;
+                            var indexArea = currenturl.substring(0, currenturl.indexOf('Document'));
+                            if (data.IndexationId > 0) data.IndexationId = null;
+                            if (data.IndexationId < 0) data.IndexationId = -data.IndexationId;
+                            var url = indexArea + "IntelliForms/LoadIntelliForm?documentId=" + data.DocumentId + "&revisionId=" + data.RevisionId +
+                                "&indexationWorkItemId=" + data.IndexationId + "&documentTypeId=" + data.DocumentTypeId;
+                            window.open(url, "_blank");
                           
-
                         }
 
                     }).error(
