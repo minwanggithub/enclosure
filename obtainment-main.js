@@ -2075,7 +2075,8 @@
 
         var onObtainmentReqeustDetailDataBound = function (e) {
             $('.progress-value').tooltip({
-                delay: 100,
+                //delay: 100,
+                showAfter: 50,
                 //tooltipClass: "progress-value-tooltip-styling",
                 //placement: "bottom",
                 title: GetObtainmentWorkItemDueDiligence,
