@@ -4513,8 +4513,14 @@
                     if (data.Navigable) {
 
                         var indexationSets = [];
-                        if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
-                        if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
+
+                        
+                        //Vikas: TRECOMPLI 4480 Replace Silver/Gold/Platinum with Basic/Ehs/Safety.
+                        //if ((data.IndexationSets & 1) == 1) indexationSets.push("Gold");
+                        //if ((data.IndexationSets & 2) == 2) indexationSets.push("Platinum");
+                        if ((data.IndexationSets & 1) == 1) indexationSets.push("EHS");
+                        if ((data.IndexationSets & 2) == 2) indexationSets.push("Safety");
+
                         indexationSets = indexationSets.join(",");
 
                         var url = window.location.href.split("/");
