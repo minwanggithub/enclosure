@@ -251,7 +251,7 @@
             DocumentTypeId: 0,
             LockTypeId: 0,
             AssignedToId: 0,
-            NextStepId0: 0,
+            NextStepId: 0,
             IncludeInboundResponse: false
         };
 
