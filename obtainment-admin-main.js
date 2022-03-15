@@ -293,11 +293,15 @@
         // ---------------------------------  BUTTONS AND MENUS    
 
         disableButtons = function () {
-
+            $(obtainmentObjects.controls.grids.GridRequests).hide();
+            $(obtainmentObjects.controls.buttons.MakeCustomerActionBtn).hide();
+            $(obtainmentObjects.controls.buttons.NextStepBatchChange).hide();
         };
 
         enableButtons = function () {
-
+            $(obtainmentObjects.controls.grids.GridRequests).show();
+            $(obtainmentObjects.controls.buttons.MakeCustomerActionBtn).show();
+            $(obtainmentObjects.controls.buttons.NextStepBatchChange).show();
         };
 
         getGridIds = function () {
@@ -336,6 +340,13 @@
             // display init
             init(null);
 
+            //TRECOMPLI-4498:Clear the grid on clear button click. [VK]
+            var gridRequests = $(obtainmentObjects.controls.grids.GridRequests).data("kendoGrid");
+            if (gridRequests && gridRequests.dataSource) {
+                gridRequests.dataSource.filter({});
+                gridRequests.dataSource.data([]);
+            }
+            disableButtons();
         });
 
         // clear search 
