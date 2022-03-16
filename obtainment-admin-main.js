@@ -328,7 +328,7 @@
 
                 // if first one, set to default choice.
                 if (i == 0) {
-                    $(v).data("kendoDropDownList").value("AccountID");
+                    $(v).data("kendoDropDownList").value("AssignedTo");
                     $(v).data("kendoDropDownList").trigger("change");
                 }
                 else {

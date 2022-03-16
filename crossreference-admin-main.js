@@ -273,7 +273,6 @@
             $(this).ajaxJSONCall(url, JSON.stringify(data))
                 .success(function (successData) {
 
-                    debugger;
 
                     if (successData.success === true) {
                         reloadGrids();
@@ -334,7 +333,7 @@
 
                 // if first one, set to default choice.
                 if (i == 0) {
-                    $(v).data("kendoDropDownList").value("AccountID");
+                    $(v).data("kendoDropDownList").value("AccountId");
                     $(v).data("kendoDropDownList").trigger("change");
                 }
                 else {
@@ -685,7 +684,7 @@
             } else
                 selectedValue = userName.value();
 
-            debugger;
+
 
             // valid group or name check
             if (selectedValue.replace(/ /g, "").length > 0) {
