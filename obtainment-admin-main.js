@@ -269,6 +269,12 @@
             var searchCriteria = getAdvancedSearchCriteria();
             if (searchCriteria.Errors.length > 0) return null;
 
+            //TRECOMPI:4498 If Search Criteria Drp Field is empty then search criteria field must be selected.[VK]
+            $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {                
+                if ($(v).data("kendoDropDownList").value() == "") {
+                    $(this).displayError(messages.errorMessages.SelectFilter);
+                }
+                else {                    
             if (searchCriteria.Criterias != null) {
                 if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
                     $("#defaultSearch").html("");
@@ -287,6 +293,8 @@
                 }).error(
                     function () {
                         enableButtons();
+                    });
+                }
             });
         };
 
@@ -328,7 +336,7 @@
 
                 // if first one, set to default choice.
                 if (i == 0) {
-                    $(v).data("kendoDropDownList").value("AssignedTo");
+                    $(v).data("kendoDropDownList").value("AssignedTO");
                     $(v).data("kendoDropDownList").trigger("change");
                 }
                 else {
@@ -597,8 +605,10 @@
                     searchFor = fieldDropDown.value();
                 }
                 else {
-                    whereOperator = "Exact Match";
-                    searchFor = fieldDropDown.value();
+                    if (fieldDropDown !== undefined && fieldDropDown !== null) {
+                        whereOperator = "Exact Match";
+                        searchFor = fieldDropDown.value();
+                    }
                 }
 
                 if (searchFor.replace(/ /g, "") != "") {
