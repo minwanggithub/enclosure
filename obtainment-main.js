@@ -105,7 +105,13 @@
                     SuperEmailNextStep: "#ddlSuperEmailNextStep",
                     EmailTargets: "#ddlEmailTarget",
                     CompletedObtainmentActionsDropDownList: "#ddlObtainmentAction",
-                    CompletedCustomerActionDropDownList: "#ddlCustomerAction"
+                    CompletedCustomerActionDropDownList: "#ddlCustomerAction",
+
+                    ObtainmentTypeDropDownList: "#ddlObtainmentType",
+                    DaysInProgressConditionDropDownList: "#ddlDaysInProgressCondition",
+                    DaysInProgressNumberDropDownList: "#ddlDaysInProgressNumber",
+                    AttemptsDropDownList: "#ddlAttempts",
+                    
                 },
                 labels: {
                     ContactName: "#lblContactName",
@@ -120,6 +126,12 @@
                 },
                 div: {
                     CustomerActionDiv: "#dvObtainmentCustomerAction",
+                },
+                radioButtons: {
+                    CategoriesMatchGroup: "mltCategoriesMatchGroup"
+                },
+                multiSelectLists: {
+                    CategoriesMultiSelect: "#mltCategories",
                 }
             }
         }
@@ -394,6 +406,24 @@
             var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
             var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
 
+            var drpObtainmentType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoDropDownList");
+            var drpDaysInProgressCondition = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).data("kendoDropDownList");
+            var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
+            var drpAttempts= $("#divSearchSection " + obtainmentObject.controls.dropdownlists.AttemptsDropDownList).data("kendoDropDownList");
+            var drpCategories = $("#divSearchSection " + obtainmentObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
+            //$("#divSearchSection " + obtainmentObject.controls.dropdownlists.CategoriesDropDownList).data("kendoDropDownList");
+
+            var strCategoryValue = drpCategories.value();
+            var intCategoryValue = 0;
+
+            // get the criteria selections
+            for (var indexCategory = 0; indexCategory < strCategoryValue.length; indexCategory++)
+                intCategoryValue += parseInt(strCategoryValue[indexCategory]);
+
+            // hack for now
+            var categoryCondition = $("#divSearchSection [name=" + obtainmentObject.controls.radioButtons.CategoriesMatchGroup + "]:checked").val();
+            if (categoryCondition == "OR") intCategoryValue = -intCategoryValue;
+
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
@@ -406,6 +436,12 @@
             obtainmentWorkLoadSearchResultModel.AccountId = $(obtainmentObject.controls.textBoxes.AccountId).val();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
+            obtainmentWorkLoadSearchResultModel.ObtainmentType = drpObtainmentType.value() == "" ? 0 : drpObtainmentType.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgress = drpDaysInProgressNumber.value() == "" ? 0 : drpDaysInProgressNumber.value();
+            obtainmentWorkLoadSearchResultModel.Attempts = drpAttempts.value() == "" ? 0 : drpAttempts.value();
+            obtainmentWorkLoadSearchResultModel.Category = intCategoryValue === 0 ? "" : intCategoryValue;
+
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId
@@ -414,7 +450,12 @@
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
                 + obtainmentWorkLoadSearchResultModel.NextStepId
                 + (obtainmentWorkLoadSearchResultModel.NoticeNumber != "") ? "1" : "0"
-                + obtainmentWorkLoadSearchResultModel.AccountId;
+                + obtainmentWorkLoadSearchResultModel.AccountId
+                + obtainmentWorkLoadSearchResultModel.ObtainmentType
+                + obtainmentWorkLoadSearchResultModel.DaysInProgressCondition
+                + obtainmentWorkLoadSearchResultModel.DaysInProgress
+                + obtainmentWorkLoadSearchResultModel.Attempts
+                + obtainmentWorkLoadSearchResultModel.Category;
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
                 DisableEnableButtons(false);
