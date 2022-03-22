@@ -128,7 +128,8 @@
                     CustomerActionDiv: "#dvObtainmentCustomerAction",
                 },
                 radioButtons: {
-                    CategoriesMatchGroup: "mltCategoriesMatchGroup"
+                    CategoriesMatchGroup: "mltCategoriesMatchGroup",
+                    id_mltCategoriesMatchGroupOr: "#mltCategoriesMatchGroupOr"
                 },
                 multiSelectLists: {
                     CategoriesMultiSelect: "#mltCategories",
@@ -363,12 +364,25 @@
             var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
             var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
             var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
+
+            var drpObtainmentType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoDropDownList");
+            var drpDaysInProgressCondition = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).data("kendoDropDownList");
+            var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
+            var drpAttempts = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.AttemptsDropDownList).data("kendoDropDownList");
+            var drpCategories = $("#divSearchSection " + obtainmentObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
+
             drpTeams.select(0);
             drpLang.select(0);
             drpDocType.select(0);
             drpLockType.select(0);
             drpAssignedToType.select(0);
             drpNextStep.select(0);
+            drpObtainmentType.select(0);
+            drpDaysInProgressCondition.select(0);
+            drpDaysInProgressNumber.select(0);
+            drpAttempts.select(0);
+            drpCategories.value([]);
+            $(obtainmentObject.controls.radioButtons.id_mltCategoriesMatchGroupOr).prop('checked', true)
             $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val('');
             $(obtainmentObject.controls.textBoxes.AccountId).val('');
             $(obtainmentObject.controls.textBoxes.SupplierId).val('');
