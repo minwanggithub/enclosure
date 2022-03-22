@@ -1318,7 +1318,7 @@
 
             var useExistingDocument = $("<div><div>Enter sibling title: <span><input type='text' id='siblingTitle' title='Please enter sibling title' data-bind='value: newDocumentTitle, disabled:usingExistingDocument' style='margin-left: 10px; width: 320px;'></span></div>" +
                 "<div>Choose Doc Type: <span><input id='siblingDocType' style='margin: 5px 0px 0px 10px; width: 332px;' data-role='dropdownlist' data-auto-bind='false'  data-text-field='Text' data-value-field='Value'  data-bind='value: newDocumentTypeId, disabled:usingExistingDocument, source: docTypeDataSource, events: { change: onSiblingDocTypeChange }'/></span></div>" +
-                "<div>Mfr Part Number: <span><input type='text' id='mfrPartNumber' title='Please enter Mfr Part Number' data-bind='value: nameOrNumber, disabled:usingExistingDocument' style='margin: 5px 0px 0px 10px; width: 320px;'></span></div>"+
+                "<div>Mfr Part Number: <span><input type='text' id='mfrPartNumber' maxlength='500' title='Please enter Mfr Part Number' data-bind='value: nameOrNumber, disabled:usingExistingDocument' style='margin: 5px 0px 0px 10px; width: 320px;'></span></div>"+
                 "<label style='margin-top:8px;'><input type='checkbox' id='checkExistingDocument' data-bind='checked: usingExistingDocument, events: { change: onUsingExistingDocumentChange}'>Use existing Document Id: <input type='text' id='documentId' title='Please enter document Id' data-auto-bind='false' data-bind='value: existingDocumentId, visible: usingExistingDocument' style='width: 100px;'></label></div>");
             //$("<div>siblingRequest</div>").dialog({
             var rowModel;
