@@ -50,7 +50,8 @@
                     ResponseStatusAll: "[id^=ddlResponseStatus]",
                     ResponseStatusId: "ResponseStatusId",
                     ResponseStatusSpecific: "ddlResponseStatus_",
-                    ResponseHasNotes: "#HasNotes"
+                    ResponseHasNotes: "#HasNotes",
+                    DdlResponseStatus: "#mltDdlResponseStatus"
                 },
                 grids: {
                     InboundResponse: function () { return $("#gdInboundResponse").data("kendoGrid"); },
@@ -89,6 +90,9 @@
                 tabstrip: {
                     tabObtainmentResponseDetail: "#tbObtainmentResponseDetail_"
                 }
+            },
+            observable: {
+                ResponseStatusList: "ResponseStatusList",
             },
             popWindow: {
                 supplierSearchDialog: function () { return $("#supplierSearchWindow").data("kendoWindow"); },
@@ -273,8 +277,13 @@
                 InboundResponseId: "",
                 SubjectSenderEmail: "",
                 DetailViewModel: null,
+                ResponseStatusList: null,
                 SearchClick: function (e) {
                     e.preventDefault();
+                    //TRECOMPLI:4496 Get multi selected response status ids and pass it to the request
+                    this.set(UIObject.observable.ResponseStatusList, ($(UIObject.controls.dropdownlists.DdlResponseStatus).data("kendoMultiSelect").value()).map(function (item) {
+                            return parseInt(item, 10);
+                        }));
                     kendo.ui.progress(UIObject.sections.responseDetailGridSection(), true);
                     if (this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField) == '')  //Prevent supply information deleted
                         this.set(UIObject.controls.textBoxes.SupplierIdObjField, 0);
@@ -303,6 +312,7 @@
                         return;
                     }
                     // declare sarch variable here and use it for download inbonud excel download
+                    this.ResponseStatusId = null;
                     inboundSearchCriteria = JSON.stringify(this);
                     
                     //TRECOMPLI - 4449 Applied check if all Search fields are empty [Vivek/Kshtish]
