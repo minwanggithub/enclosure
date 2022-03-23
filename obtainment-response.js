@@ -318,7 +318,7 @@
                     //TRECOMPLI - 4449 Applied check if all Search fields are empty [Vivek/Kshtish]
                     if (this.SupplierNameAndId != "" || this.HasNotes != null || this.AccountId != "" || this.InboundResponseId != ""
                         || this.SubjectSenderEmail != "" || this.DateRangeFrom != null || this.DateRangeTo != null
-                        || this.ResponseStatusId != "0" || this.NoticeNumber != "") {
+                        || this.NoticeNumber != "" || this.ResponseStatusList.length != 0) {
 
                         $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                             .success(function (data) {
