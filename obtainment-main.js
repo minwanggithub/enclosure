@@ -246,7 +246,7 @@
                 FlagNotRequiredActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The Flag Not Required action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
-                NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
+                NoObtainmentWorkItemSelected: "No obtainment work item has been selected.",
                 HasEmbeddedKeywords: "Email body has illegal keyword(s).",
                 SubjectHasEmbeddedKeywords: "Email subject has illegal keyword(s).",
                 AlreadyResolved: "This request is already completed, go to PID to see further details.",
@@ -606,9 +606,14 @@
                 var emailBodyHasKeywords = (body.toUpperCase().indexOf("NETHUB") >= 0);
                 var emailSubjectHasKeywords = (subject.toUpperCase().indexOf("NETHUB") >= 0);
 
+                var obtainment = selectedSuperMailSupplierId();
+                var hasSupplierSelected = true;
+                if (obtainment == null || obtainment.supplierId == null) {
+                    hasSupplierSelected = false;
+                }
                 // validation
                 if (!hasTarget || !hasRecepient || !hasNoticeNumber || !hasBody || !hasNextStep || !hasNotificationRecepient
-                    || emailBodyHasKeywords || emailSubjectHasKeywords) {
+                    || emailBodyHasKeywords || emailSubjectHasKeywords || !hasSupplierSelected) {
 
                     //$(actionModals.SuperMail).hide();
                     $("#errorReport").on('hidden', function () {
@@ -625,6 +630,7 @@
                     if (!hasBody) message += messages.errorMessages.EmailBodyMissing + "<br>";
                     if (!hasNextStep) message += messages.errorMessages.NextStepMissing + "<br>";
                     if (!hasNotificationRecepient) message += messages.errorMessages.NotificationRecepientMissing + "<br>";
+                    if (!hasSupplierSelected) message += messages.errorMessages.NoObtainmentWorkItemSelected + "<br>";
                     if (emailBodyHasKeywords) message += messages.errorMessages.HasEmbeddedKeywords + "<br>";
                     if (emailSubjectHasKeywords) message += messages.errorMessages.SubjectHasEmbeddedKeywords + "<br>";
 
@@ -639,7 +645,7 @@
                 }
                 else {
 
-                    DeliverSuperMain(emailTarget);
+                    DeliverSuperMain(emailTarget, obtainment.supplierId);
 
                 }
             });
@@ -1175,13 +1181,13 @@
 
         var superEmailSendInProgress = false;
 
-        function DeliverSuperMain(emailTarget) {
-
+        function DeliverSuperMain(emailTarget,supplierId) {
             // super email model
             superEmailModel.Recepients = $(obtainmentObject.controls.dropdownlists.SuperEmailRecepient).val()
             superEmailModel.Subject = $(obtainmentObject.controls.textBoxes.SuperEmailSubject).val();
             superEmailModel.MessageBody = $(obtainmentObject.controls.textBoxes.SuperObtainmentEmailBody).data("kendoEditor").value() + "";
-            superEmailModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            //superEmailModel.SupplierId = $(obtainmentObject.controls.textBoxes.SupplierId).val();
+            superEmailModel.SupplierId = supplierId;
             superEmailModel.NextStepId = $(obtainmentObject.controls.dropdownlists.SuperEmailNextStep).val();
             superEmailModel.DueDate = ($(obtainmentObject.controls.dateTime.SuperEmailNextStepDueDate).data("kendoDatePicker").value() + "").substring(0, 10);
             superEmailModel.AddProductsList = $(obtainmentObject.controls.checkBox.InsertProductsList.replace("#", ".")).is(":checked");
