@@ -469,7 +469,7 @@
                 + obtainmentWorkLoadSearchResultModel.DaysInProgressCondition
                 + obtainmentWorkLoadSearchResultModel.DaysInProgress
                 + obtainmentWorkLoadSearchResultModel.Attempts
-                + obtainmentWorkLoadSearchResultModel.Category;
+                + Math.abs(obtainmentWorkLoadSearchResultModel.Category);
 
             if (obtainmentWorkLoadSearchResultModel.HasFilter > 0 || obtainmentWorkLoadSearchResultModel.SupplierId > 0) {
                 DisableEnableButtons(false);
