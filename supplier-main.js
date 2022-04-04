@@ -1216,46 +1216,70 @@
             InitializePopUpWindows(e, e.model.SupplierNotesId);
             var update = $(e.container).parent().find(".k-grid-update");
 
-            $(update).on("click", function () {
+            $(update).on("click", function () {                
                 var validationUrl = "../company/ValidateContactEmail";
                 var saveUrl = "../company/SaveContactEmail";
                 var supplierId = $("#SupplierId").val();
                 var supplierContactId = $("#SupplierContactId").val();
                 var supplierContactEmailId = e.model.CompanyContactEmailId;
                 $('#DetailSupplier #gdContactEmail').data("kendoGrid").cancelChanges();
-
+                
                 var data = {
-                    supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.Email
+                    supplierContactEmailId: supplierContactEmailId, companyId: supplierId, contactid: supplierContactId, emailTxt: e.model.Email, emailStatusLkpId:e.model.EmailStatusLkpId
                 };
+                var ReqIsValid = true;
+                var ReqInValidMsg = "";
+                
+
                 if (!data.emailTxt) {
-                    onDisplayError('Email cannot be blank.')
+                    ReqInValidMsg += ('Email cannot be blank.<br />')
+                    ReqIsValid = false;
                 }
                 else {
                     if (regexExpressionEmail.test(data.emailTxt)) {
                         if (data.emailTxt.length > maxLengthForEmail) {
-                            onDisplayError('Email should be less then ' + maxLengthForEmail + ' characters.');
-                            return;
+                            ReqInValidMsg += ('Email should be less then ' + maxLengthForEmail + ' characters.<br />');
+                            ReqIsValid = false;
                         }
-                        $.post(validationUrl, data, function (result) {
-                            if (result.indexOf("Duplicate") >= 0) {
-                                var args = {
-                                    header: 'Confirm Save',
-                                    message: result
-                                };
-                                DisplayConfirmationModal(args, function () {
-                                    saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
-                                    refreshContactGrid()
-                                });
-                            }
-                            else {
-                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
-                                refreshContactGrid()
-                            }
-                        });
+                        
                     }
                     else {
-                        onDisplayError('Entered email is invalid.')
+                        ReqInValidMsg += ('Entered email is invalid.<br />')
+                        ReqIsValid = false;
                     }
+                }
+
+
+                if (!supplierContactEmailId) {
+                    ReqInValidMsg += ("Email status for new Email should be valid.<br />");
+                    ReqIsValid = false;
+                }else if (data.emailStatusLkpId == -1 || data.emailStatusLkpId == 1) {
+                    ReqInValidMsg += ("You can edit the 'Email Status' to either Valid or Invalid.<br />");
+                    ReqIsValid = false;
+                }
+                
+
+
+                if (ReqIsValid) {
+                    $.post(validationUrl, data, function (result) {
+                        if (result.indexOf("Duplicate") >= 0) {
+                            var args = {
+                                header: 'Confirm Save',
+                                message: result
+                            };
+                            DisplayConfirmationModal(args, function () {
+                                saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                                refreshContactGrid()
+                            });
+                        }
+                        else {
+                            saveSupplier(saveUrl, data, $('#DetailSupplier #gdContactEmail'));
+                            refreshContactGrid()
+                        }
+                    });
+                }
+                else {
+                    onDisplayError(ReqInValidMsg);
                 }
                 
             });
