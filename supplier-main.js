@@ -1249,11 +1249,11 @@
                     }
                 }
 
-
-                if (!supplierContactEmailId) {
+                if (!supplierContactEmailId && data.emailStatusLkpId != 0) {
                     ReqInValidMsg += ("Email status for new Email should be valid.<br />");
                     ReqIsValid = false;
-                }else if (data.emailStatusLkpId == -1 || data.emailStatusLkpId == 1) {
+                } else if (Math.abs(data.emailStatusLkpId) == 1) //data.emailStatusLkpId == -1 || data.emailStatusLkpId == 1 // SelectOne || AutoReply
+                {
                     ReqInValidMsg += ("You can edit the 'Email Status' to either Valid or Invalid.<br />");
                     ReqIsValid = false;
                 }
