@@ -81,7 +81,9 @@
                     ObtainmentActionNotesCloseRequest: "#txtObtainmentActionNotesCloseRequest",
                     ObtainmentActionNotesConfirmNotAvailable: "#txtObtainmentActionNotesConfirmNotAvailable",
                     ObtainmentActionNotesSentToProcessing: "#txtObtainmentActionNotesSentToProcessing",
-                    ObtainmentActionNotesAwaitingSupplierResponse: "#txtObtainmentActionNotesAwaitingSupplierResponse"
+                    ObtainmentActionNotesAwaitingSupplierResponse: "#txtObtainmentActionNotesAwaitingSupplierResponse",
+                    DaysInProgressNumber: "#txtDaysInProgressNumber",
+
                 },
                 dateTime: {
                     NextStepDueDate: "#dteNextStepDueDate",
@@ -109,7 +111,7 @@
 
                     ObtainmentTypeDropDownList: "#ddlObtainmentType",
                     DaysInProgressConditionDropDownList: "#ddlDaysInProgressCondition",
-                    DaysInProgressNumberDropDownList: "#ddlDaysInProgressNumber",
+                    //DaysInProgressNumberDropDownList: "#ddlDaysInProgressNumber",
                     AttemptsDropDownList: "#ddlAttempts",
                     
                 },
@@ -367,7 +369,7 @@
 
             var drpObtainmentType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoDropDownList");
             var drpDaysInProgressCondition = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).data("kendoDropDownList");
-            var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
+            //var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
             var drpAttempts = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.AttemptsDropDownList).data("kendoDropDownList");
             var drpCategories = $("#divSearchSection " + obtainmentObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
 
@@ -386,6 +388,7 @@
             $(obtainmentObject.controls.textBoxes.NoticeNumberSearch).val('');
             $(obtainmentObject.controls.textBoxes.AccountId).val('');
             $(obtainmentObject.controls.textBoxes.SupplierId).val('');
+            $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val('');
             $(obtainmentObject.controls.checkBox.IncludeInboundResponses).removeAttr('checked');
 
             // Super Email Button emabled by default.
@@ -422,7 +425,7 @@
 
             var drpObtainmentType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoDropDownList");
             var drpDaysInProgressCondition = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).data("kendoDropDownList");
-            var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
+            //var drpDaysInProgressNumber = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressNumberDropDownList).data("kendoDropDownList");
             var drpAttempts= $("#divSearchSection " + obtainmentObject.controls.dropdownlists.AttemptsDropDownList).data("kendoDropDownList");
             var drpCategories = $("#divSearchSection " + obtainmentObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
             //$("#divSearchSection " + obtainmentObject.controls.dropdownlists.CategoriesDropDownList).data("kendoDropDownList");
@@ -452,7 +455,7 @@
 
             obtainmentWorkLoadSearchResultModel.ObtainmentType = drpObtainmentType.value() == "" ? 0 : drpObtainmentType.value();
             obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
-            obtainmentWorkLoadSearchResultModel.DaysInProgress = drpDaysInProgressNumber.value() == "" ? 0 : drpDaysInProgressNumber.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgress = $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val() == "" ? 0 : $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val();
             obtainmentWorkLoadSearchResultModel.Attempts = drpAttempts.value() == "" ? 0 : drpAttempts.value();
             obtainmentWorkLoadSearchResultModel.Category = intCategoryValue === 0 ? "" : intCategoryValue;
 
