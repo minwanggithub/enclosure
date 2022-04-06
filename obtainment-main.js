@@ -381,7 +381,7 @@
             drpNextStep.select(0);
             drpObtainmentType.select(0);
             drpDaysInProgressCondition.select(0);
-            drpDaysInProgressNumber.select(0);
+            //drpDaysInProgressNumber.select(0);
             drpAttempts.select(0);
             drpCategories.value([]);
             $(obtainmentObject.controls.radioButtons.id_mltCategoriesMatchGroupOr).prop('checked', true)
