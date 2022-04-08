@@ -1655,8 +1655,9 @@
 
         }
 
-        function doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments) {
+        function doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments, IsConfirmedForDocumentSetSelected=false) {
             if (formData.model) {
+                formData.model.IsConfirmedForDocumentSetSelected = IsConfirmedForDocumentSetSelected;
                 if (formData.attachments != null) {
                     if (formData.attachments.length == 0 && $(this).getQueryStringParameterByName("docGuid") == "") {
                         if (formData.model.ContainerTypeId != 2) {
@@ -1670,7 +1671,7 @@
 
                 $(this).ajaxCall(url, formData)
                     .success(function (data) {
-
+                        
                         var errorMessages = parseErrorMessages(data);
                         if (errorMessages.length == 0) {
 
@@ -1692,9 +1693,29 @@
                             //}
 
                         } else {
-
+                            var str_InvalidDocumentSetKey ='InvalidDocumentSet'
+                            if (!IsConfirmedForDocumentSetSelected && data && data.Errors && data.Errors[str_InvalidDocumentSetKey] && data.Errors[str_InvalidDocumentSetKey].errors
+                                && data.Errors[str_InvalidDocumentSetKey].errors.length) {
+                                $("<div/>").kendoConfirm({
+                                    title: 'Confirm',
+                                    content: data.Errors[str_InvalidDocumentSetKey].errors[0],
+                                    actions: [
+                                        {
+                                            text: 'Ok',
+                                            primary: true,
+                                            action: function (e) {
+                                                doSaveNewDocumentRevisionToDatabase(form, formData, callbackFunc, clearFields, clearAttachments,true);
+                                                return true;
+                                            },
+                                        },
+                                        { text: 'Cancel' }
+                                    ]
+                                }).data("kendoConfirm").open().center();
+                            }
+                            else {
                             var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
-                            displayError(errorMessage);
+                                displayError(errorMessage);
+                            }
 
                         }
                     })
