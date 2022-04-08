@@ -2897,6 +2897,18 @@
             }
             return true;
         }
+        function onddlDaysInProgressConditionChange() {
+            
+            if ($(obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).val() == 0) {                
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).attr('disabled', 'disabled');
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).addClass('disabled');
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val('');
+            }
+            else {
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).removeAttr('disabled');
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).removeClass('disabled');
+            }
+        }
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
@@ -2912,7 +2924,8 @@
             AddRevisionPage: AddRevisionPage,
             AddDocumentPage: AddDocumentPage,
             uploadPPCAttachments: uploadPPCAttachments,
-            removePPCAttachments: removePPCAttachments
+            removePPCAttachments: removePPCAttachments,
+            onddlDaysInProgressConditionChange: onddlDaysInProgressConditionChange
 
         };
     };
