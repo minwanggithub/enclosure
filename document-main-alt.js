@@ -787,6 +787,8 @@
                 container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerId).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val('');
+                container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerName).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val('');
                 container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val('');
