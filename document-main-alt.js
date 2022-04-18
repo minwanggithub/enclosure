@@ -95,7 +95,7 @@
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
                 DocumentSearchSearchSupplier: "#searchDocSupplierIdBtn",   //Replace with ADSupplierSearch
-                DocumentSearchSearchManufacturer: "#searchDocManufacturerIdBtn",   
+                DocumentSearchSearchManufacturer: "#searchDocManufacturerIdBtn",
                 DocumentSearchRevisionDetailsSupplierView: "[id^=viewSearchRevisionSupplierIdBtn]",
                 DocumentSearchRevisionDetailsManufacturerView: "[id^=viewSearchRevisionManufacturerIdBtn]",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
@@ -777,6 +777,9 @@
                     }
                 });
 
+                //Vikas 4/15/2022 [TRECOMPLI-4509] clear button not hiding date range fields
+                $("#customDateRange").fadeOut();
+
                 // clear check boxes
                 container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked', false);
                 container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).prop('checked', true);
@@ -1393,7 +1396,7 @@
                 dialogClass: 'siblingDialogClass',
                 autoOpen: true,
                 buttons: {
-                    OK: function () {                        
+                    OK: function () {
                         if (!rowModel.usingExistingDocument && rowModel.newDocumentTitle === "") {
                             kendo.alert("Sibling title is required.");
                             return;
@@ -1414,7 +1417,7 @@
                             $(this).dialog("close");
                             SaveSiblingAsExistDocument(did, rowModel.existingDocumentId, rowModel.newDocumentTitle);
                         } else {
-                            $(this).dialog("close");                            
+                            $(this).dialog("close");
                             SaveSiblingAsNewDocument(did, rowModel.newDocumentTitle, rowModel.newDocumentTypeId, rowModel.nameOrNumber);
                         }
                     },
@@ -1697,7 +1700,7 @@
 
                 $(this).ajaxCall(url, formData)
                     .success(function (data) {
-                        
+
                         var errorMessages = parseErrorMessages(data);
                         if (errorMessages.length == 0) {
 
@@ -1739,7 +1742,7 @@
                                 }).data("kendoConfirm").open().center();
                             }
                             else {
-                            var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
+                                var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
                                 displayError(errorMessage);
                             }
 
@@ -2699,7 +2702,7 @@
         }
 
         function getCompanyTextFieldSibling(buttonElement) {
-            
+
             if (buttonElement) {
                 var siblingSelector = documentElementSelectors.textboxes.DocumentRevisionDetailsSupplierId;
                 if (buttonElement.is(documentElementSelectors.buttons.DocumentRevisionDetailsManufacturerSearch) ||
@@ -2709,7 +2712,7 @@
                 }
                 else if (
                     buttonElement.is(documentElementSelectors.buttons.DocumentSearchSearchSupplier) ||
-                    buttonElement.is(documentElementSelectors.buttons.DocumentSearchRevisionDetailsSupplierView) 
+                    buttonElement.is(documentElementSelectors.buttons.DocumentSearchRevisionDetailsSupplierView)
                 ) {
                     siblingSelector = documentElementSelectors.textboxes.DocumentSearchSupplierId;
                 }
@@ -2855,7 +2858,7 @@
             console.log(attachingFileFor);
 
             if (displayUploadModal) {
-                
+
                 var container = $(this).parents(documentElementSelectors.containers.DocumentNewRevisionDetails + ":first");
                 if (container.length > 0) {
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
@@ -3038,14 +3041,14 @@
 
         function onDocumentRevisionAddNewRevisionBtnClick(e) {
             e.preventDefault();
-           
+
             var documentId = extractReferenceId(e.currentTarget.getAttribute('id'));
             var newRevisionContainer = $(documentElementSelectors.containers.DocumentNewRevisionDetailsExact + documentId);
             if (newRevisionContainer.length > 0) {
-                
-                        // make call to get latest revision details
-                        $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
-                            .success(function (data) {
+
+                // make call to get latest revision details
+                $(this).ajaxCall(controllerCalls.RetrieveLatestDocumentRevision, { DocumentId: documentId })
+                    .success(function (data) {
 
                         if (data == null) return;
 
@@ -3062,7 +3065,7 @@
                                 $("#RevisionDate_" + documentId + "_0").focus();
                             }, 1000);
 
-                            });
+                    });
 
             }
         }
@@ -3409,7 +3412,7 @@
                 attachments: getDocumentRevisionAttachments(form)
             };
 
-            
+
             if (formData.model.RevisionId > 0 && form.find('.k-invalid-msg.field-validation-error').not('.k-hidden').length) {
                 var element = form.find('.k-invalid-msg.field-validation-error').not('.k-hidden')[0];
                 var _msg = '';
@@ -3422,7 +3425,7 @@
                 if (_msg) {
                     displayError('<ul>' + _msg + '</ul>');
                 }
-                
+
                 return;
             }
             var errMsg = "";
@@ -5018,7 +5021,8 @@
             UploadReplacementFile: uploadReplacementFile,
             onRevisionDocumentMultiSelection: onRevisionDocumentMultiSelection,
             onRevisionDocumentEachRowSelection: onRevisionDocumentEachRowSelection,
-            onNameNumberMultiDeletion: onNameNumberMultiDeletion
+            onNameNumberMultiDeletion: onNameNumberMultiDeletion,
+            onDocumentRevisionCompanyViewBtnClick: onDocumentRevisionCompanyViewBtnClick
         };
     };
 
