@@ -900,7 +900,10 @@
 
             var searchGrid = $(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if (searchGrid && searchGrid.dataSource) {
-                searchGrid.dataSource.filter({});
+
+                //4/20/2022 Vikas - [TRECOMPLI 4530] No need of below statement.
+                //searchGrid.dataSource.filter({});
+
                 $("form.k-filter-menu button[type='reset']").trigger("click");
                 searchGrid.dataSource.data([]);
             }
