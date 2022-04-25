@@ -83,6 +83,8 @@
                     PreviewAttachments: "PreviewAttachments",
                     SubjectSenderEmail: "SubjectSenderEmail",
                     InboundResponseId: "InboundResponseId",
+                    ToRecipients: "ToRecipients",
+                    CCRecipients: "CCRecipients",
                 },
                 checkBoxes: {
                     chkHasNotes: "HasNotes"
@@ -276,6 +278,8 @@
                 AccountId: "",
                 InboundResponseId: "",
                 SubjectSenderEmail: "",
+                ToRecipients: "",
+                CCRecipients: "",
                 DetailViewModel: null,
                 ResponseStatusList: null,
                 SearchClick: function (e) {
@@ -297,6 +301,8 @@
 
                     this.InboundResponseId = this.get(UIObject.controls.textBoxes.InboundResponseId);
                     this.SubjectSenderEmail = this.get(UIObject.controls.textBoxes.SubjectSenderEmail);
+                    this.ToRecipients = this.get(UIObject.controls.textBoxes.ToRecipients);
+                    this.CCRecipients = this.get(UIObject.controls.textBoxes.CCRecipients);
                     if ($(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value() != null)
                         this.DateRangeFrom = $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value().toLocaleDateString();
                     else
@@ -318,7 +324,7 @@
                     //TRECOMPLI - 4449 Applied check if all Search fields are empty [Vivek/Kshtish]
                     if (this.SupplierNameAndId != "" || this.HasNotes != null || this.AccountId != "" || this.InboundResponseId != ""
                         || this.SubjectSenderEmail != "" || this.DateRangeFrom != null || this.DateRangeTo != null
-                        || this.NoticeNumber != "" || this.ResponseStatusList.length != 0) {
+                        || this.NoticeNumber != "" || this.ResponseStatusList.length != 0 || this.ToRecipients != "" || this.CCRecipients != "") {
 
                         $(this).ajaxCall(UIObject.controllerCalls.SearchResponse, { searchCriteria: JSON.stringify(this) })
                             .success(function (data) {
@@ -352,6 +358,8 @@
                     $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value("");
                     //$(UIObject.controls.dropdownlists.ResponseStatusId).data("kendoDropDownList").value("");
                     this.set(UIObject.controls.textBoxes.SubjectSenderEmail, "");
+                    this.set(UIObject.controls.textBoxes.ToRecipients, "");
+                    this.set(UIObject.controls.textBoxes.CCRecipients, "");
                     this.set(UIObject.controls.textBoxes.InboundResponseId, "");
 
                     var inboundGrid = UIObject.controls.grids.InboundResponse;
