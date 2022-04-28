@@ -454,7 +454,12 @@
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
 
             obtainmentWorkLoadSearchResultModel.ObtainmentType = drpObtainmentType.value() == "" ? 0 : drpObtainmentType.value();
-            obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgressCondition =
+                //DaysInProgressCondition will always be 0 if DaysInProgressNumber is empty string.
+                $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val() == "" ? 0 :
+                    (
+                        drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value()
+                    );
             obtainmentWorkLoadSearchResultModel.DaysInProgress = $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val() == "" ? 0 : $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val();
             obtainmentWorkLoadSearchResultModel.Attempts = drpAttempts.value() == "" ? 0 : drpAttempts.value();
             obtainmentWorkLoadSearchResultModel.Category = intCategoryValue === 0 ? "" : intCategoryValue;
