@@ -814,6 +814,8 @@
 
             $(this).ajaxCall(UIObject.controllerCalls.GetObtainmentResponseContentBody, { inboundResponseId: irModel.InboundResponseId })
                 .success(function (data) {
+                    //Earlier HtmlFormat was hardcoded to true at server side,now it is changed and hardcoded here due to deprecation of HtmlAgility pack [TRECOMPLI-4524]
+                    data.HtmlFormat = true;
                     if (data.HtmlFormat)
                         $("#html_mail_body_" + irModel.InboundResponseId).attr("srcdoc",  data.ContentBody);
                     else
