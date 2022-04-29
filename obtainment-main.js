@@ -113,7 +113,7 @@
                     DaysInProgressConditionDropDownList: "#ddlDaysInProgressCondition",
                     //DaysInProgressNumberDropDownList: "#ddlDaysInProgressNumber",
                     AttemptsDropDownList: "#ddlAttempts",
-                    
+                    EditEmailTemplate_obtEmail: "#ddlEditEmailTemplate_obtEmail"
                 },
                 labels: {
                     ContactName: "#lblContactName",
@@ -1406,6 +1406,10 @@
                 if (!data.sdsObtainments) {
                     $(obtainmentObject.controls.checkBox.InsertSuppliersLink).prop("checked", true);
                 }
+
+                //reset email template dropdown when pop up open.
+                var ddlEditEmailTemplate = $(obtainmentObject.controls.dropdownlists.EditEmailTemplate_obtEmail).data("kendoDropDownList");
+                ddlEditEmailTemplate.value(0);
 
                 // reset the email body and re-initialize the kendo editor
                 var editor = $("#txtObtainmentEmailSendEmailBody").data("kendoEditor");
