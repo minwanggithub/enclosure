@@ -2149,6 +2149,7 @@
                 }
 
             }
+            $('#current_PageCount').html("Current Page Count");
             $('#current_NewObtainmentCount').html(current_NewObtainmentCount);
             $('#current_RevisionObtainmentCount').html(current_RevisionObtainmentCount);
 
