@@ -270,7 +270,6 @@
             IncludeInboundResponse: false,
             Attempts: 0,
             ObtainmentType: 0,
-            DaysInProgressCondition: 0,
             SelectedCategories: 0
 
         };
@@ -356,9 +355,12 @@
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
             obtainmentWorkLoadSearchResultModel.ObtainmentType = drpObtainmentType.value() == "" ? 0 : drpObtainmentType.value();
-            obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
+            if (drpDaysInProgressCondition.value() !== "" && drpDaysInProgressCondition.value() !== 0 && txtDaysInProgress !== "") {
+                obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
+                obtainmentWorkLoadSearchResultModel.DaysInProgress = txtDaysInProgress == "" ? 0 : txtDaysInProgress;
+            }
             obtainmentWorkLoadSearchResultModel.Attempts = drpAttemptDays.value() == "" ? 0 : drpAttemptDays.value();
-            obtainmentWorkLoadSearchResultModel.DaysInProgress = txtDaysInProgress == "" ? 0 : txtDaysInProgress;
+            
             obtainmentWorkLoadSearchResultModel.SelectedCategories = drpCategoriesMultiSelect.value() == "" ? 0 : "["+drpCategoriesMultiSelect.value()+"]";
             DisableEnableButtons(false);
 
