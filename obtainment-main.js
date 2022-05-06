@@ -267,7 +267,12 @@
             LockTypeId: 0,
             AssignedToId: 0,
             NextStepId: 0,
-            IncludeInboundResponse: false
+            IncludeInboundResponse: false,
+            Attempts: 0,
+            ObtainmentType: 0,
+            DaysInProgressCondition: 0,
+            SelectedCategories: 0
+
         };
 
         var obtainmentMultipleWorkItemActionModel = {
@@ -338,7 +343,11 @@
             var drpLockType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.LockTypeDropDownList).data("kendoDropDownList");
             var drpAssignedToType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.OSAssignedToId).data("kendoDropDownList");
             var drpNextStep = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.NextStepDropDownList).data("kendoDropDownList");
-
+            var drpObtainmentType = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.ObtainmentTypeDropDownList).data("kendoDropDownList");
+            var drpDaysInProgressCondition = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.DaysInProgressConditionDropDownList).data("kendoDropDownList");
+            var drpAttemptDays = $("#divSearchSection " + obtainmentObject.controls.dropdownlists.AttemptsDropDownList).data("kendoDropDownList");
+            var drpCategoriesMultiSelect = $("#divSearchSection " + obtainmentObject.controls.multiSelectLists.CategoriesMultiSelect).data("kendoMultiSelect");
+            var txtDaysInProgress = $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val();
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
@@ -346,13 +355,18 @@
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
             obtainmentWorkLoadSearchResultModel.NextStepId = drpNextStep.value() == "" ? 0 : drpNextStep.value();
             obtainmentWorkLoadSearchResultModel.IncludeInboundResponse = $(obtainmentObject.controls.checkBox.IncludeInboundResponses).is(":checked");
+            obtainmentWorkLoadSearchResultModel.ObtainmentType = drpObtainmentType.value() == "" ? 0 : drpObtainmentType.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgressCondition = drpDaysInProgressCondition.value() == "" ? 0 : drpDaysInProgressCondition.value();
+            obtainmentWorkLoadSearchResultModel.Attempts = drpAttemptDays.value() == "" ? 0 : drpAttemptDays.value();
+            obtainmentWorkLoadSearchResultModel.DaysInProgress = txtDaysInProgress == "" ? 0 : txtDaysInProgress;
+            obtainmentWorkLoadSearchResultModel.SelectedCategories = drpCategoriesMultiSelect.value() == "" ? 0 : "["+drpCategoriesMultiSelect.value()+"]";
             DisableEnableButtons(false);
 
             $(this).ajaxCall(controllerCalls.SaveSearchSettings, { settingsProfile: JSON.stringify(obtainmentWorkLoadSearchResultModel) })
-                .success(function (successData) {
+                .success(function (successData) {                    
                     if (successData.success == true) {
                         DisableEnableButtons(true);
-                        $(this).savedSuccessFully(messages.successMessages.Saved);
+                        $(this).savedSuccessFully(messages.successMessages.Saved);                        
                     }
                 }).error(function (error) {
                     $(this).displayError(error);
