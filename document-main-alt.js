@@ -103,7 +103,8 @@
                 btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
                 ConflictingFileUploadClose: "#btnConflictingFileUploadClose",
                 CancelReplaceForSelectedRevisions: "#btnCancelReplaceForSelectedRevisions",
-                SaveReplaceForSelectedRevisions: "#btnSaveReplaceForSelectedRevisions"
+                SaveReplaceForSelectedRevisions: "#btnSaveReplaceForSelectedRevisions",
+                CreateProduct: "#btnCreateProduct_"
             },
             checkboxes: {
                 DocumentDetailsIsMsdsNotRequired: "[id^=IsMsdsNotRequired_]",
@@ -293,8 +294,11 @@
             GetSupplierName: GetEnvironmentLocation() + "/Operations/Company/GetSupplierName",
             DocumentSiblingChainingVerify: GetEnvironmentLocation() + "/Operations/Document/DocumentSiblingChainingVerify",
             ReplaceFileForRevisionSiblings: GetEnvironmentLocation() + "/Operations/Document/ReplaceFileForRevisionSiblings",
-            DocumentDeleteNameAndNumberPair: GetEnvironmentLocation() + "/Operations/Document/DeleteNameAndNumberMultiPair"
-        }
+            DocumentDeleteNameAndNumberPair: GetEnvironmentLocation() + "/Operations/Document/DeleteNameAndNumberMultiPair",
+            ProductSearch: GetEnvironmentLocation() + "/Operations/Document/GetProductResult",
+            CreateProductFromDocumentAssociatedProductSection: GetEnvironmentLocation() + "/Operations/Document/CreateProductFromDocumentAssociatedProductSection",
+    
+    }
 
         var documentMessages = {
             errors: {
@@ -1309,6 +1313,87 @@
 
 
             });
+            $(documentElementSelectors.buttons.CreateProduct + did).click(function (e) {
+                e.preventDefault();
+                $('#gdDocumentProduct_' + did).data('kendoGrid').dataSource.read().then(function () {
+                    
+                    if ($('#gdDocumentProduct_' + did).data('kendoGrid').dataSource.total() == 0) {
+                        $(documentElementSelectors.buttons.CreateProduct + did).prop('disabled', false);
+                        $.post(controllerCalls.ProductSearch, { documentId: did }, function (data) {
+                            
+                            if (data && data.length) {
+                                var html = '<b>The requested product information already exists under the following Product ID(s). Please click on the links<br />below to access the Products(s) and associate the document appropratey.</b> ';
+                                html += '<br /><br /><div id="existingProductsGrid"></div>';
+                                
+                                var prompt = {};
+                                prompt.header = "Existing Product(s)";
+                                prompt.message = html;
+                                prompt.okButtonHtml = " Close ";
+
+                                DisplayErrorMessageInPopUp(prompt, function () {
+                                    // do nothing
+                                })
+                                
+                                setTimeout(bind_existingProductsGrid(data), 500);
+                                function bind_existingProductsGrid(_data) {
+                                    
+                                    $("#existingProductsGrid").kendoGrid({
+                                        dataSource: {
+                                            data: _data,
+                                            schema: {
+                                                model: {
+                                                    fields: {
+                                                        ReferenceId: { type: "number" },
+                                                        ProductName: { type: "string" },
+                                                        SupplierNameAndId: { type: "string" },
+                                                    }
+                                                }
+                                            },
+                                            pageSize: 8
+                                        },
+
+                                        'min-height': 300,
+                                        width: 640,
+                                        scrollable: true,
+                                        sortable: true,
+                                        filterable: true,
+                                        pageable: {
+                                            input: true,
+                                            numeric: false,
+                                            info: true
+                                        },
+                                        columns: [
+                                            {
+                                                field: "ReferenceId", title: "Product Id", width: "20%",
+                                                template: "<a target='_blank' href='" + GetEnvironmentLocation() + "/Configuration/ProductManager/ConfigProduct?productid=#: ReferenceId #'>#: ReferenceId # </a>"
+                                                //template: "<b>#: ReferenceId # </b>"
+                                            },
+                                            { field: "ProductName", title: "Name", width: "40%" },
+                                            { field: "SupplierNameAndId", title: "Manufacturer", width: "40%" }
+                                        ]
+                                    });
+                                }
+                            }
+                            else {
+                                $.post(controllerCalls.CreateProductFromDocumentAssociatedProductSection, { documentId: did }, function (_res) {
+                                    
+                                    onDisplayError(_res.message)
+                                    $('#tbDocumentDetail_' + did).data("kendoTabStrip").reload("#tbDocumentDetail_" + did + "-tab-6");
+
+                                });
+
+                            }
+                        });
+                    }
+                    else {
+                        $(documentElementSelectors.buttons.CreateProduct + did).prop('disabled', true);
+                        onDisplayError("Product already associated.")
+                    }
+                });
+              
+
+
+            });
             getRealNumberForProductAssociation(did);
         };
 
@@ -1533,6 +1618,7 @@
                 contentType: 'application/json; charset=utf-8',
                 error: function () { /* DO NOTHING */ },
                 success: function (result) {
+                    
                     $(documentElementSelectors.textboxes.DocumentAssociatedProduct + did).text('Total products in db: ' + result.associatedItems);
                     $(documentElementSelectors.textboxes.DocumentUnAssociatedProduct + did).text('Total products in db: ' + result.unassociatedItems);
                     var docType = $(documentElementSelectors.textboxes.DocumentType + did).val();
@@ -1548,6 +1634,13 @@
                     }
                     else {
                         $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct + did).prop('disabled', false);
+                    }
+
+                    if (result.associatedItems > 0) {
+                        $(documentElementSelectors.buttons.CreateProduct + did).prop('disabled', true);
+                    }
+                    else {
+                        $(documentElementSelectors.buttons.CreateProduct + did).prop('disabled', false);
                     }
                 }
             });
