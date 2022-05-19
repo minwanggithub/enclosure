@@ -25,6 +25,14 @@
                     RestoreSupplierSearchSettingsButton: "#restoreSupplierSearchSettingsBtn"
                 },
                 textBoxes: {
+                    textDoNotObtainNote: "#txtDoNotObtainNote"
+                },
+                dropDownControls: {
+                    multipleDddlNoteType: "#mltDdlNoteType",
+                    ddlDoNotObtainNotes: "#ddlDoNotObtainNotes"
+                },
+                checkBoxes: {
+                    ObtainmentSettingDoNotObtain: "#ObtainmentSettingDoNotObtain"
                 },
                 customControl: {
                     MainSupplierAdvanceSearchCtl: "#mainSupplierAdvanceSearchCtl",
@@ -44,7 +52,9 @@
             },
             warningMessage: {
                 DoNotObtainUnCheckedMessage: "This will turn on all workload. You will need to log proof that</br> this action is required to proceed. Do you wish to proceed?",
-                DoNotObtainCheckedMessage: "This will cancel all future workload.You will need to log proof that</br> this action is required to proceed.Do you wish to proceed?"
+                DoNotObtainCheckedMessage: "This will cancel all future workload.You will need to log proof that</br> this action is required to proceed.Do you wish to proceed?",
+                NoteRequired: "Note is required.",
+                NoteTypeRequired: "Note Type is required."
             }
         };
 
@@ -2039,27 +2049,23 @@
             $("#popupDonotObtainNote").modal("show");
         }
         var saveNote = function () {
-            console.log("save button clicked")
             var supplierNoteViewModel = {
                 SupplierNoteType: []
             };
             supplierNoteViewModel.SupplierId = $("#SupplierId").val();
-            supplierNoteViewModel.SupplierNoteText = $("#txtDoNotObtainNote").data("kendoEditor").value();
-            var list = $("#mltDdlNoteType").data("kendoMultiSelect").value();
+            supplierNoteViewModel.SupplierNoteText = $(supplierLiterSettings.controls.textBoxes.textDoNotObtainNote).data("kendoEditor").value();
             supplierNoteViewModel.SupplierNoteEmergency = false
             supplierNoteViewModel.SupplierNoteActive = false
             supplierNoteViewModel.SupplierNotesId = 0
-            var noteTypeListData = $("#mltDdlNoteType").data("kendoMultiSelect").dataItems();
+            var noteTypeListData = $(supplierLiterSettings.controls.dropDownControls.multipleDddlNoteType).data("kendoMultiSelect").dataItems();
 
             if (supplierNoteViewModel.SupplierNoteText == "") {
-               // kendo.alert("Note is required.");
-                onDisplayError("Note is required.");
+                onDisplayError(supplierLiterSettings.warningMessage.NoteRequired);
                 return;
             }
 
             if (noteTypeListData == 0) {
-                //kendo.alert("Note Type is required.");
-                onDisplayError("Note Type is required.");
+                onDisplayError(supplierLiterSettings.warningMessage.NoteTypeRequired);
                 return;
             }
             
@@ -2083,7 +2089,7 @@
                     fnSaveObtainmentSettings();
                     $("#popupDonotObtainNote").modal("hide");
 
-                    var doNotObtainChecked = $("#ObtainmentSettingDoNotObtain").is(':checked');
+                    var doNotObtainChecked = $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).is(':checked');
                     doNotObtainChecked == true ? enableDoNotObtainCheckbox() : disableDoNotObtainCheckbox();
                 },
                 error: function (jqXHR, status, errorThrown) {
@@ -2095,8 +2101,7 @@
             
         }
         var cancelNote = function () {
-            var doNotObtainChecked = $("#ObtainmentSettingDoNotObtain").is(':checked');
-            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
+            var doNotObtainChecked = $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).is(':checked');
 
             if (doNotObtainChecked == true) {
                 disableDoNotObtainCheckbox();
@@ -2107,15 +2112,15 @@
             }           
         }
         var disableDoNotObtainCheckbox = function () {
-            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
-            $("#ObtainmentSettingDoNotObtain").prop('checked', false);
+            var ddlDoNotObtainNotes = $(supplierLiterSettings.controls.dropDownControls.ddlDoNotObtainNotes).data("kendoDropDownList");
+            $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).prop('checked', false);
             ddlDoNotObtainNotes.value("");
             ddlDoNotObtainNotes.enable(false);
         }
 
         var enableDoNotObtainCheckbox = function () {
-            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
-            $("#ObtainmentSettingDoNotObtain").prop('checked', true);
+            var ddlDoNotObtainNotes = $(supplierLiterSettings.controls.dropDownControls.ddlDoNotObtainNotes).data("kendoDropDownList");
+            $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).prop('checked', true);
             var defaultObtainType = $("#hdnDoNotObtainID").val();
             ddlDoNotObtainNotes.value(defaultObtainType.toString());
             ddlDoNotObtainNotes.enable(true);
