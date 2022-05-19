@@ -41,6 +41,10 @@
             controllerCalls: {
                 SaveCompanySearchSettings: GetEnvironmentLocation() + "/Operations/Company/SaveCompanySearchSettings",
                 GetCompanyContactEmailStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetCompanyContactEmailStatus"
+            },
+            warningMessage: {
+                DoNotObtainUnCheckedMessage: "This will turn on all workload. You will need to log proof that</br> this action is required to proceed. Do you wish to proceed?",
+                DoNotObtainCheckedMessage: "This will cancel all future workload.You will need to log proof that</br> this action is required to proceed.Do you wish to proceed?"
             }
         };
 
@@ -1910,47 +1914,10 @@
                 GetCompany();
         };
 
+        //TRECOMPLI - 4545: Supplier - Obtainment Setting: Logging proof for "Do not obtain".Created OpenModalPopup,showActionModals,
+        //SaveNote,CancelNote,disableDoNotObtainCheckbox,enableDoNotObtainCheckbox methods and modified fnSaveObtainmentSettings method.[VK]
+
         var fnSaveObtainmentSettings = function () {
-
-            var validator = $("#FormObtainmentSettingDetail").kendoValidator({
-                messages: {
-                    custom: "Do Not Obtain Notes is required",
-                    custom2: "Pause Notification Date is required",
-                    custom3: "Pause Notification Date should be in the future",
-                },
-                rules: {
-                    custom: function (input) {
-                        if ($("#ObtainmentSettingDoNotObtain").is(':checked')) {
-                            if (input.is("[name=ddlDoNotObtainNotes]"))
-                                return input.val() !== "";
-                            }
-                        return true;
-                    },
-                    custom2: function (input) {
-                        if ($("#ObtainmentSettingPauseNotification").is(':checked')) {
-                            if (input.is("[name=ObtainmentSettingPauseNotificationDP]"))
-                                return input.val() !== "";
-                            }
-                        return true;
-                    },
-                    custom3: function (input) {
-                        if ($("#ObtainmentSettingPauseNotification").is(':checked')) {
-                            if (input.is("[name=ObtainmentSettingPauseNotificationDP]")) {
-                                var pickeddate = new Date(input.val());
-                                var todayDate = new Date();
-                                if (pickeddate > todayDate)
-                                    return true;
-
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }).data("kendoValidator");
-
-
-            if (validator.validate()) {
                 var queryText = {
                     ObtainmentSettingID: $("#ObtainmentSettingID").val(),
                     SupplierId: $("#SupplierId").val(),
@@ -1993,8 +1960,162 @@
                     }
                    
                 });
-            }
         };
+        var openModalPopup = function () {
+            var previousDoNotObtainState = $("#hdnDoNotObtain").val().toString().toLowerCase();
+            var currentDoNotObtainState = $("#ObtainmentSettingDoNotObtain").is(':checked').toString().toLowerCase();
+
+            var validator = $("#FormObtainmentSettingDetail").kendoValidator({
+                messages: {
+                    custom: "Do Not Obtain Notes is required",
+                    custom2: "Pause Notification Date is required",
+                    custom3: "Pause Notification Date should be in the future",
+                },
+                rules: {
+                    custom: function (input) {
+                        if ($("#ObtainmentSettingDoNotObtain").is(':checked')) {
+                            if (input.is("[name=ddlDoNotObtainNotes]"))
+                                return input.val() !== "";
+                        }
+                        return true;
+                    },
+                    custom2: function (input) {
+                        if ($("#ObtainmentSettingPauseNotification").is(':checked')) {
+                            if (input.is("[name=ObtainmentSettingPauseNotificationDP]"))
+                                return input.val() !== "";
+                        }
+                        return true;
+                    },
+                    custom3: function (input) {
+                        if ($("#ObtainmentSettingPauseNotification").is(':checked')) {
+                            if (input.is("[name=ObtainmentSettingPauseNotificationDP]")) {
+                                var pickeddate = new Date(input.val());
+                                var todayDate = new Date();
+                                if (pickeddate > todayDate)
+                                    return true;
+
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+            }).data("kendoValidator");
+
+
+            if (validator.validate()) {
+                if (previousDoNotObtainState !== currentDoNotObtainState) {
+                    var message = currentDoNotObtainState == false ? supplierLiterSettings.warningMessage.DoNotObtainUnCheckedMessage :
+                        supplierLiterSettings.warningMessage.DoNotObtainCheckedMessage;
+
+                    $("<div/>").kendoConfirm({
+                        title: 'Warning',
+                        content: message,
+                        actions: [
+                            {
+                                text: 'yes',
+                                primary: true,
+                                action: function (e) {
+                                    showActionModals();
+                                    return true;
+                                },
+                            },
+                            {
+                               text: 'no',
+                                primary: true,
+                                action: function (e) {
+                                    return true;
+                                },
+                            }
+                        ]
+                    }).data("kendoConfirm").open().center();
+                }
+                else {
+                    fnSaveObtainmentSettings();
+                }
+        }
+        };
+        var showActionModals = function () {
+            $("#popupDonotObtainNote").modal("show");
+        }
+        var saveNote = function () {
+            console.log("save button clicked")
+            var supplierNoteViewModel = {
+                SupplierNoteType: []
+            };
+            supplierNoteViewModel.SupplierId = $("#SupplierId").val();
+            supplierNoteViewModel.SupplierNoteText = $("#txtDoNotObtainNote").data("kendoEditor").value();
+            var list = $("#mltDdlNoteType").data("kendoMultiSelect").value();
+            supplierNoteViewModel.SupplierNoteEmergency = false
+            supplierNoteViewModel.SupplierNoteActive = false
+            supplierNoteViewModel.SupplierNotesId = 0
+            var noteTypeListData = $("#mltDdlNoteType").data("kendoMultiSelect").dataItems();
+
+            if (supplierNoteViewModel.SupplierNoteText == "") {
+                kendo.alert("Note is required.");
+                return;
+            }
+
+            if (noteTypeListData == 0) {
+                kendo.alert("Note Type is required.");
+                return;
+            }
+            
+            Object.keys(noteTypeListData).map(function (key, index) {
+
+                var obj={ SupplierNoteTypeId: '',
+                    SupplierNoteTypeText: ''
+                }
+
+                obj.SupplierNoteTypeId = noteTypeListData[key].SupplierNoteTypeId;
+                obj.SupplierNoteTypeText = noteTypeListData[key].SupplierNoteTypeText;
+                supplierNoteViewModel.SupplierNoteType.push(obj);
+            });
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                cache: false,
+                url: GetEnvironmentLocation() + "/Operations/Company/Notes_Create",
+                data: { supplierNoteViewModel: supplierNoteViewModel },
+                success: function (data, textStatus, jqXHR) {
+                    fnSaveObtainmentSettings();
+                    $("#popupDonotObtainNote").modal("hide");
+
+                    var doNotObtainChecked = $("#ObtainmentSettingDoNotObtain").is(':checked');
+                    doNotObtainChecked == true ? enableDoNotObtainCheckbox() : disableDoNotObtainCheckbox();
+                },
+                error: function (jqXHR, status, errorThrown) {
+                },
+                complete: function () {
+
+                }
+            });
+            
+        }
+        var cancelNote = function () {
+            var doNotObtainChecked = $("#ObtainmentSettingDoNotObtain").is(':checked');
+            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
+
+            if (doNotObtainChecked == true) {
+                disableDoNotObtainCheckbox();
+            }
+
+            if (doNotObtainChecked == false) {
+                enableDoNotObtainCheckbox();
+            }           
+        }
+        var disableDoNotObtainCheckbox = function () {
+            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
+            $("#ObtainmentSettingDoNotObtain").prop('checked', false);
+            ddlDoNotObtainNotes.value("");
+            ddlDoNotObtainNotes.enable(false);
+        }
+
+        var enableDoNotObtainCheckbox = function () {
+            var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
+            $("#ObtainmentSettingDoNotObtain").prop('checked', true);
+            ddlDoNotObtainNotes.enable(true);
+        }
 
         var fnSearchSupplier = function () {
             var urlSearch = "../ObtainmentSettings/PlugInParentSupplierSearch";
@@ -2023,7 +2144,7 @@
             $("#DetailSupplier").on("click", "#ObtainmentSettingPauseNotification", fnEnablePauseNotification);
             $("#DetailSupplier").on("input", "#txtSearchSupplierId", fnSearchCompany);
             $("#DetailSupplier").on("keyup", "#txtSearchSupplierId", fnSearchCompanyKeyup);
-            $("#DetailSupplier").on("click", "#btnSaveObtainmentSettingDetail", fnSaveObtainmentSettings);
+            $("#DetailSupplier").on("click", "#btnSaveObtainmentSettingDetail", openModalPopup);
             //$("#DetailSupplier").on("click", "#searchSupplierIdBtn", fnSearchSupplier);
 
         };
@@ -2968,7 +3089,13 @@
             onContactGeneralSelect: onContactGeneralSelect,
             onGdContactAddressRemove :onGdContactAddressRemove,
             onGridRemoveContactEmail :onGridRemoveContactEmail,
-            onGridRemoveContactPhone: onGridRemoveContactPhone
+            onGridRemoveContactPhone: onGridRemoveContactPhone,
+            openModalPopup: openModalPopup,
+            showActionModals: showActionModals,
+            saveNote: saveNote,
+            cancelNote: cancelNote
+
+
         };
     };
 })(jQuery);
