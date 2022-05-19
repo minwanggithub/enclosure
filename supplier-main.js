@@ -2013,7 +2013,7 @@
                         content: message,
                         actions: [
                             {
-                                text: 'yes',
+                                text: 'Yes',
                                 primary: true,
                                 action: function (e) {
                                     showActionModals();
@@ -2021,7 +2021,7 @@
                                 },
                             },
                             {
-                               text: 'no',
+                               text: 'No',
                                 primary: true,
                                 action: function (e) {
                                     return true;
@@ -2052,12 +2052,14 @@
             var noteTypeListData = $("#mltDdlNoteType").data("kendoMultiSelect").dataItems();
 
             if (supplierNoteViewModel.SupplierNoteText == "") {
-                kendo.alert("Note is required.");
+               // kendo.alert("Note is required.");
+                onDisplayError("Note is required.");
                 return;
             }
 
             if (noteTypeListData == 0) {
-                kendo.alert("Note Type is required.");
+                //kendo.alert("Note Type is required.");
+                onDisplayError("Note Type is required.");
                 return;
             }
             
