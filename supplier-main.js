@@ -2046,7 +2046,7 @@
         }
         };
         var showActionModals = function () {
-            $("#popupDonotObtainNote").modal("show");
+            $("#popupDonotObtainNote").toggleModal();
         }
         var saveNote = function () {
             var supplierNoteViewModel = {
