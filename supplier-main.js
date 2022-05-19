@@ -2114,6 +2114,8 @@
         var enableDoNotObtainCheckbox = function () {
             var ddlDoNotObtainNotes = $("#ddlDoNotObtainNotes").data("kendoDropDownList");
             $("#ObtainmentSettingDoNotObtain").prop('checked', true);
+            var defaultObtainType = $("#hdnDoNotObtainID").val();
+            ddlDoNotObtainNotes.value(defaultObtainType.toString());
             ddlDoNotObtainNotes.enable(true);
         }
 
