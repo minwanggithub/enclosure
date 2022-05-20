@@ -288,10 +288,7 @@
         };
 
         var onFileUploadUpload = function (e) {
-            //[TODO]: Remove this below code part to remove user activity log.
-            //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-            LogInformation(e);
-            //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+            
 
             if (parentArgsCallback) {
                 e.data = parentArgsCallback(e);
@@ -327,30 +324,6 @@
 
     });
 
-    //[TODO]: Remove this below code part to remove user activity log.
-    //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-    function LogInformation(event_fileUpload) {
-        try {
-            var fileNames = '';
-            if (event_fileUpload && event_fileUpload.files) {
-                fileNames = event_fileUpload.files.map(a => a.name).join(", ");
-            }
-            var _msg = "Log created & session variable is cleared.";
-            LogActivity_CommonShare(null, _msg, undefined, undefined, fileNames);
-            var _logActivityArray = GetUserActivityList();
-            var _endPoint = GetEnvironmentLocation() + "/Operations/Document/LogUserActivity";
-            $(this).ajaxCall(_endPoint, { LogActivityJsonObject: JSON.stringify(_logActivityArray) })
-                .success(function (data) {
-                    LogActivity_Release();
-                })
-                .error(function (data) {
-                    LogActivity_Release();
-                });
-        } catch (e) {
-
-        }
-        
-    }
-    //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+    
 
 })(jQuery);

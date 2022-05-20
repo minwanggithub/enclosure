@@ -875,18 +875,6 @@
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
 
-            //[TODO]: Remove this below code part to remove user activity log.
-            //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-            try {
-                var _msg = "Add new document button click from search section.";
-                var _element = e.target;
-                LogActivity_CommonShare(_element, _msg);
-
-            } catch (e) {
-
-            }
-            //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-
             var container = $(documentElementSelectors.containers.NewDocument);
             container.off('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers);
             container.on('click', documentElementSelectors.buttons.DocumentAddMultipleNameNumbers, onDocumentAddMultipleNameNumbersBtnClick);
@@ -1157,11 +1145,6 @@
                         else
                             requestUrl = generateLocationUrl(requestUrl);
 
-                        //[TODO]: Remove this below code part to remove user activity log.
-                        //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-                        var _msg = "Add new document window open: _newDocumentPopUp";
-                        LogActivity_CommonShare(null, _msg);
-                        //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                         var requestWindow = window.open(requestUrl, "_newDocumentPopUp", 'toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=' + requestWindowWidth + ', height=' + requestWindowHeight);
                         requestWindow.onload = function () {
@@ -1974,17 +1957,6 @@
                 var documentId = 0;
                 var revisionId = 0;
 
-                //[TODO]: Remove this below code part to remove user activity log.
-                //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-                try {
-                    var _msg = "Add new document attachment button click. FunctionName: onNewDocumentAddAttachmentBtnClick";
-                    var _element = e.target;
-                    LogActivity_CommonShare(_element, _msg, documentId, revisionId);
-
-                } catch (e) {
-
-                }
-                //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
 
                 displayUploadModal(function () {
                     return { documentId: documentId, revisionId: revisionId };
@@ -2960,18 +2932,7 @@
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
                     var revisionId = 0;
 
-                    //[TODO]: Remove this below code part to remove user activity log.
-                    //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-                    try {
-                        var _msg = "Add new revision attachment button click. FunctionName: onDocumentNewRevisionDetailsAddAttachmentBtnClick";
-                        var _element = e.target;
-                        LogActivity_CommonShare(_element, _msg, documentId, revisionId);
-
-                    } catch (e) {
-
-                    }
-                    //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-
+                    
                     displayUploadModal(function () {
                         return { documentId: documentId, revisionId: revisionId };
                     }, function (data) {
@@ -3374,18 +3335,7 @@
                     var documentId = container.find(documentElementSelectors.textboxes.DocumentRevisionDetailsDocumentId).val();
                     var revisionId = extractReferenceId(this.getAttribute('id'));
 
-                    //[TODO]: Remove this below code part to remove user activity log.
-                    //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-                    try {
-                        var _msg = "Edit revision attachment button click. FunctionName: onDocumentRevisionDetailsAddAttachmentBtnClick";
-                        var _element = e.target;
-                        LogActivity_CommonShare(_element, _msg, documentId, revisionId);
-
-                    } catch (e) {
-
-                    }
-                    //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-
+                    
                     displayUploadModal(function () {
                         return { documentId: documentId, revisionId: revisionId };
                     }, function (data) {
@@ -4804,18 +4754,7 @@
 
                         attachingFileFor = "FORREPLACEMENT";
 
-                        //[TODO]: Remove this below code part to remove user activity log.
-                        //Start [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
-
-                        try {
-                            var _msg = msg + " FunctionName: replaceRevisionAttachmentConfirmation";
-                            var _element = e.target;
-                            LogActivity_CommonShare(_element, _msg, documentId, revisionId);
-
-                        } catch (e) {
-
-                        }
-                        //End [TRECOMPLI-4436 Changes by vikas to log the user activities while uploading file for Document Revision.]
+                        
 
                         displayUploadModal(function () {
                             return { documentInfoId: documentInfoId, revisionId: revisionId, documentId: 0 };
