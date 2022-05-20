@@ -2034,6 +2034,7 @@
                                text: 'No',
                                 primary: true,
                                 action: function (e) {
+                                    cancelNote();
                                     return true;
                                 },
                             }
