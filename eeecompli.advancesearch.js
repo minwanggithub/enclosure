@@ -252,8 +252,9 @@
 
                 onColumnChange: function(e) {
                     ConsoleLog(
-                        'Column change:'+
-                        kdo.stringify(this.get('selectedColumn'),null,4)
+                        'Column change: Index='+
+                        kdo.stringify(this.get('selectedColumn'),null,4) + 
+                         ', Text=' + settings.selectedColumnDataSource[this.get('selectedColumn') - 1].Text
                     );
                     //ConsoleLog(
                     //    'Default First Column: '+settings.selectedFirstDefaultColumn
@@ -336,8 +337,9 @@
 
                 onOperatorChange: function() {
                     ConsoleLog(
-                        'Operator change: '+
-                        kdo.stringify(this.get('selectedOperator'),null,4)
+                        'Operator change: Index='+
+                        kdo.stringify(this.get('selectedOperator'),null,4) +
+                        ', Text=' + settings.selectedOperatorDataSource[this.get('selectedOperator')].Text
                     );
                 },
 
@@ -356,13 +358,13 @@
                 },
 
                 onDataFieldLookupChange: function(e) {
-                    ConsoleLog(
-                        'LookUp value change: '+
-                        kdo.stringify(this.get('selectedDataLookupIndex'),null,4)
-                    );
                     var dataItem=e.sender.dataItem();
                     this.set('selectedDataLookupText',dataItem.Text);
-
+                    ConsoleLog(
+                        'LookUp value change: Index='+
+                        kdo.stringify(parseInt(this.get('selectedDataLookupIndex')),null,4) +
+                         ', Text=' + dataItem.Text
+                    );
                 },
 
                 onAddRemoveClick: function(e) {
