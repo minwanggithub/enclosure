@@ -2025,7 +2025,7 @@
 
             if (validator.validate()) {
                 if (previousDoNotObtainState !== currentDoNotObtainState) {
-                    var message = currentDoNotObtainState == false ? supplierLiterSettings.warningMessage.DoNotObtainUnCheckedMessage :
+                    var message = currentDoNotObtainState == "false" ? supplierLiterSettings.warningMessage.DoNotObtainUnCheckedMessage :
                         supplierLiterSettings.warningMessage.DoNotObtainCheckedMessage;
 
                     $("<div/>").kendoConfirm({
