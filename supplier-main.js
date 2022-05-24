@@ -16,7 +16,8 @@
             controls: {
                 grids: {
                     SupplerSearchGrid: "#gdSearchSupplier",
-                    SupplierContacts:"#gdSupplierContacts"
+                    SupplierContacts: "#gdSupplierContacts",
+                    SupplierNotes:"#gdSupplierNotes"
                 },
                 buttons: {
                     ClearSupplierSearchButton: "#clearSupplierBtn",
@@ -1783,6 +1784,15 @@
             }
         };
 
+        var onRefreshSupplierNotesHistoryRequest = function () {
+            var notesGrid = $(supplierLiterSettings.controls.grids.SupplierNotes).data("kendoGrid");
+
+            if (notesGrid.dataSource.view().length > 0) {
+                notesGrid.dataSource.page(1);
+            }
+            notesGrid.dataSource.data([]);
+            notesGrid.dataSource.read();
+        };
 
         //======Security group Read-Only Integration Section Ends
 
@@ -3103,7 +3113,8 @@
             openModalPopup: openModalPopup,
             showActionModals: showActionModals,
             saveNote: saveNote,
-            cancelNote: cancelNote
+            cancelNote: cancelNote,
+            onRefreshSupplierNotesHistoryRequest: onRefreshSupplierNotesHistoryRequest
 
 
         };
