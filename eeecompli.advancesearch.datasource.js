@@ -9,6 +9,7 @@ var advanceSearchDataSourceSettings = {
         GetDocumentType: "GetDocumentTypeLookUp",
         GetOpertorSearchColunm: "GetAdvanceSearchColumnDef?columnGroup=operator",
         GetSupplierSearchColunm: "GetAdvanceSearchColumnDef?columnGroup=SupplierSearch",
+        GetDocumentSearchColunm: "GetAdvanceSearchColumnDef?columnGroup=DocumentSearch",
         GetSupplierType: "GetSupplierTypeLookUp",
         GetCountryType: "GetCountryTypeLookUp",
         GetCustomActionType: ""
@@ -54,6 +55,15 @@ var advanceSearchDataSource = {
         transport: {
             read: {
                 url: GetEnvironmentLocation() + "/" + advanceSearchDataSourceSettings.controllers.Svc + "/" + advanceSearchDataSourceSettings.actions.GetSupplierSearchColunm,
+                type: "POST",
+                contentType: "application/json"
+            }
+        }
+    }),
+    DocumentSearchColumn: new kendo.data.DataSource({
+        transport: {
+            read: {
+                url: GetEnvironmentLocation() + "/" + advanceSearchDataSourceSettings.controllers.Svc + "/" + advanceSearchDataSourceSettings.actions.GetDocumentSearchColunm,
                 type: "POST",
                 contentType: "application/json"
             }
