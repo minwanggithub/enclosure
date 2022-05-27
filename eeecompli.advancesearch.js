@@ -746,6 +746,30 @@
             return dataModels;
         }
 
+        var MappedCriterias = function ()
+        {
+            var searchCriteria = GetSelectionStateData();
+            var searchModel = {};
+            var SearchOperator = 'SearchOperator';
+
+            $.each(searchCriteria, function (index, row) {
+                var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
+
+                if (selectedColumn.Type === 'integer') {
+                    searchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+                }
+                else if (selectedColumn.Type === 'text') {
+                    searchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+                    searchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
+                }
+                else if (selectedColumn.Type === 'lookup') {
+                    searchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
+                }
+            });
+
+            //kdo.alert(kdo.stringify(searchModel, null, 4));
+            return searchModel;
+        }
 
         //public function
         var SearchData=function(e) {
@@ -832,7 +856,8 @@
             SearchData: SearchData,
             SetData: SetData,
             ClearData: ClearData,
-            DataSource: DataSource
+            DataSource: DataSource,
+            MappedCriterias: MappedCriterias
         };
     };
 })(jQuery,kendo);

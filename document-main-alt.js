@@ -836,7 +836,7 @@
                     PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
                     ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
                     RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                    SearchOption: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
+                    RevisionTitleSearchOperator: container.find(documentElementSelectors.general.DocumentSearchOptions + ":checked").val(),
                     SupplierId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()) : null,
                     SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
                     ManufacturerId: extractCompanyIdFromTemplate ? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerId).val()) : null,
