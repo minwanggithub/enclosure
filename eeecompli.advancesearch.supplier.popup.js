@@ -1,5 +1,5 @@
 ﻿/*
- * jQuery Advance Search : Advance Search Builder PopUp
+ * jQuery Advance Search : Advance Search Builder PopUp for Supplier
  *
  * Contribute: Min Wang
  *
