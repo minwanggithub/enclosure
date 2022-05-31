@@ -151,7 +151,7 @@
         //Control will fail when loading sub layer lookup information
         $.each(settings.selectedColumnDataSource,function(index,column) {
             if((typeof (column.DataLookup)==='string')&&(settings.selectedDataSourceUrl==="")) {
-                kendo.alert("Dynamic DataSource type must have a valid datasource URL defined.");
+                kdo.alert("Dynamic DataSource type must have a valid datasource URL defined.");
                 return;
             }
         });
@@ -212,12 +212,11 @@
 
         }
 
-        function NullishCheck(obj, propertyName)
-        {
-            if (obj === null || typeof obj == 'undefined')
+        function NullishCheck(obj,propertyName) {
+            if(obj===null||typeof obj=='undefined')
                 return "null";
             else {
-                if (obj instanceof Date)
+                if(obj instanceof Date)
                     return obj.toLocaleDateString();
                 else
                     return obj[propertyName];
@@ -252,15 +251,15 @@
                         rowModel["selectedColumnType"],
                         rowModel["columnDataSource"][rowModel["selectedColumn"]-1].Text,
                         rowModel["operatorDataSource"][rowModel["selectedOperator"]].Text,
-                        NullishCheck(rowModel["selectedDataLookupIndex"], "Value"),
-                        NullishCheck(rowModel["selectedDataLookupIndex"], "Text"));
+                        NullishCheck(rowModel["selectedDataLookupIndex"],"Value"),
+                        NullishCheck(rowModel["selectedDataLookupIndex"],"Text"));
                 case "daterange":
-                      return "Row {0}.  ColumnType={1}, ColumnName={2}, DateRangeIndex={3}, Value={4}, DateFrom={5}, DateTo={6}".format(
+                    return "Row {0}.  ColumnType={1}, ColumnName={2}, DateRangeIndex={3}, Value={4}, DateFrom={5}, DateTo={6}".format(
                         index,
                         rowModel["selectedColumnType"],
                         rowModel["columnDataSource"][rowModel["selectedColumn"]-1].Text,
-                        NullishCheck(rowModel["selectedCalendarDataLookupIndex"], "Value"),
-                        NullishCheck(rowModel["selectedCalendarDataLookupIndex"], "Text"),
+                        NullishCheck(rowModel["selectedCalendarDataLookupIndex"],"Value"),
+                        NullishCheck(rowModel["selectedCalendarDataLookupIndex"],"Text"),
                         NullishCheck(rowModel["selectedCalendarDateFromValue"],""),
                         NullishCheck(rowModel["selectedCalendarDateToValue"],""));
                 default:
@@ -294,7 +293,7 @@
                     var selectedItem=e.dataItem;
 
                     if(selectedItem.Active===false) {
-                        kendo.alert("This column has been disabled and can not be selected");
+                        kdo.alert("This column has been disabled and can not be selected");
                         e.preventDefault();
                         return;
                     }
@@ -313,7 +312,7 @@
                     //Validation
                     var selectedItem=e.sender.dataItem();
                     var criteriarow=$(e.sender.element[0]).parent().parent();
-                    
+
                     this.set('selectedColumnType',selectedItem.Type);
                     if(selectedItem.Type==='integer') {
                         this.set(
@@ -392,10 +391,10 @@
                                 myParent.set('calendarDataLookUpDataSource',activeDs.view());
                                 selectedItem.DataLookup=activeDs.view(); //Put in Cache
                             });
-                        } else if (selectedItem.DataLookup === null)  {  //Use default if not provided
-                                this.set('calendarDataLookUpDataSource', defaultCalendarLookUpDataSource);
+                        } else if(selectedItem.DataLookup===null) {  //Use default if not provided
+                            this.set('calendarDataLookUpDataSource',defaultCalendarLookUpDataSource);
                         } else { //Fetch from cache
-                            this.set('calendarDataLookUpDataSource', selectedItem.DataLookup);
+                            this.set('calendarDataLookUpDataSource',selectedItem.DataLookup);
                         }
                     }
                 },
@@ -436,10 +435,10 @@
                     var dataItem=e.sender.dataItem();
                     ConsoleLog(
                         'Calendar LookUp value change: Index='+
-                        kdo.stringify(parseInt(this.get('selectedCalendarDataLookupIndex')),null,4) + 
+                        kdo.stringify(parseInt(this.get('selectedCalendarDataLookupIndex')),null,4)+
                         ', Text='+dataItem.Text
                     );
-                    this.set('isDatePickerFromToVisible', this.get('selectedCalendarDataLookupIndex').Value==6);
+                    this.set('isDatePickerFromToVisible', dataItem.Text=='Custom');
                     this.set('selectedCalendarDataLookupValue',dataItem.Text);
                 },
 
@@ -746,28 +745,62 @@
             return dataModels;
         }
 
-        var MappedCriterias = function ()
-        {
-            var searchCriteria = GetSelectionStateData();
-            var searchModel = {};
-            var SearchOperator = 'SearchOperator';
+        function DaysBetween(dateFrom,dateTo) {
+            const ONE_DAY=1000*60*60*24;                // The number of milliseconds in one day
+            const differenceMs=Math.abs(dateFrom-dateTo);   // Calculate the difference in milliseconds
+            // Convert back to days and return
+            return Math.round(differenceMs/ONE_DAY);
+        }
 
-            $.each(searchCriteria, function (index, row) {
-                var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
+        var MappedCriterias=function() {
+            var searchCriteria=GetSelectionStateData();
+            var searchModel={};
+            var SearchOperator="SearchOperator";
+            var SearchDateFrom="From";
+            var SearchDateTo="To";
 
-                if (selectedColumn.Type === 'integer') {
-                    searchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+            $.each(searchCriteria,function(index,row) {
+                var selectedColumn=row.columnDataSource[row.selectedColumn-1];
+
+                if(selectedColumn.Type==='integer') {
+                    searchModel[selectedColumn.ColumnMap]=row.enteredDataFieldValue;
                 }
-                else if (selectedColumn.Type === 'text') {
-                    searchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
-                    searchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
+                else if(selectedColumn.Type==='text') {
+                    searchModel[selectedColumn.ColumnMap]=row.enteredDataFieldValue;
+                    searchModel[selectedColumn.ColumnMap+SearchOperator]=row.selectedOperator;
                 }
-                else if (selectedColumn.Type === 'lookup') {
-                    searchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
+                else if(selectedColumn.Type==='lookup') {
+                    if(typeof row.selectedDataLookupIndex=='object')
+                        searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex.Value;
+                    else
+                        searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex;
+                }
+                else if(selectedColumn.Type==='daterange') {
+                    let selectedDays=0;
+                    var dF=new Date();
+     
+                    if(row.selectedCalendarDataLookupIndex!=null && row.selectedCalendarDataLookupIndex.Text!='Custom') {
+                        selectedDays=parseInt(row.selectedCalendarDataLookupIndex.Text);
+                        searchModel[selectedColumn.ColumnMap]=selectedDays;
+                        dF.setDate(dF.getDate()-selectedDays);
+                        searchModel[selectedColumn.ColumnMap+SearchDateTo]=new Date();
+                        searchModel[selectedColumn.ColumnMap+SearchDateFrom]=dF;
+                    }
+                    else if(row.selectedCalendarDataLookupIndex!=null && row.selectedCalendarDataLookupIndex.Text =='Custom') {
+                        if (row.selectedCalendarDateToValue != null && row.selectedCalendarDateFromValue != null)
+                        {
+                            searchModel[selectedColumn.ColumnMap+SearchDateTo]=row.selectedCalendarDateToValue;
+                            searchModel[selectedColumn.ColumnMap+SearchDateFrom]=row.selectedCalendarDateFromValue;
+                            searchModel[selectedColumn.ColumnMap]=DaysBetween(row.selectedCalendarDateFromValue,row.selectedCalendarDateToValue);
+                        }
+                    }
+                    else {
+                        var nullRow = row.selectedCalendarDataLookupIndex;  //Select one is considered null row 
+                    }
                 }
             });
 
-            //kdo.alert(kdo.stringify(searchModel, null, 4));
+            //kdo.alert(kdo.stringify(searchModel,null,4));
             return searchModel;
         }
 
