@@ -70,7 +70,6 @@ if (jQuery) (function ($, kdo) {
     }
 
     function extractSupplierCriteria(e) {
-        var supplierSearchModel = {};
         var SearchOperator = 'SearchOperator';
 
         var triggerId = $(trigger.attr('id'));
@@ -78,28 +77,28 @@ if (jQuery) (function ($, kdo) {
 
         if (typeof advnaceSearchCtl === 'undefined') {  //Show the window if already exists
             return {
-                supplierSearchCriteria: JSON.stringify(supplierSearchModel)
+                supplierSearchCriteria: JSON.stringify({})
             };
         }
+        //For Debugging save
+        //var searchCriteria = advnaceSearchCtl.DataSource();
+        //$.each(searchCriteria, function (index, row) {
+        //    var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
 
-        var searchCriteria = advnaceSearchCtl.DataSource();
-        $.each(searchCriteria, function (index, row) {
-            var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
-
-            if (selectedColumn.Type === 'integer') {
-                supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
-            }
-            else if (selectedColumn.Type === 'text') {
-                supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
-                supplierSearchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
-            }
-            else if (selectedColumn.Type === 'lookup') {
-                supplierSearchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
-            }
-        });
+        //    if (selectedColumn.Type === 'integer') {
+        //        supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+        //    }
+        //    else if (selectedColumn.Type === 'text') {
+        //        supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
+        //        supplierSearchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
+        //    }
+        //    else if (selectedColumn.Type === 'lookup') {
+        //        supplierSearchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
+        //    }
+        //});
 
         return {
-            supplierSearchCriteria: JSON.stringify(supplierSearchModel)
+            supplierSearchCriteria: JSON.stringify(advnaceSearchCtl.MappedCriterias())
         };
     }
 
