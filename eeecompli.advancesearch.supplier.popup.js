@@ -16,8 +16,8 @@ if (jQuery) (function ($, kdo) {
         },
         dataattr: {
             SharedTarget: "data-adsearch-shared-target",
-            Target: "data-adsearch-target",
-            TargetDisabled: "data-adsearch-target-disabled"
+            Target: "data-adsearch-supplier-target",
+            TargetDisabled: "data-adsearch-supplier-target-disabled"
         },
         window: {
             AdvanceSearchWindow: "AdvanceSearchWindow",
@@ -34,11 +34,11 @@ if (jQuery) (function ($, kdo) {
     };
 
     $.extend($.fn, {
-        advancedsearchpopup: function (method, data) {
+        advancedsearchpopup_supplier: function (method, data) {
             switch (method) {
-                case 'show':
-                    CreateAdvancePopUp(null, $(this));
-                    return $(this);
+                //case 'show':    //Replaced with attribute automation
+                //    CreateAdvancePopUp(null, $(this));
+                //    return $(this);
                 case 'hide':
                     Hide();
                     return $(this);
@@ -273,7 +273,7 @@ if (jQuery) (function ($, kdo) {
     //function CreateAdvanceSearchPopUp(event, object) {
     //    trigger = event ? $(this) : object;
     //    var triggerId = $(trigger.attr('id'));
-    //    adTarget = $(trigger.attr('data-adsearch-target'));
+    //    adTarget = $(trigger.attr('data-adsearch-supplier-target'));
 
     //    //Make sure not previously created
     //    var cacheWindow = $("#" + triggerId.selector).data("AdvanceSearchWindow");
