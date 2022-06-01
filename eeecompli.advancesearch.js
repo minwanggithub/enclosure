@@ -324,6 +324,8 @@
                         this.set('isDataFieldVisiable',true);
                         this.set('isDataLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
+                        this.set('isDatePickerFromToVisible',false);
+                        
 
                         //If integer, then remove any current none digit
                         //this.value = this.value.replace(/[^0-9$,]/g, '');
@@ -344,6 +346,7 @@
                         this.set('isDataFieldVisiable',true);
                         this.set('isDataLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
+                        this.set('isDatePickerFromToVisible',false);
 
                         //Remove numeric constrain
                         $(document).off('keyup','#'+criteriarow.children()[2].id);
@@ -357,6 +360,7 @@
                         this.set('isDataFieldVisiable',false);
                         this.set('isDataLookUpVisiable',true);
                         this.set('isCalendarDateListPickerVisible',false);
+                        this.set('isDatePickerFromToVisible',false);
 
                         //Check the datasource type, get the data if it's url raw type
                         if(typeof (selectedItem.DataLookup)==='string') {
@@ -382,6 +386,9 @@
                         this.set('isDataFieldVisiable',false);
                         this.set('isDataLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',true);
+
+                        if (NullishCheck(this.get('selectedCalendarDataLookupIndex'), 'Text') === 'Custom')
+                            this.set('isDatePickerFromToVisible',true);
 
                         //Check for Calendar datasource 
                         if(typeof selectedItem.DataLookup==='string') {   //Has url
