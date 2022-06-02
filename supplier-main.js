@@ -1969,16 +1969,24 @@
                     }
                     else {
                         var obtID = $("#ObtainmentSettingID").val();
+                        //var obtID = data.message;
+                        var supplierid = $("#SupplierId").val();
                         var grid = $("#gdObtainmentSettings").data("kendoGrid");
                         grid.dataSource.read();
                         /*Commented by hitesh on as it just showing current id of saved obtainment */
                         //$('#ObtainmentSettingsDetail').html(data);
-                        if (obtID > 0)
+                        if (obtID > 0) {
+                            // added by Nitin to seleted the updated record again
+                            var url = "../ObtainmentSettings/GetObtainmentSettingsDetail";
+                            $.post(url, { SupplierId: supplierid, ObtainmentSettingID: obtID }, function (result) {
+                                $("#ObtainmentSettingsDetail").html($(result));
+                            });
+
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings saved.');
+                        }
                         else
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings added.');
                     }
-                   
                 });
         };
         var openModalPopup = function () {
