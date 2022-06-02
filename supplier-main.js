@@ -2067,6 +2067,7 @@
         var showActionModals = function () {
             $("#popupDonotObtainNote").toggleModal();
         }
+        //TRECOMPLI-4545:Supplier- Obtainment Setting: Logging proof for "Do not obtain" [VK]
         var saveNote = function () {
             var supplierNoteViewModel = {
                 SupplierNoteType: []
@@ -2074,7 +2075,7 @@
             supplierNoteViewModel.SupplierId = $("#SupplierId").val();
             supplierNoteViewModel.SupplierNoteText = $(supplierLiterSettings.controls.textBoxes.textDoNotObtainNote).data("kendoEditor").value();
             supplierNoteViewModel.SupplierNoteEmergency = false
-            supplierNoteViewModel.SupplierNoteActive = false
+            supplierNoteViewModel.SupplierNoteActive = true
             supplierNoteViewModel.SupplierNotesId = 0
             var noteTypeListData = $(supplierLiterSettings.controls.dropDownControls.multipleDddlNoteType).data("kendoMultiSelect").dataItems();
 
