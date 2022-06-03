@@ -7,16 +7,17 @@
  *
  */
 
-if (jQuery) (function ($, kdo) {
-    var searchWinPop, adPopUpSearchCtl, trigger, adTarget;
+if(jQuery) (function($,kdo) {
+    var searchWinPop,adPopUpSearchCtl,trigger,adTarget;
 
-    var Settings = {
+    var Settings={
         division: {
             SharedControlDiv: "#SharedAdvanceSearchPopUpDiv"
         },
         dataattr: {
             SharedTarget: "data-adsearch-shared-target",
             Target: "data-adsearch-supplier-target",
+            LoadTarget: "data-adsearch-supplier-load-target",
             TargetDisabled: "data-adsearch-supplier-target-disabled"
         },
         window: {
@@ -29,13 +30,17 @@ if (jQuery) (function ($, kdo) {
             PopUpSupplierSearchCommonSharedGrid: "PopUpSupplierSearchCommonSharedGrid"
         },
         controller: {
-            GetAdvanceSearchSupplierAjaxResult: "/Operations/Company/GetAdvanceSearchSupplierAjaxResult"
+            GetAdvanceSearchSupplierAjaxResult: "/Operations/Company/GetAdvanceSearchSupplierAjaxResult",
+            LoadCompanyDetail: "/Operations/Company/LoadSingleSupplier?supplierId="
+        },
+        message: {
+            LoadSupplierDetailError: "An error occurred displaying the selected company. Please review you selection and try again."
         }
     };
 
-    $.extend($.fn, {
-        advancedsearchpopup_supplier: function (method, data) {
-            switch (method) {
+    $.extend($.fn,{
+        advancedsearchpopup_supplier: function(method,data) {
+            switch(method) {
                 //case 'show':    //Replaced with attribute automation
                 //    CreateAdvancePopUp(null, $(this));
                 //    return $(this);
@@ -43,7 +48,7 @@ if (jQuery) (function ($, kdo) {
                     Hide();
                     return $(this);
                 case 'attach':
-                    return $(this).attr(Settings.dataattr.Target, data);
+                    return $(this).attr(Settings.dataattr.Target,data);
                 case 'detach':
                     Hide();
                     return $(this).removeAttr(Settings.dataattr.Target);
@@ -58,7 +63,7 @@ if (jQuery) (function ($, kdo) {
     });
 
     function Show() {
-        if (searchWinPop !== 'undefined') {
+        if(searchWinPop!=='undefined') {
             searchWinPop.center().open();
             //searchWinPop.data("kendoWindow").center().open();
             //searchWinPop.parent().find(".k-window-action").css("visibility", "hidden");
@@ -66,16 +71,16 @@ if (jQuery) (function ($, kdo) {
     };
 
     function onClose() {
-       
+
     }
 
     function extractSupplierCriteria(e) {
-        var SearchOperator = 'SearchOperator';
+        var SearchOperator='SearchOperator';
 
-        var triggerId = $(trigger.attr('id'));
-        var advnaceSearchCtl = $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl);
+        var triggerId=$(trigger.attr('id'));
+        var advnaceSearchCtl=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl);
 
-        if (typeof advnaceSearchCtl === 'undefined') {  //Show the window if already exists
+        if(typeof advnaceSearchCtl==='undefined') {  //Show the window if already exists
             return {
                 supplierSearchCriteria: JSON.stringify({})
             };
@@ -102,30 +107,30 @@ if (jQuery) (function ($, kdo) {
         };
     }
 
-    function CreateSearchGrid(target, trigger) {
-        var triggerId = $(trigger.attr('id'));
-        var supplierAdvanceSearchPopUpCtlFor = "supplierAdvanceSearchPopUpCtlFor_" + triggerId.selector;
-        var supplierAdvanceSearchPopUpCtlSearchBtnFor = "searchSupplierBtnFor_" + triggerId.selector;
-        var supplierAdvanceSearchPopUpCtlClearBtnFor = "clearSupplierBtnFor_" + triggerId.selector;
-        
-        var thisGrid = target.kendoGrid({
+    function CreateSearchGrid(target,trigger) {
+        var triggerId=$(trigger.attr('id'));
+        var supplierAdvanceSearchPopUpCtlFor="supplierAdvanceSearchPopUpCtlFor_"+triggerId.selector;
+        var supplierAdvanceSearchPopUpCtlSearchBtnFor="searchSupplierBtnFor_"+triggerId.selector;
+        var supplierAdvanceSearchPopUpCtlClearBtnFor="clearSupplierBtnFor_"+triggerId.selector;
+
+        var thisGrid=target.kendoGrid({
             toolbar: kendo.template(
-                "<div class='pull-left'>" +
-                "<fieldset style='margin:0px 5px 20px 10px;border-radius: 8px;'>" +
-                "<legend>Advanced Search</legend>" +
-                "<div id='" + supplierAdvanceSearchPopUpCtlFor + "'></div>" +
-                "</fieldset>" + 
-                "</div>" + 
-                "<div class='pull-right' style='margin-top: 5px;'>" +
-                "<button id='" + supplierAdvanceSearchPopUpCtlSearchBtnFor + "' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>" +
-                "<button id='" + supplierAdvanceSearchPopUpCtlClearBtnFor + "' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>" +
+                "<div class='pull-left'>"+
+                "<fieldset style='margin:0px 5px 20px 10px;border-radius: 8px;'>"+
+                "<legend>Advanced Search</legend>"+
+                "<div id='"+supplierAdvanceSearchPopUpCtlFor+"'></div>"+
+                "</fieldset>"+
+                "</div>"+
+                "<div class='pull-right' style='margin-top: 5px;'>"+
+                "<button id='"+supplierAdvanceSearchPopUpCtlSearchBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>"+
+                "<button id='"+supplierAdvanceSearchPopUpCtlClearBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>"+
                 "</div>"
             ),
             dataSource: {
                 type: "aspnetmvc-ajax",
                 transport: {
                     read: {
-                        url: GetEnvironmentLocation() + Settings.controller.GetAdvanceSearchSupplierAjaxResult,
+                        url: GetEnvironmentLocation()+Settings.controller.GetAdvanceSearchSupplierAjaxResult,
                         data: extractSupplierCriteria
                     }
                 },
@@ -145,8 +150,8 @@ if (jQuery) (function ($, kdo) {
                             "LastUpdate": { type: "datetime" }
                         }
                     },
-                    total: function (response) {
-                        if (typeof response.Data !== 'undefined')
+                    total: function(response) {
+                        if(typeof response.Data!=='undefined')
                             return response.Data.length;
                         else
                             return 0;
@@ -164,26 +169,26 @@ if (jQuery) (function ($, kdo) {
                 alwaysVisible: true,
                 previousNext: true,
                 //refresh: true,
-                pageSizes: [10, 20, 50],
+                pageSizes: [10,20,50],
                 buttonCount: 10
             },
-            requestStart: function (e) {
-                kendo.ui.progress(thisGrid, true);
+            requestStart: function(e) {
+                kendo.ui.progress(thisGrid,true);
                 //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
             },
-            requestEnd: function (e) {
-                kendo.ui.progress(thisGrid, false);
+            requestEnd: function(e) {
+                kendo.ui.progress(thisGrid,false);
             },
             columns: [
-                { field: "CompanyId", title: "ID" },
+                { field: "CompanyId",title: "ID" },
                 //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
-                { field: "ParentCompanyName", title: "Parent to Redirect" },
-                { field: "CreatedBy", title: "CreatedBy|Date", template: "#=CreatedBy#@#= kendo.toString(kendo.parseDate(CreatedDate), 'MM/dd/yyyy')#" },
-                { field: "UpdateBy", title: "UpdateBy|Date", template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
-                
-                
+                { field: "ParentCompanyName",title: "Parent to Redirect" },
+                { field: "CreatedBy",title: "CreatedBy|Date",template: "#=CreatedBy#@#= kendo.toString(kendo.parseDate(CreatedDate), 'MM/dd/yyyy')#" },
+                { field: "UpdateBy",title: "UpdateBy|Date",template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
+
+
             ]
             //dataBound: function (e) {
             //    setTimeout(function () {
@@ -192,31 +197,31 @@ if (jQuery) (function ($, kdo) {
             //}
         });
 
-        var adDiv = thisGrid.find("#" + supplierAdvanceSearchPopUpCtlFor);
-        advanceSearchDataSource.SupplierSearchColumn.read().then(function () {
-            advanceSearchDataSource.Operators.read().then(function () {
-                adPopUpSearchCtl = adDiv.advancedsearch({
+        var adDiv=thisGrid.find("#"+supplierAdvanceSearchPopUpCtlFor);
+        advanceSearchDataSource.SupplierSearchColumn.read().then(function() {
+            advanceSearchDataSource.Operators.read().then(function() {
+                adPopUpSearchCtl=adDiv.advancedsearch({
                     //Using dynamic data source extracted from database
                     selectedColumnDataSource: advanceSearchDataSource.SupplierSearchColumn.view(),
                     selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
-                    selectedDataSourceUrl: GetEnvironmentLocation() + "/svc/",
+                    selectedDataSourceUrl: GetEnvironmentLocation()+"/svc/",
                     EnableLog: false
                 });
-                $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl, adPopUpSearchCtl);
+                $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
             });
         });
 
         //thisGrid.find(".k-grid-toolbar").on("click", ".k-pager-refresh", function (e) {
-        thisGrid.find("#" + supplierAdvanceSearchPopUpCtlSearchBtnFor).on("click", function (e) {
+        thisGrid.find("#"+supplierAdvanceSearchPopUpCtlSearchBtnFor).on("click",function(e) {
             e.preventDefault();
             thisGrid.data("kendoGrid").dataSource.read();
         });
 
-        thisGrid.find("#" + supplierAdvanceSearchPopUpCtlClearBtnFor).on("click", function (e) {
+        thisGrid.find("#"+supplierAdvanceSearchPopUpCtlClearBtnFor).on("click",function(e) {
             e.preventDefault();
-            $("#" + triggerId.selector).data(Settings.window.AdvanceSearchControl).ClearData();
-            
-            if (thisGrid.data("kendoGrid").dataSource.total() === 0) {
+            $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl).ClearData();
+
+            if(thisGrid.data("kendoGrid").dataSource.total()===0) {
                 return;
             }
 
@@ -225,22 +230,22 @@ if (jQuery) (function ($, kdo) {
         });
 
 
-        thisGrid.on('dblclick', 'tbody tr[data-uid]', function (e) {
+        thisGrid.on('dblclick','tbody tr[data-uid]',function(e) {
             //thisGrid.editRow($(e.target).closest('tr'));
             e.stopPropagation();
 
-            var rowElement = this;
-            var row = $(rowElement);
-            var grid = thisGrid.getKendoGrid();
-            var dItem = grid.dataItem($(this));
+            var rowElement=this;
+            var row=$(rowElement);
+            var grid=thisGrid.getKendoGrid();
+            var dItem=grid.dataItem($(this));
 
-            if (dItem !== null) {
-                if (adTarget[0].nodeName.toLowerCase() === 'span') {
-                    adTarget.text(dItem.id + ", " + dItem.Name);
+            if(dItem!==null) {
+                if(adTarget[0].nodeName.toLowerCase()==='span') {
+                    adTarget.text(dItem.id+", "+dItem.Name);
                     adTarget.trigger("withchange");
                 }
                 else {
-                    adTarget.val(dItem.id + ", " + dItem.Name);
+                    adTarget.val(dItem.id+", "+dItem.Name);
                     adTarget.trigger("change");
                 }
             }
@@ -306,27 +311,27 @@ if (jQuery) (function ($, kdo) {
     //    Show();
     //}
 
-    function CreateAdvanceSearchPopUp(event, object) {
-        trigger = event ? $(this) : object;
-        var triggerId = $(trigger.attr('id'));
-        adTarget = $(trigger.attr(Settings.dataattr.Target));
+    function CreateAdvanceSearchPopUp(event,object) {
+        trigger=event? $(this):object;
+        var triggerId=$(trigger.attr('id'));
+        adTarget=$(trigger.attr(Settings.dataattr.Target));
 
         //Make sure not previously created
-        var cacheWindow = $("#" + triggerId.selector).data(Settings.window.AdvanceSearchWindow);
-        if (typeof cacheWindow !== 'undefined') {  //Show the window if already exists
-            searchWinPop = cacheWindow;
+        var cacheWindow=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchWindow);
+        if(typeof cacheWindow!=='undefined') {  //Show the window if already exists
+            searchWinPop=cacheWindow;
             Show();
             return;
         }
 
-        var popDiv = $("<div id='PopUpSeachDivFor_" + triggerId.selector + "' class='ad-popup-target'></div>");
-        var supplierSearchGridDiv = $("<div id='PopUpSupplierSearchGridFor_" + triggerId.selector + "'></div>");
+        var popDiv=$("<div id='PopUpSeachDivFor_"+triggerId.selector+"' class='ad-popup-target'></div>");
+        var supplierSearchGridDiv=$("<div id='PopUpSupplierSearchGridFor_"+triggerId.selector+"'></div>");
 
         popDiv.append(supplierSearchGridDiv);
-        CreateSearchGrid(supplierSearchGridDiv, trigger);
+        CreateSearchGrid(supplierSearchGridDiv,trigger);
 
 
-        searchWinPop = popDiv.kendoWindow({
+        searchWinPop=popDiv.kendoWindow({
             width: "1024px",
             title: Settings.window.AdvanceSearchWindowTitle,
             modal: true,
@@ -340,38 +345,51 @@ if (jQuery) (function ($, kdo) {
             close: onClose
         }).data("kendoWindow");
 
-        $("#" + triggerId.selector).data(Settings.window.AdvanceSearchWindow, searchWinPop);
+        $("#"+triggerId.selector).data(Settings.window.AdvanceSearchWindow,searchWinPop);
 
         Show();
     }
 
+    function LoadSearchItemDetail(event,object) {
+        trigger=event? $(this):object;
+        //var triggerId=$(trigger.attr('id'));
+        adTarget=$(trigger.attr(Settings.dataattr.LoadTarget));
+
+        var supplierId=parseInt(adTarget.val());
+        if(typeof supplierId === 'undefined'|| isNaN(supplierId)|| supplierId === '')
+            kendo.alert(Settings.message.LoadSupplierDetailError);
+        else {
+            var url=GetEnvironmentLocation()+Settings.controller.LoadCompanyDetail+supplierId;
+            window.open(url,"_blank");
+        }
+    }
 
     //Having issue to extract data for shared control right now
-    function CreateAdvanceSearchSharedPopUp(event, object) {
-        trigger = event ? $(this) : object;
-        var triggerId = $(trigger.attr('id'));
-        adTarget = $(trigger.attr(Settings.dataattr.Target));
+    function CreateAdvanceSearchSharedPopUp(event,object) {
+        trigger=event? $(this):object;
+        var triggerId=$(trigger.attr('id'));
+        adTarget=$(trigger.attr(Settings.dataattr.Target));
 
-        if ($(Settings.division.SharedControlDiv).length === 0) {
+        if($(Settings.division.SharedControlDiv).length===0) {
             kendo.alert("Missing shared hosting div. Can not host search control.");
             return;
         }
 
         //Make sure not previously created, since this is a shared control then looking for common div
-        var popDiv = $(Settings.division.SharedControlDiv);
-        var cacheWindow = popDiv.data(Settings.window.AdvanceSearchWindow);
-        if (typeof cacheWindow !== 'undefined') {  //Show the window if already exists
+        var popDiv=$(Settings.division.SharedControlDiv);
+        var cacheWindow=popDiv.data(Settings.window.AdvanceSearchWindow);
+        if(typeof cacheWindow!=='undefined') {  //Show the window if already exists
             Show();
             return;
         }
 
-        var supplierSearchGridDiv = $("<div id='" + Settings.grid.PopUpSupplierSearchCommonSharedGrid + "'></div>");
+        var supplierSearchGridDiv=$("<div id='"+Settings.grid.PopUpSupplierSearchCommonSharedGrid+"'></div>");
         popDiv.append(supplierSearchGridDiv);
 
         //Since it's shared control, the shared search control is no longer stored inside the trigger, stored in the popDiv
-        CreateSearchGrid(supplierSearchGridDiv, popDiv);
+        CreateSearchGrid(supplierSearchGridDiv,popDiv);
 
-        searchWinPop = popDiv.kendoWindow({
+        searchWinPop=popDiv.kendoWindow({
             width: "1024px",
             title: Settings.window.AdvanceSearchWindowTitle,
             visible: false,
@@ -384,7 +402,7 @@ if (jQuery) (function ($, kdo) {
             close: onClose
         }).data("kendoWindow");
 
-        popDiv.data(Settings.window.AdvanceSearchWindow, searchWinPop);
+        popDiv.data(Settings.window.AdvanceSearchWindow,searchWinPop);
 
         Show();
     }
@@ -394,11 +412,12 @@ if (jQuery) (function ($, kdo) {
         searchWinPop.close();
     }
 
-    $(document).on('click', '[' + Settings.dataattr.Target + ']', CreateAdvanceSearchPopUp);   
-    $(document).on('click', '[' + Settings.dataattr.SharedTarget +']', CreateAdvanceSearchSharedPopUp);  
+    $(document).on('click','['+Settings.dataattr.Target+']',CreateAdvanceSearchPopUp);
+    $(document).on('click','['+Settings.dataattr.LoadTarget+']',LoadSearchItemDetail);
+    $(document).on('click','['+Settings.dataattr.SharedTarget+']',CreateAdvanceSearchSharedPopUp);
 
     return {
         Show: Show
     };
-})(jQuery, kendo);
+})(jQuery,kendo);
 
