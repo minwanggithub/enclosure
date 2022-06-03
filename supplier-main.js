@@ -770,7 +770,7 @@
                     _grid.dataSource.read();
                 }
                 else
-                    $("#ObtainmentSettingsDetail").html("");
+                $("#ObtainmentSettingsDetail").html("");
             }
 
         };        
@@ -1938,6 +1938,9 @@
         //SaveNote,CancelNote,disableDoNotObtainCheckbox,enableDoNotObtainCheckbox methods and modified fnSaveObtainmentSettings method.[VK]
 
         var fnSaveObtainmentSettings = function () {
+            var previousDoNotObtainState = $("#hdnDoNotObtain").val().toString().toLowerCase();
+            var currentDoNotObtainState = $("#ObtainmentSettingDoNotObtain").is(':checked').toString().toLowerCase();
+
                 var queryText = {
                     ObtainmentSettingID: $("#ObtainmentSettingID").val(),
                     SupplierId: $("#SupplierId").val(),
@@ -1968,6 +1971,10 @@
                         return false;
                     }
                     else {
+                        //Trecompi-4545: In case,when note need to create
+                        if (previousDoNotObtainState !== currentDoNotObtainState) {                            
+                            CreateNote();
+                        }
                         var obtID = $("#ObtainmentSettingID").val();
                         //var obtID = data.message;
                         var supplierid = $("#SupplierId").val();
@@ -1984,8 +1991,10 @@
 
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings saved.');
                         }
-                        else
+                        else {
                             $('#CreatedMessage').fadeIn(500).delay(1000).fadeOut(400).html('Obtainment settings added.');
+                            $("#ObtainmentSettingsDetail").html("");
+                        }
                     }
                 });
         };
@@ -2069,6 +2078,10 @@
         }
         //TRECOMPLI-4545:Supplier- Obtainment Setting: Logging proof for "Do not obtain" [VK]
         var saveNote = function () {
+            fnSaveObtainmentSettings();               
+        }
+        
+        CreateNote = function () {
             var supplierNoteViewModel = {
                 SupplierNoteType: []
             };
@@ -2091,7 +2104,8 @@
             
             Object.keys(noteTypeListData).map(function (key, index) {
 
-                var obj={ SupplierNoteTypeId: '',
+                var obj = {
+                    SupplierNoteTypeId: '',
                     SupplierNoteTypeText: ''
                 }
 
@@ -2099,6 +2113,11 @@
                 obj.SupplierNoteTypeText = noteTypeListData[key].SupplierNoteTypeText;
                 supplierNoteViewModel.SupplierNoteType.push(obj);
             });
+
+            var doNotObtainChecked = $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).is(':checked');
+            doNotObtainChecked == true ? enableDoNotObtainCheckbox() : disableDoNotObtainCheckbox();
+            $("#popupDonotObtainNote").modal("hide");
+
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
@@ -2106,11 +2125,7 @@
                 url: GetEnvironmentLocation() + "/Operations/Company/Notes_Create",
                 data: { supplierNoteViewModel: supplierNoteViewModel },
                 success: function (data, textStatus, jqXHR) {
-                    fnSaveObtainmentSettings();
-                    $("#popupDonotObtainNote").modal("hide");
-
-                    var doNotObtainChecked = $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).is(':checked');
-                    doNotObtainChecked == true ? enableDoNotObtainCheckbox() : disableDoNotObtainCheckbox();
+                                       
                 },
                 error: function (jqXHR, status, errorThrown) {
                 },
@@ -2118,7 +2133,7 @@
 
                 }
             });
-            
+
         }
         var cancelNote = function () {
             var doNotObtainChecked = $(supplierLiterSettings.controls.checkBoxes.ObtainmentSettingDoNotObtain).is(':checked');
