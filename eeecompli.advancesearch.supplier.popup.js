@@ -82,7 +82,7 @@ if(jQuery) (function($,kdo) {
 
         if(typeof advnaceSearchCtl==='undefined') {  //Show the window if already exists
             return {
-                supplierSearchCriteria: JSON.stringify({})
+                searchCriteria: JSON.stringify({})
             };
         }
         //For Debugging save
@@ -103,7 +103,7 @@ if(jQuery) (function($,kdo) {
         //});
 
         return {
-            supplierSearchCriteria: JSON.stringify(advnaceSearchCtl.MappedCriterias())
+            searchCriteria: JSON.stringify(advnaceSearchCtl.MappedCriterias())
         };
     }
 

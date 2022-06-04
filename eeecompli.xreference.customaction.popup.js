@@ -75,7 +75,7 @@ if (jQuery) (function ($, kdo) {
 
         if (typeof advnaceSearchCtl === 'undefined') {  //Show the window if already exists
             return {
-                supplierSearchCriteria: JSON.stringify(supplierSearchModel)
+                searchCriteria: JSON.stringify(supplierSearchModel)
             };
         }
 
@@ -96,7 +96,7 @@ if (jQuery) (function ($, kdo) {
         });
 
         return {
-            supplierSearchCriteria: JSON.stringify(supplierSearchModel)
+            searchCriteria: JSON.stringify(supplierSearchModel)
         };
     }
 
