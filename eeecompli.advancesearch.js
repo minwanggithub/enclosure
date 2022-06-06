@@ -354,11 +354,14 @@
                         if(selectedItem.DataLookup!=null) {
                              this.set('dataLookUpDataSource',selectedItem.DataLookup);
                         }
+                        else
+                             this.set('dataLookUpDataSource', []);
 
                         $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
                             targetCtrl,
                             function(evt) {
+                                debugger;
                                 var resolveId = parseInt($(this).val());
                                 if(evt.keyCode==13 && bindingRoot.get('dataLookUpDataSource') !=null && resolveId  > 0) {
                                     evt.preventDefault();
