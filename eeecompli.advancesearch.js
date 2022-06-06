@@ -349,13 +349,31 @@
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
                         //this.set('enteredDataFieldValue','');
-              
-                        var observableRow=this;                   //Save observable for later keypress binding to use
 
-                        $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one
+                        var bindingRoot=this;                    //Save observable for later keypress binding to use
+                        if(selectedItem.DataLookup!=null) {
+                             this.set('dataLookUpDataSource',selectedItem.DataLookup);
+                        }
+
+                        $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
                             targetCtrl,
                             function(evt) {
+                                var resolveId = parseInt($(this).val());
+                                if(evt.keyCode==13 && bindingRoot.get('dataLookUpDataSource') !=null && resolveId  > 0) {
+                                    evt.preventDefault();
+                                    var url=settings.selectedDataSourceUrl+bindingRoot.get('dataLookUpDataSource')+"="+resolveId;
+                                    var myParent=this;
+                                    $(this).ajaxCall(url,
+                                        {})
+                                        .success(function(data) {
+                                            if(data.Resolved) {
+                                                $(myParent).val(data.SupplierId+', '+data.SupplierName);
+                                            }
+                                        });
+                                    return;
+                                }
+
                                 var charCode=(evt.which)? evt.which:event.keyCode
                                 if(charCode!=46&&charCode>31&&(charCode<48||charCode>57))
                                     return false;
