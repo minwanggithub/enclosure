@@ -80,30 +80,14 @@ if(jQuery) (function($,kdo) {
         var triggerId=$(trigger.attr('id'));
         var advnaceSearchCtl=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl);
 
-        if(typeof advnaceSearchCtl==='undefined') {  //Show the window if already exists
+        if(typeof advnaceSearchCtl==='undefined') {  
             return {
-                searchCriteria: JSON.stringify({})
+                searchCriteria: {}
             };
         }
-        //For Debugging save
-        //var searchCriteria = advnaceSearchCtl.DataSource();
-        //$.each(searchCriteria, function (index, row) {
-        //    var selectedColumn = row.columnDataSource[row.selectedColumn - 1];
-
-        //    if (selectedColumn.Type === 'integer') {
-        //        supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
-        //    }
-        //    else if (selectedColumn.Type === 'text') {
-        //        supplierSearchModel[selectedColumn.ColumnMap] = row.enteredDataFieldValue;
-        //        supplierSearchModel[selectedColumn.ColumnMap + SearchOperator] = row.selectedOperator;
-        //    }
-        //    else if (selectedColumn.Type === 'lookup') {
-        //        supplierSearchModel[selectedColumn.ColumnMap] = row.selectedDataLookupIndex;
-        //    }
-        //});
-
         return {
-            searchCriteria: JSON.stringify(advnaceSearchCtl.MappedCriterias())
+            searchCriteria: advnaceSearchCtl.MappedCriterias()
+
         };
     }
 
