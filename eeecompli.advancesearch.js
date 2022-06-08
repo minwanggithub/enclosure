@@ -126,6 +126,7 @@
         var asConsolectl,jsonFormatCtl;
         var totalrow=0;
 
+
         /**
          * Returns a random integer between min (inclusive) and max (inclusive).
          * The value is no lower than min (or the next integer greater than min
@@ -149,6 +150,7 @@
                 selectedOperatorDataSource: defaultOperatorDataSource,
                 selectedFirstDefaultColumn: defaultColumnDataSource[0].Value,
                 selectedDataSourceUrl: "",     //Static Datasource does not require this.
+                extendWidth: false,
                 EnableLog: false
             },
             options
@@ -177,7 +179,8 @@
                 History: 'Histroy',
                 GetData: 'Get selected criterias',
                 GetDataSource: 'Get data source',
-                ClearLogData: 'Clear Log data'
+                ClearLogData: 'Clear Log data',
+                ResizeControl: 'Resize Control'
             },
             OperatorIndex: {
                 Contains: defaultOperatorDataSource[0].Value,
@@ -188,11 +191,37 @@
             DataAttributes: {
                 PopUpAttribute: "PopUpAttribute",
                 DetailRedirectAttribute: "DetailRedirectAttribute"
+            },
+            ResizeMetrics: {
+                ResizeBase: [200,400],                          //Default 200,400,500
+                ResizeDropDownDelta: [14,14],                   //Default 14,14,14
+                ResizeCalendarDelta: [-94,-194]                 //Default -94,194,-244
+            },
+            Control: {
+                MarginLeft: 2,
+                Index: {
+                    ColumnDefinitionName: 0,
+                    OperatorType: 1,
+                    DataField: 2,                               //Mutually exclusive
+                    DataLookUp: 2,                              //Mutually exclusive
+                    DatePickerFrom: 3,
+                    DatePickerTo: 4,
+                    CalendarDataLookUp: 5,
+                    Operationbutton: 6,
+                    ResetButton: 7,
+                    DataAttributePopUp: 8,
+                    GetDataButton: 9,
+                    GetDataSourceButton: 10,
+                    ClearDataButton: 11
+
+                }
             }
         };
 
         var allColumnValues=settings.selectedColumnDataSource.map(a => a.Value);
         var disabledValues=settings.selectedColumnDataSource.filter(a => a.Active==0).map(a => a.Value);
+
+        var resizeIndex=(settings.extendWidth==true? 1:0);
 
         function ConsoleLog(m) {
             if(settings.EnableLog) {
@@ -323,18 +352,18 @@
                     //    'Default First Column: '+settings.selectedFirstDefaultColumn
                     //);
 
-                    //Validation
+                    //ValidationplugInOptions
                     var selectedItem=e.sender.dataItem();
                     var criteriarow=$(e.sender.element[0]).parent().parent();
+                    debugger;
                     var targetCtrl='#'+criteriarow.children()[2].id;
-                    var targetPopUpCtrl='#'+criteriarow.children()[4].id;
+       
 
                     //Dequeue any accumulated data attribute
-                    if(this.get('queuedDataAttribute')!='') {
-                        //kdo.alert("Dequeue:"+this.get('queuedDataAttribute'));
-                        $(targetPopUpCtrl).removeAttr(this.get('queuedDataAttribute'));
-                        this.set('queuedDataAttribute','');
-                    }
+                    //if(this.get('queuedDataAttribute')!='') {
+                    //    $(targetPopUpCtrl).removeAttr(this.get('queuedDataAttribute'));
+                    //    this.set('queuedDataAttribute','');
+                    //}
 
                     this.set('selectedColumnType',selectedItem.Type);
                     if(selectedItem.Type==='integer') {
@@ -352,18 +381,30 @@
 
                         var bindingRoot=this;                    //Save observable for later keypress binding to use
                         if(selectedItem.DataLookup!=null) {
-                             this.set('dataLookUpDataSource',selectedItem.DataLookup);
+                            this.set('dataLookUpDataSource',selectedItem.DataLookup);   //This is very important because every time the column changes
+                            this.set('isPopUpSearchVisiable',true);
+                            if(selectedItem.DataAttributes!=null) {
+                                var targetPopUpCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributePopUp].id;
+                                var attObj=JSON.parse(selectedItem.DataAttributes);
+                                if(attObj!=null) {
+                                    var popUpAtt=attObj[plugInOptions.DataAttributes.PopUpAttribute];
+                                    if(popUpAtt!=null&&popUpAtt!='')
+                                        $(targetPopUpCtrl).attr(popUpAtt,targetCtrl);
+                                    this.set('queuedDataAttribute',popUpAtt);
+                                }
+                            }
                         }
-                        else
-                             this.set('dataLookUpDataSource', []);
+                        else {
+                            this.set('dataLookUpDataSource',[]);
+                            this.set('isPopUpSearchVisiable',false);
+                        }
 
                         $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
                             targetCtrl,
                             function(evt) {
-                                debugger;
-                                var resolveId = parseInt($(this).val());
-                                if(evt.keyCode==13 && bindingRoot.get('dataLookUpDataSource') !=null && resolveId  > 0) {
+                                var resolveId=parseInt($(this).val());
+                                if(evt.keyCode==13&&bindingRoot.get('dataLookUpDataSource')!=null&&resolveId>0) {
                                     evt.preventDefault();
                                     var url=settings.selectedDataSourceUrl+bindingRoot.get('dataLookUpDataSource')+"="+resolveId;
                                     var myParent=this;
@@ -578,18 +619,18 @@
             var operator=$(
                 "<input id='operator_"+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='min-width:100px;'/>"
+                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             var datafield=$(
                 "<input type='text' id='dataField_"+rowIndex+randomPrefix+
-                "' data-bind='value: enteredDataFieldValue, visible: isDataFieldVisiable' style='width:186px; height:16px;' />"
+                "' data-bind='value: enteredDataFieldValue, visible: isDataFieldVisiable' style='width:"+plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+"px; height:16px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             var datalookup=$(
                 "<input id='dataFieldLookup_"+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:200px;'/>"
+                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             //var popupbtn=$(
@@ -610,28 +651,28 @@
                 rowIndex+randomPrefix+"'"+
                 " parentdiv='"+
                 criteriaRowId+
-                "' data-bind='visible:isPopUpSearchVisiable' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;' "+
+                "' data-bind='visible:isPopUpSearchVisiable' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;margin-left:"+plugInOptions.Control.MarginLeft+"px;' "+
                 " name='popUpbtn_search'"+
                 " data-adsearch-supplier-target=''"+
-                "' title='Search'><span class='k-icon k-i-search"+
+                " title='Search'><span class='k-icon k-i-search"+
                 "'></span></button>"
             );
 
             var datePickerFrom=$(
                 "<input id='calendarDatePickerFrom_'"+
                 rowIndex+randomPrefix+
-                "' data-role='datepicker' data-bind='visible: isDatePickerFromToVisible, value: selectedCalendarDateFromValue, events: { change: onSelectDateFromChange }' style='width: 100px; height:24px;'>"
+                "' data-role='datepicker' data-bind='visible: isDatePickerFromToVisible, value: selectedCalendarDateFromValue, events: { change: onSelectDateFromChange }' style='width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeCalendarDelta[resizeIndex])+"px; height:24px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'>"
             );
             var datePickerTo=$(
                 "<input id='calendarDatePickerTo_'"+
                 rowIndex+randomPrefix+
-                "' data-role='datepicker' data-bind='visible: isDatePickerFromToVisible, value: selectedCalendarDateToValue, events: { change: onSelectDateToChange }' style='width: 100px; height:24px;'>"
+                "' data-role='datepicker' data-bind='visible: isDatePickerFromToVisible, value: selectedCalendarDateToValue, events: { change: onSelectDateToChange }' style='width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeCalendarDelta[resizeIndex])+"px; height:24px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'>"
             );
 
             var calendarDatalookup=$(
                 "<input id='calendarDataFieldLookup_ "+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='min-width:100px;'/>"
+                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
 
@@ -641,7 +682,7 @@
                 rowIndex+randomPrefix+
                 "' parentdiv='"+
                 criteriaRowId+
-                "' data-bind='click: onAddRemoveClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;' name='"+
+                "' data-bind='click: onAddRemoveClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;margin-left:"+plugInOptions.Control.MarginLeft+"px;' name='"+
                 btnname+
                 "' title='"+
                 btnnameTip+
@@ -654,7 +695,7 @@
                 operator,
                 datafield,
                 datalookup,
-                //popupbtn,
+                // popupbtn,
                 calendarDatalookup,
                 datePickerFrom,
                 datePickerTo,
@@ -667,7 +708,7 @@
                     rowIndex+randomPrefix+
                     "' parentdiv='"+
                     criteriaRowId+
-                    "' data-bind='click: onResetClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;' name='reset' title='"+
+                    "' data-bind='click: onResetClick' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;margin-left:"+plugInOptions.Control.MarginLeft+"px;' name='reset' title='"+
                     plugInOptions.IconsTip.Reset+
                     "'><span class='k-icon k-i-refresh'></span></button>"
                 );
@@ -684,7 +725,9 @@
                 //    "' style='margin-left:-6px;'></span></button>"
                 //);
                 criteriaRow.append(resetbtn);
+                //criteriaRow.append(resizeDatabtn);
                 //criteriaRow.append(historybtn);
+
                 if(settings.EnableLog) {
                     //::::Log enabled debugging button :::://
                     var getDatabtn=$(
@@ -719,11 +762,15 @@
                         plugInOptions.IconsTip.ClearLogData+
                         "'>Clear Log</button>"
                     );
+
                     criteriaRow.append(getDatabtn);
                     criteriaRow.append(getDataSourcebtn);
                     criteriaRow.append(clearDatabtn);
                 }
             }
+            criteriaRow.append(popupbtn);
+
+
             $this.append(criteriaRow);
 
             var rowModel=getModelViewObservable();
@@ -740,7 +787,6 @@
 
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
-
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
                 ConsoleLog(
@@ -855,7 +901,7 @@
                     searchModel[selectedColumn.ColumnMap+SearchOperator]=row.selectedOperator;
                 }
                 else if(selectedColumn.Type==='lookup') {
-                    if(typeof row.selectedDataLookupIndex=='object')
+                    if(typeof row.selectedDataLookupIndex=='object'&&row.selectedDataLookupIndex!=null)
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex.Value;
                     else
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex;
