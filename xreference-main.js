@@ -88,7 +88,7 @@ var anyOperationPerformedOutside = false;
                // sideMenus: { SideBarWorkLoad: "#eeeSideBarWorkLoad" }
             }
         };
-        var criteriaCondition = { Contains: 0, ExactMatch: 1, StartsWith: 2, EndsWith: 3 };
+        var criteriaCondition = { Contains: 0, ExactMatch: 1, StartsWith: 2, EndsWith: 3, DoesNotMatch: 9, DoesNotContain: 13 };
         var controllerCalls = {
             GetGroupUsers: GetEnvironmentLocation() + "/Operations/Configuration/RequestManager/GetGroupUsers",
             SupplierSearch: GetEnvironmentLocation() + "/Operations/ObtainmentSettings/PlugInSupplierSearch",
@@ -699,7 +699,8 @@ var anyOperationPerformedOutside = false;
                 var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
                 drpContains = $(xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + index).data("kendoDropDownList");
-                if ($(this).val() === "Language" || $(this).val() === "DocumentType" || $(this).val() === "Country") {
+               
+                if ($(this).val() === "Language" || $(this).val() === "Country") {
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
                     var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
                     //create dropdown in html form first and added to it's corresponding div
@@ -711,6 +712,20 @@ var anyOperationPerformedOutside = false;
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
                 }
+
+                if ($(this).val() === "DocumentType") {
+                        $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
+                    var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
+                    //create dropdown in html form first and added to it's corresponding div
+                    drpContains.select(criteriaCondition.ExactMatch);
+                    drpContains.enable(false);
+                    $("#dvDropDown_" + index).html(drpDownList);
+                    //transform select to kendo dropdown
+                    $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
+                    $("#dvDropDown_" + index).css("display", "inline");
+                    return;
+                }
+
                 if ($(this).get(0).id.startsWith("drpLanguage") || $(this).get(0).id.startsWith("drpDocumentType") || $(this).get(0).id.startsWith("drpCountry")) {
                     //skip all the events
                 }
