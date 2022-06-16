@@ -34,7 +34,7 @@ if(jQuery) (function($,kdo) {
             LoadCompanyDetail: "/Operations/Company/LoadSingleSupplier?supplierId="
         },
         message: {
-            LoadSupplierDetailError: "An error occurred displaying the selected company. Please review you selection and try again."
+            LoadSupplierDetailError: "An error occurred displaying the selected Id. Please review you selection and try again."
         }
     };
 
@@ -334,16 +334,16 @@ if(jQuery) (function($,kdo) {
         Show();
     }
 
-    function LoadSearchItemDetail(event,object) {
+    function LoadAttributeItemDetail(event,object) {
         trigger=event? $(this):object;
         //var triggerId=$(trigger.attr('id'));
         adTarget=$(trigger.attr(Settings.dataattr.LoadTarget));
 
-        var supplierId=parseInt(adTarget.val());
-        if(typeof supplierId === 'undefined'|| isNaN(supplierId)|| supplierId === '')
-            kendo.alert(Settings.message.LoadSupplierDetailError);
+        var id=parseInt(adTarget.val());
+        if(typeof id === 'undefined'|| isNaN(id)|| id === '')
+            kendo.alert(Settings.message.LoadSupplierDetailError);     //This need to change to a universal one in the future
         else {
-            var url=GetEnvironmentLocation()+Settings.controller.LoadCompanyDetail+supplierId;
+            var url=GetEnvironmentLocation()+Settings.controller.LoadCompanyDetail+id;
             window.open(url,"_blank");
         }
     }
@@ -397,7 +397,7 @@ if(jQuery) (function($,kdo) {
     }
 
     $(document).on('click','['+Settings.dataattr.Target+']',CreateAdvanceSearchPopUp);
-    $(document).on('click','['+Settings.dataattr.LoadTarget+']',LoadSearchItemDetail);
+    $(document).on('click','['+Settings.dataattr.LoadTarget+']',LoadAttributeItemDetail);
     $(document).on('click','['+Settings.dataattr.SharedTarget+']',CreateAdvanceSearchSharedPopUp);
 
     return {
