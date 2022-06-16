@@ -125,7 +125,8 @@
         var $this=$(this);
         var asConsolectl,jsonFormatCtl;
         var totalrow=0;
-
+        var profileHwnd;
+        var historyDataSource=[];
 
         /**
          * Returns a random integer between min (inclusive) and max (inclusive).
@@ -176,7 +177,8 @@
                 Add: 'Add',
                 Delete: 'Delete',
                 Reset: 'Reset all',
-                History: 'Histroy',
+                SaveCriteria: 'Save Criteria',
+                CriteriaHistory: 'Load Criteria History',
                 GetData: 'Get selected criterias',
                 GetDataSource: 'Get data source',
                 ClearLogData: 'Clear Log data',
@@ -192,10 +194,16 @@
                 PopUpAttribute: "PopUpAttribute",
                 DetailRedirectAttribute: "DetailRedirectAttribute"
             },
+            BindingTemplate: {
+                DisabledKendoDropdownTemplate: "#kendoDropdownTemplateWithDisabledItem"
+            },
             ResizeMetrics: {
                 ResizeBase: [200,400],                          //Default 200,400,500
                 ResizeDropDownDelta: [14,14],                   //Default 14,14,14
                 ResizeCalendarDelta: [-94,-194]                 //Default -94,194,-244
+            },
+            Window: {
+                HistoryWindowTitle: "Manage History"
             },
             Control: {
                 MarginLeft: 2,
@@ -209,10 +217,12 @@
                     CalendarDataLookUp: 5,
                     Operationbutton: 6,
                     ResetButton: 7,
-                    DataAttributePopUp: 8,
-                    GetDataButton: 9,
-                    GetDataSourceButton: 10,
-                    ClearDataButton: 11
+                    DataAttributeSearchPopUp: 8,
+                    DataAttributeLoadDetail: 9,
+                    GetDataButton: 10,
+                    GetDataSourceButton: 11,
+                    ClearDataButton: 12,
+                    HistoryButton: 13
 
                 }
             }
@@ -355,9 +365,8 @@
                     //ValidationplugInOptions
                     var selectedItem=e.sender.dataItem();
                     var criteriarow=$(e.sender.element[0]).parent().parent();
-                    debugger;
                     var targetCtrl='#'+criteriarow.children()[2].id;
-       
+
 
                     //Dequeue any accumulated data attribute
                     //if(this.get('queuedDataAttribute')!='') {
@@ -384,13 +393,20 @@
                             this.set('dataLookUpDataSource',selectedItem.DataLookup);   //This is very important because every time the column changes
                             this.set('isPopUpSearchVisiable',true);
                             if(selectedItem.DataAttributes!=null) {
-                                var targetPopUpCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributePopUp].id;
                                 var attObj=JSON.parse(selectedItem.DataAttributes);
                                 if(attObj!=null) {
                                     var popUpAtt=attObj[plugInOptions.DataAttributes.PopUpAttribute];
-                                    if(popUpAtt!=null&&popUpAtt!='')
-                                        $(targetPopUpCtrl).attr(popUpAtt,targetCtrl);
-                                    this.set('queuedDataAttribute',popUpAtt);
+                                    if(popUpAtt!=null&&popUpAtt!='') {
+                                        var popUpSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeSearchPopUp].id;
+                                        $(popUpSenderCtrl).attr(popUpAtt,targetCtrl);
+                                    }
+
+                                    var loadDetailAtt=attObj[plugInOptions.DataAttributes.DetailRedirectAttribute];
+                                    if(loadDetailAtt!=null&&loadDetailAtt!='') {
+                                       var loadDetailSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeLoadDetail].id;
+                                       $(loadDetailSenderCtrl).attr(loadDetailAtt,targetCtrl);
+                                    }
+                                    //this.set('queuedDataAttribute',popUpAtt);
                                 }
                             }
                         }
@@ -496,7 +512,7 @@
                     }
                 },
 
-                onOperatorChange: function() {
+                onOperatorChange: function(e) {
                     ConsoleLog(
                         'Operator change: Index='+
                         kdo.stringify(this.get('selectedOperator'),null,4)+
@@ -557,6 +573,35 @@
                     AddRow(totalrow++,null);
                     //Remember to reset cache if adde in the future
                 },
+
+                //Min: 06/14/2022
+                //Reserved for history management
+                //onHistorySaveClick: function(e) {
+                //    e.stopPropagation();
+                //    kdo.prompt("Please enter a name to save:","My criteria").then(function(data) {
+                //        //kendo.alert(kendo.format("The value that you entered is '{0}'",data));
+                //        var rowExist=historyDataSource.some(item => item.HistoryName===data)
+
+                //        if(rowExist) {
+                //            kdo.alert("Entry with name '<b>"+data+"</b>' already exists. Please try again.");
+                //            return;
+                //        }
+
+                //        var criteriaInfo=new Object();
+                //        criteriaInfo.HistoryName=data;
+                //        criteriaInfo.DataSource=GetSelectionStateData();
+                //        criteriaInfo.IsDefault=false;
+                //        historyDataSource.push(criteriaInfo);
+                //    },function() {
+                //        //kendo.alert("Cancelled");
+                //    })
+
+                //},
+
+                //onHistoryPopUpClick: function(e) {
+                //    e.stopPropagation();
+                //    //ManageProfile();
+                //},
 
                 onGetDataClick: function(e) {
                     e.stopPropagation();
@@ -646,15 +691,27 @@
             //    "'></span></button>"
             //);
 
-            var popupbtn=$(
-                "<button id='popUpbtn_"+
+            var attributebtnPopUpSearch=$(
+                "<button id='attributebtnPopUpSearch_"+
                 rowIndex+randomPrefix+"'"+
                 " parentdiv='"+
                 criteriaRowId+
                 "' data-bind='visible:isPopUpSearchVisiable' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;margin-left:"+plugInOptions.Control.MarginLeft+"px;' "+
-                " name='popUpbtn_search'"+
+                " name='attributebtnPopUp_search'"+
                 " data-adsearch-supplier-target=''"+
                 " title='Search'><span class='k-icon k-i-search"+
+                "'></span></button>"
+            );
+
+            var attributebtnDetail=$(
+                "<button id='attributebtnDetail_"+
+                rowIndex+randomPrefix+"'"+
+                " parentdiv='"+
+                criteriaRowId+
+                "' data-bind='visible:isPopUpSearchVisiable' class='k-button btn btn-small' style='position:relative;z-index:1;height:26px;margin-left:"+plugInOptions.Control.MarginLeft+"px;' "+
+                " name='attributebtnDetail'"+
+                " data-adsearch-supplier-load-target=''"+
+                " title='Search'><span class='k-icon k-i-note"+
                 "'></span></button>"
             );
 
@@ -713,20 +770,10 @@
                     "'><span class='k-icon k-i-refresh'></span></button>"
                 );
 
-                //var historybtn = $(
-                //    "<button id='historybtn_" +
-                //    rowIndex +
-                //    "' parentdiv='" +
-                //    criteriaRowId +
-                //    "' data-bind='click: onResetClick' class='btn btn-small' style='position:relative;z-index:1;height:26px; width:20px;' name='config' title='" +
-                //    plugInOptions.IconsTip.History +
-                //    "'><span class='k-icon k-i-" +
-                //    plugInOptions.Icons.History +
-                //    "' style='margin-left:-6px;'></span></button>"
-                //);
                 criteriaRow.append(resetbtn);
                 //criteriaRow.append(resizeDatabtn);
-                //criteriaRow.append(historybtn);
+                //criteriaRow.append(historySavebtn);
+                //criteriaRow.append(historyPopUpbtn);
 
                 if(settings.EnableLog) {
                     //::::Log enabled debugging button :::://
@@ -768,8 +815,9 @@
                     criteriaRow.append(clearDatabtn);
                 }
             }
-            criteriaRow.append(popupbtn);
 
+            criteriaRow.append(attributebtnPopUpSearch);
+            criteriaRow.append(attributebtnDetail);
 
             $this.append(criteriaRow);
 
@@ -845,9 +893,18 @@
         //Doing some default
         //var initialRowModel = getModelViewObservable();
         //initialRowModel.selectedColumn = 4;
-        var initialRowModel=null;
 
+        //Check template
+        var element=$(plugInOptions.BindingTemplate.DisabledKendoDropdownTemplate)
+        if(!element.length) {
+            // create specific template for advanced control
+        }
+
+
+        var initialRowModel=null;
         AddRow(totalrow++,initialRowModel);
+
+
 
         if(settings.EnableLog) {
             asConsolectl=
@@ -874,6 +931,16 @@
                 dataModels.push(rowModel);
             }
             return dataModels;
+        }
+
+        function SetStateData(ds) {
+            $this.html('');
+            totalrow=0;
+            //var rowsCount=ds.length;
+            $.each(ds,function(index,val) {
+                AddRow(totalrow++,val);
+                ConsoleLog('Value Entered: '+val.enteredDataFieldValue);
+            });
         }
 
         function DaysBetween(dateFrom,dateTo) {
@@ -999,13 +1066,7 @@
         };
 
         var SetData=function(ds) {
-            $this.html('');
-            totalrow=0;
-            var rowsCount=ds.length;
-            $.each(ds,function(index,val) {
-                AddRow(totalrow++,val);
-                ConsoleLog('Value Entered: '+val.enteredDataFieldValue);
-            });
+            SetStateData(ds);
         };
 
         var ClearData=function() {
