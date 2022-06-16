@@ -700,60 +700,66 @@ var anyOperationPerformedOutside = false;
                 var ddlName = $(this).attr("id").substring(0, elementId.indexOf("_"));
                 var index = elementId.substring(elementId.indexOf("_") + 1);
                 drpContains = $(xreferenceObject.controls.dropdownlists.ContainsDropDownList + "_" + index).data("kendoDropDownList");
-               
-                //if ($(this).val() === "Language" || $(this).val() === "Country") {
+                
+                
                 if ($(this).val() === "Language" || $(this).val() === "DocumentType" || $(this).val() === "Country") {
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
                     var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
                     //create dropdown in html form first and added to it's corresponding div
-                    drpContains.select(criteriaCondition.ExactMatch);
-                    drpContains.enable(false);
+                    //drpContains.select(criteriaCondition.ExactMatch);
+                    //drpContains.enable(false);
+
+                    resetDropdownOptions(drpContains, true, $(this).val() === "DocumentType");
+
                     $("#dvDropDown_" + index).html(drpDownList);
                     //transform select to kendo dropdown
                     $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
                     $("#dvDropDown_" + index).css("display", "inline");
                     return;
                 }
-
-                //if ($(this).val() === "DocumentType") {
-                //        $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).hide();
-                //    var drpDownList = window.CreateDropDown($(this).val().toLowerCase(), index);
-                //    //create dropdown in html form first and added to it's corresponding div
-                //    drpContains.select(criteriaCondition.ExactMatch);
-                //    drpContains.enable(false);
-                //    $("#dvDropDown_" + index).html(drpDownList);
-                //    //transform select to kendo dropdown
-                //    $("#drp" + $(this).val() + "_" + index).kendoDropDownList();
-                //    $("#dvDropDown_" + index).css("display", "inline");
-                //    return;
-                //}
-
                 if ($(this).get(0).id.startsWith("drpLanguage") || $(this).get(0).id.startsWith("drpDocumentType") || $(this).get(0).id.startsWith("drpCountry")) {
                     //skip all the events
                 }
 
+
+
                 else if ($(this).val().toLowerCase().endsWith("id") && !($(this).val().toLowerCase().endsWith("clientproductid"))) {
-                    drpContains.select(criteriaCondition.ExactMatch);
-                    drpContains.enable(false);                    
-                    $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,            
+                    //drpContains.select(criteriaCondition.ExactMatch);
+                    //drpContains.enable(false);
+
+                    resetDropdownOptions(drpContains, true,false);
+
+                    $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,
                         function () {
                             this.value = this.value.replace(/[^0-9$,]/g, '');
-                   });
+                        });
                 }
                 else if ($(this).val().toLowerCase().endsWith("clientproductid")) {
-                    drpContains.select(criteriaCondition.ExactMatch);
-                    drpContains.enable(false);
+                    //drpContains.select(criteriaCondition.ExactMatch);
+                    // drpContains.enable(false);
+
+                    resetDropdownOptions(drpContains, true, false);
+
                     $(document).on('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index,
                         function () {
                             this.value = this.value;
                         });
                 }
-                
+
+
+
                 else if (!$.isNumeric($(this).val())) {
-                    drpContains.select(criteriaCondition.Contains);
-                    drpContains.enable(true);
-                    $(document).off('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index);                    
+                    //drpContains.select(criteriaCondition.Contains);
+
+                    resetDropdownOptions(drpContains, false, false);
+
+                    //drpContains.enable(true);
+
+                    $(document).off('keyup', xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index);
                 }
+
+                
+
 
                 if (ddlName === xreferenceObject.controls.dropdownlists.FieldsDropDownList.replace("#", "")) {
                     $(xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + index).show();
@@ -762,7 +768,56 @@ var anyOperationPerformedOutside = false;
                 }
             }
 
+
+
         });
+
+
+        //TRECOMPLI-4586 reset dropdown list options as per the field selected
+        function resetDropdownOptions(ddl, isNumericValues, enableDropDownForDocType) {
+            ddl.dataSource.data([]); // clears dataSource
+            ddl.text(""); // clears visible text
+            ddl.value(""); // clears invisible value
+
+
+            if (isNumericValues) {
+                ddl.dataSource.add({
+                    text: "Exact Match",
+                    value: 1
+                });
+                ddl.dataSource.add({
+                    text: "Not Equals",
+                    value: 9
+                });
+            }
+            else{
+                ddl.dataSource.add({
+                    text: "Contains",
+                    value: 0
+                });
+                ddl.dataSource.add({
+                    text: "Does Not Contain",
+                    value: 13
+                });
+                ddl.dataSource.add({
+                    text: "Exact Match",
+                    value: 1
+                });
+                ddl.dataSource.add({
+                    text: "Starts With",
+                    value: 2
+                });
+                ddl.dataSource.add({
+                    text: "Ends With",
+                    value: 3
+                });
+            }
+
+            ddl.select(0);
+            
+            ddl.enable(!(isNumericValues && !enableDropDownForDocType));
+        }
+
 
         function Remove(str, startIndex) {
             return str.substr(0, startIndex);
