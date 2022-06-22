@@ -833,8 +833,10 @@
             //Increase the row counter to create unique controls on screen
             totalrow++;
 
+
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
+            if (defaultModel != null) return;  
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
                 ConsoleLog(
@@ -964,7 +966,7 @@
                     searchModel[selectedColumn.ColumnMap]=parseInt(row.enteredDataFieldValue);
                 }
                 else if(selectedColumn.Type==='text') {
-                    searchModel[selectedColumn.ColumnMap]=row.enteredDataFieldValue;
+                    searchModel[selectedColumn.ColumnMap]=row.enteredDataFieldValue.replace("''","'");
                     searchModel[selectedColumn.ColumnMap+SearchOperator]=row.selectedOperator;
                 }
                 else if(selectedColumn.Type==='lookup') {

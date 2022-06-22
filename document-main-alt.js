@@ -923,9 +923,12 @@
         }
 
         function onDocumentSearchAdvancedSearchBtnClick(e) {
-            kendo.alert("It's under construction!!");
-            return;
+            searchControlOption.TriggerFrom="AdvancedSearch";
+            keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
+            e.preventDefault();
+            performDocumentSearch();
         }
+
 
         function InitializeDocumentSearchAdvancedSearch() {
             var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
@@ -985,13 +988,29 @@
         }
 
 
-        var getDocumentSearchCriteria = function (e) {
-            var container = $(documentElementSelectors.containers.DocumentSearch);
-            var model = getContainerSearchCriteria(container);
+
+        var getDocumentSearchCriteria=function(e) {
+            var model=null;
+
+            if(searchControlOption.TriggerFrom=="RegularSearch") {
+                var container=$(documentElementSelectors.containers.DocumentSearch);
+                model=getContainerSearchCriteria(container);
+            }
+            else {
+                var asDocumentCtrl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+                if(typeof asDocumentCtrl=='undefined'||asDocumentCtrl===null)
+                    return { searchCriteria: {} };
+                else {
+                    model=asDocumentCtrl.MappedCriterias();
+                }
+            }
             //updateDocumentSearchResultTotal(JSON.stringify(model));
-            updateDocumentSearchResultTotal(model);
+            if(model!=null)
+                updateDocumentSearchResultTotal(model);
+
             return model;
         };
+
 
 
         var onDocumentMainPanelActivate=function() {
