@@ -94,7 +94,7 @@
                 DocumentRevisionMultipleNameNumbersSave: "#btnSaveMultipleNames",
                 DocumentSearchAddNew: "#addNewDocumentBtn",
                 DocumentSearchAdvancedSearchAddNew: "#ad_AddNewDocumentBtn",
-                DocumentSearchAdvancedSearchSaveSearch: "#ad_SaveDocumentSearchSettingsBtn";
+                DocumentSearchAdvancedSearchSaveSearch: "#ad_SaveDocumentSearchSettingsBtn",
                 DocumentRevisionNewFile: "[id^=addNewFilesBtn_New]",
                 DocumentSearchClear: "#clearDocumentBtn",
                 DocumentSerachAdvancedSearchClear: "#ad_ClearDocumentBtn",
@@ -946,8 +946,24 @@
         }
 
 
-        function  onDocumentSearchSaveSearchClick(e) {
-        
+        function onDocumentSearchSaveSearchClick(e) {
+            var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+            if(typeof adDocumentSearchCtl!='undefined') {
+                var searchDataSource=adDocumentSearchCtl.DataSource();
+
+                //Caching
+                //$(supplierLiterSettings.controls.buttons.SaveSupplierSearchButton).data(supplierLiterSettings.data.advanceSearchHistory,searchDataSource);
+
+                var url=GetEnvironmentLocation()+"/Operations/Document/SaveDocumentSearchSettings"
+                $(this).ajaxCall(url,{ searchDataSource: JSON.stringify(searchDataSource) })
+                    .success(function(successData) {
+                        if(successData.success==true) {
+                            $(this).savedSuccessFully("Saved Successfully");
+                        }
+                    }).error(function(error) {
+                        $(this).displayError(error);
+                    });
+            }
         }
 
 
@@ -1050,7 +1066,7 @@
         };
 
         var onAdvancedSearchDocumentMainPanelActivate=function() {
-            this.element.on('click', documentElementSelectors.buttons.DocumentSearchAdvancedSearchAddNew, onDocumentSearchAddNewBtnClick);
+            this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchAddNew,onDocumentSearchAddNewBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSerachAdvancedSearchClear,onDocumentSearchClearBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearch,onDocumentSearchAdvancedSearchBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchSaveSearch,onDocumentSearchSaveSearchClick);
