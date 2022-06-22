@@ -93,8 +93,11 @@
                 DocumentRevisionDetailsSupplierView: "[id^=viewRevisionSupplierIdBtn_]",
                 DocumentRevisionMultipleNameNumbersSave: "#btnSaveMultipleNames",
                 DocumentSearchAddNew: "#addNewDocumentBtn",
+                DocumentSearchAdvancedSearchAddNew: "#ad_AddNewDocumentBtn",
+                DocumentSearchAdvancedSearchSaveSearch: "#ad_SaveDocumentSearchSettingsBtn";
                 DocumentRevisionNewFile: "[id^=addNewFilesBtn_New]",
                 DocumentSearchClear: "#clearDocumentBtn",
+                DocumentSerachAdvancedSearchClear: "#ad_ClearDocumentBtn",
                 DocumentSearchPopUpCancel: "#btnCancelDocumentSearch",
                 DocumentSearchPopUpSelect: "#searchDocumentIdSelect",
                 DocumentSearchSearch: "#searchDocumentBtn",
@@ -895,8 +898,17 @@
         function onDocumentSearchClearBtnClick(e) {
             e.preventDefault();
 
-            var container=$(documentElementSelectors.containers.DocumentSearch);
-            clearDocumentSearchFields(container);
+            if(searchControlOption.TriggerFrom="AdvancedSearch") {
+                var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+                if(typeof adDocumentSearchCtl!='undefined') {
+                    adDocumentSearchCtl.ClearData();
+                }
+            }
+            else {
+                var container=$(documentElementSelectors.containers.DocumentSearch);
+                clearDocumentSearchFields(container);
+            }
+
 
             var searchGrid=$(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if(searchGrid&&searchGrid.dataSource) {
@@ -907,6 +919,10 @@
                 $("form.k-filter-menu button[type='reset']").trigger("click");
                 searchGrid.dataSource.data([]);
             }
+
+
+
+
         }
 
         function onDocumentSearchFieldKeyUp(e) {
@@ -927,6 +943,11 @@
             keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
+        }
+
+
+        function  onDocumentSearchSaveSearchClick(e) {
+        
         }
 
 
@@ -1029,9 +1050,10 @@
         };
 
         var onAdvancedSearchDocumentMainPanelActivate=function() {
-            //this.element.on('click', documentElementSelectors.buttons.DocumentSearchAddNew, onDocumentSearchAddNewBtnClick);
-            //this.element.on('click', documentElementSelectors.buttons.DocumentSearchClear, onDocumentSearchClearBtnClick);
+            this.element.on('click', documentElementSelectors.buttons.DocumentSearchAdvancedSearchAddNew, onDocumentSearchAddNewBtnClick);
+            this.element.on('click',documentElementSelectors.buttons.DocumentSerachAdvancedSearchClear,onDocumentSearchClearBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearch,onDocumentSearchAdvancedSearchBtnClick);
+            this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchSaveSearch,onDocumentSearchSaveSearchClick);
 
             InitializeDocumentSearchAdvancedSearch();
             $(documentElementSelectors.grids.DocumentSearch).show(500);
