@@ -417,7 +417,7 @@ var anyOperationPerformedOutside = false;
                         criteriaList.push(criteria);
 
                 } else {
-                    valueAssigned = $("div #row " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val().replace(/'/g, "''");
+                    valueAssigned = $("div #row " + xreferenceObject.controls.textBoxes.FreeFieldTextBox + "_" + initialRow).val();//.replace(/'/g, "''");
                     criteria.SearchFor = valueAssigned;
 
                     if (valueAssigned.length > 0)
