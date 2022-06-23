@@ -403,8 +403,8 @@
 
                                     var loadDetailAtt=attObj[plugInOptions.DataAttributes.DetailRedirectAttribute];
                                     if(loadDetailAtt!=null&&loadDetailAtt!='') {
-                                       var loadDetailSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeLoadDetail].id;
-                                       $(loadDetailSenderCtrl).attr(loadDetailAtt,targetCtrl);
+                                        var loadDetailSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeLoadDetail].id;
+                                        $(loadDetailSenderCtrl).attr(loadDetailAtt,targetCtrl);
                                     }
                                     //this.set('queuedDataAttribute',popUpAtt);
                                 }
@@ -836,7 +836,7 @@
 
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
-            if (defaultModel != null) return;  
+            if(defaultModel!=null) return;
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
                 ConsoleLog(
@@ -947,9 +947,9 @@
 
         function DaysBetween(dateFrom,dateTo) {
             const ONE_DAY=1000*60*60*24;                // The number of milliseconds in one day
-            const differenceMs=Math.abs(dateFrom-dateTo);   // Calculate the difference in milliseconds
+            const differenceMs=Math.abs(new Date(dateFrom) - new Date(dateTo));   // Calculate the difference in milliseconds
             // Convert back to days and return
-            return Math.round(differenceMs/ONE_DAY);
+            return Math.ceil(differenceMs/ONE_DAY);
         }
 
         var MappedCriterias=function() {
@@ -978,7 +978,6 @@
                 else if(selectedColumn.Type==='daterange') {
                     let selectedDays=0;
                     var dF=new Date();
-
                     if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupIndex.Text!='Custom') {
                         selectedDays=parseInt(row.selectedCalendarDataLookupIndex.Text);
                         searchModel[selectedColumn.ColumnMap]=selectedDays;
