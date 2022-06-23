@@ -943,16 +943,26 @@
             keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
-        }
+        };
 
+
+        function RestoreAdvanceSearchFromRoamingProfile(sender) {
+            var url = GetEnvironmentLocation() + "/Operations/Document/RetrieveDocumentSearchSettings"
+            $(this).ajaxCall(url)
+                .success(function (SearchDefault) {
+                    if (SearchDefault != "") {
+                        var dsObject = JSON.parse(SearchDefault);
+                        sender.SetData(dsObject);
+                    }
+                }).error(function (error) {
+                    $(this).displayError(error);
+                });
+        };
 
         function onDocumentSearchSaveSearchClick(e) {
             var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
             if(typeof adDocumentSearchCtl!='undefined') {
                 var searchDataSource=adDocumentSearchCtl.DataSource();
-
-                //Caching
-                //$(supplierLiterSettings.controls.buttons.SaveSupplierSearchButton).data(supplierLiterSettings.data.advanceSearchHistory,searchDataSource);
 
                 var url=GetEnvironmentLocation()+"/Operations/Document/SaveDocumentSearchSettings"
                 $(this).ajaxCall(url,{ searchDataSource: JSON.stringify(searchDataSource) })
@@ -964,7 +974,7 @@
                         $(this).displayError(error);
                     });
             }
-        }
+        };
 
 
         function InitializeDocumentSearchAdvancedSearch() {
@@ -979,11 +989,11 @@
                             extendWidth: true
                         });
                         $(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData,adDocumentSearchCtl);
-                        //RestoreAdvanceSearchFromRoamingProfile(adSearchCtl);
+                        RestoreAdvanceSearchFromRoamingProfile(adDocumentSearchCtl);
                     });
                 });
             }
-        }
+        };
 
         //function onDocumentSearchSearchSupplierBtnClick(e) {
         //    e.preventDefault();
@@ -1002,7 +1012,6 @@
         //}
 
         function updateDocumentSearchResultTotal(model) {
-
             $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
             $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("");
 
@@ -1022,7 +1031,7 @@
                     //Parent will throw error
                 }
             });
-        }
+        };
 
 
 
