@@ -629,6 +629,14 @@
                     ClearConsole();
                 },
 
+                SetSelectedColumn: function(id) {
+                    this.set('selectedColumn',id);
+                },
+
+                SetSelectedColumnValue: function(value) {
+                    this.set('enteredDataFieldValue',value);
+                },
+
                 columnDataSource: settings.selectedColumnDataSource,
                 operatorDataSource: settings.selectedOperatorDataSource,
                 dataLookUpDataSource: [] //Unkonwn yet until lookup column selected
@@ -675,7 +683,7 @@
             var datalookup=$(
                 "<input id='dataFieldLookup_"+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-role='dropdownlist' data-option-label='Select One'  data-value-primitive='true' data-auto-bind='true' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             //var popupbtn=$(
@@ -729,7 +737,7 @@
             var calendarDatalookup=$(
                 "<input id='calendarDataFieldLookup_ "+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-role='dropdownlist' data-value-primitive='true' data-auto-bind='true' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
 
@@ -824,10 +832,9 @@
             var rowModel=getModelViewObservable();
             if(defaultModel!=null) {
                 Object.keys(defaultModel).forEach(function(key,index) {
-                    rowModel[key]=defaultModel[key];   //Restore events, lost after serialiazation
+                    rowModel[key]=defaultModel[key];
                 });
             }
-
             kdo.bind(criteriaRow,rowModel);
 
             //Increase the row counter to create unique controls on screen
@@ -836,7 +843,7 @@
 
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
-            if(defaultModel!=null) return;
+            if(defaultModel!=null) return criteriaRow;
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
                 ConsoleLog(
@@ -854,7 +861,7 @@
                 );
             }
 
-
+            return criteriaRow;
         }
 
         //Defined SetNextSelectCoumnDefault
@@ -885,7 +892,6 @@
                         .find('input')
                         .get(0).id
                 );
-
                 var bs=$(inputCtl).get(0).kendoBindingTarget.source;
                 selectedColunmList.push(bs.selectedColumn);
             }
@@ -947,7 +953,7 @@
 
         function DaysBetween(dateFrom,dateTo) {
             const ONE_DAY=1000*60*60*24;                // The number of milliseconds in one day
-            const differenceMs=Math.abs(new Date(dateFrom) - new Date(dateTo));   // Calculate the difference in milliseconds
+            const differenceMs=Math.abs(new Date(dateFrom)-new Date(dateTo));   // Calculate the difference in milliseconds
             // Convert back to days and return
             return Math.ceil(differenceMs/ONE_DAY);
         }
@@ -1076,12 +1082,26 @@
             AddRow(totalrow++,null);
         };
 
+        var SingleColumnSearchTrigger=function(columnName,columnValue) {
+            $this.html('');
+            totalrow=0;
+            var criteriaRow=AddRow(totalrow++,null);
+            var requestColSearch=settings.selectedColumnDataSource.find(col => col.ColumnMap==columnName);
+
+            if(requestColSearch.length>0) {
+                var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
+                bs.SetSelectedColumn(requestColSearch.Value);
+                bs.SetSelectedColumnValue(columnValue);
+            }
+        };
+
         return {
             //SearchData: SearchData,   //Obsoleted 
             SetData: SetData,
             ClearData: ClearData,
             DataSource: DataSource,
-            MappedCriterias: MappedCriterias
+            MappedCriterias: MappedCriterias,
+            SingleColumnSearchTrigger
         };
     };
 })(jQuery,kendo);
