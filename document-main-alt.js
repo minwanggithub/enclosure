@@ -305,7 +305,8 @@
             DocumentDeleteNameAndNumberPair: GetEnvironmentLocation()+"/Operations/Document/DeleteNameAndNumberMultiPair",
             ProductSearch: GetEnvironmentLocation()+"/Operations/Document/GetProductResult",
             CreateProductFromDocumentAssociatedProductSection: GetEnvironmentLocation()+"/Operations/Document/CreateProductFromDocumentAssociatedProductSection",
-
+            DocumentRoamingProfileSave: "/Operations/Document/SaveDocumentSearchSettings",
+            DocumentRoamingProfileRetrieve: "/Operations/Document/RetrieveDocumentSearchSettings",
         }
 
         var documentMessages={
@@ -947,7 +948,7 @@
 
 
         function RestoreAdvanceSearchFromRoamingProfile(sender) {
-            var url = GetEnvironmentLocation() + "/Operations/Document/RetrieveDocumentSearchSettings"
+            var url = GetEnvironmentLocation() +controllerCalls.DocumentRoamingProfileRetrieve;
             $(this).ajaxCall(url)
                 .success(function (SearchDefault) {
                     if (SearchDefault != "") {
@@ -964,7 +965,7 @@
             if(typeof adDocumentSearchCtl!='undefined') {
                 var searchDataSource=adDocumentSearchCtl.DataSource();
 
-                var url=GetEnvironmentLocation()+"/Operations/Document/SaveDocumentSearchSettings"
+                var url=GetEnvironmentLocation()+controllerCalls.DocumentRoamingProfileSave;
                 $(this).ajaxCall(url,{ searchDataSource: JSON.stringify(searchDataSource) })
                     .success(function(successData) {
                         if(successData.success==true) {
