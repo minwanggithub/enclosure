@@ -898,7 +898,6 @@
 
         function onDocumentSearchClearBtnClick(e) {
             e.preventDefault();
-
             if(searchControlOption.TriggerFrom="AdvancedSearch") {
                 var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
                 if(typeof adDocumentSearchCtl!='undefined') {
@@ -920,10 +919,6 @@
                 $("form.k-filter-menu button[type='reset']").trigger("click");
                 searchGrid.dataSource.data([]);
             }
-
-
-
-
         }
 
         function onDocumentSearchFieldKeyUp(e) {
@@ -946,16 +941,20 @@
             performDocumentSearch();
         };
 
+        function onAdvanedSearchCallBack(e) {
+            searchControlOption.TriggerFrom="AdvancedSearch";
+            performDocumentSearch();
+        }
 
         function RestoreAdvanceSearchFromRoamingProfile(sender) {
-            var url = GetEnvironmentLocation() +controllerCalls.DocumentRoamingProfileRetrieve;
+            var url=GetEnvironmentLocation()+controllerCalls.DocumentRoamingProfileRetrieve;
             $(this).ajaxCall(url)
-                .success(function (SearchDefault) {
-                    if (SearchDefault != "") {
-                        var dsObject = JSON.parse(SearchDefault);
+                .success(function(SearchDefault) {
+                    if(SearchDefault!="") {
+                        var dsObject=JSON.parse(SearchDefault);
                         sender.SetData(dsObject);
                     }
-                }).error(function (error) {
+                }).error(function(error) {
                     $(this).displayError(error);
                 });
         };
@@ -987,9 +986,11 @@
                             selectedColumnDataSource: advanceSearchDataSource.DocumentSearchColumn.view(),
                             selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
                             selectedDataSourceUrl: GetEnvironmentLocation()+"/"+advanceSearchDataSourceSettings.controllers.Svc+"/",
-                            extendWidth: true
+                            searchCallBack: onAdvanedSearchCallBack,
+                            ExtendWidth: true
                         });
                         $(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData,adDocumentSearchCtl);
+                        //Initial default value or restore roaming profile
                         RestoreAdvanceSearchFromRoamingProfile(adDocumentSearchCtl);
                     });
                 });
@@ -1082,6 +1083,7 @@
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchSaveSearch,onDocumentSearchSaveSearchClick);
 
             InitializeDocumentSearchAdvancedSearch();
+    
             $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
@@ -1166,7 +1168,6 @@
 
 
         var onDataBound=function(e) {
-
             // remove filtering details
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("");
             $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });

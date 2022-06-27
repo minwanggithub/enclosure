@@ -151,8 +151,9 @@
                 selectedOperatorDataSource: defaultOperatorDataSource,
                 selectedFirstDefaultColumn: defaultColumnDataSource[0].Value,
                 selectedDataSourceUrl: "",     //Static Datasource does not require this.
-                extendWidth: false,
-                EnableLog: false
+                searchCallBack: null,	
+                ExtendWidth: false,
+                EnableLog: false               //Intended to use Capital for First letter for default = false
             },
             options
         );
@@ -231,7 +232,7 @@
         var allColumnValues=settings.selectedColumnDataSource.map(a => a.Value);
         var disabledValues=settings.selectedColumnDataSource.filter(a => a.Active==0).map(a => a.Value);
 
-        var resizeIndex=(settings.extendWidth==true? 1:0);
+        var resizeIndex=(settings.ExtendWidth==true? 1:0);
 
         function ConsoleLog(m) {
             if(settings.EnableLog) {
@@ -1082,16 +1083,20 @@
             AddRow(totalrow++,null);
         };
 
-        var SingleColumnSearchTrigger=function(columnName,columnValue) {
+        var InitialSingleColumnSearchTrigger=function(columnName,columnValue) {
             $this.html('');
             totalrow=0;
             var criteriaRow=AddRow(totalrow++,null);
             var requestColSearch=settings.selectedColumnDataSource.find(col => col.ColumnMap==columnName);
 
-            if(requestColSearch.length>0) {
+            if(requestColSearch != null) {
                 var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
                 bs.SetSelectedColumn(requestColSearch.Value);
                 bs.SetSelectedColumnValue(columnValue);
+
+                if($.isFunction(settings.searchCallBack)) {
+                    settings.searchCallBack.call($this);
+                }
             }
         };
 
@@ -1101,7 +1106,7 @@
             ClearData: ClearData,
             DataSource: DataSource,
             MappedCriterias: MappedCriterias,
-            SingleColumnSearchTrigger
+            InitialSingleColumnSearchTrigger                                    //Need to consider for future multiple column search trigger
         };
     };
 })(jQuery,kendo);
