@@ -128,6 +128,7 @@
         var profileHwnd;
         var historyDataSource=[];
 
+
         /**
          * Returns a random integer between min (inclusive) and max (inclusive).
          * The value is no lower than min (or the next integer greater than min
@@ -151,7 +152,7 @@
                 selectedOperatorDataSource: defaultOperatorDataSource,
                 selectedFirstDefaultColumn: defaultColumnDataSource[0].Value,
                 selectedDataSourceUrl: "",     //Static Datasource does not require this.
-                searchCallBack: null,	
+                searchCallBack: null,
                 ExtendWidth: false,
                 EnableLog: false               //Intended to use Capital for First letter for default = false
             },
@@ -1083,13 +1084,15 @@
             AddRow(totalrow++,null);
         };
 
-        var InitialSingleColumnSearchTrigger=function(columnName,columnValue) {
-            $this.html('');
-            totalrow=0;
-            var criteriaRow=AddRow(totalrow++,null);
+        //This is just a quick dirty approach as we don't have other requirement other than the documentId search. 
+        //Will redesign for multiply columns search in the future.
+        var Search=function(columnName,columnValue) {
             var requestColSearch=settings.selectedColumnDataSource.find(col => col.ColumnMap==columnName);
 
-            if(requestColSearch != null) {
+            if(requestColSearch!=null) {
+                $this.html('');
+                totalrow=0;
+                var criteriaRow=AddRow(totalrow++,null);
                 var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
                 bs.SetSelectedColumn(requestColSearch.Value);
                 bs.SetSelectedColumnValue(columnValue);
@@ -1097,8 +1100,12 @@
                 if($.isFunction(settings.searchCallBack)) {
                     settings.searchCallBack.call($this);
                 }
+            } else {
+                kdo.alert("Unable to find column definition for given column: "+columnName);
             }
+
         };
+
 
         return {
             //SearchData: SearchData,   //Obsoleted 
@@ -1106,7 +1113,7 @@
             ClearData: ClearData,
             DataSource: DataSource,
             MappedCriterias: MappedCriterias,
-            InitialSingleColumnSearchTrigger                                    //Need to consider for future multiple column search trigger
+            Search,                                   //Need to consider for future multiple column search trigger
         };
     };
 })(jQuery,kendo);
