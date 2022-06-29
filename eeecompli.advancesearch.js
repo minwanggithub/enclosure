@@ -388,7 +388,7 @@
                         this.set('isDataLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
-                        //this.set('enteredDataFieldValue','');
+                        this.set('enteredDataFieldValue',"");
 
                         var bindingRoot=this;                    //Save observable for later keypress binding to use
                         if(selectedItem.DataLookup!=null) {
@@ -451,7 +451,7 @@
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
                         this.set('isPopUpSearchVisiable',false);
-                        //this.set('enteredDataFieldValue','');
+                        this.set('enteredDataFieldValue','');
 
                         //Remove numeric constraint
                         //$(document).off('keyup','#'+criteriarow.children()[2].id);
@@ -1086,7 +1086,7 @@
 
         //This is just a quick dirty approach as we don't have other requirement other than the documentId search. 
         //Will redesign for multiply columns search in the future.
-        var Search=function(columnName,columnValue) {
+        var CallBackSearch=function(columnName,columnValue) {
             var requestColSearch=settings.selectedColumnDataSource.find(col => col.ColumnMap==columnName);
 
             if(requestColSearch!=null) {
@@ -1106,14 +1106,22 @@
 
         };
 
+        var ColumnMapName=function(columnDefText) {
+            var columnItem=settings.selectedColumnDataSource.find(col => col.Text==columnDefText);
+            if(columnItem!=null) {
+                return columnItem.ColumnMap;
+            }
+            return "";
+        };
 
         return {
             //SearchData: SearchData,   //Obsoleted 
             SetData: SetData,
             ClearData: ClearData,
             DataSource: DataSource,
+            ColumnMapName: ColumnMapName,
             MappedCriterias: MappedCriterias,
-            Search,                                   //Need to consider for future multiple column search trigger
+            CallBackSearch: CallBackSearch                        //Need to consider for future multiple column search trigger
         };
     };
 })(jQuery,kendo);

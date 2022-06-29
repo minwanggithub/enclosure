@@ -936,7 +936,6 @@
 
         function onDocumentSearchAdvancedSearchBtnClick(e) {
             searchControlOption.TriggerFrom="AdvancedSearch";
-            keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
             e.preventDefault();
             performDocumentSearch();
         };
@@ -947,16 +946,22 @@
         }
 
         function RestoreAdvanceSearchFromRoamingProfile(sender) {
-            var url=GetEnvironmentLocation()+controllerCalls.DocumentRoamingProfileRetrieve;
-            $(this).ajaxCall(url)
-                .success(function(SearchDefault) {
-                    if(SearchDefault!="") {
-                        var dsObject=JSON.parse(SearchDefault);
-                        sender.SetData(dsObject);
-                    }
-                }).error(function(error) {
-                    $(this).displayError(error);
-                });
+            var documentId=getQueryVariable("documentId");  //Only restore without subsequent search
+            if(documentId!=null) {
+                 sender.CallBackSearch(sender.ColumnMapName('Document ID'), documentId);
+            }
+            else {
+                var url=GetEnvironmentLocation()+controllerCalls.DocumentRoamingProfileRetrieve;
+                $(this).ajaxCall(url)
+                    .success(function(SearchDefault) {
+                        if(SearchDefault!="") {
+                            var dsObject=JSON.parse(SearchDefault);
+                            sender.SetData(dsObject);
+                        }
+                    }).error(function(error) {
+                        $(this).displayError(error);
+                    });
+            }
         };
 
         function onDocumentSearchSaveSearchClick(e) {
@@ -1083,7 +1088,7 @@
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchSaveSearch,onDocumentSearchSaveSearchClick);
 
             InitializeDocumentSearchAdvancedSearch();
-    
+
             $(documentElementSelectors.grids.DocumentSearch).show(500);
         };
 
@@ -1182,7 +1187,8 @@
                     this.expandRow(this.tbody.find("tr.k-master-row").first());
                 }
 
-                $("#docSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));
+                //do not collaspe the panel for advanced search
+                //$("#advancedDocumentSearchPanel").data("kendoPanelBar").collapse($("li.k-state-active"));
             }
 
             // display filtering
