@@ -948,7 +948,7 @@
         function RestoreAdvanceSearchFromRoamingProfile(sender) {
             var documentId=getQueryVariable("documentId");  //Only restore without subsequent search
             if(documentId!=null) {
-                 sender.CallBackSearch(sender.ColumnMapName('Document ID'), documentId);
+                sender.CallBackSearch(sender.ColumnMapName('Document ID'),documentId);
             }
             else {
                 var url=GetEnvironmentLocation()+controllerCalls.DocumentRoamingProfileRetrieve;
@@ -1022,22 +1022,16 @@
             $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
             $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("");
 
-            $.ajax({
-                type: 'GET',
-                dataType: 'json',
-                cache: false,
-                url: GetEnvironmentLocation()+'/Document/GetDocumentResultCount',
-                data: model,
-                success: function(result,textStatus,jqXHR) {
+            var url=GetEnvironmentLocation()+'/Document/GetDocumentResultCount';
+            $(this).ajaxCall(url,{ searchCriteria: JSON.stringify(model) })
+                .success(function(result) {
                     if(result.Message.trim()!="") {
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "" });
                     }
-                },
-                error: function(jqXHR,textStatus,errorThrown) {
-                    //Parent will throw error
-                }
-            });
+                }).error(function(error) {
+                    $(this).displayError(error);
+                });
         };
 
 
@@ -1058,6 +1052,7 @@
                 }
             }
             //updateDocumentSearchResultTotal(JSON.stringify(model));
+            debugger;
             if(model!=null)
                 updateDocumentSearchResultTotal(model);
 
@@ -1975,7 +1970,7 @@
 
             //closeNewDocument();
             //Min: 06/29/2022: Let Advanced Search to handle the new page load instead of doing above complicated work
-            window.location.replace(controllerCalls.LoadSingleDocument+"documentId="+documentId + "&revisionId=0");
+            window.location.replace(controllerCalls.LoadSingleDocument+"documentId="+documentId+"&revisionId=0");
 
         }
 
