@@ -993,7 +993,7 @@
                         searchModel[selectedColumn.ColumnMap+SearchDateTo]=new Date();
                         searchModel[selectedColumn.ColumnMap+SearchDateFrom]=dF;
                     }
-                    else if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupIndex.Text=='Custom') {
+                    else if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue =='Custom') {
                         if(row.selectedCalendarDateToValue!=null&&row.selectedCalendarDateFromValue!=null) {
                             searchModel[selectedColumn.ColumnMap+SearchDateTo]=row.selectedCalendarDateToValue;
                             searchModel[selectedColumn.ColumnMap+SearchDateFrom]=row.selectedCalendarDateFromValue;
