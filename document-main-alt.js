@@ -1954,26 +1954,29 @@
 
         function saveNewDocument(documentId) {
             displayCreatedMessage(documentMessages.success.DocumentSaved);
+            //TODO: Advanced Search CleanUp:
+            //var container=$(documentElementSelectors.containers.DocumentSearch);
+            //if(container.length>0) {
+            //    clearDocumentSearchFields(container);
+            //    container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
 
-            var container=$(documentElementSelectors.containers.DocumentSearch);
-            if(container.length>0) {
-                clearDocumentSearchFields(container);
-                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+            //    var grid=$(documentElementSelectors.containers.DocumentMain).find(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
+            //    if(grid) {
+            //        grid.bind("dataBound",function addNewDocumentDataBound() {
+            //            var documentRow=grid.wrapper.find('tr.k-master-row:first');
+            //            grid.select(documentRow);
+            //            grid.expandRow(documentRow);
+            //            grid.unbind("dataBound",addNewDocumentDataBound);
+            //        });
 
-                var grid=$(documentElementSelectors.containers.DocumentMain).find(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
-                if(grid) {
-                    grid.bind("dataBound",function addNewDocumentDataBound() {
-                        var documentRow=grid.wrapper.find('tr.k-master-row:first');
-                        grid.select(documentRow);
-                        grid.expandRow(documentRow);
-                        grid.unbind("dataBound",addNewDocumentDataBound);
-                    });
+            //        grid.dataSource.read();
+            //    }
+            //}
 
-                    grid.dataSource.read();
-                }
-            }
+            //closeNewDocument();
+            //Min: 06/29/2022: Let Advanced Search to handle the new page load instead of doing above complicated work
+            window.location.replace(controllerCalls.LoadSingleDocument+"documentId="+documentId + "&revisionId=0");
 
-            closeNewDocument();
         }
 
         function saveNewDocumentPopUp(documentId,containerTypeId) {

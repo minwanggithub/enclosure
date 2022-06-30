@@ -986,8 +986,8 @@
                 else if(selectedColumn.Type==='daterange') {
                     let selectedDays=0;
                     var dF=new Date();
-                    if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupIndex.Text!='Custom') {
-                        selectedDays=parseInt(row.selectedCalendarDataLookupIndex.Text);
+                    if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue !='Custom') {
+                        selectedDays=parseInt(row.selectedCalendarDataLookupValue);
                         searchModel[selectedColumn.ColumnMap]=selectedDays;
                         dF.setDate(dF.getDate()-selectedDays);
                         searchModel[selectedColumn.ColumnMap+SearchDateTo]=new Date();
