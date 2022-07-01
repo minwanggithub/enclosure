@@ -481,7 +481,7 @@
                         else {  //Fetch from cache
                             this.set('dataLookUpDataSource',selectedItem.DataLookup);
                         }
-                        //this.set('selectedDataLookupIndex', 1);    //This is an issue here, binding to the value not the sort-order
+                        this.set('selectedDataLookupIndex', null);    //This is an issue here, binding to the value not the sort-order
                     } //This date range
                     else {
                         this.set(

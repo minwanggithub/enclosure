@@ -1052,7 +1052,6 @@
                 }
             }
             //updateDocumentSearchResultTotal(JSON.stringify(model));
-            debugger;
             if(model!=null)
                 updateDocumentSearchResultTotal(model);
 
