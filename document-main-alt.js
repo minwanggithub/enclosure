@@ -866,8 +866,10 @@
                 };
                 var dateRange=container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
                 if(dateRange!="Custom") {
-                    result.DateRangeFrom="";
-                    result.DateRangeTo=dateRange;
+                    var dF=new Date();
+                    dF.setDate(dF.getDate()-parseInt(dateRange));
+                    result.DateRangeFrom= dF;
+                    result.DateRangeTo= new Date();
                 }
 
                 // reset to false immediately
