@@ -10,7 +10,7 @@
         var dpeCallback = null;
         var uploadError = false;
         var uploadStake = [];
-
+        var docLanguageDetail = null;
         // ************************************** Local Methods **************************************************
         function displayConfirmation(settings, yesFunc, noFunc) {
             if (DisplayConfirmationModal)
@@ -134,6 +134,16 @@
                     else
                         clearConfirmFileUploadCache();
 
+                    var drpdwn = $('#frmNewDocument #DocumentLanguageId_New').data("kendoDropDownList")
+                    if (docLanguageDetail) {
+                        if (!drpdwn.value() || drpdwn.value() == docLanguageDetail.LanguageId) {
+                            _updateLanguage(drpdwn);
+                        }
+                        else {
+                            var settings = { message: 'You have already selected language ' + drpdwn.text() + ' and the uploaded document is containing language ' + docLanguageDetail.Language + '. Do you want to update language to ' + docLanguageDetail.Language + '?', header: 'Confirm' };
+                            displayConfirmation(settings, function () { _updateLanguage(drpdwn) }, function () { });
+                        }
+                    } 
                 } else if (uploadStake.length > 0)
                     clearConfirmFileUploadCache();
                 else
@@ -142,7 +152,10 @@
             }
 
         }
-
+        function _updateLanguage(drpdwn) {
+            drpdwn.value(docLanguageDetail.LanguageId);
+            drpdwn.trigger("change");
+        }
         var displayFileUploadModal =
             function(uploadArgsFunc, callbackFunc, dpeCallbackFunc, confirmClearAttachmentCache) {
 
@@ -264,6 +277,9 @@
             }
             else {
                 lowerCaseFile = e.response[0].FileName.toLowerCase();
+                if (!e.response[0].DocumentId) {
+                    docLanguageDetail = e.response[0].DocumentLanguageDetail
+                }
             }
 
             if (e.operation == 'upload') {
