@@ -238,10 +238,19 @@
             }
         };
 
-        var onFileUploadSelect = function (e) {         
+        var onFileUploadSelect = function (e) {
+            if (uploadStake.length) {
+                displayError("Only one file allowed at a time.")
+                e.preventDefault();
+                return false;
+            }
+            if ($(e.sender.element).hasClass("document-file-upload") && e.files.length>1) {
+                displayError("Only one file allowed at a time.")
+                e.preventDefault();
+                return false;
+            }
             var copiedArray = uploadStake.slice(0);
             var isvalidFile = true;
-
             $.each(e.files, function (index, value) {          
                 //var fileExtension = ['.htm', '.html'];
                 var fileExtension = ['.txt', '.doc', '.docx', '.xls', '.xlsx', '.tif', '.tiff', '.ppt', '.pptx', '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.pdf'];
