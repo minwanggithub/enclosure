@@ -865,7 +865,7 @@
                     AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions+":checked").val()
                 };
                 var dateRange=container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
-                if(dateRange!="Custom") {
+                if(dateRange!="Custom" && dateRange != "") {
                     var dF=new Date();
                     dF.setDate(dF.getDate()-parseInt(dateRange));
                     result.DateRangeFrom= dF;
