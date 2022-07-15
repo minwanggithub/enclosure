@@ -140,7 +140,7 @@
                             _updateLanguage(drpdwn);
                         }
                         else {
-                            var settings = { message: 'You have already selected language ' + drpdwn.text() + ' and the uploaded document is containing language ' + docLanguageDetail.Language + '. Do you want to update language to ' + docLanguageDetail.Language + '?', header: 'Confirm' };
+                            var settings = { message: 'You selected language=' + drpdwn.text() + ', however the uploaded file was detected as language=' + docLanguageDetail.Language + '. Do you want to update the language to ' + docLanguageDetail.Language + '?', header: 'Confirm' };
                             displayConfirmation(settings, function () { _updateLanguage(drpdwn) }, function () { });
                         }
                     } 
