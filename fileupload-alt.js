@@ -239,15 +239,14 @@
         };
 
         var onFileUploadSelect = function (e) {
-            if (uploadStake.length) {
-                displayError("Only one file allowed at a time.")
-                e.preventDefault();
-                return false;
-            }
-            if ($(e.sender.element).hasClass("document-file-upload") && e.files.length>1) {
-                displayError("Only one file allowed at a time.")
-                e.preventDefault();
-                return false;
+            if ($(e.sender.element).hasClass("document-file-upload")) {
+                $(e.sender.element).data("kendoUpload").disable();
+                if (uploadStake.length || e.files.length > 1) {
+                    $(e.sender.element).data("kendoUpload").enable();
+                    displayError("Only one file allowed at a time.")
+                    e.preventDefault();
+                    return false;
+                }
             }
             var copiedArray = uploadStake.slice(0);
             var isvalidFile = true;
@@ -276,6 +275,10 @@
         };
 
         var onFileUploadSuccess = function (e) {
+            if ($(e.sender.element).hasClass("document-file-upload")) {
+                $(e.sender.element).data("kendoUpload").enable();
+
+            }
 
             //http://stackoverflow.com/questions/9614681/kendo-ui-file-upload-plugin-remove-button-customization
             //e.operation = remove or upload
