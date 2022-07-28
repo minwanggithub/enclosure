@@ -211,7 +211,10 @@
 
         // ***************************************** File Loading Methods ******************************************************
         var onFileUploadError = function (e) {
+            if ($(e.sender.element).hasClass("document-file-upload")) {
+                $(e.sender.element).data("kendoUpload").enable();
 
+            }
             console.log(e);
 
             // disable the confirm button 
