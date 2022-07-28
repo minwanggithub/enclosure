@@ -320,6 +320,11 @@
                     // declare sarch variable here and use it for download inbonud excel download
                     this.ResponseStatusId = null;
                     inboundSearchCriteria = JSON.stringify(this);
+
+                    //TRECOMPLI-4622:   Inbound Response - Supplier search issue [Vivek]
+                    //If there is \(backslash) in supplier name  then add \\(double backslash) so that model can be deserialized in controller and page won't crash.
+                    var containsBackSlash = this.SupplierNameAndId.includes('%5C');
+                    this.SupplierNameAndId = containsBackSlash == true ? this.SupplierNameAndId.replace("%5C", "%5C%5C") : this.SupplierNameAndId;
                     
                     //TRECOMPLI - 4449 Applied check if all Search fields are empty [Vivek/Kshtish]
                     if (this.SupplierNameAndId != "" || this.HasNotes != null || this.AccountId != "" || this.InboundResponseId != ""
