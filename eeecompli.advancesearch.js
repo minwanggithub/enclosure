@@ -369,7 +369,6 @@
                     var criteriarow=$(e.sender.element[0]).parent().parent();
                     var targetCtrl='#'+criteriarow.children()[2].id;
 
-
                     //Dequeue any accumulated data attribute
                     //if(this.get('queuedDataAttribute')!='') {
                     //    $(targetPopUpCtrl).removeAttr(this.get('queuedDataAttribute'));
@@ -417,21 +416,48 @@
                             this.set('isPopUpSearchVisiable',false);
                         }
 
+                        $(document).off('keyup',targetCtrl)
+                        $(document).on(
+                            'keyup',
+                            targetCtrl,
+                            function(evt) {
+                                if(evt.keyCode==13&&!evt.ctrlKey) {
+                                    if($.isFunction(settings.searchCallBack)) {
+                                        settings.searchCallBack.call(this);
+                                    }
+                                }
+                            }
+                        );
+
+
                         $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
                             targetCtrl,
                             function(evt) {
                                 var resolveId=parseInt($(this).val());
-                                if(evt.keyCode==13&&bindingRoot.get('dataLookUpDataSource')!=null&&resolveId>0) {
+                                //if(evt.keyCode==13) {
+                                //    if($.isFunction(settings.searchCallBack)) {
+                                //        settings.searchCallBack.call(this);
+                                //    }
+                                //    return;
+                                //}
+
+                                if(evt.keyCode==10
+                                    &&bindingRoot.get('dataLookUpDataSource')!=null
+                                    &&bindingRoot.get('dataLookUpDataSource').length>0
+                                    &&resolveId>0) {
                                     evt.preventDefault();
                                     var url=settings.selectedDataSourceUrl+bindingRoot.get('dataLookUpDataSource')+"="+resolveId;
                                     var myParent=this;
+
                                     $(this).ajaxCall(url,
                                         {})
                                         .success(function(data) {
                                             if(data.Resolved) {
                                                 $(myParent).val(data.SupplierId+', '+data.SupplierName);
                                             }
+                                            else
+                                                $(myParent).val('');
                                         });
                                     return;
                                 }
@@ -442,6 +468,7 @@
 
                                 return true;
                             });
+
                     } else if(selectedItem.Type==='text') {
                         this.set('selectedOperator',plugInOptions.OperatorIndex.Contains);
                         this.set('isOperatorEnabled',true);
@@ -481,7 +508,7 @@
                         else {  //Fetch from cache
                             this.set('dataLookUpDataSource',selectedItem.DataLookup);
                         }
-                        this.set('selectedDataLookupIndex', null);    //This is an issue here, binding to the value not the sort-order
+                        this.set('selectedDataLookupIndex',null);    //This is an issue here, binding to the value not the sort-order
                     } //This date range
                     else {
                         this.set(
@@ -846,6 +873,7 @@
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
             if(defaultModel!=null) return criteriaRow;
+
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
                 ConsoleLog(
@@ -986,14 +1014,14 @@
                 else if(selectedColumn.Type==='daterange') {
                     let selectedDays=0;
                     var dF=new Date();
-                    if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue !='Custom') {
+                    if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue!='Custom') {
                         selectedDays=parseInt(row.selectedCalendarDataLookupValue);
                         searchModel[selectedColumn.ColumnMap]=selectedDays;
                         dF.setDate(dF.getDate()-selectedDays);
                         searchModel[selectedColumn.ColumnMap+SearchDateTo]=new Date();
                         searchModel[selectedColumn.ColumnMap+SearchDateFrom]=dF;
                     }
-                    else if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue =='Custom') {
+                    else if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue=='Custom') {
                         if(row.selectedCalendarDateToValue!=null&&row.selectedCalendarDateFromValue!=null) {
                             searchModel[selectedColumn.ColumnMap+SearchDateTo]=row.selectedCalendarDateToValue;
                             searchModel[selectedColumn.ColumnMap+SearchDateFrom]=row.selectedCalendarDateFromValue;
