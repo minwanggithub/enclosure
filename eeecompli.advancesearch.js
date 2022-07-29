@@ -287,6 +287,22 @@
             });
         }
 
+        function HookUpCallBackOnKeyUp(targetCtrl,caller) {
+            $(document).off('keyup',targetCtrl)
+            $(document).on(
+                'keyup',
+                targetCtrl,
+                function(evt) {
+                    if(evt.keyCode==13&&!evt.ctrlKey) {
+                        if($.isFunction(settings.searchCallBack)) {
+                            settings.searchCallBack.call(caller);
+                        }
+                    }
+                }
+            );
+        }
+
+
         function FormatRowType(rowModel,index) {
             switch(rowModel["selectedColumnType"].toLowerCase()) {
                 case "text":
@@ -416,19 +432,7 @@
                             this.set('isPopUpSearchVisiable',false);
                         }
 
-                        $(document).off('keyup',targetCtrl)
-                        $(document).on(
-                            'keyup',
-                            targetCtrl,
-                            function(evt) {
-                                if(evt.keyCode==13&&!evt.ctrlKey) {
-                                    if($.isFunction(settings.searchCallBack)) {
-                                        settings.searchCallBack.call(this);
-                                    }
-                                }
-                            }
-                        );
-
+                        HookUpCallBackOnKeyUp(targetCtrl, this);
 
                         $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
@@ -442,7 +446,7 @@
                                 //    return;
                                 //}
 
-                                if(evt.keyCode==10
+                                if((evt.keyCode==10||(evt.keyCode==13&&evt.ctrlKey))
                                     &&bindingRoot.get('dataLookUpDataSource')!=null
                                     &&bindingRoot.get('dataLookUpDataSource').length>0
                                     &&resolveId>0) {
@@ -480,9 +484,8 @@
                         this.set('isPopUpSearchVisiable',false);
                         this.set('enteredDataFieldValue','');
 
-                        //Remove numeric constraint
-                        //$(document).off('keyup','#'+criteriarow.children()[2].id);
                         $(document).off('keypress',targetCtrl);
+                        HookUpCallBackOnKeyUp(targetCtrl, this);
                     } else if(selectedItem.Type==='lookup') {
                         this.set(
                             'selectedOperator',
