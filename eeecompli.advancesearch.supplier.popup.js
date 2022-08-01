@@ -8,7 +8,7 @@
  */
 
 if(jQuery) (function($,kdo) {
-    var searchWinPop,adPopUpSearchCtl,trigger,adTarget;
+    var searchWinPop,adPopUpSearchCtl, thisGrid, trigger,adTarget;
 
     var Settings={
         division: {
@@ -80,7 +80,7 @@ if(jQuery) (function($,kdo) {
         var triggerId=$(trigger.attr('id'));
         var advnaceSearchCtl=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl);
 
-        if(typeof advnaceSearchCtl==='undefined') {  
+        if(typeof advnaceSearchCtl==='undefined') {
             return {
                 searchCriteria: {}
             };
@@ -91,13 +91,17 @@ if(jQuery) (function($,kdo) {
         };
     }
 
+    function onAdvanedSearchCallBack(e) {
+        thisGrid.data("kendoGrid").dataSource.read();
+    }
+
     function CreateSearchGrid(target,trigger) {
         var triggerId=$(trigger.attr('id'));
         var supplierAdvanceSearchPopUpCtlFor="supplierAdvanceSearchPopUpCtlFor_"+triggerId.selector;
         var supplierAdvanceSearchPopUpCtlSearchBtnFor="searchSupplierBtnFor_"+triggerId.selector;
         var supplierAdvanceSearchPopUpCtlClearBtnFor="clearSupplierBtnFor_"+triggerId.selector;
 
-        var thisGrid=target.kendoGrid({
+        thisGrid=target.kendoGrid({
             toolbar: kendo.template(
                 "<div class='pull-left'>"+
                 "<fieldset style='margin:0px 5px 20px 10px;border-radius: 8px;'>"+
@@ -188,6 +192,7 @@ if(jQuery) (function($,kdo) {
                     //Using dynamic data source extracted from database
                     selectedColumnDataSource: advanceSearchDataSource.SupplierSearchColumn.view(),
                     selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
+                    searchCallBack: onAdvanedSearchCallBack,
                     selectedDataSourceUrl: GetEnvironmentLocation()+"/svc/",
                     EnableLog: false
                 });
@@ -340,7 +345,7 @@ if(jQuery) (function($,kdo) {
         adTarget=$(trigger.attr(Settings.dataattr.LoadTarget));
 
         var id=parseInt(adTarget.val());
-        if(typeof id === 'undefined'|| isNaN(id)|| id === '')
+        if(typeof id==='undefined'||isNaN(id)||id==='')
             kendo.alert(Settings.message.LoadSupplierDetailError);     //This need to change to a universal one in the future
         else {
             var url=GetEnvironmentLocation()+Settings.controller.LoadCompanyDetail+id;
