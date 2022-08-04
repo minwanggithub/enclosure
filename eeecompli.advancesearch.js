@@ -119,6 +119,25 @@
             }
         ];
 
+        var defaultCategoryDataSource=[
+            {
+                Text: 'Category 1',
+                Value: '1'
+            },
+            {
+                Text: 'Category 2',
+                Value: '2'
+            },
+            {
+                Text: 'Category 3',
+                Value: '4'
+            },
+            {
+                Text: 'Category 4',
+                Value: '8'
+            }
+        ];
+
 
 
         options=options||{}; //make sure options is not null, or can extend to define default options
@@ -432,7 +451,7 @@
                             this.set('isPopUpSearchVisiable',false);
                         }
 
-                        HookUpCallBackOnKeyUp(targetCtrl, this);
+                        HookUpCallBackOnKeyUp(targetCtrl,this);
 
                         $(document).off('keypress',targetCtrl);   //Everytime unbinding first, the column type may change from one type to another
                         $(document).on('keypress',
@@ -485,7 +504,7 @@
                         this.set('enteredDataFieldValue','');
 
                         $(document).off('keypress',targetCtrl);
-                        HookUpCallBackOnKeyUp(targetCtrl, this);
+                        HookUpCallBackOnKeyUp(targetCtrl,this);
                     } else if(selectedItem.Type==='lookup') {
                         this.set(
                             'selectedOperator',
