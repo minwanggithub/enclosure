@@ -1027,7 +1027,7 @@
             var url=GetEnvironmentLocation()+'/Document/GetDocumentResultCount';
             $(this).ajaxCall(url,{ searchCriteria: JSON.stringify(model) })
                 .success(function(result) {
-                    if(result.Message.trim()!="") {
+                    if (result && result.Message && result.Message.trim()!="") {
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "" });
                     }
