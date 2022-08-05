@@ -27,6 +27,8 @@
         var preSelectedRequests = new Array();      // ids in previously sent email
         var selectedRows = new Array();
         var radioButtonSelected = "Group";
+        var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6", AwaitingSupplierResponse: "9", SentToProcessing: "10" };
+        var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
 
         var obtainmentObjects = {
 
@@ -90,6 +92,8 @@
                     EmailTargets: "#ddlEmailTarget",
                     NextStepsDropDownList: "#ddlNextSteps",
 
+                    CompletedCustomerActionDropDownList: "#ddlCustomerAction",
+                    CompletedObtainmentActionsDropDownList: "#ddlObtainmentAction",
                 },
 
                 textBoxes: {
@@ -128,6 +132,9 @@
                     PendingNotesLabel: "#lblPendingNotes"
                 },
 
+            div: {
+                CustomerActionDiv: "#dvObtainmentCustomerAction",
+            },
             }
 
         }
@@ -221,7 +228,10 @@
                 NoSDSSubstitutionToken: "A ||ProductsList|| token is mandatory in the SDS email body.",
                 EmailBodyMissing: "Email body is missing.",
                 NextStepMissing: "Obtainment next step has not been selected.",
-                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
+                //OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
+                OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are new obtainment. The Confirm as Current action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
+                DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The Flag Discontinued action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
+
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
@@ -262,7 +272,6 @@
 
         // get cross reference results
         var doObtainmentSearch = function (initial) {
-
             // prevent another search being executed
             disableButtons();
 
@@ -270,20 +279,23 @@
             if (searchCriteria.Errors.length > 0) return null;
 
             //TRECOMPI:4498 If Search Criteria Drp Field is empty then search criteria field must be selected.[VK]
-            $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {                
+            $("#advancedSearchContainerTable").find("select[id^='drpFields_']").map((i, v) => {
                 if ($(v).data("kendoDropDownList").value() == "") {
                     $(this).displayError(messages.errorMessages.SelectFilter);
                 }
-                else {                    
-            if (searchCriteria.Criterias != null) {
-                if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
-                    $("#defaultSearch").html("");
-                }
                 else {
-                    $("#defaultSearch").html("Displaying all incomplete obtainment requests.");
-                }
-            }
+                    if (searchCriteria.Criterias != null) {
+                        if (Array.from(searchCriteria.Criterias).map((v, i) => v.FieldName).indexOf("State") >= 0) {
+                            $("#defaultSearch").html("");
+                        }
+                        else {
+                            $("#defaultSearch").html("Displaying all incomplete obtainment requests.");
+                        }
+                    }
 
+                   
+                }
+            });
             if (!initial) searchCriteria = JSON.stringify(searchCriteria);
 
             $(this).ajaxCall(controllerCalls.SearchRequests, { searchCriteria: searchCriteria })
@@ -294,8 +306,6 @@
                     function () {
                         enableButtons();
                     });
-                }
-            });
         };
 
         // ---------------------------------  BUTTONS AND MENUS    
@@ -1310,9 +1320,104 @@
                 //    $(actionModals.FollowUp).displayModalEx();
                 //}, function () {
                 //});
-                $(actionModals.FollowUp).displayModalEx();
+                SetNextStep(nextStepsValues.FirstPhoneCall, "FollowUp", true);
+                $(actionModals.FollowUp).displayModal();
             }
         }
+
+        function SetNextStep(nextStepValue, actionName, enable) {
+            var ddlNextSteps = $(obtainmentObjects.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList");
+            var dteDateAssigned = $(obtainmentObjects.controls.dateTime.NextStepDueDate + actionName).data("kendoDatePicker");
+            ddlNextSteps.value(nextStepValue);
+            ddlNextSteps.enable(enable);
+            dteDateAssigned.enable(enable);
+            SetAdditionalObtainmentActionForComplete(actionName);
+        }
+        function SetAdditionalObtainmentActionForComplete(actionName) {
+            var ddlObtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList");
+            $(obtainmentObjects.controls.dropdownlists.NextStepsDropDownList + actionName).change(function () { onNextStep(actionName); });
+            $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).change(function () { onCompletedObtainmentAction(actionName); });
+            $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).change(function () { onCompletedCustomerAction(actionName); });
+            var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
+            if (ddlObtainmentAction != null) {
+                ddlObtainmentAction.enable(false);
+                ddlObtainmentAction.select(0);
+                ddlCustomerAction.select(0);
+                $(obtainmentObjects.controls.div.CustomerActionDiv + '_' + actionName).css({ display: 'none' });
+            }
+        }
+        var onNextStep = function (actionName) {
+            var ddlObtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList");
+            var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
+            var nextStepvalue = $(obtainmentObjects.controls.dropdownlists.NextStepsDropDownList + actionName).data("kendoDropDownList").text();
+            if (nextStepvalue == 'Completed') {
+                ddlObtainmentAction.enable(true);
+            }
+            else {
+                ddlObtainmentAction.enable(false);
+            }
+            $(obtainmentObjects.controls.div.CustomerActionDiv + '_' + actionName).css({ display: 'none' });
+            ddlObtainmentAction.select(0);
+            ddlCustomerAction.select(0);
+        };
+        var onCompletedObtainmentAction = function (actionName) {
+            debugger;
+            var ddlobtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList");
+            var obtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList").text();
+            var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
+            if (obtainmentAction == 'Customer Action') {
+                $(obtainmentObjects.controls.div.CustomerActionDiv + '_' + actionName).css({ display: 'block' });
+                ddlCustomerAction.value("3E has been unsuccessful in multiple attempts to obtain the requested document(s) with the manufacturer information provided. Thank you.");
+            }
+            else {
+                $(obtainmentObjects.controls.div.CustomerActionDiv + '_' + actionName).css({ display: 'none' });
+                ddlCustomerAction.select(0);
+
+                var newSelected = false;
+                debugger
+                var grid = $("#gdSearchObtainment").data("kendoGrid");
+                var selectedRow = grid.select()[0];
+                var selectedRowItem = grid.dataItem(selectedRow);
+
+                //alert(selectedRowItem.NewRequestCount);
+                if (selectedRowItem.NewRequestCount>0) {
+                    newSelected = true;
+                }
+                //$.each(grid._data, function () {
+                //    if (this['IsSelected']) {
+                //        if ((this['NewRequestCount']) == 0) {
+                //            newSelected = true;
+                //        }
+                //    }
+                //});
+                if (newSelected) {
+                    if (ddlobtainmentAction.value() == obtainmentActions.ConfirmAsCurrent) {
+                        kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
+                    }
+                    if (ddlobtainmentAction.value() == obtainmentActions.FlagDiscontinued) {
+                        kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly);
+                    }
+                    ddlobtainmentAction.select(0);
+                    return false;
+                }
+
+            }
+        };
+        var onCompletedCustomerAction = function (actionName) {
+            var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
+            // selected customer action
+            var selCustomerAction = ddlCustomerAction.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+
+            var dashIndex = selCustomerAction.indexOf("-");
+            var actionNumber = selCustomerAction.substr(0, dashIndex - 1);
+
+            if (actionNumber === "47") {
+                kendo.alert(messages.errorMessages.CustomAction47NotAvailable);
+                ddlCustomerAction.select(0);
+                return false;
+            }
+        };
         // ---- save actions
 
         function savePhoneCall() {
@@ -1423,6 +1528,14 @@
                 data['notes'] = $(obtainmentObjects.controls.textBoxes.ObtainmentActionNotes + actionName).val();
                 data['nextStep'] = ddlNextSteps.value();
                 data['nextStepDueDate'] = dteDateAssigned.value();
+                if (data['nextStep'] == 6) {//6=completed
+                    var ddlObtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList");
+                    data['obtainmentAction'] = ddlObtainmentAction.value();
+                    if (data['obtainmentAction'] == 8) {//8=customer action
+                        var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
+                        data['customerAction'] = ddlCustomerAction.text();
+                    }
+                }
 
                 saveRequests(controllerCalls.SaveNextStep, data, actionModals.FollowUp);
             }
