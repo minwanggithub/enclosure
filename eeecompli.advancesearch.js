@@ -990,10 +990,19 @@
                 var rowModel=$(inputCtl).get(0).kendoBindingTarget.source;
                 dataModels.push(rowModel);
             }
+
+            if (dataModels.length == 1)
+            {
+                if (dataModels[0]["enteredDataFieldValue"] == '' && dataModels[0]["selectedColumn"] == 1)
+                    return "";
+            }
             return dataModels;
         }
 
         function SetStateData(ds) {
+            if ((ds == null) || (typeof ds === 'string' && ds.trim() == ''))
+                return;
+
             $this.html('');
             totalrow=0;
             //var rowsCount=ds.length;
