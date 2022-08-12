@@ -96,28 +96,51 @@
         }];
 
         //Dummy data, index started with 0 to map original eeeCompli search option
-        var defaultOperatorDataSource=[
-            {
-                Text: 'Contains',
-                Value: '0',
-                Type: 'integer'
-            },
-            {
-                Text: 'Exact Match',
-                Value: '1',
-                Type: 'integer'
-            },
-            {
-                Text: 'Starts With',
-                Value: '2',
-                Type: 'integer'
-            },
-            {
-                Text: 'Ends With',
-                Value: '3',
-                Type: 'integer'
-            }
-        ];
+        var defaultColumnDataSource=[{
+            Text: "ColumnId",
+            Value: "1",
+            Sequence: "1",
+            Type: "integer",
+            DataLookup: null,
+            ColumnMap: "ColumnId",
+            DataAttributes: null,
+            Active: true
+        },{
+            Text: "ColumnText",
+            Value: "2",
+            Sequence: "2",
+            Type: "text",
+            DataLookup: null,
+            ColumnMap: "ColumnText",
+            DataAttributes: null,
+            Active: true
+        },{
+            Text: "ColumnLookUp",
+            Value: "3",
+            Sequence: "3",
+            Type: "lookup",
+            DataLookup: defaultLookUpDataSource,
+            ColumnMap: "ColumnLookUp",
+            DataAttributes: null,
+            Active: true
+        },{
+            Text: "ColumnDateRange",
+            Value: "4",
+            Sequence: "4",
+            Type: "DateRange",
+            ColumnMap: "ColumnDateRange",
+            DataLookup: defaultCalendarLookUpDataSource,
+            DataAttributes: null,
+            Active: true
+        },{
+            Text: "DisabledColumn",
+            Value: "5",
+            Sequence: "5",
+            Type: "text",
+            ColumnMap: "DisabledColumn",
+            DataAttributes: null,
+            Active: false
+        }];
 
         var defaultCategoryDataSource=[
             {
@@ -894,7 +917,12 @@
 
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
-            if(defaultModel!=null) return criteriaRow;
+            if(defaultModel!=null) {
+                var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
+                SetNextSelectColumnDefault(column,defaultModel.selectedColumn);
+                bs.SetSelectedColumnValue(defaultModel.enteredDataFieldValue);
+                return criteriaRow;
+            }
 
             if(nextColumnList.length===0) {
                 SetNextSelectColumnDefault(column,rowModel.selectedColumn);
@@ -991,16 +1019,15 @@
                 dataModels.push(rowModel);
             }
 
-            if (dataModels.length == 1)
-            {
-                if (dataModels[0]["enteredDataFieldValue"] == '' && dataModels[0]["selectedColumn"] == 1)
+            if(dataModels.length==1) {
+                if(dataModels[0]["enteredDataFieldValue"]==''&&dataModels[0]["selectedColumn"]==1)
                     return "";
             }
             return dataModels;
         }
 
         function SetStateData(ds) {
-            if ((ds == null) || (typeof ds === 'string' && ds.trim() == ''))
+            if((ds==null)||(typeof ds==='string'&&ds.trim()==''))
                 return;
 
             $this.html('');
