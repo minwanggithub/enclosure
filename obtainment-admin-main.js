@@ -1478,7 +1478,14 @@
 
                 selectedIds = getSelectedActionBlockIds();
 
-                var selCustomerAction = $(obtainmentObjects.controls.textBoxes.NotesTextBox).val();
+            var selCustomerAction = $(obtainmentObjects.controls.textBoxes.NotesTextBox).val();
+
+            var selNotes = $(obtainmentObjects.controls.dropdownlists.CustomerActionDropDownList).data("kendoDropDownList");
+            // selected customer action
+            var selCustomerAction = selNotes.text();
+            if (selCustomerAction == "Select One") selCustomerAction = "";
+            var dashIndex = selCustomerAction.indexOf("-");
+            var actionNumber = selCustomerAction.substr(0, dashIndex - 1);
 
                 if (selCustomerAction.replace(/ /g, '').length > 0) {
                     var data = {};
@@ -1486,6 +1493,7 @@
                     data['searchCriteria'] = getAdvancedSearchCriteriaAlt();
                     data['ids'] = selectedIds;
                     data['notes'] = selCustomerAction;
+                    data['actionNumber'] = actionNumber;
                     data['immediate'] = $("#chkImmediate").is(":checked");                   
                     // set selected ids before each call
                     if (data['immediate']) {
