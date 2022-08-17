@@ -1950,7 +1950,7 @@
 
         function saveNewDocument(documentId) {
             displayCreatedMessage(documentMessages.success.DocumentSaved);
-            //TODO: Advanced Search CleanUp:
+            //TODO: Advanced Search CleanUp Document:
             //var container=$(documentElementSelectors.containers.DocumentSearch);
             //if(container.length>0) {
             //    clearDocumentSearchFields(container);
@@ -1970,6 +1970,8 @@
             //}
 
             //closeNewDocument();
+            //End of TODO
+
             //Min: 06/29/2022: Let Advanced Search to handle the new page load instead of doing above complicated work
             window.location.replace(controllerCalls.LoadSingleDocument+"documentId="+documentId+"&revisionId=0");
 

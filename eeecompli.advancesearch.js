@@ -57,48 +57,6 @@
         var defaultColumnDataSource=[{
             Text: "ColumnId",
             Value: "1",
-            Type: "integer",
-            DataLookup: null,
-            ColumnMap: "ColumnId",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnText",
-            Value: "2",
-            Type: "text",
-            DataLookup: null,
-            ColumnMap: "ColumnText",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnLookUp",
-            Value: "3",
-            Type: "lookup",
-            DataLookup: defaultLookUpDataSource,
-            ColumnMap: "ColumnLookUp",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnDateRange",
-            Value: "4",
-            Type: "DateRange",
-            ColumnMap: "ColumnDateRange",
-            DataLookup: defaultCalendarLookUpDataSource,
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "DisabledColumn",
-            Value: "5",
-            Type: "text",
-            ColumnMap: "DisabledColumn",
-            DataAttributes: null,
-            Active: false
-        }];
-
-        //Dummy data, index started with 0 to map original eeeCompli search option
-        var defaultColumnDataSource=[{
-            Text: "ColumnId",
-            Value: "1",
             Sequence: "1",
             Type: "integer",
             DataLookup: null,
@@ -128,8 +86,8 @@
             Value: "4",
             Sequence: "4",
             Type: "DateRange",
-            ColumnMap: "ColumnDateRange",
             DataLookup: defaultCalendarLookUpDataSource,
+            ColumnMap: "ColumnDateRange",
             DataAttributes: null,
             Active: true
         },{
@@ -137,10 +95,35 @@
             Value: "5",
             Sequence: "5",
             Type: "text",
+            DataLookup: null,
             ColumnMap: "DisabledColumn",
             DataAttributes: null,
             Active: false
         }];
+
+        //Dummy data, index started with 0 to map original eeeCompli search option
+        var defaultOperatorDataSource=[
+            {
+                Text: 'Contains',
+                Value: '0',
+                Type: 'integer'
+            },
+            {
+                Text: 'Exact Match',
+                Value: '1',
+                Type: 'integer'
+            },
+            {
+                Text: 'Starts With',
+                Value: '2',
+                Type: 'integer'
+            },
+            {
+                Text: 'Ends With',
+                Value: '3',
+                Type: 'integer'
+            }
+        ];
 
         var defaultCategoryDataSource=[
             {
