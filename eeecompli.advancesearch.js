@@ -2,6 +2,14 @@
 //:::::Min Wang: 05/01/2020 -- Note ----
 //:::::An Universal jQuery Advance Search Control for dynamically extract criteria based on bypassing datasource
 //:::::Dependency: jQuery and Kendo UI
+//:::::Warning: New development involvement
+//:::::Any new enhancement added to this collection may impact the functionality of the control
+//:::::please verify the items below
+//:::::  1. Data detail in DataSource retrieve
+//:::::  2. Data Profile
+//:::::  3. Add new row, the sequence is as expected
+//:::::  4. Data Attribute with call back functions (Supplier and Mfr validation and search function)
+//:::::  5. Data validation and constraints (integer, operators)
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 (function($,kdo) {
