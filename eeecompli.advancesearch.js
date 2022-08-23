@@ -737,7 +737,7 @@
             var operator=$(
                 "<input id='operator_"+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='max-width:105px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             var datafield=$(
@@ -802,7 +802,7 @@
             var calendarDatalookup=$(
                 "<input id='calendarDataFieldLookup_ "+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-value-primitive='true' data-auto-bind='true' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='min-width:100px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-role='dropdownlist' data-value-primitive='true' data-auto-bind='true' data-option-label='Select One' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedCalendarDataLookupIndex, source: calendarDataLookUpDataSource, visible: isCalendarDateListPickerVisible, events: { change: onCalendarDataFieldLookupChange }' style='max-width:105px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
 
