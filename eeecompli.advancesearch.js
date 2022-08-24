@@ -61,78 +61,6 @@
             }
         ];
 
-        //Dummy data
-        var defaultColumnDataSource=[{
-            Text: "ColumnId",
-            Value: "1",
-            Sequence: "1",
-            Type: "integer",
-            DataLookup: null,
-            ColumnMap: "ColumnId",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnText",
-            Value: "2",
-            Sequence: "2",
-            Type: "text",
-            DataLookup: null,
-            ColumnMap: "ColumnText",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnLookUp",
-            Value: "3",
-            Sequence: "3",
-            Type: "lookup",
-            DataLookup: defaultLookUpDataSource,
-            ColumnMap: "ColumnLookUp",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "ColumnDateRange",
-            Value: "4",
-            Sequence: "4",
-            Type: "DateRange",
-            DataLookup: defaultCalendarLookUpDataSource,
-            ColumnMap: "ColumnDateRange",
-            DataAttributes: null,
-            Active: true
-        },{
-            Text: "DisabledColumn",
-            Value: "5",
-            Sequence: "5",
-            Type: "text",
-            DataLookup: null,
-            ColumnMap: "DisabledColumn",
-            DataAttributes: null,
-            Active: false
-        }];
-
-        //Dummy data, index started with 0 to map original eeeCompli search option
-        var defaultOperatorDataSource=[
-            {
-                Text: 'Contains',
-                Value: '0',
-                Type: 'integer'
-            },
-            {
-                Text: 'Exact Match',
-                Value: '1',
-                Type: 'integer'
-            },
-            {
-                Text: 'Starts With',
-                Value: '2',
-                Type: 'integer'
-            },
-            {
-                Text: 'Ends With',
-                Value: '3',
-                Type: 'integer'
-            }
-        ];
-
         var defaultCategoryDataSource=[
             {
                 Text: 'Category 1',
@@ -153,6 +81,114 @@
         ];
 
 
+        //Dummy data
+        var defaultColumnDataSource=[{
+            Text: "ColumnId",
+            Value: "1",
+            Sequence: "1",
+            Type: "integer",
+            DataLookup: null,
+            ColumnMap: "ColumnId",
+            DataAttributes: null,
+            Active: true,
+            OperatorGroup: 1
+        },{
+            Text: "ColumnText",
+            Value: "2",
+            Sequence: "2",
+            Type: "text",
+            DataLookup: null,
+            ColumnMap: "ColumnText",
+            DataAttributes: null,
+            Active: true,
+            OperatorGroup: 1
+        },{
+            Text: "ColumnLookUp",
+            Value: "3",
+            Sequence: "3",
+            Type: "lookup",
+            DataLookup: defaultLookUpDataSource,
+            ColumnMap: "ColumnLookUp",
+            DataAttributes: null,
+            Active: true,
+            OperatorGroup: 1
+        },{
+            Text: "ColumnDateRange",
+            Value: "4",
+            Sequence: "4",
+            Type: "DateRange",
+            DataLookup: defaultCalendarLookUpDataSource,
+            ColumnMap: "ColumnDateRange",
+            DataAttributes: null,
+            Active: true,
+            OperatorGroup: 1
+        },{
+            Text: "ColumnMultiSelect",
+            Value: "5",
+            Sequence: "5",
+            Type: "multilookup",
+            DataLookup: defaultCategoryDataSource,
+            ColumnMap: "ColumnMultiSelect",
+            DataAttributes: null,
+            Active: true,
+            OperatorGroup: 2
+        },{
+            Text: "DisabledColumn",
+            Value: "6",
+            Sequence: "6",
+            Type: "text",
+            DataLookup: null,
+            ColumnMap: "DisabledColumn",
+            DataAttributes: null,
+            Active: false,
+            OperatorGroup: 1
+        }];
+
+        //Dummy data, index started with 0 to map original eeeCompli search option
+        var defaultOperatorDataSource=[
+            {
+                Text: 'Contains',
+                Value: '0',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 1
+            },
+            {
+                Text: 'Exact Match',
+                Value: '1',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 1
+            },
+            {
+                Text: 'Starts With',
+                Value: '2',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 1
+            },
+            {
+                Text: 'Ends With',
+                Value: '3',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 1
+            },
+            {
+                Text: 'Match Any',
+                Value: '0',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 2
+            },
+            {
+                Text: 'Match All',
+                Value: '1',
+                Type: 'integer',
+                Active: true,
+                OperatorGroup: 2
+            }
+        ];
 
         options=options||{}; //make sure options is not null, or can extend to define default options
         var $this=$(this);
@@ -223,7 +259,9 @@
                 Contains: defaultOperatorDataSource[0].Value,
                 ExactMatch: defaultOperatorDataSource[1].Value,
                 StartsWith: defaultOperatorDataSource[2].Value,
-                EndsWith: defaultOperatorDataSource[3].Value
+                EndsWith: defaultOperatorDataSource[3].Value,
+                MatchAny: defaultOperatorDataSource[4].Value,
+                MatchAll: defaultOperatorDataSource[5].Value,
             },
             DataAttributes: {
                 PopUpAttribute: "PopUpAttribute",
@@ -235,6 +273,7 @@
             ResizeMetrics: {
                 ResizeBase: [200,400],                          //Default 200,400,500
                 ResizeDropDownDelta: [14,14],                   //Default 14,14,14
+                ResizeMultiDropDownDelta: [14,14],              //Default 14,14,14
                 ResizeCalendarDelta: [-94,-194]                 //Default -94,194,-244
             },
             Window: {
@@ -247,17 +286,18 @@
                     OperatorType: 1,
                     DataField: 2,                               //Mutually exclusive
                     DataLookUp: 2,                              //Mutually exclusive
-                    DatePickerFrom: 3,
-                    DatePickerTo: 4,
-                    CalendarDataLookUp: 5,
-                    Operationbutton: 6,
-                    ResetButton: 7,
-                    DataAttributeSearchPopUp: 8,
-                    DataAttributeLoadDetail: 9,
-                    GetDataButton: 10,
-                    GetDataSourceButton: 11,
-                    ClearDataButton: 12,
-                    HistoryButton: 13
+                    DataMulitLookUp: 3,
+                    DatePickerFrom: 4,
+                    DatePickerTo: 5,
+                    CalendarDataLookUp: 6,
+                    Operationbutton: 7,
+                    ResetButton: 8,
+                    DataAttributeSearchPopUp: 9,
+                    DataAttributeLoadDetail: 10,
+                    GetDataButton: 11,
+                    GetDataSourceButton: 12,
+                    ClearDataButton: 13,
+                    HistoryButton: 14
 
                 }
             }
@@ -378,6 +418,7 @@
                 isOperatorEnabled: true,
                 isDataFieldVisiable: true,
                 isDataLookUpVisiable: false,
+                isDataMultiLookUpVisiable: false,
                 isPopUpSearchVisiable: false,
                 selectedDataLookupIndex: null,
                 selectedDataLookupValue: '',
@@ -391,13 +432,14 @@
                 selectedCalendarDateToValue: null,      //Can initialize with today's date if needed = new Date(),
 
                 queuedDataAttribute: '',                //Dequeue for non-data attribute
+                selectedMultiDataLookupValues: [],
 
                 onColumnSelect: function(e) {
                     //var currentItem = e.sender.dataItem();
                     var selectedItem=e.dataItem;
 
                     if(selectedItem.Active===false) {
-                        kdo.alert("This column has been disabled and can not be selected");
+                        //kdo.alert("This column has been disabled and can not be selected");
                         e.preventDefault();
                         return;
                     }
@@ -426,17 +468,20 @@
 
                     this.set('selectedColumnType',selectedItem.Type);
                     if(selectedItem.Type==='integer') {
-                        this.set(
-                            'selectedOperator',
-                            plugInOptions.OperatorIndex.ExactMatch
-                        );
                         this.set('isOperatorEnabled',false);
                         this.set('isOperatorVisible',true);
                         this.set('isDataFieldVisiable',true);
                         this.set('isDataLookUpVisiable',false);
+                        this.set('isDataMultiLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
                         this.set('enteredDataFieldValue',"");
+
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource.filter(element => selectedItem.OperatorGroup==element.OperatorGroup));
+                        this.set(
+                            'selectedOperator',
+                            plugInOptions.OperatorIndex.ExactMatch
+                        );
 
                         var bindingRoot=this;                    //Save observable for later keypress binding to use
                         if(selectedItem.DataLookup!=null) {
@@ -445,6 +490,7 @@
                             if(selectedItem.DataAttributes!=null) {
                                 var attObj=JSON.parse(selectedItem.DataAttributes);
                                 if(attObj!=null) {
+                                    debugger;
                                     var popUpAtt=attObj[plugInOptions.DataAttributes.PopUpAttribute];
                                     if(popUpAtt!=null&&popUpAtt!='') {
                                         var popUpSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeSearchPopUp].id;
@@ -512,10 +558,13 @@
                         this.set('isOperatorVisible',true);
                         this.set('isDataFieldVisiable',true);
                         this.set('isDataLookUpVisiable',false);
+                        this.set('isDataMultiLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
                         this.set('isPopUpSearchVisiable',false);
                         this.set('enteredDataFieldValue','');
+
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource.filter(element => selectedItem.OperatorGroup==element.OperatorGroup));
 
                         $(document).off('keypress',targetCtrl);
                         HookUpCallBackOnKeyUp(targetCtrl,this);
@@ -528,9 +577,11 @@
                         this.set('isOperatorVisible',true);
                         this.set('isDataFieldVisiable',false);
                         this.set('isDataLookUpVisiable',true);
+                        this.set('isDataMultiLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',false);
                         this.set('isDatePickerFromToVisible',false);
                         this.set('isPopUpSearchVisiable',false);
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource);
 
                         //Check the datasource type, get the data if it's url raw type
                         if(typeof (selectedItem.DataLookup)==='string') {
@@ -546,6 +597,23 @@
                         }
                         this.set('selectedDataLookupIndex',null);    //This is an issue here, binding to the value not the sort-order
                     } //This date range
+                    else if(selectedItem.Type==='multilookup') {
+                        this.set('isOperatorEnabled',true);
+                        this.set('isOperatorVisible',true);
+                        this.set('isDataFieldVisiable',false);
+                        this.set('isDataLookUpVisiable',false);
+                        this.set('isCalendarDateListPickerVisible',false);
+                        this.set('isDatePickerFromToVisible',false);
+                        this.set('isPopUpSearchVisiable',false);
+                        this.set('isDataMultiLookUpVisiable',true);
+                        this.set('dataLookUpMultiDataSource',selectedItem.DataLookup);
+
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource.filter(element => selectedItem.OperatorGroup==element.OperatorGroup));
+                        this.set(
+                            'selectedOperator',
+                            plugInOptions.OperatorIndex.MatchAny
+                        );
+                    }
                     else {
                         this.set(
                             'selectedOperator',
@@ -555,8 +623,10 @@
                         this.set('isOperatorVisible',false);
                         this.set('isDataFieldVisiable',false);
                         this.set('isDataLookUpVisiable',false);
+                        this.set('isDataMultiLookUpVisiable',false);
                         this.set('isCalendarDateListPickerVisible',true);
                         this.set('isPopUpSearchVisiable',false);
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource);
 
                         if(NullishCheck(this.get('selectedCalendarDataLookupIndex'),'Text')==='Custom')
                             this.set('isDatePickerFromToVisible',true);
@@ -609,6 +679,15 @@
                     );
                 },
 
+                onDataFieldMultiLookupChange: function(e) {
+                    //ConsoleLog(
+                    //    'LookUp values change: '+
+                    //    kendo.stringify(this.get('selectedDataLookupIndex'),null,4)
+                    //);
+                    //var dataItem=e.sender.dataItem();
+                    var dataItems=this.get('selectedMultiDataLookupValues');
+                },
+
                 onCalendarDataFieldLookupChange: function(e) {
                     var dataItem=e.sender.dataItem();
                     ConsoleLog(
@@ -636,7 +715,7 @@
                     $this.html('');
                     totalrow=0;
                     AddRow(totalrow++,null);
-                    //Remember to reset cache if adde in the future
+                    //Remember to reset cache if added in the future
                 },
 
                 //Min: 06/14/2022
@@ -704,7 +783,8 @@
 
                 columnDataSource: settings.selectedColumnDataSource,
                 operatorDataSource: settings.selectedOperatorDataSource,
-                dataLookUpDataSource: [] //Unkonwn yet until lookup column selected
+                dataLookUpDataSource: [],            //Unkonwn yet until lookup column selected
+                dataLookUpMultiDataSource: [],       //Unkonw  yet until lookup column selected
             });
         }
 
@@ -729,6 +809,21 @@
             //Define dynamica columns
             var criteriaRowId='criteriaRow_'+rowIndex;
             var criteriaRow=$("<div id='"+criteriaRowId+"' class='criteriarow'></div>");
+
+            //MultiSelect header definition
+            //var headerOption=$(
+            //    "<div type='text/x-kendo-tmpl' id='headerTemplate"+
+            //    rowIndex+
+            //    "' style='display:none'>"+
+            //    "<div class='dropdown-header' style='margin: 0px 0px 5px 80px'>"+
+            //    "<span>"+
+            //    "<label><input type='radio' name='mtlCategoryMatch' value='MatchAny' data-bind='checked: mtlMatchAnyOrAll'/>Match Any</label>"+
+            //    "<label><input type='radio' name='mtlCategoryMatch' value='MatchAll' data-bind='checked: mtlMatchAnyOrAll'/>Match All</label>"+
+            //    '</span>'+
+            //    '</div>'+
+            //    '</div>'
+            //);
+
             var column=$("<input id='column_"+
                 rowIndex+randomPrefix+
                 "' data-role='dropdownlist' data-auto-bind='false' data-field-lookup='SubLookUp' data-text-field='Text' data-value-field='Value' data-template='kendoDropdownTemplateWithDisabledItem' data-bind='value: selectedColumn, source: columnDataSource, events: { change: onColumnChange, select: onColumnSelect }' style='min-width:170px;'/>"
@@ -737,7 +832,7 @@
             var operator=$(
                 "<input id='operator_"+
                 rowIndex+randomPrefix+
-                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange }' style='max-width:105px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-role='dropdownlist' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-template='kendoDropdownTemplateWithDisabledItem' data-bind='value: selectedOperator, source: operatorDataSource, visible: isOperatorVisible, enabled: isOperatorEnabled, events: { change: onOperatorChange, select: onColumnSelect }' style='max-width:105px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             var datafield=$(
@@ -750,6 +845,22 @@
                 rowIndex+randomPrefix+
                 "' data-role='dropdownlist' data-option-label='Select One'  data-value-primitive='true' data-auto-bind='true' data-text-field='Text' data-value-field='Value' data-bind='value: selectedDataLookupIndex, source: dataLookUpDataSource, visible: isDataLookUpVisiable, events: { change: onDataFieldLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
+
+            var datamultilookup=$(
+                "<select id='dataFieldMultiLookup_"+
+                rowIndex+randomPrefix+
+                "' data-role='multiselect' data-placeholder='Select One'  data-value-primitive='true' data-auto-bind='true' data-text-field='Text' data-value-field='Value' data-header-template='ad-multiselect-header"+
+                "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeMultiDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+            );
+
+            //var datamultilookup=$(
+            //    "<select id='dataFieldMultiLookup_ "+
+            //    rowIndex+
+            //    "' data-role='multiselect' data-auto-bind='false' data-text-field='Text' data-value-field='Value' data-header-template='headerTemplate"+
+            //    rowIndex+
+            //    "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' style='width: 308px;'/>"
+            //);
+
 
             //var popupbtn=$(
             //    "<button id='popUpbtn_"+
@@ -825,6 +936,7 @@
                 operator,
                 datafield,
                 datalookup,
+                datamultilookup,
                 // popupbtn,
                 calendarDatalookup,
                 datePickerFrom,
@@ -900,7 +1012,9 @@
                     rowModel[key]=defaultModel[key];
                 });
             }
+
             kdo.bind(criteriaRow,rowModel);
+            //kdo.bind(datamultilookup.data('kendoMultiSelect').header,rowModel);
 
             //Increase the row counter to create unique controls on screen
             totalrow++;
@@ -1059,6 +1173,9 @@
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex.Value;
                     else
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex;
+                }
+                else if(selectedColumn.Type==='multilookup') {
+                    //Notes:  Will extract based on the first screen(eg: XRef) integration mapping table
                 }
                 else if(selectedColumn.Type==='daterange') {
                     let selectedDays=0;
