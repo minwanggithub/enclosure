@@ -77,6 +77,22 @@
             {
                 Text: 'Category 4',
                 Value: '8'
+            },
+            {
+                Text: 'Another Category longer',
+                Value: '16'
+            },
+            {
+                Text: 'long Category with some words',
+                Value: '32'
+            },
+            {
+                Text: 'Another long Category with lots of more words',
+                Value: '64'
+            },
+            {
+                Text: 'This is last Category unless we need more for testing',
+                Value: '128'
             }
         ];
 
@@ -569,10 +585,6 @@
                         $(document).off('keypress',targetCtrl);
                         HookUpCallBackOnKeyUp(targetCtrl,this);
                     } else if(selectedItem.Type==='lookup') {
-                        this.set(
-                            'selectedOperator',
-                            plugInOptions.OperatorIndex.ExactMatch
-                        );
                         this.set('isOperatorEnabled',false);
                         this.set('isOperatorVisible',true);
                         this.set('isDataFieldVisiable',false);
@@ -582,6 +594,13 @@
                         this.set('isDatePickerFromToVisible',false);
                         this.set('isPopUpSearchVisiable',false);
                         this.set('operatorDataSource',settings.selectedOperatorDataSource);
+
+                        
+                        this.set('operatorDataSource',settings.selectedOperatorDataSource.filter(element => selectedItem.OperatorGroup==element.OperatorGroup));
+                        this.set(
+                            'selectedOperator',
+                            plugInOptions.OperatorIndex.ExactMatch
+                        );
 
                         //Check the datasource type, get the data if it's url raw type
                         if(typeof (selectedItem.DataLookup)==='string') {
@@ -850,7 +869,7 @@
                 "<select id='dataFieldMultiLookup_"+
                 rowIndex+randomPrefix+
                 "' data-role='multiselect' data-placeholder='Select One'  data-value-primitive='true' data-auto-bind='true' data-text-field='Text' data-value-field='Value' data-header-template='ad-multiselect-header"+
-                "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' style='min-width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeMultiDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+                "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' style='width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeMultiDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
             );
 
             //var datamultilookup=$(
