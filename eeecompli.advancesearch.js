@@ -595,7 +595,7 @@
                         this.set('isPopUpSearchVisiable',false);
                         this.set('operatorDataSource',settings.selectedOperatorDataSource);
 
-                        
+
                         this.set('operatorDataSource',settings.selectedOperatorDataSource.filter(element => selectedItem.OperatorGroup==element.OperatorGroup));
                         this.set(
                             'selectedOperator',
@@ -1041,9 +1041,10 @@
 
             //Set Next Column in Sequence
             //Also need to find disable the column, then filter them
+
             if(defaultModel!=null) {
                 var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
-                SetNextSelectColumnDefault(column,defaultModel.selectedColumn);
+                SetNextSelectColumnDefault(column,settings.selectedColumnDataSource.find(col => col.Value==defaultModel.selectedColumn).Sequence);
                 bs.SetSelectedColumnValue(defaultModel.enteredDataFieldValue);
                 return criteriaRow;
             }
@@ -1056,12 +1057,13 @@
             } else {
                 if(rowIndex===0)
                     SetNextSelectColumnDefault(column,rowModel.selectedColumn);
-                else
-                    SetNextSelectColumnDefault(column,parseInt(nextColumnList[0]));
+                else {
+                    SetNextSelectColumnDefault(column,settings.selectedColumnDataSource.find(col => col.Value==nextColumnList[0]).Sequence);
+                }
                 ConsoleLog(
                     'Added column sequence index:  '+
                     parseInt(nextColumnList[0])+
-                    ', Text:  '+settings.selectedColumnDataSource[nextColumnList[0]-1].Text
+                    ', Text:  '+settings.selectedColumnDataSource.find(col => col.Value==nextColumnList[0]).Text
                 );
             }
 
@@ -1178,7 +1180,7 @@
             var SearchDateTo="To";
 
             $.each(searchCriteria,function(index,row) {
-                var selectedColumn=row.columnDataSource[row.selectedColumn-1];
+                var selectedColumn=settings.selectedColumnDataSource.find(col => col.Value==(row.selectedColumn));
 
                 if(selectedColumn.Type==='integer') {
                     searchModel[selectedColumn.ColumnMap]=parseInt(row.enteredDataFieldValue);
