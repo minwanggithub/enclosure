@@ -506,7 +506,6 @@
                             if(selectedItem.DataAttributes!=null) {
                                 var attObj=JSON.parse(selectedItem.DataAttributes);
                                 if(attObj!=null) {
-                                    debugger;
                                     var popUpAtt=attObj[plugInOptions.DataAttributes.PopUpAttribute];
                                     if(popUpAtt!=null&&popUpAtt!='') {
                                         var popUpSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeSearchPopUp].id;
@@ -800,6 +799,14 @@
                     this.set('enteredDataFieldValue',value);
                 },
 
+                SetDataLookUpValue: function (value) {
+                    this.set('selectedDataLookupIndex', value);
+                },
+
+                SetDataOperatorValue: function (value) {
+                    this.set('selectedOperator', value)
+                },
+
                 columnDataSource: settings.selectedColumnDataSource,
                 operatorDataSource: settings.selectedOperatorDataSource,
                 dataLookUpDataSource: [],            //Unkonwn yet until lookup column selected
@@ -1046,6 +1053,8 @@
                 var bs=criteriaRow.find('input').get(0).kendoBindingTarget.source;
                 SetNextSelectColumnDefault(column,settings.selectedColumnDataSource.find(col => col.Value==defaultModel.selectedColumn).Sequence);
                 bs.SetSelectedColumnValue(defaultModel.enteredDataFieldValue);
+                bs.SetDataLookUpValue(defaultModel.selectedDataLookupIndex);
+                bs.SetDataOperatorValue(defaultModel.selectedOperator);
                 return criteriaRow;
             }
 
@@ -1079,8 +1088,8 @@
                 //var dd = $(sender).data('kendoDropDownList');
                 //var totalItems = dd.dataSource.data().length;
                 //var dataItem = dd.dataItem(index - 1);
-                $(sender).data('kendoDropDownList').select(index-1); //kendo dropdownlist index starts with 0;
-                $(sender).getKendoDropDownList().trigger('change');
+                $(sender).data('kendoDropDownList').select(index-1); //kendo dropdownlist index starts with 0;                
+                $(sender).getKendoDropDownList().trigger('change');               
             }
             catch(err) {
                 kdo.alert(err.message);
