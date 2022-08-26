@@ -803,7 +803,7 @@
                     this.set('selectedDataLookupIndex', value);
                 },
 
-                SetDataOperatorValue: function (value) {
+                SetSelectedOperatorValue: function (value) {
                     this.set('selectedOperator', value)
                 },
 
@@ -1054,7 +1054,7 @@
                 SetNextSelectColumnDefault(column,settings.selectedColumnDataSource.find(col => col.Value==defaultModel.selectedColumn).Sequence);
                 bs.SetSelectedColumnValue(defaultModel.enteredDataFieldValue);
                 bs.SetDataLookUpValue(defaultModel.selectedDataLookupIndex);
-                bs.SetDataOperatorValue(defaultModel.selectedOperator);
+                bs.SetSelectedOperatorValue(defaultModel.selectedOperator);
                 return criteriaRow;
             }
 
