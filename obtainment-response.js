@@ -51,6 +51,7 @@
                     ResponseStatusId: "ResponseStatusId",
                     ResponseStatusSpecific: "ddlResponseStatus_",
                     ResponseHasNotes: "#HasNotes",
+                    ResponseMethod: "#ResponseMethod",
                     DdlResponseStatus: "#mltDdlResponseStatus"
                 },
                 grids: {
@@ -272,6 +273,7 @@
                 ResponseStatusId: "1",
                 ExistingInboundResponseId: 0,
                 HasNotes: false,
+                 ResponseMethod: 0,
                 DateRangeFrom: null,
                 DateRangeTo: null,
                 BodyText: "",
@@ -295,6 +297,9 @@
                     this.SupplierNameAndId = encodeURIComponent(this.get(UIObject.controls.textBoxes.SupplierNameAndIdObjField));
                     this.HasNotes = $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value();
                     if (this.HasNotes == "") this.HasNotes = null;
+
+                    this. ResponseMethod = $(UIObject.controls.dropdownlists.ResponseMethod).data("kendoDropDownList").value();
+                    if (this.ResponseMethod == "") this. ResponseMethod = null;
 
                     this.BodyText = this.get(UIObject.controls.textBoxes.BodyText);
                     this.AccountId = this.get(UIObject.controls.textBoxes.AccountId);
