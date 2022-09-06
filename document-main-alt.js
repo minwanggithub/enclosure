@@ -588,7 +588,7 @@
             $(documentElementSelectors.containers.CreatedMessage).fadeIn(500).delay(1000).fadeOut(400).html(message);
         }
 
-        function displayError(message) {
+        function displayError(message,isShowMoreContent) {
             //kendo.alert(message);
             //if (onDisplayError)
             //    onDisplayError(message);
@@ -596,10 +596,29 @@
             //else
             //    kendo.alert(message);
             // changes by nitin to add title
-            $("<div></div>").kendoAlert({
-                title: "Error",
-                content: message
-            }).data("kendoAlert").open();
+            if (isShowMoreContent) {
+                $("<div></div>").kendoAlert({
+                    title: "Error",
+                    content: message,
+                    width: '800px'
+                }).data("kendoAlert").open();
+            } else {
+                $("<div></div>").kendoAlert({
+                    title: "Error",
+                    content: message,
+                }).data("kendoAlert").open();
+            }
+
+            setTimeout(function () {
+                $('.collapse').on('show.bs.collapse', function () {
+                    $('#lbl_showMore').text('Show Less <<');
+                 });
+
+                $('.collapse').on('hide.bs.collapse', function () {
+
+                    $('#lbl_showMore').text('Show More >>');
+                });
+                }, 500)
         }
 
         function extractReferenceId(value) {
@@ -1937,8 +1956,8 @@
                                 }).data("kendoConfirm").open().center();
                             }
                             else {
-                                var errorMessage="The data entered is either invalid or incomplete:<br><br><ul><li>"+errorMessages.join("<li>")+"</ul>";
-                                displayError(errorMessage);
+                                var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
+                                displayError(errorMessage, errorMessage.toLowerCase().indexOf('show more') > -1 ? true : false);
                             }
 
                         }
