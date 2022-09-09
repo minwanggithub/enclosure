@@ -366,6 +366,7 @@
                     $(UIObject.controls.textBoxes.DateRangeFrom).data("kendoDatePicker").value("");
                     $(UIObject.controls.textBoxes.DateRangeTo).data("kendoDatePicker").value("");
                     $(UIObject.controls.dropdownlists.ResponseHasNotes).data("kendoDropDownList").value("");
+                    $(UIObject.controls.dropdownlists.ResponseMethod).data("kendoDropDownList").value("");
                     //$(UIObject.controls.dropdownlists.ResponseStatusId).data("kendoDropDownList").value("");
                     this.set(UIObject.controls.textBoxes.SubjectSenderEmail, "");
                     this.set(UIObject.controls.textBoxes.ToRecipients, "");
