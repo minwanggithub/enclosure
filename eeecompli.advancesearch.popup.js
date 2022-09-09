@@ -68,7 +68,7 @@ if(jQuery) (function($,kdo) {
                 { field: "UpdateBy",title: "UpdateBy|Date",template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
             ],
             [
-                { field: "",width: 30,template: "#= generateTipRevisionLink(data, this)#" },
+                { field: "",width: 30},
                 { field: "ReferenceId",title: "Document ID" },
                 { field: "RevisionTitle",title: "Title" },
                 { field: "SupplierName",title: "Mfr ID",template: "#= getCompanyTemplate(SupplierId, SupplierName)#" },
