@@ -231,7 +231,7 @@
                 //OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are not valid. The 'Save as Current' action can only be perfromed on Revisions.",
                 OneOrMoreSelectionsNotRevisions: "One or more of the selected item(s) are new obtainment. The Confirm as Current action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
                 DiscontinuedActionForRevisionOnly: "One or more of the selected item(s) are new obtainment. The Flag Discontinued action can only be performed on Revisions.<br/>Remove any new obtainment requests selected and perform the action again.",
-
+                SearchNarrowedDown:'Search needs to be narrowed down to perform the action.',
                 InvalidSubstitutionTokens: "Invalid or incorrect substitution tokens. ",
                 NotificationRecepientMissing: "Super email notification recipient missing.",
                 NoObtainmentWorkItemSelected: "No obtainment work item has been selected selected.",
@@ -1361,7 +1361,6 @@
             ddlCustomerAction.select(0);
         };
         var onCompletedObtainmentAction = function (actionName) {
-            debugger;
             var ddlobtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList");
             var obtainmentAction = $(obtainmentObjects.controls.dropdownlists.CompletedObtainmentActionsDropDownList + actionName).data("kendoDropDownList").text();
             var ddlCustomerAction = $(obtainmentObjects.controls.dropdownlists.CompletedCustomerActionDropDownList + actionName).data("kendoDropDownList");
@@ -1374,7 +1373,6 @@
                 ddlCustomerAction.select(0);
 
                 var newSelected = false;
-                debugger
                 var grid = $("#gdSearchObtainment").data("kendoGrid");
                 var selectedRow = grid.select()[0];
                 var selectedRowItem = grid.dataItem(selectedRow);
@@ -1392,10 +1390,14 @@
                 //});
                 if (newSelected) {
                     if (ddlobtainmentAction.value() == obtainmentActions.ConfirmAsCurrent) {
-                        kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
+                        kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions + "<br/><br/>" + messages.errorMessages.SearchNarrowedDown);
+                        //kendo.alert(messages.errorMessages.OneOrMoreSelectionsNotRevisions);
+                        //kendo.alert(messages.errorMessages.SearchNarrowedDown);
                     }
                     if (ddlobtainmentAction.value() == obtainmentActions.FlagDiscontinued) {
-                        kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly);
+                        kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly + "<br/><br/>" + messages.errorMessages.SearchNarrowedDown);
+                        //kendo.alert(messages.errorMessages.DiscontinuedActionForRevisionOnly);
+                        //kendo.alert(messages.errorMessages.SearchNarrowedDown);
                     }
                     ddlobtainmentAction.select(0);
                     return false;
