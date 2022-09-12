@@ -426,6 +426,7 @@
 
         function getModelViewObservable(dataSource) {
             return kdo.observable({
+                profileVersion: '2022_v1.0',                                   //Tracking the the version for future debugging
                 selectedColumn: settings.selectedFirstDefaultColumn,
                 selectedColumnType: 'text',
                 selectedOperator: 1,
@@ -436,6 +437,7 @@
                 isDataLookUpVisiable: false,
                 isDataMultiLookUpVisiable: false,
                 isPopUpSearchVisiable: false,
+                selectedDataLookupName: '',
                 selectedDataLookupIndex: null,
                 selectedDataLookupValue: '',
                 enteredDataFieldValue: '',
@@ -604,6 +606,7 @@
                         //Check the datasource type, get the data if it's url raw type
                         if(typeof (selectedItem.DataLookup)==='string') {
                             var activeDs=GetDataSource(selectedItem.DataLookup);
+                            this.set('selectedDataLookupName',selectedItem.DataLookup);
                             var myParent=this;
                             activeDs.read().then(function() {
                                 myParent.set('dataLookUpDataSource',activeDs.view());
@@ -1037,6 +1040,7 @@
                 Object.keys(defaultModel).forEach(function(key,index) {
                     rowModel[key]=defaultModel[key];
                 });
+                rowModel["columnDataSource"]=settings.selectedColumnDataSource;
             }
 
             kdo.bind(criteriaRow,rowModel);
