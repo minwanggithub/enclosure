@@ -428,6 +428,7 @@
             return kdo.observable({
                 profileVersion: '2022_v1.0',                                   //Tracking the the version for future debugging
                 selectedColumn: settings.selectedFirstDefaultColumn,
+                selectedColumnText: '',                                        //Will track persistent column info, in case it will be removed from DB
                 selectedColumnType: 'text',
                 selectedOperator: 1,
                 isVisible: true,
@@ -483,7 +484,8 @@
                     //    $(targetPopUpCtrl).removeAttr(this.get('queuedDataAttribute'));
                     //    this.set('queuedDataAttribute','');
                     //}
-
+                    debugger;
+                    this.set('selectedColumnText',selectedItem.Text);
                     this.set('selectedColumnType',selectedItem.Type);
                     if(selectedItem.Type==='integer') {
                         this.set('isOperatorEnabled',false);
