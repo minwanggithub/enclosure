@@ -484,7 +484,6 @@
                     //    $(targetPopUpCtrl).removeAttr(this.get('queuedDataAttribute'));
                     //    this.set('queuedDataAttribute','');
                     //}
-                    debugger;
                     this.set('selectedColumnText',selectedItem.Text);
                     this.set('selectedColumnType',selectedItem.Type);
                     if(selectedItem.Type==='integer') {
@@ -1176,7 +1175,7 @@
             //var rowsCount=ds.length;
             $.each(ds,function(index,val) {
                 AddRow(totalrow++,val);
-                ConsoleLog('Value Entered: '+val.enteredDataFieldValue);
+                ConsoleLog('Value Entered: '+val.enteredDataFieldValue);               //More logs can be added here.
             });
         }
 
