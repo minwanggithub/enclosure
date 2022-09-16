@@ -155,6 +155,7 @@
         function _updateLanguage(drpdwn) {
             drpdwn.value(docLanguageDetail.LanguageId);
             drpdwn.trigger("change");
+            drpdwn.element.attr('data-is-dirty', true)
         }
         var displayFileUploadModal =
             function(uploadArgsFunc, callbackFunc, dpeCallbackFunc, confirmClearAttachmentCache) {
