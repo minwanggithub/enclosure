@@ -41,7 +41,7 @@ if(jQuery) (function($,kdo) {
         },
         gridtemplate: [
             "",
-            ""
+            "<div class='documentDetailTabstrip'><ul><li class='k-state-active'>Document Details</li><li>Revisions</li></ul></div>"
         ],
         gridmodel: {
             id: "CompanyId",
@@ -59,7 +59,7 @@ if(jQuery) (function($,kdo) {
         },
         columndef: [
             [
-                { field: "CompanyId",title: "ID" },
+                { field: "",width: 30,template: "#= generateTipRevisionLink(data, this)#" },
                 //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
