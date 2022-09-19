@@ -320,19 +320,8 @@
         };
 
         var onFileUploadUpload = function (e) {
-            
-
             if (parentArgsCallback) {
                 e.data = parentArgsCallback(e);
-            }
-            else if ($(e.sender.element).hasClass("document-file-upload")) {
-                e.preventDefault();
-                var upload = $("#files").data("kendoUpload");
-                upload.removeAllFiles();
-                if ($(e.sender.element).hasClass("document-file-upload")) {
-                    $(e.sender.element).data("kendoUpload").enable();
-                }
-                return false;
             }
         };
 
