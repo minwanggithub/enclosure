@@ -880,8 +880,8 @@
                 "<select id='dataFieldMultiLookup_"+
                 rowIndex+randomPrefix+
                 "' data-role='multiselect' data-placeholder='Select One'  data-value-primitive='true' data-auto-bind='true' data-text-field='Text' data-value-field='Value' data-header-template='ad-multiselect-header"+
-                "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' style='width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeMultiDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
-            );
+                "' data-bind='value: selectedMultiDataLookupValues, source: dataLookUpMultiDataSource, visible: isDataMultiLookUpVisiable, events: { change: onDataFieldMultiLookupChange }' class='advanced-search' style=';width:"+eval(plugInOptions.ResizeMetrics.ResizeBase[resizeIndex]+plugInOptions.ResizeMetrics.ResizeMultiDropDownDelta[resizeIndex])+"px;margin-left:"+plugInOptions.Control.MarginLeft+"px;'/>"
+            ) ;
 
             //var datamultilookup=$(
             //    "<select id='dataFieldMultiLookup_ "+
