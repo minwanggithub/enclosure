@@ -263,6 +263,7 @@
         var obtainmentWorkLoadSearchResultModel = {
             TeamID: 0,
             ContactPreferredLanguageId: 0,
+            DocumentLanguageId: 0,
             DocumentTypeId: 0,
             LockTypeId: 0,
             AssignedToId: 0,
@@ -349,6 +350,7 @@
             var txtDaysInProgress = $(obtainmentObject.controls.textBoxes.DaysInProgressNumber).val();
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
+            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLanguage.value() == "" ? 0 : drpLanguage.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
@@ -460,6 +462,7 @@
             //create requestSearchModel to be passed to the controller
             obtainmentWorkLoadSearchResultModel.TeamID = drpTeams.value() == "" ? 0 : drpTeams.value();
             obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
+            obtainmentWorkLoadSearchResultModel.DocumentLanguageId = drpLang.value() == "" ? 0 : drpLang.value();
             obtainmentWorkLoadSearchResultModel.DocumentTypeId = drpDocType.value() == "" ? 0 : drpDocType.value();
             obtainmentWorkLoadSearchResultModel.LockTypeId = drpLockType.value() == "" ? 0 : drpLockType.value();
             obtainmentWorkLoadSearchResultModel.AssignedToId = drpAssignedToType.value() == "" ? 0 : drpAssignedToType.value();
@@ -483,6 +486,7 @@
 
             obtainmentWorkLoadSearchResultModel.HasFilter = obtainmentWorkLoadSearchResultModel.TeamID
                 + obtainmentWorkLoadSearchResultModel.ContactPreferredLanguageId
+                + obtainmentWorkLoadSearchResultModel.DocumentLanguageId
                 + obtainmentWorkLoadSearchResultModel.DocumentTypeId
                 + obtainmentWorkLoadSearchResultModel.LockTypeId
                 + obtainmentWorkLoadSearchResultModel.AssignedToId
@@ -1639,9 +1643,9 @@
                             // url to invoke for notice number 
                             var strUrl = controllerCalls.GetNoticeNumberAndNethubLinks + "?obtParams=" + getParameterByName('obtParams');
                             var cdata = new Object();
-                            cdata.owid = $("#hdnOwid").val().replace("Owid: ", "");
+                            //cdata.owid = $("#hdnOwid").val().replace("Owid: ", "");
                             cdata.ids = selectedRequests.join(",");
-
+                            cdata.includeCompletedObtainments = $("#chkIncludeCompletedObtainments").is(':checked');
                             console.log(cdata);                            
 
                             $.ajax({
