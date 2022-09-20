@@ -372,7 +372,7 @@ if(jQuery) (function($,kdo) {
         }
 
 
-        var popDiv=$("<div id='PopUpSearchDivFor_"+triggerId.selector+"' class='ad-popup-target'></div>");
+        var popDiv=$("<div id='PopUpSearchDivFor_"+triggerId.selector+"' class='panel ad-popup-target'></div>");
         var anySearchGridDiv=$("<div id='AnyPopUpSearchGridFor_"+triggerId.selector+"'></div>");
 
         popDiv.append(anySearchGridDiv);
@@ -395,6 +395,7 @@ if(jQuery) (function($,kdo) {
             close: onClose
         }).data("kendoWindow");
 
+        searchWinPop.wrapper.addClass("panel");
         $("#"+triggerId.selector).data(Settings.window.AdvanceSearchWindow,searchWinPop);
 
         Show();
