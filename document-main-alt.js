@@ -1395,15 +1395,6 @@
                 }
             })
         }
-        var onGDSearchDocumentPopUpDataBound=function(e) {
-            var grid=e.sender;
-            var data=grid.dataSource.data();
-            $.each(data,function(i,row) {
-                if(row.DocumentStatusId==4||row.DocumentStatusId==5) {
-                    $('tr[data-uid="'+row.uid+'"] ').addClass('grid-red-row');
-                }
-            })
-        }
 
         var initializeProductAssociation=function(did) {
             $(documentElementSelectors.buttons.DocumentLinkToAllMfrProduct+did).click(function(e) {
@@ -5188,7 +5179,6 @@
             error_handler: error_handler,
             replaceRevisionAttachment: replaceRevisionAttachment,
             onGDDocumentProductDataBound: onGDDocumentProductDataBound,
-            onGDSearchDocumentPopUpDataBound: onGDSearchDocumentPopUpDataBound,
             onCustomDeleteRevision: onCustomDeleteRevision,
             SelectDocumentDueDiligence: SelectDocumentDueDiligence,
             ClearCommunicationText: ClearCommunicationText,

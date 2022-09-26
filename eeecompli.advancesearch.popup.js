@@ -59,7 +59,7 @@ if(jQuery) (function($,kdo) {
         },
         columndef: [
             [
-                { field: "",width: 30},
+                { field: "",width: 30 },
                 //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
@@ -68,7 +68,7 @@ if(jQuery) (function($,kdo) {
                 { field: "UpdateBy",title: "UpdateBy|Date",template: "#=LastUpdateBy#@#= kendo.toString(kendo.parseDate(LastUpdate), 'MM/dd/yyyy')#" }
             ],
             [
-                { field: "", width: 28, template: "#=generateTipRevisionLink(data, this)#" },
+                { field: "",width: 28,template: "#=generateTipRevisionLink(data, this)#" },
                 { field: "ReferenceId",title: "Document ID" },
                 { field: "RevisionTitle",title: "Title" },
                 { field: "SupplierName",title: "Mfr ID",template: "#= getCompanyTemplate(SupplierId, SupplierName)#" },
@@ -260,7 +260,17 @@ if(jQuery) (function($,kdo) {
             dataBound: function(e) {
                 if(Settings.gridtemplate[Settings.requestpopup]!="")                  //Decide if the detail template will be applied or not
                 {
+                    //Expand row for document template on first row
                     this.expandRow(this.tbody.find("tr.k-master-row").first());
+
+                    //Applying color for suspect and deactivated doc
+                    var data=e.sender.dataSource.data();
+                    $.each(data,function(i,row) {
+                        if(row.DocumentStatusId==4||row.DocumentStatusId==5) {
+                            $('tr[data-uid="'+row.uid+'"] ').addClass('grid-red-row');
+                        }
+                    })
+
                     return;
                 }
 
@@ -325,10 +335,10 @@ if(jQuery) (function($,kdo) {
 
             var rowElement=this;
             var row=$(rowElement);
-            var grid=thisGrid.getKendoGrid();
-            var dItem=grid.dataItem($(this));
+            //var grid=thisGrid.getKendoGrid();
+            var dItem=thisGrid.getKendoGrid().dataItem($(this));
             var callBackText='';
-            
+
             if(dItem!==null) {
                 if(Settings.requestpopup==PopUpType.Supplier_PopUp) {
                     callBackText=dItem.CompanyId+", "+dItem.Name
@@ -392,7 +402,10 @@ if(jQuery) (function($,kdo) {
                 "Maximize",
                 "Close"
             ],
-            close: onClose
+            close: onClose,
+            deactivate: function(e) {
+                //e.sender.destroy();              //Improvement for destroy window or not based on the setting configuration
+            }
         }).data("kendoWindow");
 
         searchWinPop.wrapper.addClass("panel");
