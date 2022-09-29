@@ -378,7 +378,8 @@
                 IncompleteKitsReminder: "This is reminder: A valid kit must have at least two components.",
                 IncompleteKitsReminderRedirect: "A valid kit must have at least two components. You will be redirect to add components first.",
                 OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?",
-                DocumentRevisionNameNumbers: "No items have been selected."
+                DocumentRevisionNameNumbers: "No items have been selected.",
+                LeastCriteriaFilter:"A filter must be selected to execute a search."
             }
         };
 
@@ -436,6 +437,8 @@
             }
         };
 
+
+         //TODO: Advanced Search CleanUp Document:
         var dsSearchOption=kendo.observable({
             selectedValue: "0",
             id: "radiogroupTitleSearchOption",
@@ -519,6 +522,8 @@
             TriggerFrom: "AdvancedSearch"
         };
 
+        //End of TODO: Advanced Search CleanUp Document:
+
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container,saveSelector,cancelSelector,saveFunc,changeCancelBtn) {
             //Jira Ticket: TRECOMPLI-4428 Done by Vivek: Save button should not be activate/deactivate on name number grid check box selection 5/Jan/2022.
@@ -596,7 +601,7 @@
             //else
             //    kendo.alert(message);
             // changes by nitin to add title
-            if (isShowMoreContent) {
+            if(isShowMoreContent) {
                 $("<div></div>").kendoAlert({
                     title: "Error",
                     content: message,
@@ -609,16 +614,16 @@
                 }).data("kendoAlert").open();
             }
 
-            setTimeout(function () {
-                $('.collapse').on('show.bs.collapse', function () {
+            setTimeout(function() {
+                $('.collapse').on('show.bs.collapse',function() {
                     $('#lbl_showMore').text('Show Less <<');
-                 });
+                });
 
-                $('.collapse').on('hide.bs.collapse', function () {
+                $('.collapse').on('hide.bs.collapse',function() {
 
                     $('#lbl_showMore').text('Show More >>');
                 });
-                }, 500)
+            },500)
         }
 
         function extractReferenceId(value) {
@@ -884,11 +889,11 @@
                     AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions+":checked").val()
                 };
                 var dateRange=container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
-                if(dateRange!="Custom" && dateRange != "") {
+                if(dateRange!="Custom"&&dateRange!="") {
                     var dF=new Date();
                     dF.setDate(dF.getDate()-parseInt(dateRange));
-                    result.DateRangeFrom= dF;
-                    result.DateRangeTo= new Date();
+                    result.DateRangeFrom=dF;
+                    result.DateRangeTo=new Date();
                 }
 
                 // reset to false immediately
@@ -900,6 +905,15 @@
         }
 
         function performDocumentSearch() {
+            var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+            if(typeof adDocumentSearchCtl=='undefined')
+                return;
+
+            if($.isEmptyObject(adDocumentSearchCtl.MappedCriterias())) {
+                kendo.alert(documentMessages.warnings.LeastCriteriaFilter);
+                return;
+            }
+        
             var searchGrid=$(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             searchGrid.dataSource.data([]);
             searchGrid.dataSource.page(1);
@@ -956,13 +970,13 @@
         }
 
         function onDocumentSearchAdvancedSearchBtnClick(e) {
-            searchControlOption.TriggerFrom="AdvancedSearch";
+            //searchControlOption.TriggerFrom="AdvancedSearch";
             e.preventDefault();
             performDocumentSearch();
         };
 
         function onAdvanedSearchCallBack(e) {
-            searchControlOption.TriggerFrom="AdvancedSearch";
+            //searchControlOption.TriggerFrom="AdvancedSearch";
             performDocumentSearch();
         }
 
@@ -1046,7 +1060,7 @@
             var url=GetEnvironmentLocation()+'/Document/GetDocumentResultCount';
             $(this).ajaxCall(url,{ searchCriteria: JSON.stringify(model) })
                 .success(function(result) {
-                    if (result && result.Message && result.Message.trim()!="") {
+                    if(result&&result.Message&&result.Message.trim()!="") {
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text(result.Message);
                         $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "" });
                     }
@@ -1082,10 +1096,11 @@
 
 
         var onDocumentMainPanelActivate=function() {
+            //TODO: This one can be cleaned up after the advanced serach integration
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAddNew,onDocumentSearchAddNewBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchClear,onDocumentSearchClearBtnClick);
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchSearch,onDocumentSearchSearchBtnClick);
-
+            //End TODO
             this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchDocumentId,onDocumentSearchFieldKeyUp);
             this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchPartNumber,onDocumentSearchFieldKeyUp);
             this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchRevisionTitle,onDocumentSearchFieldKeyUp);
@@ -1947,8 +1962,8 @@
                                 }).data("kendoConfirm").open().center();
                             }
                             else {
-                                var errorMessage = "The data entered is either invalid or incomplete:<br><br><ul><li>" + errorMessages.join("<li>") + "</ul>";
-                                displayError(errorMessage, errorMessage.toLowerCase().indexOf('show more') > -1 ? true : false);
+                                var errorMessage="The data entered is either invalid or incomplete:<br><br><ul><li>"+errorMessages.join("<li>")+"</ul>";
+                                displayError(errorMessage,errorMessage.toLowerCase().indexOf('show more')>-1? true:false);
                             }
 
                         }

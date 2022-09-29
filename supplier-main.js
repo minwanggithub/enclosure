@@ -55,7 +55,8 @@
                 DoNotObtainUnCheckedMessage: "This will turn on all workload. You will need to log proof that</br> this action is required to proceed. Do you wish to proceed?",
                 DoNotObtainCheckedMessage: "This will cancel all future workload.You will need to log proof that</br> this action is required to proceed.Do you wish to proceed?",
                 NoteRequired: "Note is required.",
-                NoteTypeRequired: "Note Type is required."
+                NoteTypeRequired: "Note Type is required.",
+                LeastCriteriaFilter: "A filter must be selected to execute a search."
             }
         };
 
@@ -2902,6 +2903,16 @@
         }
 
         function refreshSupplierSearchResultGrid() {
+            var adSupplierSearchCtl=$(supplierLiterSettings.controls.customControl.MainSupplierAdvanceSearchCtl).data(supplierLiterSettings.data.advanceSearch);
+            if(typeof adSupplierSearchCtl=='undefined') {
+                return;
+            }
+
+            if($.isEmptyObject(adSupplierSearchCtl.MappedCriterias())) {
+                kendo.alert(supplierLiterSettings.warningMessage.LeastCriteriaFilter);
+                return;
+            }
+
             $('#DetailSupplier').html('');
             var grid=$(supplierLiterSettings.controls.grids.SupplerSearchGrid).data("kendoGrid");
             if(grid.dataSource.view().length>0) {

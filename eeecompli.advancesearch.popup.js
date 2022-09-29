@@ -93,7 +93,8 @@ if(jQuery) (function($,kdo) {
             LoadDocumentRevisionDetail: "/Operations/Document/LoadRevisionForDocumentIdAlt?",
         },
         message: {
-            LoadSupplierDetailError: "An error occurred displaying the selected company. Please review you selection and try again."
+            LoadSupplierDetailError: "An error occurred displaying the selected company. Please review you selection and try again.",
+            LeastCriteriaFilter:"A filter must be selected to execute a search."
         },
         requestpopup: PopUpType.Supplier_PopUp     //Default to supplier search
     };
@@ -230,6 +231,9 @@ if(jQuery) (function($,kdo) {
                         data: extractCriteria
                     }
                 },
+                error: function(e) {
+                    kdo.alert(e.errors);            //Will not catch MVC modelstate error
+                },
                 schema: {
                     data: "Data",
                     //model: Settings.gridmodel,
@@ -313,7 +317,13 @@ if(jQuery) (function($,kdo) {
         //thisGrid.find(".k-grid-toolbar").on("click", ".k-pager-refresh", function (e) {
         thisGrid.find("#"+anyAdvanceSearchPopUpCtlSearchBtnFor).on("click",function(e) {
             e.preventDefault();
-            thisGrid.data("kendoGrid").dataSource.read();
+
+            if(typeof adPopUpSearchCtl=='undefined')
+                return;
+            if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias())) 
+                kdo.alert(Settings.message.LeastCriteriaFilter);
+            else
+                thisGrid.data("kendoGrid").dataSource.read();
         });
 
         thisGrid.find("#"+anyAdvanceSearchPopUpCtlClearBtnFor).on("click",function(e) {

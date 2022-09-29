@@ -1196,15 +1196,15 @@
             $.each(searchCriteria,function(index,row) {
                 var selectedColumn=settings.selectedColumnDataSource.find(col => col.Value==(row.selectedColumn));
 
-                if(selectedColumn.Type==='integer') {
+                if(selectedColumn.Type==='integer' && !isNaN(parseInt(row.enteredDataFieldValue))) {
                     searchModel[selectedColumn.ColumnMap]=parseInt(row.enteredDataFieldValue);
                 }
-                else if(selectedColumn.Type==='text') {
+                else if(selectedColumn.Type==='text' && row.enteredDataFieldValue.trim() != "") {
                     searchModel[selectedColumn.ColumnMap]=row.enteredDataFieldValue.replace("''","'");
                     searchModel[selectedColumn.ColumnMap+SearchOperator]=row.selectedOperator;
                 }
-                else if(selectedColumn.Type==='lookup') {
-                    if(typeof row.selectedDataLookupIndex=='object'&&row.selectedDataLookupIndex!=null)
+                else if(selectedColumn.Type==='lookup' && row.selectedDataLookupIndex!=null) {
+                    if(typeof row.selectedDataLookupIndex=='object')
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex.Value;
                     else
                         searchModel[selectedColumn.ColumnMap]=row.selectedDataLookupIndex;
@@ -1212,25 +1212,22 @@
                 else if(selectedColumn.Type==='multilookup') {
                     //Notes:  Will extract based on the first screen(eg: XRef) integration mapping table
                 }
-                else if(selectedColumn.Type==='daterange') {
+                else if(selectedColumn.Type==='daterange' && row.selectedCalendarDataLookupIndex!=null) {
                     let selectedDays=0;
                     var dF=new Date();
-                    if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue!='Custom') {
+                    if(row.selectedCalendarDataLookupValue!='Custom') {
                         selectedDays=parseInt(row.selectedCalendarDataLookupValue);
                         searchModel[selectedColumn.ColumnMap]=selectedDays;
                         dF.setDate(dF.getDate()-selectedDays);
                         searchModel[selectedColumn.ColumnMap+SearchDateTo]=new Date();
                         searchModel[selectedColumn.ColumnMap+SearchDateFrom]=dF;
                     }
-                    else if(row.selectedCalendarDataLookupIndex!=null&&row.selectedCalendarDataLookupValue=='Custom') {
+                    else {
                         if(row.selectedCalendarDateToValue!=null&&row.selectedCalendarDateFromValue!=null) {
                             searchModel[selectedColumn.ColumnMap+SearchDateTo]=row.selectedCalendarDateToValue;
                             searchModel[selectedColumn.ColumnMap+SearchDateFrom]=row.selectedCalendarDateFromValue;
                             searchModel[selectedColumn.ColumnMap]=DaysBetween(row.selectedCalendarDateFromValue,row.selectedCalendarDateToValue);
                         }
-                    }
-                    else {
-                        var nullRow=row.selectedCalendarDataLookupIndex;  //Select one is considered null row 
                     }
                 }
             });
