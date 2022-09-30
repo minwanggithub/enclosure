@@ -160,7 +160,7 @@
             OperatorGroup: 1
         }];
 
-        //Dummy data, index started with 0 to map original eeeCompli search option
+        //Dummy data, index started with 0 to map original eeeCompli search option, if you modify the database, here has to be modified
         var defaultOperatorDataSource=[
             {
                 Text: 'Contains',
