@@ -8,7 +8,7 @@
  */
 
 if(jQuery) (function($,kdo) {
-    var searchWinPop,adPopUpSearchCtl,thisGrid,trigger,triggerId,adTarget;
+    var searchWinPop,adPopUpSearchCtl,thisGrid,trigger,triggerId,adTarget,adTarget_load_new;
 
     const PopUpType={
         Supplier_PopUp: 0,
@@ -24,6 +24,7 @@ if(jQuery) (function($,kdo) {
             /*   SharedTarget: "data-adsearch-shared-target",*/
             SupplierSearchPopUp: "data-adsearch-supplier-target",
             DocumentSearchPopUp: "data-adsearch-document-target",
+            LoadDocumentNewTarget: "data-adsearch-document-load-new",
             LoadSupplierTarget: "data-adsearch-supplier-load-target",
             //TargetDisabled: "data-adsearch-supplier-target-disabled"
         },
@@ -88,13 +89,20 @@ if(jQuery) (function($,kdo) {
                 "/Operations/Company/GetAdvanceSearchSupplierAjaxResult",
                 "/Operations/Document/GetDocumentResult",
             ],
+            GetAdvanceSearchRoamingProfile: [
+                "/Operations/Company/RetrieveCompanySearchSettings",
+                "/Operations/Document/RetrieveDocumentSearchSettings"
+            ],
             LoadCompanyDetail: "/Operations/Company/LoadSingleSupplier?supplierId=",
             LoadDocumentDetail: "/Operations/Document/LoadDocumentDetails?",
             LoadDocumentRevisionDetail: "/Operations/Document/LoadRevisionForDocumentIdAlt?",
         },
         message: {
             LoadSupplierDetailError: "An error occurred displaying the selected company. Please review you selection and try again.",
-            LeastCriteriaFilter:"A filter must be selected to execute a search."
+            LeastCriteriaFilter: "A filter must be selected to execute a search."
+        },
+        buttonondemand: {
+            AddNewButton: ["none","inline"]
         },
         requestpopup: PopUpType.Supplier_PopUp     //Default to supplier search
     };
@@ -204,6 +212,19 @@ if(jQuery) (function($,kdo) {
         thisGrid.data("kendoGrid").dataSource.read();
     }
 
+    function RestoreAdvanceSearchFromRoamingProfile(sender) {
+        var url=GetEnvironmentLocation()+Settings.controller.GetAdvanceSearchRoamingProfile[Settings.requestpopup];
+        $(this).ajaxCall(url)
+            .success(function(SearchDefault) {
+                if(SearchDefault!="") {
+                    var dsObject=JSON.parse(SearchDefault);
+                    sender.SetData(dsObject);
+                }
+            }).error(function(error) {
+                $(this).displayError(error);
+            });
+    };
+
     function CreateSearchGrid(target) {
         //var triggerId=$(trigger.attr('id'));
         var anyAdvanceSearchPopUpCtlFor="anyAdvanceSearchPopUpCtlFor_"+triggerId.selector;
@@ -311,6 +332,7 @@ if(jQuery) (function($,kdo) {
                     EnableLog: false
                 });
                 $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
+                RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
             });
         });
 
@@ -320,7 +342,7 @@ if(jQuery) (function($,kdo) {
 
             if(typeof adPopUpSearchCtl=='undefined')
                 return;
-            if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias())) 
+            if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias()))
                 kdo.alert(Settings.message.LeastCriteriaFilter);
             else
                 thisGrid.data("kendoGrid").dataSource.read();
@@ -337,7 +359,6 @@ if(jQuery) (function($,kdo) {
             thisGrid.data("kendoGrid").dataSource.filter([]);
             thisGrid.data("kendoGrid").dataSource.data([]);
         });
-
 
         thisGrid.on('dblclick','tbody tr[data-uid]',function(e) {
             //thisGrid.editRow($(e.target).closest('tr'));
@@ -382,6 +403,19 @@ if(jQuery) (function($,kdo) {
         });
     }
 
+    function getFootViewObservable() {
+        return kdo.observable({
+            onAnyPopUpAttachClick: function(e) {
+                alert("Attached");
+            },
+            onAnyPopUpCloseClick: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                searchWinPop.close();
+            }
+        });
+    }
+
     function CreateAnyAdvanceSearchPopUp() {
         //Make sure not previously created
         var cacheWindow=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchWindow);
@@ -391,9 +425,12 @@ if(jQuery) (function($,kdo) {
             return;
         }
 
-
         var popDiv=$("<div id='PopUpSearchDivFor_"+triggerId.selector+"' class='panel ad-popup-target'></div>");
         var anySearchGridDiv=$("<div id='AnyPopUpSearchGridFor_"+triggerId.selector+"'></div>");
+
+        //Reserved for footer
+        //var popDivFoot = "<div class='window-footer' style='min-height:30px;position:relative;margin-top:15px;'><button id='anyPopCloseBtn' type='button' class='k-button pull-right' style='margin-right:10px;' data-bind='click: onAnyPopUpCloseClick'>Cancel</button><button id='anyPopUpAttachBtn' data-bind='click: onAnyPopUpAttachClick' type='button' class='k-primary k-button pull-right' style='margin-right: 10px;'>Attach</button></div>";
+        //popDiv.append(anySearchGridDiv,[popDivFoot]);
 
         popDiv.append(anySearchGridDiv);
 
@@ -421,6 +458,9 @@ if(jQuery) (function($,kdo) {
         searchWinPop.wrapper.addClass("panel");
         $("#"+triggerId.selector).data(Settings.window.AdvanceSearchWindow,searchWinPop);
 
+        //Reserved for footer
+        //kdo.bind(popDiv, getFootViewObservable());
+
         Show();
     }
 
@@ -438,6 +478,7 @@ if(jQuery) (function($,kdo) {
         trigger=event? $(this):object;
         triggerId=$(trigger.attr('id'));
         adTarget=$(trigger.attr(Settings.dataattr.DocumentSearchPopUp));                       //Target type specific
+        adTarget_load_new=$(trigger.attr(Settings.dataattr.LoadDocumentNewTarget));
         Settings.requestpopup=PopUpType.Document_PopUp;
 
         //Verfy required template and functions
