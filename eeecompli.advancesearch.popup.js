@@ -230,6 +230,7 @@ if(jQuery) (function($,kdo) {
         var anyAdvanceSearchPopUpCtlFor="anyAdvanceSearchPopUpCtlFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlSearchBtnFor="searchAnyBtnFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlClearBtnFor="clearAnyBtnFor_"+triggerId.selector;
+        var anyAdvanceSearchPopUpCtlAddNewBtnFor="addNewAnyBtnFor_"+triggerId.selector;
 
         thisGrid=target.kendoGrid({
             toolbar: kendo.template(
@@ -242,6 +243,7 @@ if(jQuery) (function($,kdo) {
                 "<div class='pull-right' style='margin-top: 5px;'>"+
                 "<button id='"+anyAdvanceSearchPopUpCtlSearchBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>"+
                 "<button id='"+anyAdvanceSearchPopUpCtlClearBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>"+
+                "<button id='"+anyAdvanceSearchPopUpCtlAddNewBtnFor+"' class='k-button btn btn-small' style='display:"+Settings.buttonondemand.AddNewButton[Settings.requestpopup]+"'><span class='k-icon k-i-plus'></span>&nbsp;Add New "+Settings.windowtitle[Settings.requestpopup]+"</button>"+
                 "</div>"
             ),
             dataSource: {
@@ -358,6 +360,20 @@ if(jQuery) (function($,kdo) {
 
             thisGrid.data("kendoGrid").dataSource.filter([]);
             thisGrid.data("kendoGrid").dataSource.data([]);
+        });
+
+        //This function is really does not belong to the popup, right now we manipulate the business logic here.
+        //Ideally we should have one call back function and trigger the button to call directly and embedd the logic in the callback.
+        thisGrid.find("#"+anyAdvanceSearchPopUpCtlAddNewBtnFor).on("click",function(e) {
+            e.preventDefault();
+            try {
+                var functionCall=eval(adTarget_load_new.selector);
+                const key_seq=parseInt(triggerId.selector);
+                functionCall(key_seq);
+            }
+            catch(err) {
+                kdo.alert(err);
+            }
         });
 
         thisGrid.on('dblclick','tbody tr[data-uid]',function(e) {
