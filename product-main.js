@@ -83,7 +83,7 @@
             }
         }
         var controllerCalls={
-            AddDocumentListToProduct: GetEnvironmentLocation()+"/Configuration/ProductManager/AddDocumentListToProduct",
+            AddDocumentToProduct: GetEnvironmentLocation()+"/Configuration/ProductManager/AddDocumentToProduct",
             GetProductPartNumberById: GetEnvironmentLocation()+"/Configuration/ProductManager/GetProductPartNumberById",
             GetProductNameNumberById: GetEnvironmentLocation()+"/Configuration/ProductManager/GetProductNameNumberById",
             LoadSingleDocument: GetEnvironmentLocation()+"/Operations/Document/DocumentMainAlt?",
@@ -212,15 +212,17 @@
         };
 
         // Document Methods
-        function addDocumentListToProduct(doclists) {
-            $.post(controllerCalls.AddDocumentListToProduct+"Enhanced",{ productId: activeProduct,documentList: JSON.stringify(doclists) },function(data) {
+        function addDocumentToProduct(docId) {
+            $.post(controllerCalls.AddDocumentToProduct + "Enhanced", { productId: activeProduct, documentId: docId },function(data) {
 
-                data=Array.from(data);
 
                 // Any flag other than 0 or 6 -->> the documents could not be added
-                if(data.some(e => e!=0)) {
+                if(data!=0) {
                     // map messages
-                    var errors=[null,null,messages.errorMessages.DocumentAlreadyExistsCannotAttach,
+                    var errors = [
+                        null,
+                        null,
+                        messages.errorMessages.DocumentAlreadyExistsCannotAttach,
                         messages.errorMessages.OnlyOneCombinationLanguageJur,
                         messages.errorMessages.DocumentAndProductSameMFR,
                         null,
@@ -228,12 +230,11 @@
                         messages.errorMessages.NoDocToDeactivatePrd
                     ];
 
-                    var flag=Math.min(data.filter(e => e>0));
-                    $(this).displayError(errors[flag]);
+                    $(this).displayError(errors[data]);
 
                     //If error is 6, them we still added the doc to the product, so refresh the grid
                     //This make the logic a little difficut, see TRECOMPLI-3500
-                    if(flag==6) {
+                    if (data==6) {
                         var gridId=(newProductActive)? productObject.controls.grids.GridProductDocuments+"_0":productObject.controls.grids.GridProductDocuments+"_"+activeProduct;
                         var curGdProductDoc=$(gridId).data("kendoGrid");
                         if(curGdProductDoc) {
@@ -500,9 +501,9 @@
 
                                             if(displayDocumentPopUp) {
                                                 displayDocumentPopUp(function(data) {
-                                                    var doclists=[];
-                                                    doclists.push(data.ReferenceId);
-                                                    addDocumentListToProduct(doclists);
+                                                    //var doclists=[];
+                                                    //doclists.push(data.ReferenceId);
+                                                    addDocumentToProduct(data.ReferenceId);
                                                 });
                                             }
                                         });
@@ -1112,9 +1113,9 @@
 
             //console.log("called back for DocumentId: "+dItem.ReferenceId+", RevisionId: "+dItem.RevisionId);
 
-            var doclists=[];                    //Min:092022: Defined as array reserved for future expansion to multi-select if needed
-            doclists.push(dItem.ReferenceId);
-            addDocumentListToProduct(doclists);
+            //var doclists=[];                    //Min:092022: Defined as array reserved for future expansion to multi-select if needed
+            //doclists.push(dItem.ReferenceId);
+            addDocumentToProduct(dItem.ReferenceId);
         }
         //:::::::::::::::::::Advanced Search Popup Callback End::::::::::::::::::::::::::::::::://
 
