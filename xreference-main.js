@@ -400,7 +400,7 @@ var anyOperationPerformedOutside = false;
 
                     if (drpFields.text() === "Document Type") {
                         var drpDocType = $("div #row #right " + xreferenceObject.controls.dropdownlists.DocumentTypeDropDownList + "_" + initialRow).data("kendoDropDownList");
-                        criteria.SearchFor = drpDocType.value();
+                        criteria.SearchFor = drpDocType.text();     //TRECOMPLI-4709:Change to fixed the docType search for XRef
                     }
 
 
