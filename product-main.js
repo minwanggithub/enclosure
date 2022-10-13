@@ -109,7 +109,8 @@
             },
             errorMessages: {
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
-                DocumentAndProductSameMFR: "Documents and product should have the same manufacturer.",
+                //DocumentAndProductSameMFR: "Documents and product should have the same manufacturer.",
+                DocumentAndProductSameMFR :" Documents and product should have the same manufacturer or linked as a parent/child relationship."
                 OnlyOneCombinationLanguageJur: "Only one combination of language/Jurisdiction for a document type by product.",
                 //KitsParentsDonotHaveEnoughChildren: "Attach kit parent to product, it must have two or more children.",
                 KitsParentsDonotHaveEnoughChildren: "A Kit is required to have at least two components to be resolved.",     //See TRECOMPLI:3500, will allow for attach
