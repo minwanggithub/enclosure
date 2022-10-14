@@ -1308,6 +1308,10 @@
             $("label[for='CompanyWebsiteId']").parent().hide();
             $('#CompanyWebsiteId').parent().hide();
 
+            //hide the WebsiteTypeDescription
+            $("label[for='WebSiteTypeDescription']").parent().hide();
+            $('#WebSiteTypeDescription').parent().hide();
+
             removeModelDescriptionFields(e.container);
             removeModelReadOnlyField(e.container);
             readonlyModelDateFields(e.container);
@@ -1337,6 +1341,25 @@
             });
 
         };
+
+        var onGridEditChangeAliases = function (e) {
+            InitializePopUpWindows(e, e.model.CompanyAliasId);
+            //hide some fields from the pop up form.
+            $("label[for='CompanyAliasId']", e.container).parent().hide();
+            $('#CompanyAliasId', e.container).parent().hide();
+
+            removeModelDescriptionFields(e.container);
+            removeModelReadOnlyField(e.container);
+            readonlyModelDateFields(e.container);
+
+            //reload domain Grid.
+            $(".k-button.k-button-icontext.k-grid-cancel").click(function () {
+                var grid = $("#gdAlias").data("kendoGrid");
+                grid.dataSource.read();
+            });
+
+        };
+
 
         //======Security group Read-Only Integration Section Starts
         var onSupplierIdentificationActivate=function(e) {
@@ -3149,8 +3172,8 @@
             showActionModals: showActionModals,
             saveNote: saveNote,
             cancelNote: cancelNote,
-            onRefreshSupplierNotesHistoryRequest: onRefreshSupplierNotesHistoryRequest
-
+            onRefreshSupplierNotesHistoryRequest: onRefreshSupplierNotesHistoryRequest,
+            onGridEditChangeAliases: onGridEditChangeAliases
 
         };
     };
