@@ -511,13 +511,13 @@
                                 if(attObj!=null) {
                                     var popUpAtt=attObj[plugInOptions.DataAttributes.PopUpAttribute];
                                     if(popUpAtt!=null&&popUpAtt!='') {
-                                        var popUpSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeSearchPopUp].id;
+                                        var popUpSenderCtrl=criteriarow.children('button['+popUpAtt+']');
                                         $(popUpSenderCtrl).attr(popUpAtt,targetCtrl);
                                     }
 
                                     var loadDetailAtt=attObj[plugInOptions.DataAttributes.DetailRedirectAttribute];
                                     if(loadDetailAtt!=null&&loadDetailAtt!='') {
-                                        var loadDetailSenderCtrl='#'+criteriarow.children()[plugInOptions.Control.Index.DataAttributeLoadDetail].id;
+                                        var loadDetailSenderCtrl=criteriarow.children('button['+loadDetailAtt+']');
                                         $(loadDetailSenderCtrl).attr(loadDetailAtt,targetCtrl);
                                     }
                                     //this.set('queuedDataAttribute',popUpAtt);

@@ -60,7 +60,7 @@ if(jQuery) (function($,kdo) {
         },
         columndef: [
             [
-                { field: "",width: 30 },
+                { field: "CompanyId",title: "ID", width: 80 },
                 //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
@@ -334,7 +334,7 @@ if(jQuery) (function($,kdo) {
                     EnableLog: false
                 });
                 $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
-                RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
+                //RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
             });
         });
 
@@ -523,7 +523,7 @@ if(jQuery) (function($,kdo) {
     function LoadSearchItemDetail(event,object) {
         trigger=event? $(this):object;
         //var triggerId=$(trigger.attr('id'));
-        adTarget=$(trigger.attr(Settings.dataattr.LoadTarget));
+        adTarget=$(trigger.attr(Settings.dataattr.LoadSupplierTarget));
 
         var supplierId=parseInt(adTarget.val());
         if(typeof supplierId==='undefined'||isNaN(supplierId)||supplierId==='')
@@ -547,7 +547,7 @@ if(jQuery) (function($,kdo) {
 
     $(document).on('click','['+Settings.dataattr.SupplierSearchPopUp+']',CreateSupplierAdvanceSearchPopUp);
     $(document).on('click','['+Settings.dataattr.DocumentSearchPopUp+']',CreateDocumentAdvanceSearchPopUp);
-    //$(document).on('click','['+Settings.dataattr.LoadTarget+']',LoadSearchItemDetail);
+    $(document).on('click','['+Settings.dataattr.LoadSupplierTarget+']',LoadSearchItemDetail);
     //$(document).on('click','['+Settings.dataattr.SharedTarget+']',CreateAdvanceSearchSharedPopUp);
 
     return {
