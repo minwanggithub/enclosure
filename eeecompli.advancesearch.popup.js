@@ -60,7 +60,7 @@ if(jQuery) (function($,kdo) {
         },
         columndef: [
             [
-                { field: "CompanyId",title: "ID", width: 80 },
+                { field: "CompanyId",title: "ID",width: 80 },
                 //{ field: "Duns", template: "#= (Duns > 0)? Duns:'' #"},
                 { field: "Name" },
                 { field: "Alias" },
@@ -225,27 +225,106 @@ if(jQuery) (function($,kdo) {
             });
     };
 
-    function CreateSearchGrid(target) {
-        //var triggerId=$(trigger.attr('id'));
+    function CreateSearchCtl(target) {
         var anyAdvanceSearchPopUpCtlFor="anyAdvanceSearchPopUpCtlFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlSearchBtnFor="searchAnyBtnFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlClearBtnFor="clearAnyBtnFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlAddNewBtnFor="addNewAnyBtnFor_"+triggerId.selector;
+        var anyAdvanceSearchPopUpCtlHiddenSearchInput="hiddenAnyInputFor_"+triggerId.selector;
+
+        var adSearchTemplate=$("<div class='pull-left'>"+
+            "<fieldset style='margin:0 5px 10px 5px;border-radius: 8px;padding-bottom:20px;max-height:220px;overflow:auto'>"+
+            "<legend>Advanced Search</legend>"+
+            "<div id='"+anyAdvanceSearchPopUpCtlFor+"'></div>"+
+            "</fieldset>"+
+            "</div>"+
+            "<div class='pull-right' style='margin:20px 50px 0 0;'>"+
+            "<input type='hidden' id='"+anyAdvanceSearchPopUpCtlHiddenSearchInput+"'/>"+
+            "<button id='"+anyAdvanceSearchPopUpCtlSearchBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>"+
+            "<button id='"+anyAdvanceSearchPopUpCtlClearBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>"+
+            "<button id='"+anyAdvanceSearchPopUpCtlAddNewBtnFor+"' class='k-button btn btn-small' style='display:"+Settings.buttonondemand.AddNewButton[Settings.requestpopup]+"'><span class='k-icon k-i-plus'></span>&nbsp;Add New "+Settings.windowtitle[Settings.requestpopup]+"</button>"+
+            "</div>");
+
+        target.append(adSearchTemplate);
+
+        var columnDataSource=Settings.columndatasource[Settings.requestpopup];
+        //var adDiv=$("#"+anyAdvanceSearchPopUpCtlFor);
+        var adDiv=adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlFor);
+        columnDataSource.read().then(function() {
+            advanceSearchDataSource.Operators.read().then(function() {
+                adPopUpSearchCtl=adDiv.advancedsearch({
+                    selectedColumnDataSource: columnDataSource.view(),
+                    selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
+                    searchCallBack: onAdvanedSearchCallBack,
+                    selectedDataSourceUrl: GetEnvironmentLocation()+"/svc/",
+                    ExtendWidth: Settings.windowwide[Settings.requestpopup],
+                    EnableLog: false
+                });
+                $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
+                //RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
+            });
+        });
+
+        adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlSearchBtnFor).on("click",function(e) {
+            e.preventDefault();
+
+            if(typeof adPopUpSearchCtl=='undefined')
+                return;
+
+            //Make there is subscribed data before do search
+            var anyAdvanceSearchPopUpCtlHiddenSearchInput="hiddenAnyInputFor_"+triggerId.selector;
+            var hiddenInput=document.getElementById(anyAdvanceSearchPopUpCtlHiddenSearchInput)
+
+            if(hiddenInput.value!=='') {
+                var asCtrl=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl);
+
+                //Info: Currently we are only deal with document with subscribed search, need more development for general if required
+                if(typeof asCtrl!='undefined') {  
+                    asCtrl.CallBackSearch(asCtrl.ColumnMapName('Document ID'),hiddenInput.value);
+                }
+                hiddenInput.value = '';  //Reset
+                return;
+            }
+
+            if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias())) {
+                kdo.alert(Settings.message.LeastCriteriaFilter);
+                return;
+            }
+
+            thisGrid.data("kendoGrid").dataSource.read();
+        });
+
+        adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlClearBtnFor).on("click",function(e) {
+            e.preventDefault();
+            $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl).ClearData();
+
+            if(thisGrid.data("kendoGrid").dataSource.total()===0) {
+                return;
+            }
+
+            thisGrid.data("kendoGrid").dataSource.filter([]);
+            thisGrid.data("kendoGrid").dataSource.data([]);
+        });
+
+        //This function is really does not belong to the popup,right now we manipulate the business logic here.
+        //Ideally we should have one call back function and trigger the button to call directly and embedd the logic in the callback.
+        adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlAddNewBtnFor).on("click",function(e) {
+            e.preventDefault();
+            try {
+                var functionCall=eval(adTarget_load_new.selector);
+                const key_seq=parseInt(triggerId.selector.substr(triggerId.selector.lastIndexOf("_")+1));
+                functionCall(key_seq);
+            }
+            catch(err) {
+                kdo.alert(err);
+            }
+        });
+
+    }
+
+    function CreateSearchGrid(target) {
 
         thisGrid=target.kendoGrid({
-            toolbar: kendo.template(
-                "<div class='pull-left'>"+
-                "<fieldset style='margin:0px 5px 20px 10px;border-radius: 8px;'>"+
-                "<legend>Advanced Search</legend>"+
-                "<div id='"+anyAdvanceSearchPopUpCtlFor+"'></div>"+
-                "</fieldset>"+
-                "</div>"+
-                "<div class='pull-right' style='margin-top: 5px;'>"+
-                "<button id='"+anyAdvanceSearchPopUpCtlSearchBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>"+
-                "<button id='"+anyAdvanceSearchPopUpCtlClearBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>"+
-                "<button id='"+anyAdvanceSearchPopUpCtlAddNewBtnFor+"' class='k-button btn btn-small' style='display:"+Settings.buttonondemand.AddNewButton[Settings.requestpopup]+"'><span class='k-icon k-i-plus'></span>&nbsp;Add New "+Settings.windowtitle[Settings.requestpopup]+"</button>"+
-                "</div>"
-            ),
             dataSource: {
                 type: "aspnetmvc-ajax",
                 transport: {
@@ -253,6 +332,13 @@ if(jQuery) (function($,kdo) {
                         url: GetEnvironmentLocation()+Settings.controller.GetAdvanceSearchAjaxResult[Settings.requestpopup],
                         data: extractCriteria
                     }
+                },
+                requestStart: function(e) {
+                    kendo.ui.progress(thisGrid,true);
+                    //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
+                },
+                requestEnd: function(e) {
+                    kendo.ui.progress(thisGrid,false);
                 },
                 error: function(e) {
                     kdo.alert(e.errors);            //Will not catch MVC modelstate error
@@ -279,7 +365,7 @@ if(jQuery) (function($,kdo) {
                 alwaysVisible: true,
                 previousNext: true,
                 //refresh: true,
-                pageSizes: [10,20,50],
+                pageSizes: [10,20,40,60],
                 buttonCount: 10
             },
             detailTemplate: kendo.template(Settings.gridtemplate[Settings.requestpopup]),
@@ -311,69 +397,7 @@ if(jQuery) (function($,kdo) {
 
                 })
             },
-            requestStart: function(e) {
-                kendo.ui.progress(thisGrid,true);
-                //Or kendo.ui.progress($("#" + target.attr('id').kendoGrid()), false);
-            },
-            requestEnd: function(e) {
-                kendo.ui.progress(thisGrid,false);
-            },
             columns: Settings.columndef[Settings.requestpopup]               //Settings.columndef[Settings.requestpopup]  
-        });
-
-        var columnDataSource=Settings.columndatasource[Settings.requestpopup];
-        var adDiv=thisGrid.find("#"+anyAdvanceSearchPopUpCtlFor);
-        columnDataSource.read().then(function() {
-            advanceSearchDataSource.Operators.read().then(function() {
-                adPopUpSearchCtl=adDiv.advancedsearch({
-                    selectedColumnDataSource: columnDataSource.view(),
-                    selectedOperatorDataSource: advanceSearchDataSource.Operators.view(),
-                    searchCallBack: onAdvanedSearchCallBack,
-                    selectedDataSourceUrl: GetEnvironmentLocation()+"/svc/",
-                    ExtendWidth: Settings.windowwide[Settings.requestpopup],
-                    EnableLog: false
-                });
-                $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
-                //RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
-            });
-        });
-
-        //thisGrid.find(".k-grid-toolbar").on("click", ".k-pager-refresh", function (e) {
-        thisGrid.find("#"+anyAdvanceSearchPopUpCtlSearchBtnFor).on("click",function(e) {
-            e.preventDefault();
-
-            if(typeof adPopUpSearchCtl=='undefined')
-                return;
-            if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias()))
-                kdo.alert(Settings.message.LeastCriteriaFilter);
-            else
-                thisGrid.data("kendoGrid").dataSource.read();
-        });
-
-        thisGrid.find("#"+anyAdvanceSearchPopUpCtlClearBtnFor).on("click",function(e) {
-            e.preventDefault();
-            $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl).ClearData();
-
-            if(thisGrid.data("kendoGrid").dataSource.total()===0) {
-                return;
-            }
-
-            thisGrid.data("kendoGrid").dataSource.filter([]);
-            thisGrid.data("kendoGrid").dataSource.data([]);
-        });
-
-        //This function is really does not belong to the popup, right now we manipulate the business logic here.
-        //Ideally we should have one call back function and trigger the button to call directly and embedd the logic in the callback.
-        thisGrid.find("#"+anyAdvanceSearchPopUpCtlAddNewBtnFor).on("click",function(e) {
-            e.preventDefault();
-            try {
-                var functionCall=eval(adTarget_load_new.selector);
-                const key_seq=parseInt(triggerId.selector);
-                functionCall(key_seq);
-            }
-            catch(err) {
-                kdo.alert(err);
-            }
         });
 
         thisGrid.on('dblclick','tbody tr[data-uid]',function(e) {
@@ -442,13 +466,18 @@ if(jQuery) (function($,kdo) {
         }
 
         var popDiv=$("<div id='PopUpSearchDivFor_"+triggerId.selector+"' class='panel ad-popup-target'></div>");
+
+        var anySearchCtlDiv=$("<div id='AnyPopUpSearchCtlFor_"+triggerId.selector+"' style='min-height:100px;overflow:auto'></div>");
         var anySearchGridDiv=$("<div id='AnyPopUpSearchGridFor_"+triggerId.selector+"'></div>");
 
         //Reserved for footer
         //var popDivFoot = "<div class='window-footer' style='min-height:30px;position:relative;margin-top:15px;'><button id='anyPopCloseBtn' type='button' class='k-button pull-right' style='margin-right:10px;' data-bind='click: onAnyPopUpCloseClick'>Cancel</button><button id='anyPopUpAttachBtn' data-bind='click: onAnyPopUpAttachClick' type='button' class='k-primary k-button pull-right' style='margin-right: 10px;'>Attach</button></div>";
         //popDiv.append(anySearchGridDiv,[popDivFoot]);
 
-        popDiv.append(anySearchGridDiv);
+        popDiv.append(anySearchCtlDiv,[anySearchGridDiv]);
+
+        //Config advanced search control based on PopUp Type
+        CreateSearchCtl(anySearchCtlDiv);
 
         //Config grid based on the PopUp Type
         CreateSearchGrid(anySearchGridDiv);
