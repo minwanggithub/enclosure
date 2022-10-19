@@ -80,7 +80,7 @@ if(jQuery) (function($,kdo) {
                 { field: "DocumentTypeDescription",title: "Type" },
                 { field: "RevisionDate",title: "Revision Date",template: "#= kendo.toString(kendo.parseDate(RevisionDate), 'MM/dd/yyyy')#" },
                 { field: "DocumentIdentification",title: "SDS #" },
-                { field: "JurisdictionDescription",title: "JurisdictionDS #" },
+                { field: "JurisdictionDescription",title: "Jurisdiction#" },
             ]
         ],
         columndatasource: [],
@@ -230,7 +230,6 @@ if(jQuery) (function($,kdo) {
         var anyAdvanceSearchPopUpCtlSearchBtnFor="searchAnyBtnFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlClearBtnFor="clearAnyBtnFor_"+triggerId.selector;
         var anyAdvanceSearchPopUpCtlAddNewBtnFor="addNewAnyBtnFor_"+triggerId.selector;
-        var anyAdvanceSearchPopUpCtlHiddenSearchInput="hiddenAnyInputFor_"+triggerId.selector;
 
         var adSearchTemplate=$("<div class='pull-left'>"+
             "<fieldset style='margin:0 5px 10px 5px;border-radius: 8px;padding-bottom:20px;max-height:220px;overflow:auto'>"+
@@ -239,7 +238,6 @@ if(jQuery) (function($,kdo) {
             "</fieldset>"+
             "</div>"+
             "<div class='pull-right' style='margin:20px 50px 0 0;'>"+
-            "<input type='hidden' id='"+anyAdvanceSearchPopUpCtlHiddenSearchInput+"'/>"+
             "<button id='"+anyAdvanceSearchPopUpCtlSearchBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-search'/>&nbsp;Search</button>"+
             "<button id='"+anyAdvanceSearchPopUpCtlClearBtnFor+"' class='k-button btn btn-small'><span class='k-icon k-i-refresh'></span>&nbsp;Clear</button>"+
             "<button id='"+anyAdvanceSearchPopUpCtlAddNewBtnFor+"' class='k-button btn btn-small' style='display:"+Settings.buttonondemand.AddNewButton[Settings.requestpopup]+"'><span class='k-icon k-i-plus'></span>&nbsp;Add New "+Settings.windowtitle[Settings.requestpopup]+"</button>"+
@@ -261,7 +259,7 @@ if(jQuery) (function($,kdo) {
                     EnableLog: false
                 });
                 $("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl,adPopUpSearchCtl);
-                //RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
+                RestoreAdvanceSearchFromRoamingProfile(adPopUpSearchCtl);
             });
         });
 
@@ -271,27 +269,17 @@ if(jQuery) (function($,kdo) {
             if(typeof adPopUpSearchCtl=='undefined')
                 return;
 
-            //Make there is subscribed data before do search
-            var anyAdvanceSearchPopUpCtlHiddenSearchInput="hiddenAnyInputFor_"+triggerId.selector;
-            var hiddenInput=document.getElementById(anyAdvanceSearchPopUpCtlHiddenSearchInput)
-
-            if(hiddenInput.value!=='') {
-                var asCtrl=$("#"+triggerId.selector).data(Settings.window.AdvanceSearchControl);
-
-                //Info: Currently we are only deal with document with subscribed search, need more development for general if required
-                if(typeof asCtrl!='undefined') {  
-                    asCtrl.CallBackSearch(asCtrl.ColumnMapName('Document ID'),hiddenInput.value);
-                }
-                hiddenInput.value = '';  //Reset
-                return;
-            }
-
             if($.isEmptyObject(adPopUpSearchCtl.MappedCriterias())) {
                 kdo.alert(Settings.message.LeastCriteriaFilter);
                 return;
             }
 
             thisGrid.data("kendoGrid").dataSource.read();
+        });
+
+        adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlAddNewBtnFor).on("onCreate",function(e) {
+            if (e.originalEvent.detail.ColumnValue !=0)
+                adPopUpSearchCtl.CallBackSearch(adPopUpSearchCtl.ColumnMapName(e.originalEvent.detail.ColumnName), e.originalEvent.detail.ColumnValue);
         });
 
         adSearchTemplate.find("#"+anyAdvanceSearchPopUpCtlClearBtnFor).on("click",function(e) {
@@ -312,14 +300,13 @@ if(jQuery) (function($,kdo) {
             e.preventDefault();
             try {
                 var functionCall=eval(adTarget_load_new.selector);
-                const key_seq=parseInt(triggerId.selector.substr(triggerId.selector.lastIndexOf("_")+1));
-                functionCall(key_seq);
+                //const key_seq=parseInt(triggerId.selector.substr(triggerId.selector.lastIndexOf("_")+1));
+                functionCall();
             }
             catch(err) {
                 kdo.alert(err);
             }
         });
-
     }
 
     function CreateSearchGrid(target) {
@@ -417,7 +404,8 @@ if(jQuery) (function($,kdo) {
                 else if(Settings.requestpopup==PopUpType.Document_PopUp) {
                     callBackText=dItem.ReferenceId+", "+dItem.RevisionTitle
                 }
-                //alert(adTarget.length);
+
+                //triger any events if exists including call back function
                 if(typeof adTarget[0]!='undefined') {
                     //Standard event trigger without custom action for document ad search
                     trigger.trigger("onselect",dItem);
@@ -432,7 +420,7 @@ if(jQuery) (function($,kdo) {
                         adTarget.trigger("change");
                     }
                 }
-                else if(dItem!==null&&typeof eval(adTarget.selector)==="function") {         //if ($.isFunction(adTarget[0])) {
+                else if(dItem!==null&&typeof eval(adTarget.selector)==="function") {         //if ($.isFunction(adTarget[0])) {                    
                     var functionCall=eval(adTarget.selector);
                     functionCall(dItem);
                 }

@@ -379,7 +379,7 @@
                 IncompleteKitsReminderRedirect: "A valid kit must have at least two components. You will be redirect to add components first.",
                 OcrSilverLevelIndexData: "Do you want to the automated silver level indexation run to extract data for you?",
                 DocumentRevisionNameNumbers: "No items have been selected.",
-                LeastCriteriaFilter:"A filter must be selected to execute a search."
+                LeastCriteriaFilter: "A filter must be selected to execute a search."
             }
         };
 
@@ -438,7 +438,7 @@
         };
 
 
-         //TODO: Advanced Search CleanUp Document:
+        //TODO: Advanced Search CleanUp Document:
         var dsSearchOption=kendo.observable({
             selectedValue: "0",
             id: "radiogroupTitleSearchOption",
@@ -913,7 +913,7 @@
                 kendo.alert(documentMessages.warnings.LeastCriteriaFilter);
                 return;
             }
-        
+
             var searchGrid=$(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             searchGrid.dataSource.data([]);
             searchGrid.dataSource.page(1);
@@ -1920,7 +1920,6 @@
 
                 $(this).ajaxCall(url,formData)
                     .success(function(data) {
-
                         var errorMessages=parseErrorMessages(data);
                         if(errorMessages.length==0) {
 
@@ -2002,6 +2001,18 @@
 
         }
 
+        function doAdvancedSeachCallBack(documentId) {
+            if(parent.window.opener) {
+                const searchEvent=new CustomEvent("onCreate",{
+                    detail: {
+                        ColumnName: "Document ID",
+                        ColumnValue: documentId
+                    }
+                });
+                parent.window.opener.document.getElementById(parent.window.opener.document.activeElement.id).dispatchEvent(searchEvent);
+            }
+        }
+
         function saveNewDocumentPopUp(documentId,containerTypeId) {
             if(containerTypeId!=undefined&&containerTypeId==2) {
                 $("<div/>").kendoDialog({
@@ -2011,18 +2022,19 @@
                     actions: [{
                         text: "OK",
                         action: function(e) {
-                            displaySingleDocument({ DocumentID: documentId,RevisionID: 0 });
-                            if($(this).getQueryStringParameterByName("docGuid")=="") {
-                                if(window.opener) {
-
-                                    var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                                    if(parentSearchWindow.length>0) {
-                                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                                        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                                        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
-                                    }
-                                }
-                            } else parent.window.opener.location.reload();
+                            doAdvancedSeachCallBack(documentId);
+                            //displaySingleDocument({ DocumentID: documentId,RevisionID: 0 });
+                            //if($(this).getQueryStringParameterByName("docGuid")=="") {
+                            //    if(window.opener) {
+                            //        var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                            //        if(parentSearchWindow.length>0) {
+                            //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                            //            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                            //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                            //        }
+                            //    }
+                            //} 
+                            //else parent.window.opener.location.reload();
                             closeNewDocumentPopUp();
                             return true;
                         },
@@ -2031,17 +2043,19 @@
                 }).data("kendoDialog").open().center();
             }
             else {
-                if($(this).getQueryStringParameterByName("docGuid")=="") {
-                    if(window.opener) {
-
-                        var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                        if(parentSearchWindow.length>0) {
-                            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
-                        }
-                    }
-                } else parent.window.opener.location.reload();
+                doAdvancedSeachCallBack(documentId);
+                //if($(this).getQueryStringParameterByName("docGuid")=="") {
+                //    if(window.opener) {
+                //        var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                //        if(parentSearchWindow.length>0) {
+                //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                //            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                //        }
+                //    }
+                //} 
+                //else 
+                //    parent.window.opener.location.reload();
                 closeNewDocumentPopUp();
             }
         }
