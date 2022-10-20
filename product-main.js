@@ -18,6 +18,7 @@
         var addToSearchHistoryCallback;
         var notesModalSettings;
         var updateStatusLayoutCallback;
+        var _isObtainmentScreen = false;
         var productObject={
             controls: {
                 grids: {
@@ -79,6 +80,9 @@
                 labels: { ProductFull: "#lblProductName" },
                 hidden: {
                     ProductAliasNumberSession: "#hdnProductAliasSession"
+                },
+                containers: {
+                    CreatedMessage: "#CreatedMessage"
                 }
             }
         }
@@ -105,7 +109,8 @@
                 ObtainmentTypeSaved: "Obtainment Type Not Avaialbe Saved Succesfully",
                 OverwriteComments: "Overwrite action notes ?",
                 ToBeMergedProduct: "This PID status is listed as to be merged.",
-                Inbound_ToBeMergedProduct: "This PID status is listed as to be merged, select another PID to resolve request."
+                Inbound_ToBeMergedProduct: "This PID status is listed as to be merged, select another PID to resolve request.",
+                DocumentSaved: "Document attached successfully."
             },
             errorMessages: {
                 DocumentAlreadyExistsCannotAttach: "Document(s) already exist in this product. Cannot attach document(s).",
@@ -260,6 +265,14 @@
                         $(currentProductAttributes).val(nameNumber);
                     });
 
+                    if (_isObtainmentScreen) {
+                        displayMessage(messages.confirmationMessages.DocumentSaved);
+                    }
+                }
+
+                function displayMessage(message) {
+                
+                    $(productObject.controls.containers.CreatedMessage).fadeIn(500).delay(1000).fadeOut(400).html(message);
                 }
 
                 /*
@@ -872,7 +885,11 @@
 
         }; //end of LoadProductMatchDetailsCompleted
 
-
+        var SetActiveProductObtainmentAttachment = function (productId, productStatus, isObtainmentScreen) {
+            activeProduct = productId;
+            activeProductStatus = productStatus;
+            _isObtainmentScreen = isObtainmentScreen;
+        }
         var showSupplierPlugIn=function(currentSupplier) {
             activeSupplier=currentSupplier;
             $(productObject.controls.buttons.AddNewSupplier).hide();
@@ -1154,7 +1171,8 @@
             SelectProductDueDiligence: SelectProductDueDiligence,
             ClearCommunicationText: ClearCommunicationText,
             loadMulitProductAliasPopup: loadMulitProductAliasPopup,
-            ProductAddDocumentCallBack: ProductAddDocumentCallBack
+            ProductAddDocumentCallBack: ProductAddDocumentCallBack,
+            SetActiveProductObtainmentAttachment: SetActiveProductObtainmentAttachment
         };
     };
 
