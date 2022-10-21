@@ -189,7 +189,8 @@
             GetSupplierPortalUrl: GetEnvironmentLocation() + "/Operations/Company/GetCompliSupplierPortalUrl",
             SaveConfirmNotAvailable: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/SaveConfirmNotAvailable",
             CheckWorkItemStatus: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetObtainmentWorkItemItemStatus",
-            GetSiblingCountWithObtainmentList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetSiblingCountWithObtainmentList"
+            GetSiblingCountWithObtainmentList: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/GetSiblingCountWithObtainmentList",
+            GetNetHubLink: GetEnvironmentLocation() + "/Operations/ObtainmentWorkFlow/OpenNetHub"
         };
         var nextStepsValues = { Empty: "", WebSearch: "1", FirstAutomatedEmail: "2", SecondAutomatedEmail: "3", FirstPhoneCall: "4", FollowUpPhoneCall: "5", Completed: "6", AwaitingSupplierResponse: "9", SentToProcessing: "10" };
         var obtainmentActions = { Empty: "", SentToProcessing: "12", AwaitingSupplierResponse: "11", LogExternalEmail: "10", ConfirmNotAvailable: "9", CustomerAction: "8", ConfirmAsCurrent: "7", FlagNotRequired: "6", FlagDiscontinued: "5", SetFollowUp: "4", SendEmail: "3", LogWebSearch: "2", LogPhoneCall: "1" };
@@ -2953,6 +2954,20 @@
             prodlib.SetActiveProductObtainmentAttachment(productId, productStatus, true);
         }
 
+        function OpenNetHub(noticeNumber) {
+            $(this).ajaxCall(controllerCalls.GetNetHubLink, { noticeNumber: noticeNumber })
+                .success(function (data) {
+                    if (data.succed) {
+                        window.open(data.url);
+                    }
+                    else {
+                        alert(data.message);
+                    }
+                }).error(function () {
+                    $(this).displayError("something went wrong");
+                });
+        }
+
         return {
             loadRequests: loadRequests,
             loadRequestsPlugin: loadRequestsPlugin,
@@ -2971,7 +2986,8 @@
             removePPCAttachments: removePPCAttachments,
             onddlDaysInProgressConditionChange: onddlDaysInProgressConditionChange,
             AttachDocument: AttachDocument,
-            SetActiveProductObtainment: SetActiveProductObtainment
+            SetActiveProductObtainment: SetActiveProductObtainment,
+            OpenNetHub: OpenNetHub
 
 
         };
