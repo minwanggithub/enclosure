@@ -2943,7 +2943,7 @@
         function AttachDocument(OWType, ProductId, ObtainmentWorkItemID, SupplierId,ProductStatus) {   
                  
             if (OWType == "Revision") {                    
-                return "<a href='#' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus+ ")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                return "<a href='javascript: void(0);' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus+ ")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
             }
             else {
                 return "<span  style='display:none'></span>";
