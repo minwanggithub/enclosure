@@ -2013,6 +2013,17 @@
             }
         }
 
+        function RefreshOpenerActiveElement() {
+            try {
+                var refreshId=parent.window.opener.document.activeElement.id.replace("AttachInboundDocTo","Refresh");
+                var refreshBtn=parent.window.opener.document.getElementById(refreshId);
+                refreshBtn.click();
+            }
+            catch(e) {
+                kendo.alert("Can not refresh product grid, please click the ReLoad Product above the grid to refresh.\r\nError:"+e);
+            }
+        }
+
         function saveNewDocumentPopUp(documentId,containerTypeId) {
             if(containerTypeId!=undefined&&containerTypeId==2) {
                 $("<div/>").kendoDialog({
@@ -2022,19 +2033,22 @@
                     actions: [{
                         text: "OK",
                         action: function(e) {
-                            doAdvancedSeachCallBack(documentId);
-                            //displaySingleDocument({ DocumentID: documentId,RevisionID: 0 });
-                            //if($(this).getQueryStringParameterByName("docGuid")=="") {
-                            //    if(window.opener) {
-                            //        var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                            //        if(parentSearchWindow.length>0) {
-                            //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                            //            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                            //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
-                            //        }
-                            //    }
-                            //} 
-                            //else parent.window.opener.location.reload();
+                            displaySingleDocument({ DocumentID: documentId,RevisionID: 0 });
+                            if($(this).getQueryStringParameterByName("docGuid")=="") {
+                                //if(window.opener) {
+                                //    var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                                //    if(parentSearchWindow.length>0) {
+                                //        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                                //        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                                //        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                                //    }
+                                //}
+                                doAdvancedSeachCallBack(documentId);
+                            }
+                            else
+                                //parent.window.opener.location.reload();
+                                RefreshOpenerActiveElement();
+
                             closeNewDocumentPopUp();
                             return true;
                         },
@@ -2043,19 +2057,22 @@
                 }).data("kendoDialog").open().center();
             }
             else {
-                doAdvancedSeachCallBack(documentId);
-                //if($(this).getQueryStringParameterByName("docGuid")=="") {
-                //    if(window.opener) {
-                //        var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
-                //        if(parentSearchWindow.length>0) {
-                //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
-                //            parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-                //            parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
-                //        }
-                //    }
-                //} 
-                //else 
-                //    parent.window.opener.location.reload();
+                if($(this).getQueryStringParameterByName("docGuid")=="") {
+                    //if(window.opener) {
+                    //    var parentSearchWindow=$(window.opener.document).find(documentElementSelectors.containers.DocumentSearchPopUp);
+                    //    if(parentSearchWindow.length>0) {
+                    //        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchClear).trigger('click');
+                    //        parentSearchWindow.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
+                    //        parentSearchWindow.find(documentElementSelectors.buttons.DocumentSearchSearch).click();
+                    //    }
+                    //}
+                    doAdvancedSeachCallBack(documentId);
+                }
+                else {
+                    //parent.window.opener.location.reload();
+                    RefreshOpenerActiveElement();
+                }
+
                 closeNewDocumentPopUp();
             }
         }
