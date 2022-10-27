@@ -80,7 +80,7 @@ if(jQuery) (function($,kdo) {
                 { field: "DocumentTypeDescription",title: "Type" },
                 { field: "RevisionDate",title: "Revision Date",template: "#= kendo.toString(kendo.parseDate(RevisionDate), 'MM/dd/yyyy')#" },
                 { field: "DocumentIdentification",title: "SDS #" },
-                { field: "JurisdictionDescription",title: "Jurisdiction#" },
+                { field: "JurisdictionDescription",title: "Jurisdiction" },
             ]
         ],
         columndatasource: [],

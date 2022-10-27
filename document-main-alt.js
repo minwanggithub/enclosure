@@ -6,6 +6,7 @@
     $.fn.compliDocumentAlt=function() {
 
         var attachingFileFor=null;
+        var activeComponentId;
 
         /******************************** Enclosure Variables ********************************/
         var documentAjaxSettings={
@@ -4321,33 +4322,60 @@
             return null;
         }
 
+        //TODO: Advanced Search CleanUp Document:
         function onDocumentAddContainerComponentsBtnClick(e) {
             e.preventDefault();
             var currentDocumentId=extractReferenceId(this.getAttribute('id'));
-            if(displayDocumentPopUp) {
-                displayDocumentPopUp(function(data) {
-                    var ddl=$(documentElementSelectors.dropdownlists.DocumentContainerClassificationType+currentDocumentId).data('kendoDropDownList');
-                    var classificationTypeId=ddl? ddl.value():"";
-                    var classificationTypeText=ddl? ddl.text():"";
+            activeComponentId=currentDocumentId;
 
-                    var model={
-                        ChildDocumentId: classificationTypeText.indexOf("Parents")>=0? currentDocumentId:data.ReferenceId,
-                        ClassificationTypeId: classificationTypeId,
-                        ParentDocumentId: classificationTypeText.indexOf("Parents")>=0? data.ReferenceId:currentDocumentId,
-                    };
+            //if(displayDocumentPopUp) {
+            //    displayDocumentPopUp(function(data) {
+            //        debugger;
+            //        var ddl=$(documentElementSelectors.dropdownlists.DocumentContainerClassificationType+currentDocumentId).data('kendoDropDownList');
+            //        var classificationTypeId=ddl? ddl.value():"";
+            //        var classificationTypeText=ddl? ddl.text():"";
 
-                    $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document,documentAjaxSettings.actions.SaveDocumentContainerComponent),model)
-                        .success(function(result) {
-                            var errorMessage=parseErrorMessage(result);
-                            if(errorMessage)
-                                displayError(errorMessage);
-                            else
-                                refreshDocumentContainersGrid(currentDocumentId);
-                        })
-                        .error(function() { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
-                },dsDateSearchOption);
-            }
+            //        var model={
+            //            ChildDocumentId: classificationTypeText.indexOf("Parents")>=0? currentDocumentId:data.ReferenceId,
+            //            ClassificationTypeId: classificationTypeId,
+            //            ParentDocumentId: classificationTypeText.indexOf("Parents")>=0? data.ReferenceId:currentDocumentId,
+            //        };
+
+            //        $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document,documentAjaxSettings.actions.SaveDocumentContainerComponent),model)
+            //            .success(function(result) {
+            //                var errorMessage=parseErrorMessage(result);
+            //                if(errorMessage)
+            //                    displayError(errorMessage);
+            //                else
+            //                    refreshDocumentContainersGrid(currentDocumentId);
+            //            })
+            //            .error(function() { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
+            //    },dsDateSearchOption);
+            //}
         }
+        //End of TODO: Advanced Search CleanUp Document:
+
+        //:::::::::::::::::::Advanced Search Popup Callback Begin::::::::::::::::::::::::::::::::://
+        var AddContainerComponentCallBack=function(dItem) {
+            debugger;
+            //console.log("called back for DocumentId: "+dItem.ReferenceId+", RevisionId: "+dItem.RevisionId);
+
+            var model={
+                ChildDocumentId: dItem.ReferenceId,
+                ClassificationTypeId: '',
+                ParentDocumentId: activeComponentId
+            };
+            $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document,documentAjaxSettings.actions.SaveDocumentContainerComponent),model)
+                .success(function(result) {
+                    var errorMessage=parseErrorMessage(result);
+                    if(errorMessage)
+                        displayError(errorMessage);
+                    else
+                        refreshDocumentContainersGrid(activeComponentId);
+                })
+                .error(function() { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
+        }
+        //:::::::::::::::::::Advanced Search Popup Callback End::::::::::::::::::::::::::::::::://
 
         function onDocumentDeleteContainerComponentBtnClick() {
             var currentRow=$(this).parents('tr[role="row"]');
@@ -5234,7 +5262,8 @@
             onRevisionDocumentMultiSelection: onRevisionDocumentMultiSelection,
             onRevisionDocumentEachRowSelection: onRevisionDocumentEachRowSelection,
             onNameNumberMultiDeletion: onNameNumberMultiDeletion,
-            onDocumentRevisionCompanyViewBtnClick: onDocumentRevisionCompanyViewBtnClick
+            onDocumentRevisionCompanyViewBtnClick: onDocumentRevisionCompanyViewBtnClick,
+            AddContainerComponentCallBack: AddContainerComponentCallBack
         };
     };
 
