@@ -2941,9 +2941,14 @@
             }
         }
         //Vivek: TRECOMPLI-4481: Created Attach Document and SetActiveProductObtainment for document attchment
-        function AttachDocument(OWType, ProductId, ObtainmentWorkItemID, SupplierId,ProductStatus) {
-            if (OWType !== "Revision") {                    
-                return "<a href='javascript: void(0);' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus + "," + ObtainmentWorkItemID+")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
+        function AttachDocument(OWType, ProductId, ObtainmentWorkItemID, SupplierId, ProductStatus, NextObtainmentStepLkpID) {
+            if (OWType == "New") {
+                if (NextObtainmentStepLkpID == "6") {
+                    return "<a href='../../Configuration/ProductManager/ConfigProduct?productid=" + ProductId + "' title='View Product Detail',  target='_blank' class='3ecomplibuttontoggle'>" + "<span class='icon-eye-open' style='cursor: hand;'></a>";
+                } else {
+                    return "<a href='javascript: void(0);' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus + "," + ObtainmentWorkItemID + ")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                }
+
             }
             else {
                 return "<span  style='display:none'></span>";
