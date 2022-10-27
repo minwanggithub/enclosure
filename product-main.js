@@ -234,7 +234,8 @@
                         messages.errorMessages.DocumentAndProductSameMFR,
                         "Document type, language, and country not matched the obtainment request.",
                         messages.errorMessages.KitsParentsDonotHaveEnoughChildren,
-                        messages.errorMessages.NoDocToDeactivatePrd
+                        messages.errorMessages.NoDocToDeactivatePrd,
+                        "Selected item already listed with a Completed next step."
                     ];
 
                     $(this).displayError(errors[data]);
@@ -268,6 +269,8 @@
 
                     if (_isObtainmentScreen) {
                         displayMessage(messages.confirmationMessages.DocumentSaved);
+                        var state = $("#chkIncludeCompletedObtainments").is(':checked');
+                        $('#gdDetailRequests').data('kendoGrid').dataSource.read({ "includeCompletedObtainments": state });
                     }
                 }
 
