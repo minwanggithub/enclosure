@@ -19,6 +19,7 @@
         var notesModalSettings;
         var updateStatusLayoutCallback;
         var _isObtainmentScreen = false;
+        var _activeObtainmentWorkItemID_ObtDetailGrid = null;
         var productObject={
             controls: {
                 grids: {
@@ -219,7 +220,7 @@
 
         // Document Methods
         function addDocumentToProduct(docId) {
-            $.post(controllerCalls.AddDocumentToProduct + "Enhanced", { productId: activeProduct, documentId: docId },function(data) {
+            $.post(controllerCalls.AddDocumentToProduct + "Enhanced", { productId: activeProduct, documentId: docId, obtainmentWorkItemId :_activeObtainmentWorkItemID_ObtDetailGrid},function(data) {
 
 
                 // Any flag other than 0 or 6 -->> the documents could not be added
@@ -231,7 +232,7 @@
                         messages.errorMessages.DocumentAlreadyExistsCannotAttach,
                         messages.errorMessages.OnlyOneCombinationLanguageJur,
                         messages.errorMessages.DocumentAndProductSameMFR,
-                        null,
+                        "Document type, language, and country not matched the obtainment request.",
                         messages.errorMessages.KitsParentsDonotHaveEnoughChildren,
                         messages.errorMessages.NoDocToDeactivatePrd
                     ];
@@ -885,10 +886,11 @@
 
         }; //end of LoadProductMatchDetailsCompleted
 
-        var SetActiveProductObtainmentAttachment = function (productId, productStatus, isObtainmentScreen) {
+        var SetActiveProductObtainmentAttachment = function (productId, productStatus, isObtainmentScreen, ObtainmentWorkItemID) {
             activeProduct = productId;
             activeProductStatus = productStatus;
             _isObtainmentScreen = isObtainmentScreen;
+            _activeObtainmentWorkItemID_ObtDetailGrid = ObtainmentWorkItemID;
         }
         var showSupplierPlugIn=function(currentSupplier) {
             activeSupplier=currentSupplier;

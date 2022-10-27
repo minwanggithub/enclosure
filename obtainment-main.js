@@ -2943,15 +2943,15 @@
         //Vivek: TRECOMPLI-4481: Created Attach Document and SetActiveProductObtainment for document attchment
         function AttachDocument(OWType, ProductId, ObtainmentWorkItemID, SupplierId,ProductStatus) {
             if (OWType !== "Revision") {                    
-                return "<a href='javascript: void(0);' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus+ ")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
+                return "<a href='javascript: void(0);' data-adsearch-document-target=prodlib.ProductAddDocumentCallBack data-adsearch-document-load-new=doclib.onDisplayNewDocumentPopUp id=btnAddDocToProduct_" + ProductId + " onclick='obtainmentLib.SetActiveProductObtainment(" + ProductId + "," + ProductStatus + "," + ObtainmentWorkItemID+")' title='Add Document', style='cursor:pointer' >" + "<span class='icon-plus' style='cursor: hand;'></a>";
             }
             else {
                 return "<span  style='display:none'></span>";
             }
         }
 
-        function SetActiveProductObtainment(productId, productStatus) {
-            prodlib.SetActiveProductObtainmentAttachment(productId, productStatus, true);
+        function SetActiveProductObtainment(productId, productStatus, ObtainmentWorkItemID) {
+            prodlib.SetActiveProductObtainmentAttachment(productId, productStatus, true, ObtainmentWorkItemID);
         }
 
         function OpenNetHub(noticeNumber) {
