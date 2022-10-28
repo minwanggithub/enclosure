@@ -257,7 +257,9 @@
                 ObtainmentActionMissing: "Obtainment action has not been selected.",
                 CustomerActionMissing: "No customer action has been selected",
                 OneOrMoreSelectionsAreCompleted: "One or more of the selected item(s) are listed with a Completed next step. Obtainment actions cannot be performed on these requests.<br/>"+
-                                                    "Remove any Completed next step obtainment requests selected and perform the action again."
+                    "Remove any Completed next step obtainment requests selected and perform the action again.",
+                IncorrectNoticeNumber: "Cannot open Nethub, validate entered Notice Number.",
+                NetworkIssue: "Something went wrong with the request. "
             }
         };
 
@@ -2960,16 +2962,20 @@
         }
 
         function OpenNetHub(noticeNumber) {
+            if (noticeNumber.length === 0) {
+                $(this).displayError(messages.errorMessages.IncorrectNoticeNumber);
+                return;
+            }
             $(this).ajaxCall(controllerCalls.GetNetHubLink, { noticeNumber: noticeNumber })
                 .success(function (data) {
                     if (data.succed) {
                         window.open(data.url);
                     }
                     else {
-                        alert(data.message);
+                        $(this).displayError(messages.errorMessages.IncorrectNoticeNumber);
                     }
                 }).error(function () {
-                    $(this).displayError("something went wrong");
+                    $(this).displayError(messages.errorMessages.NetworkIssue);
                 });
         }
 
