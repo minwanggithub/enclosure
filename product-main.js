@@ -232,10 +232,10 @@
                         messages.errorMessages.DocumentAlreadyExistsCannotAttach,
                         messages.errorMessages.OnlyOneCombinationLanguageJur,
                         messages.errorMessages.DocumentAndProductSameMFR,
-                        "Document type, language, and country not matched the obtainment request.",
+                        "This request cannot be completed with this DocID. The document type, language, or country did not match the request.",
                         messages.errorMessages.KitsParentsDonotHaveEnoughChildren,
                         messages.errorMessages.NoDocToDeactivatePrd,
-                        "Selected item already listed with a Completed next step."
+                        "This request is already completed, go to PID to see further details."
                     ];
 
                     $(this).displayError(errors[data]);
