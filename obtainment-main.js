@@ -259,7 +259,7 @@
                 OneOrMoreSelectionsAreCompleted: "One or more of the selected item(s) are listed with a Completed next step. Obtainment actions cannot be performed on these requests.<br/>"+
                     "Remove any Completed next step obtainment requests selected and perform the action again.",
                 IncorrectNoticeNumber: "Cannot open Nethub, validate entered Notice Number.",
-                NetworkIssue: "Something went wrong with the request. "
+                NetworkIssue: "Please contact IT since this service is down."
             }
         };
 
