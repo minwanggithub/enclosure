@@ -249,6 +249,11 @@
                             curGdProductDoc.dataSource.page(1);
                             curGdProductDoc.dataSource.read();
                         }
+                        if (_isObtainmentScreen) {
+                            displayMessage(messages.confirmationMessages.DocumentSaved);
+                            var state = $("#chkIncludeCompletedObtainments").is(':checked');
+                            $('#gdDetailRequests').data('kendoGrid').dataSource.read({ "includeCompletedObtainments": state });
+                        }
                     }
                 }
                 else {
