@@ -62,15 +62,6 @@
                 AdvancedSearchCtrlData: "AdvanceSearch",
                 AdvancedDocumentSearchCtrl: "#documentAdvancedSearchCtrl"
             },
-            div: {
-                titleOptiondiv: "div[id^=searchTitleOptionDiv]",
-                searchUPCOptionDiv: "div[id^=searchUPCOptionDiv]",
-                searchPartNumOptionDiv: "div[id^=searchPartNumOptionDiv]",
-                searchDateOptionDiv: "div[id^=searchDateOptionDiv]",
-                searchAliashOptionDiv: "div[id^=searchAliasOptionDiv]",
-                searchDocSupplierNameOptionDivPre: "div[id^=searchDocSupplierNameOptionDivPre]",
-                searchDocManufacturerNameOptionDivPre: "div[id^=searchDocManufacturerNameOptionDivPre]"
-            },
             buttons: {
                 DocumentAddContainerComponents: "[id^=btnAddContainerComponent_]",
                 DocumentDeleteContainerComponent: ".document-container-delete",
@@ -109,7 +100,6 @@
                 DocumentSearchRevisionDetailsManufacturerView: "[id^=viewSearchRevisionManufacturerIdBtn]",
                 DocumentLinkToAllMfrProduct: "#btnAssociatedMfrAllProducts_",
                 DocumentAddSibling: "#btnSibling_",
-                btnDocSupplierNameOperatorDropdown: "[id ^= btnDocSupplierNameOperatorDropdown]",
                 ConflictingFileUploadClose: "#btnConflictingFileUploadClose",
                 CancelReplaceForSelectedRevisions: "#btnCancelReplaceForSelectedRevisions",
                 SaveReplaceForSelectedRevisions: "#btnSaveReplaceForSelectedRevisions",
@@ -178,7 +168,7 @@
                 DocumentSearchPhysicalState: "[id^=ddlDocumentPhysicalState]",
                 DocumentSearchRegion: "[id^=ddlDocumentRegion]",
                 DocumentSearchStatus: "[id^=ddlDocumentStatus]",
-                DocumentSearchDateRange: "[id^=ddlDateRange]",
+  /*              DocumentSearchDateRange: "[id^=ddlDateRange]",*/
                 DocumentSupplierNameOperatorDropdown: "[id^=btnDocSupplierNameOperatorDropdown]",
                 DocumentManufacturerNameOperatorDropdown: "[id^=btnDocManufacturerNameOperatorDropdown]",
 
@@ -186,14 +176,14 @@
             general: {
                 DirtyFields: "input[data-is-dirty=true]",
                 DocumentLastUpdatePopOver: "[id^=doc-I-Info-]",
-                DocumentRevisionLastUpdatePopOver: "[id^=rev-I-Info-]",
-                DocumentSearchOptions: "input[name=radiogroupTitleSearchOption]",
-                DocumentDateSearchOptions: "input[name=radiogroupDateSearchOption]",
-                DocumentPartNumSearchOptions: "input[name=radiogroupPartNumSearchOption]",
-                DocumentUPCSearchOptions: "input[name=radiogroupUPCSearchOption]",
-                DocumentSupplierNameSearchOptions: "input[name=radiogroupSupplierNameSearchOption]",
-                DocumentManufacturerNameSearchOptions: "input[name=radiogroupManufacturerNameSearchOption]",
-                DocumentAliasSearchOptions: "input[name=radiogroupAliasSearchOption]",
+                DocumentRevisionLastUpdatePopOver: "[id^=rev-I-Info-]"
+                //DocumentSearchOptions: "input[name=radiogroupTitleSearchOption]",
+                //DocumentDateSearchOptions: "input[name=radiogroupDateSearchOption]",
+                //DocumentPartNumSearchOptions: "input[name=radiogroupPartNumSearchOption]",
+                //DocumentUPCSearchOptions: "input[name=radiogroupUPCSearchOption]",
+                //DocumentSupplierNameSearchOptions: "input[name=radiogroupSupplierNameSearchOption]",
+                //DocumentManufacturerNameSearchOptions: "input[name=radiogroupManufacturerNameSearchOption]",
+                //DocumentAliasSearchOptions: "input[name=radiogroupAliasSearchOption]",
             },
             grids: {
                 DocumentContainerComponents: "#gdContainerComponents_",
@@ -203,7 +193,7 @@
                 DocumentFromInboundResponse: "#gdDocumentFromInboundResponse",
                 DocumentRevisionNameNumbers: "#gdRevisionNameNumber_",
                 DocumentSearch: "#gdSearchDocument",
-                DocumentSearchPopUp: "#gdSearchDocumentPopUp",
+               /* DocumentSearchPopUp: "#gdSearchDocumentPopUp",*/
                 DocumentStatusHistory: "#gdSupplierStatusHistory_",
                 DocumentProduct: "#gdDocumentProduct_",
                 NonDocumentProduct: "#gdNonDocumentProduct_",
@@ -256,8 +246,6 @@
                 DocumentSearchManufacturerId: "[id^=txtSearchManufacturerId]",
                 DocumentSearchManufacturerName: "[id^=txtDocSearchManufacturerName]",
                 DocumentSearchUPC: "[id^=txtSearchUPC]",
-                DocumentSearchDateRangeFrom: "[id^=txtDateRangeFrom]",
-                DocumentSearchDateRangeTo: "[id^=txtDateRangeTo]",
                 DocumentShowAllResults: "[id^=ShowAllResults]",
                 DocumentAssociatedProduct: "#lblTotalAssociatedProduct_",
                 DocumentType: "#hdnDocAssoMfrAllProducts_",
@@ -438,92 +426,6 @@
             }
         };
 
-
-        //TODO: Advanced Search CleanUp Document:
-        var dsSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupTitleSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-
-
-        var dsUPCSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupUPCSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-
-
-        var dsPartNumSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupPartNumSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-
-
-        var dsDateSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupDateSearchOption",
-            items: [
-                { caption: "Revision Date",value: "0" },
-                { caption: "Created Date",value: "1" },
-                { caption: "Updated Date",value: "2" },
-            ]
-        });
-
-
-        var dsSupplierNameSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupSupplierNameSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-        var dsManufacturerNameSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupManufacturerNameSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-
-        var dsAliasSearchOption=kendo.observable({
-            selectedValue: "0",
-            id: "radiogroupAliasSearchOption",
-            items: [
-                { caption: "Contains",value: "0" },
-                { caption: "Exact Match",value: "1" },
-                { caption: "Start With",value: "2" },
-                { caption: "End With",value: "3" }
-            ]
-        });
-
-        var searchControlOption={
-            TriggerFrom: "AdvancedSearch"
-        };
-
-        //End of TODO: Advanced Search CleanUp Document:
 
         /******************************** Local Methods ********************************/
         function changeContainerButtonDirtyStatusLayout(container,saveSelector,cancelSelector,saveFunc,changeCancelBtn) {
@@ -808,103 +710,6 @@
         }
 
         /******************************** Search Methods ********************************/
-        function clearDocumentSearchFields(container) {
-
-            if(container&&container.length>0) {
-                container.find(documentElementSelectors.dropdownlists.DocumentSearchDropDownLists).each(function() {
-                    var ddl=$(this).data("kendoDropDownList");
-                    if(ddl!=undefined) {
-                        ddl.select(0);
-                    }
-                });
-
-                //Vikas 4/15/2022 [TRECOMPLI-4509] clear button not hiding date range fields
-                $("#customDateRange").fadeOut();
-
-                // clear check boxes
-                container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).prop('checked',false);
-                container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).prop('checked',true);
-
-                // clear text boxes
-                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerId).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerName).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val('');
-                container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val('');
-
-                // reset filters
-                $(container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentManufacturerNameSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentNameSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentPartNumSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentUPCSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentDateSearchOptions)[0]).prop("checked",true);
-                $(container.find(documentElementSelectors.general.DocumentAliasSearchOptions)[0]).prop("checked",true);
-
-                // hide filter and count
-                $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("&nbsp;");
-                $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
-                $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("&nbsp;");
-                $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
-
-            }
-        }
-
-        function getContainerSearchCriteria(container) {
-            if(container&&container.length>0) {
-                var result=
-                {
-                    ContainerTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchContainerType).val(),
-                    DocumentLanguageId: container.find(documentElementSelectors.dropdownlists.DocumentSearchLanguage).val(),
-                    DocumentRegionId: container.find(documentElementSelectors.dropdownlists.DocumentSearchRegion).val(),
-                    DocumentStatusId: container.find(documentElementSelectors.dropdownlists.DocumentSearchStatus).val(),
-                    DocumentTypeId: container.find(documentElementSelectors.dropdownlists.DocumentSearchDocumentType).val(),
-                    IncludeDeletedDocument: container.find(documentElementSelectors.checkboxes.DocumentSearchIncludeDeleted).is(":checked"),
-                    LatestRevisionOnly: container.find(documentElementSelectors.checkboxes.DocumentSearchLatestRevision).is(":checked"),
-                    PartNumber: container.find(documentElementSelectors.textboxes.DocumentSearchPartNumber).val(),
-                    PartNumberSearchOption: container.find(documentElementSelectors.general.DocumentPartNumSearchOptions+":checked").val(),
-                    PhysicalStateId: container.find(documentElementSelectors.dropdownlists.DocumentSearchPhysicalState).val(),
-                    ReferenceId: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(),
-                    RevisionTitle: container.find(documentElementSelectors.textboxes.DocumentSearchRevisionTitle).val(),
-                    RevisionTitleSearchOperator: container.find(documentElementSelectors.general.DocumentSearchOptions+":checked").val(),
-                    SupplierId: extractCompanyIdFromTemplate? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchSupplierId).val()):null,
-                    SupplierName: container.find(documentElementSelectors.textboxes.DocumentSearchSupplierName).val(),
-                    ManufacturerId: extractCompanyIdFromTemplate? extractCompanyIdFromTemplate(container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerId).val()):null,
-                    ManufacturerName: container.find(documentElementSelectors.textboxes.DocumentSearchManufacturerName).val(),
-                    SupplierNameSearchOption: container.find(documentElementSelectors.general.DocumentSupplierNameSearchOptions+":checked").val(),
-                    ManufacturerNameSearchOption: container.find(documentElementSelectors.general.DocumentManufacturerNameSearchOptions+":checked").val(),
-                    UPC: container.find(documentElementSelectors.textboxes.DocumentSearchUPC).val(),
-                    UPCSearchOption: container.find(documentElementSelectors.general.DocumentUPCSearchOptions+":checked").val(),
-                    DateRangeFrom: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeFrom).val(),
-                    DateRangeTo: container.find(documentElementSelectors.textboxes.DocumentSearchDateRangeTo).val(),
-                    DateSearchOption: container.find(documentElementSelectors.general.DocumentDateSearchOptions+":checked").val(),
-                    ShowAllResults: container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val(),
-                    Alias: container.find(documentElementSelectors.textboxes.DocumentSearchDocumentAlias).val(),
-                    AliasSearchOption: container.find(documentElementSelectors.general.DocumentAliasSearchOptions+":checked").val()
-                };
-                var dateRange=container.find(documentElementSelectors.dropdownlists.DocumentSearchDateRange).val();
-                if(dateRange!="Custom"&&dateRange!="") {
-                    var dF=new Date();
-                    dF.setDate(dF.getDate()-parseInt(dateRange));
-                    result.DateRangeFrom=dF;
-                    result.DateRangeTo=new Date();
-                }
-
-                // reset to false immediately
-                container.find(documentElementSelectors.textboxes.DocumentShowAllResults).val("false");
-                return result;
-            }
-
-            return null;
-        }
-
         function performDocumentSearch() {
             var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
             if(typeof adDocumentSearchCtl=='undefined')
@@ -920,6 +725,7 @@
             searchGrid.dataSource.page(1);
         }
 
+
         function onDocumentSearchAddNewBtnClick(e) {
             e.preventDefault();
 
@@ -934,24 +740,22 @@
 
         function onDocumentSearchClearBtnClick(e) {
             e.preventDefault();
-            if(searchControlOption.TriggerFrom="AdvancedSearch") {
-                var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
-                if(typeof adDocumentSearchCtl!='undefined') {
-                    adDocumentSearchCtl.ClearData();
-                }
-            }
-            else {
-                var container=$(documentElementSelectors.containers.DocumentSearch);
-                clearDocumentSearchFields(container);
+
+            var adDocumentSearchCtl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+            if(typeof adDocumentSearchCtl!='undefined') {
+                adDocumentSearchCtl.ClearData();
             }
 
+            // hide filter and count
+            $(documentElementSelectors.textboxes.DocumentSearchResultTotal).text("&nbsp;");
+            $(documentElementSelectors.textboxes.DocumentSearchResultTotal).css({ "visibility": "hidden" });
+            $(documentElementSelectors.textboxes.DocumentSearchFiltering).text("&nbsp;");
+            $(documentElementSelectors.textboxes.DocumentSearchFiltering).css({ "visibility": "hidden" });
 
             var searchGrid=$(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
             if(searchGrid&&searchGrid.dataSource) {
-
                 //4/20/2022 Vikas - [TRECOMPLI 4530] No need of below statement.
                 //searchGrid.dataSource.filter({});
-
                 $("form.k-filter-menu button[type='reset']").trigger("click");
                 searchGrid.dataSource.data([]);
             }
@@ -963,21 +767,18 @@
         }
 
         //TODO: This one can be cleaned up after the advanced serach integration
-        function onDocumentSearchSearchBtnClick(e) {
-            searchControlOption.TriggerFrom="RegularSearch";
-            keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
-            e.preventDefault();
-            performDocumentSearch();
-        }
+        //function onDocumentSearchSearchBtnClick(e) {
+        //    keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
+        //    e.preventDefault();
+        //    performDocumentSearch();
+        //}
 
         function onDocumentSearchAdvancedSearchBtnClick(e) {
-            //searchControlOption.TriggerFrom="AdvancedSearch";
             e.preventDefault();
             performDocumentSearch();
         };
 
         function onAdvanedSearchCallBack(e) {
-            //searchControlOption.TriggerFrom="AdvancedSearch";
             performDocumentSearch();
         }
 
@@ -1075,17 +876,11 @@
         var getDocumentSearchCriteria=function(e) {
             var model=null;
 
-            if(searchControlOption.TriggerFrom=="RegularSearch") {
-                var container=$(documentElementSelectors.containers.DocumentSearch);
-                model=getContainerSearchCriteria(container);
-            }
+            var asDocumentCtrl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
+            if(typeof asDocumentCtrl=='undefined'||asDocumentCtrl===null)
+                return { searchCriteria: {} };
             else {
-                var asDocumentCtrl=$(documentElementSelectors.advancedControl.AdvancedDocumentSearchCtrl).data(documentElementSelectors.advancedControl.AdvancedSearchCtrlData);
-                if(typeof asDocumentCtrl=='undefined'||asDocumentCtrl===null)
-                    return { searchCriteria: {} };
-                else {
-                    model=asDocumentCtrl.MappedCriterias();
-                }
+                model=asDocumentCtrl.MappedCriterias();
             }
             //updateDocumentSearchResultTotal(JSON.stringify(model));
             if(model!=null)
@@ -1096,21 +891,16 @@
 
 
 
-        var onDocumentMainPanelActivate=function() {
-            //TODO: This one can be cleaned up after the advanced serach integration
-            this.element.on('click',documentElementSelectors.buttons.DocumentSearchAddNew,onDocumentSearchAddNewBtnClick);
-            this.element.on('click',documentElementSelectors.buttons.DocumentSearchClear,onDocumentSearchClearBtnClick);
-            this.element.on('click',documentElementSelectors.buttons.DocumentSearchSearch,onDocumentSearchSearchBtnClick);
-            //End TODO
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchDocumentId,onDocumentSearchFieldKeyUp);
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchPartNumber,onDocumentSearchFieldKeyUp);
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchRevisionTitle,onDocumentSearchFieldKeyUp);
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchSupplierId,onCompanyIdFieldKeyUp);
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchManufacturerId,onCompanyIdFieldKeyUp);
-            this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchUPC,onDocumentSearchFieldKeyUp);
+        //var onDocumentMainPanelActivate=function() {
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchDocumentId,onDocumentSearchFieldKeyUp);
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchPartNumber,onDocumentSearchFieldKeyUp);
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchRevisionTitle,onDocumentSearchFieldKeyUp);
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchSupplierId,onCompanyIdFieldKeyUp);
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchManufacturerId,onCompanyIdFieldKeyUp);
+        //    this.element.on('keyup',documentElementSelectors.textboxes.DocumentSearchUPC,onDocumentSearchFieldKeyUp);
 
-            $(documentElementSelectors.grids.DocumentSearch).show(500);
-        };
+        //    $(documentElementSelectors.grids.DocumentSearch).show(500);
+        //};
 
         var onAdvancedSearchDocumentMainPanelActivate=function() {
             this.element.on('click',documentElementSelectors.buttons.DocumentSearchAdvancedSearchAddNew,onDocumentSearchAddNewBtnClick);
@@ -1124,12 +914,10 @@
         };
 
 
-
-
-        var onDocumentMainPanelActivateReadOnly=function() {
-            // TODO: Add code to modify the UI to be read only
-            $(documentElementSelectors.grids.DocumentSearch).show(500);
-        };
+        //var onDocumentMainPanelActivateReadOnly=function() {
+        //    // TODO: Add code to modify the UI to be read only
+        //    $(documentElementSelectors.grids.DocumentSearch).show(500);
+        //};
 
         var onDisplayNewDocumentPopUp=function(pKey) {
             displayAddNewDocumentPopUp(pKey);
@@ -1369,29 +1157,6 @@
             }
         }
 
-        var getDocumentSearchPopUpCriteria=function() {
-            var container=$(documentElementSelectors.containers.DocumentSearchPopUp);
-            return getContainerSearchCriteria(container);
-        };
-
-        var initializeDocumentSearchPopup=function() {
-            var documentSearchPopUp=$(documentElementSelectors.containers.DocumentSearchPopUp);
-            if(documentSearchPopUp.length==0) return;
-
-            // Populate plugin section
-            documentSearchPopUp.on('click',documentElementSelectors.buttons.DocumentSearchAddNew,onDocumentSearchPopUpAddNewDocumentBtnClick);
-            documentSearchPopUp.on('click',documentElementSelectors.buttons.DocumentSearchClear,onDocumentSearchPopUpClearBtnClick);
-            documentSearchPopUp.on('click',documentElementSelectors.buttons.DocumentSearchSearch,onDocumentSearchPopUpSearchBtnClick);
-            //documentSearchPopUp.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchPopUpSupplierSearchBtnClick);
-
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchDocumentId,onDocumentSearchPopUpFieldKeyUp);
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchPartNumber,onDocumentSearchPopUpFieldKeyUp);
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchRevisionTitle,onDocumentSearchPopUpFieldKeyUp);
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchSupplierId,onCompanyIdFieldKeyUp);
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchManufacturerId,onCompanyIdFieldKeyUp);
-            documentSearchPopUp.on('keyup',documentElementSelectors.textboxes.DocumentSearchUPC,onDocumentSearchPopUpFieldKeyUp);
-        };
-
         function duplicateObtainmentTypeTextWaring(did) {
             var x=0;
             var intervalID=setInterval(function() {
@@ -1402,6 +1167,7 @@
                 }
             },500);
         };
+
         var onGDDocumentProductDataBound=function(e) {
             var grid=e.sender;
             var data=grid.dataSource.data();
@@ -4421,45 +4187,6 @@
             }
         }
 
-        function switchBetweenSupplierNameAndID() {
-            $('input:radio[name="supdocselectvalue"]').change(function() {
-                var whichOne=$("input[name='supdocselectvalue']:checked").val();
-                if(whichOne=='docsupid') {
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled",true);
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled",false);
-                    $(documentElementSelectors.buttons.DocumentSearchSearchSupplier).prop("disabled",false);
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).val("");
-                    $(documentElementSelectors.dropdownlists.DocumentSupplierNameOperatorDropdown).prop("disabled",true);
-                }
-                else {
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierName).prop("disabled",false);
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).prop("disabled",true);
-                    $(documentElementSelectors.buttons.DocumentSearchSearchSupplier).prop("disabled",true);
-                    $(documentElementSelectors.textboxes.DocumentSearchSupplierId).val("");
-                    $(documentElementSelectors.dropdownlists.DocumentSupplierNameOperatorDropdown).prop("disabled",false);
-                }
-            });
-        }
-        function switchBetweenMfgNameAndID() {
-            $('input:radio[name="mfgdocselectvalue"]').change(function() {
-                var whichOne=$("input[name='mfgdocselectvalue']:checked").val();
-                if(whichOne=='docmfgid') {
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerName).prop("disabled",true);
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerId).prop("disabled",false);
-                    $(documentElementSelectors.buttons.DocumentSearchSearchManufacturer).prop("disabled",false);
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerName).val("");
-                    $(documentElementSelectors.dropdownlists.DocumentManufacturerNameOperatorDropdown).prop("disabled",true);
-                }
-                else {
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerName).prop("disabled",false);
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerId).prop("disabled",true);
-                    $(documentElementSelectors.buttons.DocumentSearchSearchManufacturer).prop("disabled",true);
-                    $(documentElementSelectors.textboxes.DocumentSearchManufacturerId).val("");
-                    $(documentElementSelectors.dropdownlists.DocumentManufacturerNameOperatorDropdown).prop("disabled",false);
-                }
-            });
-        }
-
         var onDocumentContainerClassificationTypeChange=function() {
             refreshDocumentContainersGrid(this.element.attr('id'));
         };
@@ -4693,24 +4420,6 @@
                     e.dropTarget.val(e.draggable.currentTarget.val());
                 }
             });
-        };
-
-
-        var initializeSearchOperator=function(index=0) {
-            if($.type(index)!='number')
-                return;
-
-            kendo.bind($(documentElementSelectors.div.titleOptiondiv)[index],dsSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchDateOptionDiv)[index],dsDateSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchUPCOptionDiv)[index],dsUPCSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchPartNumOptionDiv)[index],dsPartNumSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchAliashOptionDiv)[index],dsAliasSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchDocSupplierNameOptionDivPre)[index],dsSupplierNameSearchOption);
-            kendo.bind($(documentElementSelectors.div.searchDocManufacturerNameOptionDivPre)[index],dsManufacturerNameSearchOption);
-
-            $($(documentElementSelectors.buttons.btnDocSupplierNameOperatorDropdown)[index]).prop("disabled",true);
-            switchBetweenMfgNameAndID();
-            switchBetweenSupplierNameAndID();
         };
 
         var onEmojiHappyNewClick=function(e) {
@@ -5204,11 +4913,9 @@
 
         return {
             getDocumentSearchCriteria: getDocumentSearchCriteria,
-            getDocumentSearchPopUpCriteria: getDocumentSearchPopUpCriteria,
             displaySingleDocument: displaySingleDocument,
             displayAllParents: displayAllParents,
             initializeDocumentComponents: initializeDocumentComponents,
-            initializeDocumentSearchPopup: initializeDocumentSearchPopup,
             onAddSiblingRequest: onAddSiblingRequest,
             onRefreshSiblingRequest: onRefreshSiblingRequest,
             onRefreshStatusHistoryRequest: onRefreshStatusHistoryRequest,
@@ -5217,9 +4924,7 @@
             onDocumentContainerClassificationTypeDataBound: onDocumentContainerClassificationTypeDataBound,
             onDocumentContainerClassificationTypeRequestStart: onDocumentContainerClassificationTypeRequestStart,
             onDocumentContainerComponentsRequestStart: onDocumentContainerComponentsRequestStart,
-            onDocumentMainPanelActivate: onDocumentMainPanelActivate,
             onAdvancedSearchDocumentMainPanelActivate: onAdvancedSearchDocumentMainPanelActivate,
-            onDocumentMainPanelActivateReadOnly: onDocumentMainPanelActivateReadOnly,
             onDocumentNoteChange: onDocumentNoteChange,
             onDocumentNoteDataBound: onDocumentNoteDataBound,
             onDocumentNoteEdit: onDocumentNoteEdit,
@@ -5243,7 +4948,6 @@
             UnlinkDocFromProudct: UnlinkDocFromProudct,
             afterSaveNameNumber: afterSaveNameNumber,
             afterSaveProductAlias: afterSaveProductAlias,
-            initializeSearchOperator: initializeSearchOperator,
             cloneNextNewRevision: cloneNextNewRevision,
             addFieldClone: addFieldClone,
             performDocumentSearch: performDocumentSearch,
