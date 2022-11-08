@@ -761,17 +761,6 @@
             }
         }
 
-        function onDocumentSearchFieldKeyUp(e) {
-            if(onKeyPressEnter)
-                onKeyPressEnter(e,performDocumentSearch);
-        }
-
-        //TODO: This one can be cleaned up after the advanced serach integration
-        //function onDocumentSearchSearchBtnClick(e) {
-        //    keyCodeValues.ctrlKeyState.Pressed=e.ctrlKey;
-        //    e.preventDefault();
-        //    performDocumentSearch();
-        //}
 
         function onDocumentSearchAdvancedSearchBtnClick(e) {
             e.preventDefault();
@@ -1101,60 +1090,6 @@
 
             } else
                 displayError(documentMessages.errors.AddNewDocumentPopUp);
-        }
-
-        function performDocumentSearchPopUp() {
-            var container=$(documentElementSelectors.containers.DocumentSearchPopUp);
-            var grid=container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
-            if(grid&&grid.dataSource) {
-
-                if(grid.dataSource.view().length>0) {
-                    grid.dataSource.page(1);
-                }
-                grid.dataSource.read();
-            }
-        }
-
-        function onDocumentSearchPopUpAddNewDocumentBtnClick() {
-            displayAddNewDocumentPopUp();
-        }
-
-        function onDocumentSearchPopUpClearBtnClick(e) {
-            e.preventDefault();
-
-            var container=$(documentElementSelectors.containers.DocumentSearchPopUp);
-            clearDocumentSearchFields(container);
-
-            var grid=container.find(documentElementSelectors.grids.DocumentSearchPopUp).data('kendoGrid');
-            if(grid&&grid.dataSource) {
-                grid.dataSource.data([]);
-            }
-        }
-
-        function onDocumentSearchPopUpFieldKeyUp(e) {
-            if(onKeyPressEnter)
-                onKeyPressEnter(e,performDocumentSearchPopUp);
-        }
-
-        function onDocumentSearchPopUpSearchBtnClick(e) {
-            e.preventDefault();
-            performDocumentSearchPopUp();
-        }
-
-        function onDocumentSearchPopUpSupplierSearchBtnClick(e) {
-            e.preventDefault();
-
-            var buttonElement=$(e.currentTarget);
-            if(displaySupplierPopUp) {
-                displaySupplierPopUp(function(data) {
-
-                    var siblingSelector=getCompanyTextFieldSibling(buttonElement);
-                    if(siblingSelector) {
-                        var companyInfo=getCompanyTemplate? getCompanyTemplate(data.CompanyId,data.Name):data.CompanyId+', '+data.Name;
-                        buttonElement.siblings(siblingSelector+":first").val(companyInfo).trigger('change');
-                    }
-                });
-            }
         }
 
         function duplicateObtainmentTypeTextWaring(did) {
@@ -1741,28 +1676,6 @@
 
         function saveNewDocument(documentId) {
             displayCreatedMessage(documentMessages.success.DocumentSaved);
-            //TODO: Advanced Search CleanUp Document:
-            //var container=$(documentElementSelectors.containers.DocumentSearch);
-            //if(container.length>0) {
-            //    clearDocumentSearchFields(container);
-            //    container.find(documentElementSelectors.textboxes.DocumentSearchDocumentId).val(documentId);
-
-            //    var grid=$(documentElementSelectors.containers.DocumentMain).find(documentElementSelectors.grids.DocumentSearch).data('kendoGrid');
-            //    if(grid) {
-            //        grid.bind("dataBound",function addNewDocumentDataBound() {
-            //            var documentRow=grid.wrapper.find('tr.k-master-row:first');
-            //            grid.select(documentRow);
-            //            grid.expandRow(documentRow);
-            //            grid.unbind("dataBound",addNewDocumentDataBound);
-            //        });
-
-            //        grid.dataSource.read();
-            //    }
-            //}
-
-            //closeNewDocument();
-            //End of TODO
-
             //Min: 06/29/2022: Let Advanced Search to handle the new page load instead of doing above complicated work
             window.location.replace(controllerCalls.LoadSingleDocument+"documentId="+documentId+"&revisionId=0");
 
@@ -2294,22 +2207,6 @@
             }
         };
 
-        function getTodayDate() {
-            var today=new Date();
-            var dd=today.getDate();
-            var mm=today.getMonth()+1; //January is 0!
-
-            var yyyy=today.getFullYear();
-            if(dd<10) {
-                dd='0'+dd;
-            }
-            if(mm<10) {
-                mm='0'+mm;
-            }
-            return mm+'/'+dd+'/'+yyyy;
-
-        }
-
         var onNewRevisionPanelActivate=function(e) {
             var documentId=0;
             var supplierId=0;
@@ -2354,10 +2251,6 @@
             $("[id*=viewRevisionSupplierIdBtn_"+documentId+"]").on("click",onDocumentRevisionCompanyViewBtnClick);
             $("[id*=txtSupplierId_"+documentId+"]").val(supplierId);
             $("[id*=txtManufacturerId_"+documentId+"]").val(supplierId);
-
-            // controller sets values 
-            //$("[id*=RevisionDate_" + documentId + "]").val(getTodayDate());
-            //$("[id*=VerifyDate_" + documentId + "]").val(getTodayDate());
 
             // If we are within the popup window display the panel
             var addNewRevisionPopUp=$(documentElementSelectors.containers.NewRevision).parents(documentElementSelectors.containers.NewRevisionPopUp);
@@ -2603,7 +2496,6 @@
             container.on('change',documentElementSelectors.containers.DocumentDetailsForm+' input',onDocumentDetailsFieldChange);
             container.on('click',documentElementSelectors.buttons.DocumentDetailsSave,onDisabledButtonClick);
             container.on('click',documentElementSelectors.buttons.DocumentDetailsCancel,onDocumentDetailsCancelBtnClick);
-            //container.on('click', documentElementSelectors.buttons.DocumentSearchSearchSupplier, onDocumentSearchSearchSupplierBtnClick);
             container.on('change',documentElementSelectors.dropdownlists.DocumentDetailsDocumentType,enableDisableExposureScenario);
             container.on('click',documentElementSelectors.checkboxes.DocumentIsExposureScenario,enableDisableExposureScenarioPage);
             container.on('click',documentElementSelectors.buttons.DocumentDetailsRepublish,onDocumentDetailsRepublishClick);
@@ -4088,43 +3980,15 @@
             return null;
         }
 
-        //TODO: Advanced Search CleanUp Document:
+
         function onDocumentAddContainerComponentsBtnClick(e) {
             e.preventDefault();
             var currentDocumentId=extractReferenceId(this.getAttribute('id'));
             activeComponentId=currentDocumentId;
-
-            //if(displayDocumentPopUp) {
-            //    displayDocumentPopUp(function(data) {
-            //        debugger;
-            //        var ddl=$(documentElementSelectors.dropdownlists.DocumentContainerClassificationType+currentDocumentId).data('kendoDropDownList');
-            //        var classificationTypeId=ddl? ddl.value():"";
-            //        var classificationTypeText=ddl? ddl.text():"";
-
-            //        var model={
-            //            ChildDocumentId: classificationTypeText.indexOf("Parents")>=0? currentDocumentId:data.ReferenceId,
-            //            ClassificationTypeId: classificationTypeId,
-            //            ParentDocumentId: classificationTypeText.indexOf("Parents")>=0? data.ReferenceId:currentDocumentId,
-            //        };
-
-            //        $(this).ajaxCall(generateActionUrl(documentAjaxSettings.controllers.Document,documentAjaxSettings.actions.SaveDocumentContainerComponent),model)
-            //            .success(function(result) {
-            //                var errorMessage=parseErrorMessage(result);
-            //                if(errorMessage)
-            //                    displayError(errorMessage);
-            //                else
-            //                    refreshDocumentContainersGrid(currentDocumentId);
-            //            })
-            //            .error(function() { displayError(documentMessages.errors.SaveDocumentContainerComponent); });
-            //    },dsDateSearchOption);
-            //}
         }
-        //End of TODO: Advanced Search CleanUp Document:
 
         //:::::::::::::::::::Advanced Search Popup Callback Begin::::::::::::::::::::::::::::::::://
         var AddContainerComponentCallBack=function(dItem) {
-            debugger;
-            //console.log("called back for DocumentId: "+dItem.ReferenceId+", RevisionId: "+dItem.RevisionId);
 
             var model={
                 ChildDocumentId: dItem.ReferenceId,
