@@ -116,7 +116,8 @@
                 ChangeStatus: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/ChangeStatus",
                 SendInboundResponseEmailToOutlook: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SendInboundResponseEmailToOutlook",
                 ValidateEmailIds: GetEnvironmentLocation() + "/Operations/Company/ValidateEmailIds",
-                UpdateEmailStatus: GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus"
+                UpdateEmailStatus: GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus",
+                InboundAttachmentFileHash: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/InboundAttachmentFileHash"
 
             },
             warnings: {
@@ -253,6 +254,11 @@
                 onBtnResponseResendClick: function (e) {
                     e.preventDefault();
                     BtnResendObtainmentEmailClick(e);
+                },
+              //TRECOMPLI-4698:Date and time stamp for file hash process & a button to re-run [VK]
+                onBtnRunAutomationClick: function (e) {
+                    e.preventDefault();
+                    onBtnRunFileHash(e);
                 },
 
                 onResponseStatusChange: function (e) {
@@ -741,6 +747,25 @@
                 })
                 .error(function () {
                     $(this).displayError('An error occurred while resending the email assocaited with this response.');
+                });
+
+        };
+        //TRECOMPLI-4698:Date and time stamp for file hash process & a button to re-run [VK]
+        function onBtnRunFileHash(e) {
+            var formData = {
+                'inboundResponseId': $(e)[0].data.InboundResponseId
+            };
+            $(this).ajaxJSONCall(UIObject.controllerCalls.InboundAttachmentFileHash, JSON.stringify(formData))
+
+                .success(function (result) {
+                    if (result.successful) {
+                        //$(this).savedSuccessFully(result.message);
+                    } else {
+                        //$(this).displayError(result.message);
+                    }
+                })
+                .error(function () {
+                    $(this).displayError('An error occurred while file hash Process.');
                 });
 
         };
