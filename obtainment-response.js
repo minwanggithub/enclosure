@@ -752,19 +752,25 @@
         };
         //TRECOMPLI-4698:Date and time stamp for file hash process & a button to re-run [VK]
         function onBtnRunFileHash(e) {
+            $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", true);
             var formData = {
                 'inboundResponseId': $(e)[0].data.InboundResponseId
             };
             $(this).ajaxJSONCall(UIObject.controllerCalls.InboundAttachmentFileHash, JSON.stringify(formData))
 
                 .success(function (result) {
+                    $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                    debugger;
                     if (result.successful) {
-                        //$(this).savedSuccessFully(result.message);
+                        $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                        $(this).savedSuccessFully("FileHash process run successfully");
                     } else {
-                        //$(this).displayError(result.message);
+                        $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                        $(this).displayError("FileHash process stopped");
                     }
                 })
                 .error(function () {
+                    $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
                     $(this).displayError('An error occurred while file hash Process.');
                 });
 
