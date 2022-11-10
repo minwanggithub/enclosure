@@ -770,17 +770,24 @@
                     if (result.successful) {
                         $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).savedSuccessFully("FileHash process run successfully");
+                        refreshGridAttachments();
                     } else {
                         $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).displayError("FileHash process stopped");
+                        refreshGridAttachments();
                     }
                 })
                 .error(function () {
                     $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).prop("disabled", false);
                     $(this).displayError('An error occurred while file hash Process.');
+                    refreshGridAttachments();
                 });
 
         };
+        function refreshGridAttachments() {
+            var grid = $("#gridAttachments_"+inboundResponseId).data("kendoGrid");
+            grid.dataSource.read();
+        }
 
         function BtnResendObtainmentEmailClick(e) {
             var inboundResponseId = e.currentTarget.id.substring(UIObject.controls.buttons.ResendObtainmentEmailSpecific.length);
