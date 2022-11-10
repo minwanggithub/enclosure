@@ -122,7 +122,8 @@
                 SendInboundResponseEmailToOutlook: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/SendInboundResponseEmailToOutlook",
                 ValidateEmailIds: GetEnvironmentLocation() + "/Operations/Company/ValidateEmailIds",
                 UpdateEmailStatus: GetEnvironmentLocation() + "/Operations/Company/UpdateEmailStatus",
-                InboundAttachmentFileHash: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/InboundAttachmentFileHash"
+                InboundAttachmentFileHash: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/InboundAttachmentFileHash",
+                GetFileHashRunDate: GetEnvironmentLocation() + "/Operations/ObtainmentResponse/GetFileHashRunDate"
 
             },
             warnings: {
@@ -760,9 +761,11 @@
         function onBtnRunFileHash(e) {
             inboundResponseId = $(e)[0].data.InboundResponseId;
             $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", "disabled");
+
             var formData = {
                 'inboundResponseId': $(e)[0].data.InboundResponseId
             };
+
             $(this).ajaxJSONCall(UIObject.controllerCalls.InboundAttachmentFileHash, JSON.stringify(formData))
 
                 .success(function (result) {
@@ -771,22 +774,42 @@
                         $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).savedSuccessFully("FileHash process run successfully");
                         refreshGridAttachments();
+                        getFileHashRunDate();
                     } else {
                         $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).displayError("FileHash process stopped");
                         refreshGridAttachments();
+                        getFileHashRunDate();
                     }
                 })
                 .error(function () {
                     $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).prop("disabled", false);
                     $(this).displayError('An error occurred while file hash Process.');
                     refreshGridAttachments();
+                    getFileHashRunDate();
                 });
 
-        };
+        }
         function refreshGridAttachments() {
             var grid = $("#gridAttachments_"+inboundResponseId).data("kendoGrid");
             grid.dataSource.read();
+        }
+
+        function getFileHashRunDate() {
+
+            var formData = {
+                'inboundResponseId': inboundResponseId
+            };
+
+            $(this).ajaxJSONCall(UIObject.controllerCalls.GetFileHashRunDate, JSON.stringify(formData))
+
+                .success(function (result) {
+                    $("#lblFileHashRunDate_" + inboundResponseId).text("File Hash run at: " + result);
+                })
+                .error(function () {
+                    
+                });
+
         }
 
         function BtnResendObtainmentEmailClick(e) {
