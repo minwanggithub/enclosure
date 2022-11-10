@@ -13,6 +13,7 @@
         var emailResent = false;
         var selectedRequests = new Array();
         var selectedRows = new Array();
+        var inboundResponseId = null;
 
         var UIObject = {
             sections: {
@@ -41,6 +42,7 @@
                     CancelPreviewEmail: "#btnCancelPreviewEmail",
                     SendOutlookCompositionEmail: "[id^=btnSendOutlookCompositionEmail]",
                     RefreshOutlookCompositionEmail: "[id^=btnRefreshOutlookCompositionEmail]",
+                    RunAutomationButton: "#btnRunAutomation_"
 
                 },
                 containers: {
@@ -92,7 +94,10 @@
                 },
                 tabstrip: {
                     tabObtainmentResponseDetail: "#tbObtainmentResponseDetail_"
-                }
+                },
+                div: {
+                    divFileHash: "#dvFileHash_"
+                },
             },
             observable: {
                 ResponseStatusList: "ResponseStatusList",
@@ -560,6 +565,7 @@
             //On Each row expand ,it will pick the selected row,then getting the Manage Recipient tab.
             //Based on the each row status, displaying the tab.
             var selectedRow = e.sender.dataItem(e.masterRow);
+            inboundResponseId = selectedRow.InboundResponseId;
             var manageRecipientTab = $($(UIObject.controls.tabstrip.tabObtainmentResponseDetail + selectedRow.InboundResponseId).data("kendoTabStrip").items()[3]);
 
             (selectedRow.ResponseStatusId == 4 || selectedRow.ResponseStatusId == 7) ? manageRecipientTab.show() : manageRecipientTab.hide();
@@ -752,25 +758,25 @@
         };
         //TRECOMPLI-4698:Date and time stamp for file hash process & a button to re-run [VK]
         function onBtnRunFileHash(e) {
-            $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", true);
+            inboundResponseId = $(e)[0].data.InboundResponseId;
+            $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", "disabled");
             var formData = {
                 'inboundResponseId': $(e)[0].data.InboundResponseId
             };
             $(this).ajaxJSONCall(UIObject.controllerCalls.InboundAttachmentFileHash, JSON.stringify(formData))
 
                 .success(function (result) {
-                    $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
-                    debugger;
+                    $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                     if (result.successful) {
-                        $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                        $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).savedSuccessFully("FileHash process run successfully");
                     } else {
-                        $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                        $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).attr("disabled", false);
                         $(this).displayError("FileHash process stopped");
                     }
                 })
                 .error(function () {
-                    $("#btnRunAutomation_" + $(e)[0].data.InboundResponseId).prop("disabled", false);
+                    $(UIObject.controls.buttons.RunAutomationButton + $(e)[0].data.InboundResponseId).prop("disabled", false);
                     $(this).displayError('An error occurred while file hash Process.');
                 });
 
@@ -1259,6 +1265,17 @@
                     kendo.alert("An error was encountered.");
                 });
         }
+        var onDataBound = function (e) {
+            var attachmentLength = $('#' + $(e)[0].sender.element.context.id + '').data('kendoGrid').dataSource.total();
+            
+            if (attachmentLength > 0) {
+                $(UIObject.controls.div.divFileHash + inboundResponseId).show();
+            }
+            else {
+                $(UIObject.controls.div.divFileHash + inboundResponseId).hide();
+            }
+
+        };
        
 
         return {
@@ -1277,7 +1294,8 @@
             ReRouteIdDetail: ReRouteIdDetail,
             ValidateEmail: ValidateEmail,
             OnfocusOutValidateEmail: OnfocusOutValidateEmail,
-            UpdateEmailStatus: UpdateEmailStatus
+            UpdateEmailStatus: UpdateEmailStatus,
+            onDataBound: onDataBound
         };
     };
 })(jQuery);
