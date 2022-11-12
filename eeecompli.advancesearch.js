@@ -10,6 +10,7 @@
 //:::::  3. Add new row, the sequence is as expected
 //:::::  4. Data Attribute with call back functions (Supplier and Mfr validation and search function)
 //:::::  5. Data validation and constraints (integer, operators)
+//11112022 imported to git
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 (function($,kdo) {
